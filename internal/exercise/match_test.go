@@ -25,6 +25,33 @@ func TestMatchAnswerNormalizesSimpleShellSpacing(t *testing.T) {
 	}
 }
 
+func TestMatchAnswerNormalizesControlShortcutVariants(t *testing.T) {
+	tests := []struct {
+		name    string
+		primary string
+		input   string
+	}{
+		{name: "ctrl l accepts caret notation", primary: "Ctrl+L", input: "^L"},
+		{name: "ctrl a accepts caret notation", primary: "Ctrl+A", input: "^A"},
+		{name: "ctrl w accepts spaced ctrl", primary: "Ctrl+W", input: "ctrl w"},
+		{name: "ctrl r accepts control dash", primary: "Ctrl+R", input: "control-r"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if !MatchAnswer(tt.input, Answer{Primary: tt.primary}) {
+				t.Fatalf("expected %q to match %q", tt.input, tt.primary)
+			}
+		})
+	}
+}
+
+func TestMatchAnswerRejectsBareLetterForControlShortcut(t *testing.T) {
+	if MatchAnswer("L", Answer{Primary: "Ctrl+L"}) {
+		t.Fatal("expected bare letter to be rejected for Ctrl+L")
+	}
+}
+
 func TestMatchAnswerRejectsUnknownAnswer(t *testing.T) {
 	answer := Answer{Primary: "rg"}
 

@@ -28,10 +28,20 @@ func MatchAnswer(input string, answer Answer) bool {
 }
 
 func NormalizeAnswer(value string) string {
-	value = strings.ToLower(strings.TrimSpace(value))
+	value = trimAnswerEdges(value)
+	if shortcut, ok := normalizeRawControlShortcut(value); ok {
+		return shortcut
+	}
+
+	value = strings.ToLower(value)
 	value = strings.Join(strings.Fields(value), " ")
 	value = normalizePipeSpacing(value)
+	value = normalizeControlShortcut(value)
 	return value
+}
+
+func trimAnswerEdges(value string) string {
+	return strings.Trim(value, " \r\n")
 }
 
 func normalizePipeSpacing(value string) string {
@@ -40,4 +50,28 @@ func normalizePipeSpacing(value string) string {
 		parts[i] = strings.TrimSpace(parts[i])
 	}
 	return strings.Join(parts, "|")
+}
+
+func normalizeRawControlShortcut(value string) (string, bool) {
+	if len(value) == 1 && value[0] >= 1 && value[0] <= 26 {
+		return "ctrl+" + string(rune('a'+value[0]-1)), true
+	}
+	return "", false
+}
+
+func normalizeControlShortcut(value string) string {
+	if len(value) == 2 && value[0] == '^' && isASCIILetter(value[1]) {
+		return "ctrl+" + string(value[1])
+	}
+
+	parts := strings.Fields(strings.NewReplacer("+", " ", "-", " ").Replace(value))
+	if len(parts) == 2 && (parts[0] == "ctrl" || parts[0] == "control") && len(parts[1]) == 1 && isASCIILetter(parts[1][0]) {
+		return "ctrl+" + parts[1]
+	}
+
+	return value
+}
+
+func isASCIILetter(value byte) bool {
+	return value >= 'a' && value <= 'z'
 }
