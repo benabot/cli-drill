@@ -27,6 +27,11 @@
 - [x] Add ZSH function name parser.
 - [x] Add basic Markdown parser.
 - [x] Add catalog model.
+- [x] Deduplicate catalog entries by `(type, id)`.
+- [x] Merge duplicate catalog sources and tags.
+- [x] Reduce noisy Markdown heading concepts.
+- [x] Reject absolute scan paths outside `dotfiles_path`.
+- [x] Clarify `directory`, `search` and `show` catalog source behavior.
 
 ## P2 — Training
 

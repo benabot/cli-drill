@@ -82,6 +82,9 @@ func Scan(cfg config.Config) (catalog.Catalog, []Warning) {
 			continue
 		}
 		for _, heading := range doc.Headings {
+			if !isUsefulHeading(heading.Text) {
+				continue
+			}
 			c.Add(catalog.Entry{
 				ID:      catalog.NormalizeID(heading.Text),
 				Name:    heading.Text,
@@ -144,6 +147,20 @@ func addKnownToolsFromText(c *catalog.Catalog, text, source string) {
 			Source:  catalog.Source{Path: source},
 		})
 	}
+}
+
+func isUsefulHeading(text string) bool {
+	text = strings.TrimSpace(text)
+	normalized := strings.ToLower(text)
+	if len(strings.Fields(text)) < 2 {
+		return false
+	}
+	generic := map[string]bool{
+		"tools": true, "tool": true, "notes": true, "note": true, "usage": true,
+		"configuration": true, "config": true, "install": true, "installation": true,
+		"aliases": true, "functions": true, "shortcuts": true, "raccourcis": true,
+	}
+	return !generic[normalized]
 }
 
 func isKnownTool(name string) bool {

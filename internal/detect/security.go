@@ -12,7 +12,15 @@ func ResolveConfiguredPath(root, configured string) (string, error) {
 	configured = ExpandHome(configured)
 
 	if filepath.IsAbs(configured) {
-		return filepath.Clean(configured), nil
+		rootAbs, err := filepath.Abs(root)
+		if err != nil {
+			return "", err
+		}
+		resolved := filepath.Clean(configured)
+		if !isWithin(rootAbs, resolved) {
+			return "", fmt.Errorf("absolute path is outside dotfiles root: %s", configured)
+		}
+		return resolved, nil
 	}
 
 	rootAbs, err := filepath.Abs(root)

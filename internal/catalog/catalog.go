@@ -31,11 +31,13 @@ type Entry struct {
 	Summary string    `json:"summary,omitempty" yaml:"summary,omitempty"`
 	Command string    `json:"command,omitempty" yaml:"command,omitempty"`
 	Source  Source    `json:"source,omitempty" yaml:"source,omitempty"`
+	Sources []Source  `json:"sources,omitempty" yaml:"sources,omitempty"`
 	Tags    []string  `json:"tags,omitempty" yaml:"tags,omitempty"`
 }
 
 type Catalog struct {
 	entries []Entry
+	index   map[string]int
 }
 
 func New(entries ...Entry) Catalog {
@@ -47,9 +49,22 @@ func New(entries ...Entry) Catalog {
 }
 
 func (c *Catalog) Add(entry Entry) {
+	if c.index == nil {
+		c.index = map[string]int{}
+		for i, existing := range c.entries {
+			c.index[dedupeKey(existing)] = i
+		}
+	}
 	if entry.ID == "" {
 		entry.ID = NormalizeID(entry.Name)
 	}
+	entry = normalizeEntry(entry)
+	key := dedupeKey(entry)
+	if existingIndex, ok := c.index[key]; ok {
+		c.entries[existingIndex] = mergeEntry(c.entries[existingIndex], entry)
+		return
+	}
+	c.index[key] = len(c.entries)
 	c.entries = append(c.entries, entry)
 }
 
@@ -129,4 +144,80 @@ func NormalizeID(value string) string {
 		}
 	}
 	return strings.Trim(out.String(), "-")
+}
+
+func dedupeKey(entry Entry) string {
+	return string(entry.Type) + "\x00" + entry.ID
+}
+
+func normalizeEntry(entry Entry) Entry {
+	if entry.Source.Path != "" || entry.Source.Line != 0 {
+		entry.Sources = appendSource(entry.Sources, entry.Source)
+	}
+	if entry.Source.Path == "" && len(entry.Sources) > 0 {
+		entry.Source = entry.Sources[0]
+	}
+	entry.Tags = uniqueStrings(entry.Tags)
+	return entry
+}
+
+func mergeEntry(existing, incoming Entry) Entry {
+	incoming = normalizeEntry(incoming)
+	if existing.Name == "" {
+		existing.Name = incoming.Name
+	}
+	if existing.Summary == "" {
+		existing.Summary = incoming.Summary
+	} else if incoming.Summary != "" && !containsString(splitSummary(existing.Summary), incoming.Summary) {
+		existing.Summary += "; " + incoming.Summary
+	}
+	if existing.Command == "" {
+		existing.Command = incoming.Command
+	}
+	for _, source := range incoming.Sources {
+		existing.Sources = appendSource(existing.Sources, source)
+	}
+	if existing.Source.Path == "" && len(existing.Sources) > 0 {
+		existing.Source = existing.Sources[0]
+	}
+	existing.Tags = uniqueStrings(append(existing.Tags, incoming.Tags...))
+	return existing
+}
+
+func appendSource(sources []Source, source Source) []Source {
+	if source.Path == "" && source.Line == 0 {
+		return sources
+	}
+	for _, existing := range sources {
+		if existing == source {
+			return sources
+		}
+	}
+	return append(sources, source)
+}
+
+func uniqueStrings(values []string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, value := range values {
+		if value == "" || seen[value] {
+			continue
+		}
+		seen[value] = true
+		out = append(out, value)
+	}
+	return out
+}
+
+func splitSummary(summary string) []string {
+	return strings.Split(summary, "; ")
+}
+
+func containsString(values []string, needle string) bool {
+	for _, value := range values {
+		if value == needle {
+			return true
+		}
+	}
+	return false
 }

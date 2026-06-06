@@ -46,12 +46,20 @@ tool.
 - Default editable chapters live in `data/chapters/` and are embedded through
   `data/defaults.go`.
 - Unit tests cover ZSH parsing, answer matching, chapter loading, config
-  loading, safe path filtering and progress storage.
+  loading, safe path filtering, catalog deduplication, scanner noise reduction
+  and progress storage.
 - The TUI includes a main menu, chapter picker, training screen, directory
   browser and stats summary.
 - CLI commands implemented:
   `init`, `scan`, `generate`, `chapters`, `train`, `directory`, `search`,
   `show`, `stats`, `reset`.
+- The catalog deduplicates entries by `(type, id)` and merges tags/sources.
+- Markdown headings are filtered before becoming concepts to avoid generic
+  exercise noise.
+- Absolute configured scan paths outside `dotfiles_path` are rejected by
+  default.
+- `directory`, `search` and `show` use the scan catalog when a config is
+  provided or present; otherwise they use embedded/default chapters.
 
 ## Validation status
 

@@ -32,9 +32,16 @@ testdata/          Fixtures for tests
 
 - Parsers never execute user aliases, functions or commands.
 - Detection reads only configured paths and applies the security exclude list.
+- Absolute configured paths are rejected unless they stay inside
+  `dotfiles_path`.
+- Catalog entries are deduplicated by `(type, id)` and merge their
+  sources/tags.
+- Markdown headings are filtered before they become `concept` entries.
 - CLI and TUI share the same internal packages.
 - Default chapters are embedded so `go install` can ship a usable first run.
 - User-generated chapters remain editable YAML files.
+- `directory`, `search` and `show` use the scan catalog when a config is
+  provided or present; otherwise they use the default chapter catalog.
 
 ## Validation
 

@@ -43,7 +43,8 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 		Short: "Train with your shell, dotfiles and CLI workflows",
 		Long:  "cli-drill scans dotfiles statically, builds a typed directory and trains from editable YAML chapters.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			chapters, err := loadChapters(opts)
+			runOpts := commandOptions(cmd, opts)
+			chapters, err := loadChapters(runOpts)
 			if err != nil {
 				return err
 			}
@@ -74,11 +75,12 @@ func newInitCommand(opts *Options) *cobra.Command {
 		Use:   "init",
 		Short: "Create a starter config file",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			path := configPath(*opts)
+			runOpts := commandOptions(cmd, *opts)
+			path := configPath(runOpts)
 			if err := config.Save(path, config.Default(), force); err != nil {
 				return err
 			}
-			_, _ = fmt.Fprintf(opts.Out, "Created config: %s\n", path)
+			_, _ = fmt.Fprintf(runOpts.Out, "Created config: %s\n", path)
 			return nil
 		},
 	}
@@ -91,13 +93,14 @@ func newScanCommand(opts *Options) *cobra.Command {
 		Use:   "scan",
 		Short: "Scan configured dotfiles statically",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := loadConfig(*opts)
+			runOpts := commandOptions(cmd, *opts)
+			cfg, err := loadConfig(runOpts)
 			if err != nil {
 				return err
 			}
 			entries, warnings := detect.Scan(cfg)
-			printWarnings(opts.Err, warnings)
-			printEntries(opts.Out, entries.Entries())
+			printWarnings(runOpts.Err, warnings)
+			printEntries(runOpts.Out, entries.Entries())
 			return nil
 		},
 	}
@@ -110,12 +113,13 @@ func newGenerateCommand(opts *Options) *cobra.Command {
 		Use:   "generate",
 		Short: "Generate editable YAML chapters from the current scan",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := loadConfig(*opts)
+			runOpts := commandOptions(cmd, *opts)
+			cfg, err := loadConfig(runOpts)
 			if err != nil {
 				return err
 			}
 			entries, warnings := detect.Scan(cfg)
-			printWarnings(opts.Err, warnings)
+			printWarnings(runOpts.Err, warnings)
 			chapters := chapter.GenerateFromCatalog(entries.Entries())
 			if outDir == "" {
 				outDir = xdg.ChaptersDir()
@@ -123,7 +127,7 @@ func newGenerateCommand(opts *Options) *cobra.Command {
 			if err := chapter.WriteDir(outDir, chapters, force); err != nil {
 				return err
 			}
-			_, _ = fmt.Fprintf(opts.Out, "Wrote %d chapters to %s\n", len(chapters), outDir)
+			_, _ = fmt.Fprintf(runOpts.Out, "Wrote %d chapters to %s\n", len(chapters), outDir)
 			return nil
 		},
 	}
@@ -137,12 +141,13 @@ func newChaptersCommand(opts *Options) *cobra.Command {
 		Use:   "chapters",
 		Short: "List available chapters",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			chapters, err := loadChapters(*opts)
+			runOpts := commandOptions(cmd, *opts)
+			chapters, err := loadChapters(runOpts)
 			if err != nil {
 				return err
 			}
 			for _, chapter := range chapters {
-				_, _ = fmt.Fprintf(opts.Out, "%s\t%s\t%d exercises\n", chapter.ID, chapter.Title, len(chapter.Items))
+				_, _ = fmt.Fprintf(runOpts.Out, "%s\t%s\t%d exercises\n", chapter.ID, chapter.Title, len(chapter.Items))
 			}
 			return nil
 		},
@@ -155,7 +160,8 @@ func newTrainCommand(opts *Options) *cobra.Command {
 		Short: "Train from a chapter in the terminal",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			chapters, err := loadChapters(*opts)
+			runOpts := commandOptions(cmd, *opts)
+			chapters, err := loadChapters(runOpts)
 			if err != nil {
 				return err
 			}
@@ -176,7 +182,7 @@ func newTrainCommand(opts *Options) *cobra.Command {
 					return fmt.Errorf("chapter not found: %s", args[0])
 				}
 			}
-			return runTraining(*opts, selected)
+			return runTraining(runOpts, selected)
 		},
 	}
 }
@@ -187,15 +193,16 @@ func newDirectoryCommand(opts *Options) *cobra.Command {
 		Use:   "directory",
 		Short: "List the typed directory",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			entries, err := catalogFromChapters(*opts)
+			runOpts := commandOptions(cmd, *opts)
+			entries, err := catalogForDirectory(runOpts)
 			if err != nil {
 				return err
 			}
 			if entryType != "" {
-				printEntries(opts.Out, entries.FilterByType(catalog.EntryType(entryType)))
+				printEntries(runOpts.Out, entries.FilterByType(catalog.EntryType(entryType)))
 				return nil
 			}
-			printEntries(opts.Out, entries.Entries())
+			printEntries(runOpts.Out, entries.Entries())
 			return nil
 		},
 	}
@@ -209,11 +216,12 @@ func newSearchCommand(opts *Options) *cobra.Command {
 		Short: "Search the typed directory",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			entries, err := catalogFromChapters(*opts)
+			runOpts := commandOptions(cmd, *opts)
+			entries, err := catalogForDirectory(runOpts)
 			if err != nil {
 				return err
 			}
-			printEntries(opts.Out, entries.Search(args[0]))
+			printEntries(runOpts.Out, entries.Search(args[0]))
 			return nil
 		},
 	}
@@ -225,7 +233,8 @@ func newShowCommand(opts *Options) *cobra.Command {
 		Short: "Show a directory entry",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			entries, err := catalogFromChapters(*opts)
+			runOpts := commandOptions(cmd, *opts)
+			entries, err := catalogForDirectory(runOpts)
 			if err != nil {
 				return err
 			}
@@ -233,9 +242,9 @@ func newShowCommand(opts *Options) *cobra.Command {
 			if !ok {
 				return fmt.Errorf("entry not found: %s", args[0])
 			}
-			_, _ = fmt.Fprintf(opts.Out, "ID: %s\nName: %s\nType: %s\nSummary: %s\n", entry.ID, entry.Name, entry.Type, entry.Summary)
+			_, _ = fmt.Fprintf(runOpts.Out, "ID: %s\nName: %s\nType: %s\nSummary: %s\n", entry.ID, entry.Name, entry.Type, entry.Summary)
 			if entry.Command != "" {
-				_, _ = fmt.Fprintf(opts.Out, "Command: %s\n", entry.Command)
+				_, _ = fmt.Fprintf(runOpts.Out, "Command: %s\n", entry.Command)
 			}
 			return nil
 		},
@@ -247,13 +256,14 @@ func newStatsCommand(opts *Options) *cobra.Command {
 		Use:   "stats",
 		Short: "Show local progress",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			state, err := progress.Load(progressPath(*opts))
+			runOpts := commandOptions(cmd, *opts)
+			state, err := progress.Load(progressPath(runOpts))
 			if err != nil {
 				return err
 			}
-			_, _ = fmt.Fprintf(opts.Out, "Completed exercises: %d\n", len(state.CompletedExercises))
-			_, _ = fmt.Fprintf(opts.Out, "Chapters with attempts: %d\n", len(state.ChapterScores))
-			_, _ = fmt.Fprintf(opts.Out, "Streak: %d\n", state.Streak)
+			_, _ = fmt.Fprintf(runOpts.Out, "Completed exercises: %d\n", len(state.CompletedExercises))
+			_, _ = fmt.Fprintf(runOpts.Out, "Chapters with attempts: %d\n", len(state.ChapterScores))
+			_, _ = fmt.Fprintf(runOpts.Out, "Streak: %d\n", state.Streak)
 			return nil
 		},
 	}
@@ -265,13 +275,14 @@ func newResetCommand(opts *Options) *cobra.Command {
 		Use:   "reset",
 		Short: "Reset local progress",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			runOpts := commandOptions(cmd, *opts)
 			if !yes {
 				return errors.New("reset requires --yes")
 			}
-			if err := progress.Reset(progressPath(*opts)); err != nil {
+			if err := progress.Reset(progressPath(runOpts)); err != nil {
 				return err
 			}
-			_, _ = fmt.Fprintln(opts.Out, "Progress reset.")
+			_, _ = fmt.Fprintln(runOpts.Out, "Progress reset.")
 			return nil
 		},
 	}
@@ -335,12 +346,37 @@ func loadChapters(opts Options) ([]chapter.Chapter, error) {
 	return chapter.LoadFS(opts.DefaultFS, "*.yaml")
 }
 
-func catalogFromChapters(opts Options) (catalog.Catalog, error) {
+func catalogForDirectory(opts Options) (catalog.Catalog, error) {
+	if shouldUseScanCatalog(opts) {
+		cfg, err := loadConfig(opts)
+		if err != nil {
+			return catalog.Catalog{}, err
+		}
+		entries, _ := detect.Scan(cfg)
+		return entries, nil
+	}
 	chapters, err := loadChapters(opts)
 	if err != nil {
 		return catalog.Catalog{}, err
 	}
 	return chapter.ToCatalog(chapters), nil
+}
+
+func commandOptions(cmd *cobra.Command, opts Options) Options {
+	opts.In = cmd.InOrStdin()
+	opts.Out = cmd.OutOrStdout()
+	opts.Err = cmd.ErrOrStderr()
+	return opts
+}
+
+func shouldUseScanCatalog(opts Options) bool {
+	if opts.ConfigPath != "" {
+		return true
+	}
+	if _, err := os.Stat(xdg.ConfigFile()); err == nil {
+		return true
+	}
+	return false
 }
 
 func configPath(opts Options) string {
