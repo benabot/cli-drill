@@ -19,51 +19,84 @@ Si présents, lire aussi :
 - `docs/ROADMAP.md`
 - `.codex/skills/cli-drill-spec/SKILL.md`
 
-
 ## Règles
 
 - Ne pas lire de secrets.
-
 - Ne pas scanner `~/.config/secrets`, `~/.ssh`, `~/.gnupg`,
-
   `~/.config/gh/hosts.yml` ou `~/.config/zed/settings.json`.
-
-- Ne pas exécuter d’alias ou fonctions shell utilisateur.
-
+- Ne pas exécuter d'alias ou fonctions shell utilisateur.
 - Ne pas lancer Docker, Colima, Ollama ou n8n.
-
 - Ne pas modifier un repo dotfiles utilisateur.
-
 - Ne pas modifier `.zshrc`.
-
 - Ne pas commit/push sans validation explicite.
-
 - Garder le MVP simple.
 
 ## Projet
 
-Le code Go vit dans `app/`.
+Le module Go vit à la racine du repo.
 
-La documentation vit dans `docs/`.
+Le point d'entrée du binaire vit dans :
+
+```text
+cmd/cli-drill/
+```
+
+Le code interne vit dans :
+
+```text
+internal/
+```
+
+Les chapitres par défaut et données embarquables vivent dans :
+
+```text
+data/
+```
+
+Les fixtures de tests vivent dans :
+
+```text
+testdata/
+```
+
+La documentation vit dans :
+
+```text
+docs/
+```
 
 Le dossier `mcp/` est réservé pour plus tard.
 
 ## Project state and TODO
 
-`PROJECT_STATE.md` is versioned and must describe the current state of the
-project.
+`PROJECT_STATE.md` est versionné et doit décrire l'état courant du projet.
 
-Update it when a durable project decision changes.
+Le mettre à jour quand une décision durable change.
 
-`TODO.md` is versioned and contains the human-readable backlog.
+`TODO.md` est versionné et contient le backlog lisible par un humain.
 
-Do not use `docs/llm/scratch/`, `docs/llm/runs/`, `docs/llm/transcripts/` or
-`docs/llm/context/` as durable project memory. These directories are local and
-ignored by Git.
+Ne pas utiliser `docs/llm/scratch/`, `docs/llm/runs/`,
+`docs/llm/transcripts/` ou `docs/llm/context/` comme mémoire durable du
+projet. Ces dossiers sont locaux et ignorés par Git.
 
-Durable decisions must be summarized into:
+Les décisions durables doivent être résumées dans :
 
 - `PROJECT_STATE.md`
 - `TODO.md`
 - `docs/DECISIONS.md`
 - `docs/ARCHITECTURE.md`
+
+## Politique de changement
+
+Avant un changement important :
+
+1. résumer l'intention ;
+2. lister les fichiers prévus ;
+3. expliquer les risques ;
+4. proposer les tests.
+
+Après modification :
+
+1. lancer les tests pertinents ;
+2. résumer les résultats ;
+3. ne pas commit/push sans validation explicite.

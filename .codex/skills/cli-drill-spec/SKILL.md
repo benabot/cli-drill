@@ -21,18 +21,39 @@ Expected root structure:
 ```text
 README.md
 AGENTS.md
+PROJECT_STATE.md
+TODO.md
+go.mod
+go.sum
+cmd/
+internal/
+data/
 docs/
-app/
 mcp/
+testdata/
 ```
 
-Application code lives in:
+The Go module lives at the repository root.
+
+Executable code lives in:
 
 ```text
-app/
+cmd/cli-drill/
 ```
 
-Do not put Go application code directly at the repository root.
+Internal code lives in:
+
+```text
+internal/
+```
+
+Default chapters and embeddable data live in:
+
+```text
+data/
+```
+
+Do not put Go application code in `app/` for the MVP.
 
 ## Mandatory reading
 
@@ -41,6 +62,8 @@ Before making changes, read:
 ```text
 README.md
 AGENTS.md
+PROJECT_STATE.md
+TODO.md
 docs/SPEC.md
 ```
 
@@ -124,30 +147,6 @@ Scan statically by default.
 
 Runtime scanning must be explicit, opt-in and safe.
 
-## Data sources
-
-For Benoît's personal setup, useful sources include:
-
-```text
-~/dotfiles/README.md
-~/dotfiles/zsh/.zshrc
-~/dotfiles/zsh/README.md
-~/dotfiles/zsh/modules/aliases.zsh
-~/dotfiles/zsh/modules/functions.zsh
-~/dotfiles/zsh/modules/tools.zsh
-~/dotfiles/docs/tools-inventory.md
-~/dotfiles/docs/cli-tools-usage.md
-~/dotfiles/micro/DOC.md
-~/dotfiles/micro/settings.json
-~/dotfiles/micro/bindings.json
-~/dotfiles/glow/glow.yml
-~/dotfiles/yazi/yazi.toml
-~/dotfiles/yazi/keymap.toml
-~/dotfiles/lazygit/config.yml
-```
-
-These paths must be configurable. Do not hard-code them as universal truth.
-
 ## Directory entries
 
 The app builds a typed directory.
@@ -163,16 +162,6 @@ workflow
 concept
 binding
 chapter
-```
-
-Examples:
-
-```text
-Ctrl+A       shortcut   move to beginning of line
-cgs          alias      git status --short
-y            function   open Yazi and cd to selected directory
-rg           tool       search file contents
-mdpreview    workflow   MarkEdit + Marked 2 preview workflow
 ```
 
 ## Training exercise types
@@ -226,40 +215,6 @@ Progress:
 
 Support macOS/Linux/Windows equivalents through proper path handling.
 
-## Implementation guidance
-
-Keep the code simple.
-
-Prefer clear packages over over-engineered abstractions.
-
-Expected application structure:
-
-```text
-app/
-├── go.mod
-├── cmd/
-│   └── cli-drill/
-│       └── main.go
-├── internal/
-│   ├── app/
-│   ├── catalog/
-│   ├── chapter/
-│   ├── config/
-│   ├── detect/
-│   ├── exercise/
-│   ├── markdown/
-│   ├── progress/
-│   ├── shell/
-│   │   └── zsh/
-│   ├── tui/
-│   └── xdg/
-├── data/
-│   └── chapters/
-└── testdata/
-```
-
-Adjust only if there is a clear reason.
-
 ## Testing expectations
 
 Add tests for:
@@ -274,9 +229,8 @@ Add tests for:
 Useful commands:
 
 ```bash
-cd /Users/benoitabot/Sites/cli-drill/app
+cd /Users/benoitabot/Sites/cli-drill
 go test ./...
-go test ./internal/...
 go run ./cmd/cli-drill --help
 ```
 

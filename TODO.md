@@ -2,18 +2,19 @@
 
 ## P0 — Initialization
 
-- [ ] Initialize Git repository.
+- [x] Initialize Git repository.
 - [ ] Run `codex init`.
 - [ ] Ask Codex to inspect the project and propose a plan.
-- [ ] Validate Go architecture.
+- [ ] Validate standard Go architecture.
 - [ ] Validate CLI command list.
 - [ ] Validate TUI MVP.
 - [ ] Validate config and chapter formats.
+- [ ] Remove unused `app/` directory if still empty.
 
 ## P1 — MVP foundation
 
-- [ ] Create Go module in `app/`.
-- [ ] Add Cobra CLI skeleton.
+- [ ] Create Go module at repository root.
+- [ ] Add Cobra CLI skeleton in `cmd/cli-drill/`.
 - [ ] Add config loader.
 - [ ] Add YAML chapter loader.
 - [ ] Add progress JSON storage.
@@ -44,5 +45,5 @@
 - [ ] Fish support.
 - [ ] Ollama-assisted chapter generation.
 - [ ] MCP integrations.
-- [ ] Homebrew tap.
 - [ ] GitHub Releases.
+- [ ] Homebrew tap.
