@@ -1,0 +1,11 @@
+id: 09-markdown-glow
+title: Markdown et Glow
+description: Travailler avec Markdown et Glow.
+items:
+  - id: glow-preview
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux lire du Markdown joliment dans le terminal. Quel outil utilises-tu ?
+    answer:
+      primary: glow
+    explanation: Glow affiche le Markdown dans le terminal.

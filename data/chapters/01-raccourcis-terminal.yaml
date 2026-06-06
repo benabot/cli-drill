@@ -1,0 +1,15 @@
+id: 01-raccourcis-terminal
+title: Raccourcis terminal
+description: Memoriser les raccourcis de navigation et edition de ligne.
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: free-answer
+    prompt: Aller au debut de la ligne
+    answer:
+      primary: Ctrl+A
+      accepted:
+        - ^A
+        - control-a
+        - ctrl a
+    explanation: Ctrl+A place le curseur au debut de la ligne.

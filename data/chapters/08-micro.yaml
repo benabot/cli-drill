@@ -1,0 +1,11 @@
+id: 08-micro
+title: Micro
+description: Retenir les commandes et raccourcis Micro.
+items:
+  - id: micro-tool
+    type: tool
+    exercise_type: free-answer
+    prompt: Quel editeur terminal simple est vise par ce chapitre ?
+    answer:
+      primary: micro
+    explanation: Micro fait partie des outils prioritaires du setup initial.

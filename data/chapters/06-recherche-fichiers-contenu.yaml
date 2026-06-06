@@ -1,0 +1,25 @@
+id: 06-recherche-fichiers-contenu
+title: Recherche fichiers et contenu
+description: S'entrainer avec fd, rg et fzf.
+items:
+  - id: fd-rg
+    type: tool
+    exercise_type: multiple-choice
+    prompt: Quel outil sert a chercher dans le contenu des fichiers ?
+    choices:
+      - fd
+      - rg
+      - eza
+      - bat
+    answer:
+      primary: rg
+      accepted:
+        - ripgrep
+    explanation: rg, ou ripgrep, cherche dans le contenu des fichiers.
+  - id: fd-fzf-shell
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Lister les fichiers Markdown puis en choisir un avec fzf.
+    answer:
+      primary: fd -e md | fzf
+    explanation: Le shell simule compare la reponse sans executer la commande.

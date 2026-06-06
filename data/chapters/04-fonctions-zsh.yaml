@@ -1,0 +1,13 @@
+id: 04-fonctions-zsh
+title: Fonctions ZSH
+description: Identifier les fonctions ZSH disponibles.
+items:
+  - id: function-example
+    type: function
+    exercise_type: free-answer
+    prompt: Quel type d'entree represente une commande definie avec name() { ... } ?
+    answer:
+      primary: function
+      accepted:
+        - fonction
+    explanation: Le MVP detecte les noms de fonctions ZSH sans les executer.

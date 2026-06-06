@@ -1,0 +1,11 @@
+id: 03-alias-zsh
+title: Alias ZSH
+description: Retenir les alias ZSH utiles.
+items:
+  - id: alias-example
+    type: alias
+    exercise_type: free-answer
+    prompt: Quel alias pourrait representer git status --short ?
+    answer:
+      primary: cgs
+    explanation: Les alias ZSH sont detectes statiquement dans les fichiers configures.

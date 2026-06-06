@@ -1,0 +1,13 @@
+id: 05-outils-quotidiens
+title: Outils quotidiens
+description: Reviser les outils CLI courants.
+items:
+  - id: lazygit
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux piloter Git dans une interface terminal. Quel outil peux-tu ouvrir ?
+    answer:
+      primary: lazygit
+      accepted:
+        - lg
+    explanation: lazygit fournit une interface terminal pour les operations Git.

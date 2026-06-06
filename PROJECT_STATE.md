@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Project initialization.
+MVP foundation implemented and validated.
 
 `cli-drill` is being prepared as a Go CLI/TUI application that turns a
 dotfiles repository into a typed command directory and a chapter-based training
@@ -36,6 +36,34 @@ tool.
 - Target install command:
   `go install github.com/benabot/cli-drill/cmd/cli-drill@latest`.
 
+## Current implementation
+
+- Root Go module declared in `go.mod`.
+- Cobra CLI entrypoint lives in `cmd/cli-drill/`.
+- Internal packages exist for app orchestration, catalog, chapters, config,
+  detection, exercises, Markdown parsing, progress, ZSH parsing, TUI and XDG
+  paths.
+- Default editable chapters live in `data/chapters/` and are embedded through
+  `data/defaults.go`.
+- Unit tests cover ZSH parsing, answer matching, chapter loading, config
+  loading, safe path filtering and progress storage.
+- The TUI includes a main menu, chapter picker, training screen, directory
+  browser and stats summary.
+- CLI commands implemented:
+  `init`, `scan`, `generate`, `chapters`, `train`, `directory`, `search`,
+  `show`, `stats`, `reset`.
+
+## Validation status
+
+The current implementation was validated with:
+
+```bash
+gofmt -w cmd internal data
+go mod tidy
+go test ./...
+go run ./cmd/cli-drill --help
+```
+
 ## Current repository layout
 
 ```text
@@ -54,18 +82,9 @@ testdata/
 .codex/
 ```
 
-`go.mod` and `go.sum` may not exist yet during initialization.
+`go.sum` is generated.
 
 ## Next step
 
-Ask Codex to read:
-
-- `README.md`
-- `AGENTS.md`
-- `PROJECT_STATE.md`
-- `TODO.md`
-- `docs/SPEC.md`
-- `.codex/skills/cli-drill-spec/SKILL.md`
-
-Codex must update its plan according to the standard Go layout before writing
-application code.
+Review the MVP behavior manually, then decide whether to refine CLI/TUI UX or
+start using a real dotfiles config for scan/generation testing.

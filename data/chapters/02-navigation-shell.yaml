@@ -1,0 +1,13 @@
+id: 02-navigation-shell
+title: Navigation shell
+description: S'entrainer aux outils de navigation du shell.
+items:
+  - id: zoxide
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux rejoindre rapidement un dossier deja visite. Quel outil utilises-tu ?
+    answer:
+      primary: zoxide
+      accepted:
+        - z
+    explanation: zoxide apprend les dossiers frequents et permet d'y revenir vite.

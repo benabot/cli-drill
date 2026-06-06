@@ -1,0 +1,11 @@
+id: 07-lecture-preview
+title: Lecture et preview
+description: Utiliser les outils de lecture et de preview.
+items:
+  - id: bat
+    type: tool
+    exercise_type: free-answer
+    prompt: Quel outil affiche un fichier avec coloration syntaxique dans le terminal ?
+    answer:
+      primary: bat
+    explanation: bat est une alternative moderne a cat avec coloration.

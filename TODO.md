@@ -4,40 +4,44 @@
 
 - [x] Initialize Git repository.
 - [ ] Run `codex init`.
-- [ ] Ask Codex to inspect the project and propose a plan.
-- [ ] Validate standard Go architecture.
-- [ ] Validate CLI command list.
-- [ ] Validate TUI MVP.
-- [ ] Validate config and chapter formats.
-- [ ] Remove unused `app/` directory if still empty.
+- [x] Ask Codex to inspect the project and propose a plan.
+- [x] Validate standard Go architecture.
+- [x] Validate CLI command list.
+- [x] Validate TUI MVP.
+- [x] Validate config and chapter formats.
+- [x] Remove unused `app/` directory if still empty.
+- [x] Run `gofmt -w cmd internal data` once Go tooling is available.
+- [x] Run `go mod tidy` once Go tooling is available.
+- [x] Run `go test ./...` once Go tooling is available.
+- [x] Run `go run ./cmd/cli-drill --help` once Go tooling is available.
 
 ## P1 — MVP foundation
 
-- [ ] Create Go module at repository root.
-- [ ] Add Cobra CLI skeleton in `cmd/cli-drill/`.
-- [ ] Add config loader.
-- [ ] Add YAML chapter loader.
-- [ ] Add progress JSON storage.
-- [ ] Add answer matching engine.
-- [ ] Add ZSH alias parser.
-- [ ] Add ZSH function name parser.
-- [ ] Add basic Markdown parser.
-- [ ] Add catalog model.
+- [x] Create Go module at repository root.
+- [x] Add Cobra CLI skeleton in `cmd/cli-drill/`.
+- [x] Add config loader.
+- [x] Add YAML chapter loader.
+- [x] Add progress JSON storage.
+- [x] Add answer matching engine.
+- [x] Add ZSH alias parser.
+- [x] Add ZSH function name parser.
+- [x] Add basic Markdown parser.
+- [x] Add catalog model.
 
 ## P2 — Training
 
-- [ ] Add `free-answer` exercises.
-- [ ] Add `multiple-choice` exercises.
-- [ ] Add `scenario` exercises.
-- [ ] Add simple non-executing shell simulator.
+- [x] Add `free-answer` exercises.
+- [x] Add `multiple-choice` exercises.
+- [x] Add `scenario` exercises.
+- [x] Add simple non-executing shell simulator.
 
 ## P3 — TUI
 
-- [ ] Add Bubble Tea main menu.
-- [ ] Add chapter picker.
-- [ ] Add training screen.
-- [ ] Add directory browser.
-- [ ] Add stats screen.
+- [x] Add Bubble Tea main menu.
+- [x] Add chapter picker.
+- [x] Add training screen.
+- [x] Add directory browser.
+- [x] Add stats screen.
 
 ## P4 — Later
 

@@ -1,0 +1,14 @@
+id: 10-workflows-dotfiles
+title: Workflows dotfiles
+description: Relier commandes, outils et workflows dotfiles.
+items:
+  - id: static-scan
+    type: concept
+    exercise_type: free-answer
+    prompt: Le scan du MVP execute-t-il les alias et fonctions detectes ?
+    answer:
+      primary: non
+      accepted:
+        - no
+        - jamais
+    explanation: Le MVP fait un scan statique et n'execute aucune commande utilisateur.
