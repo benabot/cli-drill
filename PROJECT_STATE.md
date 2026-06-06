@@ -53,6 +53,9 @@ tool.
 - CLI commands implemented:
   `init`, `scan`, `generate`, `chapters`, `train`, `directory`, `search`,
   `show`, `stats`, `reset`.
+- CLI UX P2.1 includes `scan --summary`, `scan --type <type>`,
+  `init --print`, clearer empty-result messages, typed tabular directory/search
+  output and detailed `show` output.
 - The catalog deduplicates entries by `(type, id)` and merges tags/sources.
 - Markdown headings are filtered before becoming concepts to avoid generic
   exercise noise.
@@ -60,6 +63,8 @@ tool.
   default.
 - `directory`, `search` and `show` use the scan catalog when a config is
   provided or present; otherwise they use embedded/default chapters.
+- Without config, `show` can fall back to default scan paths when an entry is
+  not found in embedded chapters.
 
 ## Validation status
 

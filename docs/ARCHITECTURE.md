@@ -42,6 +42,13 @@ testdata/          Fixtures for tests
 - User-generated chapters remain editable YAML files.
 - `directory`, `search` and `show` use the scan catalog when a config is
   provided or present; otherwise they use the default chapter catalog.
+- CLI list output uses a stable tabular shape: `type`, `id`, `name`,
+  `summary`.
+- `show` resolves exact `id` or `name`; ambiguous exact matches return a clear
+  error rather than choosing silently.
+- Without config, `directory` and `search` use embedded chapters; `show`
+  falls back to default scan paths only when the requested entry is not found
+  in embedded chapters.
 
 ## Validation
 

@@ -71,11 +71,20 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 
 func newInitCommand(opts *Options) *cobra.Command {
 	var force bool
+	var printOnly bool
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Create a starter config file",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, *opts)
+			if printOnly {
+				data, err := config.Default().Encode()
+				if err != nil {
+					return err
+				}
+				_, _ = runOpts.Out.Write(data)
+				return nil
+			}
 			path := configPath(runOpts)
 			if err := config.Save(path, config.Default(), force); err != nil {
 				return err
@@ -85,25 +94,43 @@ func newInitCommand(opts *Options) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&force, "force", false, "overwrite an existing config")
+	cmd.Flags().BoolVar(&printOnly, "print", false, "print default config TOML without writing")
 	return cmd
 }
 
 func newScanCommand(opts *Options) *cobra.Command {
-	return &cobra.Command{
+	var summary bool
+	var entryType string
+	cmd := &cobra.Command{
 		Use:   "scan",
 		Short: "Scan configured dotfiles statically",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, *opts)
-			cfg, err := loadConfig(runOpts)
+			filterType, err := parseOptionalEntryType(entryType)
+			if err != nil {
+				return err
+			}
+			cfg, err := loadConfig(runOpts, configMissingScanNotice(runOpts))
 			if err != nil {
 				return err
 			}
 			entries, warnings := detect.Scan(cfg)
 			printWarnings(runOpts.Err, warnings)
+			if filterType != "" {
+				filtered := catalog.New(entries.FilterByType(filterType)...)
+				entries = filtered
+			}
+			if summary {
+				printSummary(runOpts.Out, entries.Entries())
+				return nil
+			}
 			printEntries(runOpts.Out, entries.Entries())
 			return nil
 		},
 	}
+	cmd.Flags().BoolVar(&summary, "summary", false, "print counts by entry type")
+	cmd.Flags().StringVar(&entryType, "type", "", "filter by entry type")
+	return cmd
 }
 
 func newGenerateCommand(opts *Options) *cobra.Command {
@@ -114,7 +141,7 @@ func newGenerateCommand(opts *Options) *cobra.Command {
 		Short: "Generate editable YAML chapters from the current scan",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, *opts)
-			cfg, err := loadConfig(runOpts)
+			cfg, err := loadConfig(runOpts, configMissingScanNotice(runOpts))
 			if err != nil {
 				return err
 			}
@@ -194,13 +221,23 @@ func newDirectoryCommand(opts *Options) *cobra.Command {
 		Short: "List the typed directory",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, *opts)
+			filterType, err := parseOptionalEntryType(entryType)
+			if err != nil {
+				return err
+			}
 			entries, err := catalogForDirectory(runOpts)
 			if err != nil {
 				return err
 			}
-			if entryType != "" {
-				printEntries(runOpts.Out, entries.FilterByType(catalog.EntryType(entryType)))
+			if filterType != "" {
+				if !shouldUseScanCatalog(runOpts) {
+					_, _ = fmt.Fprintln(runOpts.Err, "No config found; using embedded chapters.")
+				}
+				printEntries(runOpts.Out, entries.FilterByType(filterType))
 				return nil
+			}
+			if !shouldUseScanCatalog(runOpts) {
+				_, _ = fmt.Fprintln(runOpts.Err, "No config found; using embedded chapters.")
 			}
 			printEntries(runOpts.Out, entries.Entries())
 			return nil
@@ -221,6 +258,9 @@ func newSearchCommand(opts *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if !shouldUseScanCatalog(runOpts) {
+				_, _ = fmt.Fprintln(runOpts.Err, "No config found; using embedded chapters.")
+			}
 			printEntries(runOpts.Out, entries.Search(args[0]))
 			return nil
 		},
@@ -238,14 +278,23 @@ func newShowCommand(opts *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			entry, ok := entries.Find(args[0])
-			if !ok {
+			matches := findEntries(entries, args[0])
+			if len(matches) == 0 && !shouldUseScanCatalog(runOpts) {
+				scanned, err := scanCatalog(runOpts)
+				if err != nil {
+					return err
+				}
+				matches = findEntries(scanned, args[0])
+			} else if !shouldUseScanCatalog(runOpts) {
+				_, _ = fmt.Fprintln(runOpts.Err, "No config found; using embedded chapters.")
+			}
+			if len(matches) == 0 {
 				return fmt.Errorf("entry not found: %s", args[0])
 			}
-			_, _ = fmt.Fprintf(runOpts.Out, "ID: %s\nName: %s\nType: %s\nSummary: %s\n", entry.ID, entry.Name, entry.Type, entry.Summary)
-			if entry.Command != "" {
-				_, _ = fmt.Fprintf(runOpts.Out, "Command: %s\n", entry.Command)
+			if len(matches) > 1 {
+				return fmt.Errorf("ambiguous entry %q (%d matches): %s", args[0], len(matches), entryRefs(matches))
 			}
+			printEntryDetail(runOpts.Out, matches[0])
 			return nil
 		},
 	}
@@ -325,13 +374,16 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 	return progress.Save(progressPath(opts), state)
 }
 
-func loadConfig(opts Options) (config.Config, error) {
+func loadConfig(opts Options, missingNotice string) (config.Config, error) {
 	path := configPath(opts)
 	cfg, err := config.Load(path)
 	if err == nil {
 		return cfg, cfg.Validate()
 	}
 	if errors.Is(err, os.ErrNotExist) {
+		if missingNotice != "" {
+			_, _ = fmt.Fprintln(opts.Err, missingNotice)
+		}
 		cfg := config.Default()
 		return cfg, cfg.Validate()
 	}
@@ -348,18 +400,22 @@ func loadChapters(opts Options) ([]chapter.Chapter, error) {
 
 func catalogForDirectory(opts Options) (catalog.Catalog, error) {
 	if shouldUseScanCatalog(opts) {
-		cfg, err := loadConfig(opts)
-		if err != nil {
-			return catalog.Catalog{}, err
-		}
-		entries, _ := detect.Scan(cfg)
-		return entries, nil
+		return scanCatalog(opts)
 	}
 	chapters, err := loadChapters(opts)
 	if err != nil {
 		return catalog.Catalog{}, err
 	}
 	return chapter.ToCatalog(chapters), nil
+}
+
+func scanCatalog(opts Options) (catalog.Catalog, error) {
+	cfg, err := loadConfig(opts, configMissingScanNotice(opts))
+	if err != nil {
+		return catalog.Catalog{}, err
+	}
+	entries, _ := detect.Scan(cfg)
+	return entries, nil
 }
 
 func commandOptions(cmd *cobra.Command, opts Options) Options {
@@ -377,6 +433,13 @@ func shouldUseScanCatalog(opts Options) bool {
 		return true
 	}
 	return false
+}
+
+func configMissingScanNotice(opts Options) string {
+	if opts.ConfigPath != "" {
+		return "No config found; using default dotfiles paths."
+	}
+	return "No config found; using embedded chapters or default paths."
 }
 
 func configPath(opts Options) string {
@@ -405,14 +468,93 @@ func printWarnings(w io.Writer, warnings []detect.Warning) {
 
 func printEntries(w io.Writer, entries []catalog.Entry) {
 	if len(entries) == 0 {
-		_, _ = fmt.Fprintln(w, "No entries found.")
+		_, _ = fmt.Fprintln(w, "No results.")
 		return
 	}
 	for _, entry := range entries {
-		summary := strings.TrimSpace(entry.Summary)
-		if entry.Command != "" {
-			summary = entry.Command
-		}
-		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", entry.Name, entry.Type, entry.ID, summary)
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", entry.Type, entry.ID, entry.Name, strings.TrimSpace(entry.Summary))
 	}
+}
+
+func printSummary(w io.Writer, entries []catalog.Entry) {
+	counts := map[catalog.EntryType]int{}
+	for _, entry := range entries {
+		counts[entry.Type]++
+	}
+	for _, row := range []struct {
+		label     string
+		entryType catalog.EntryType
+	}{
+		{"aliases", catalog.EntryAlias},
+		{"functions", catalog.EntryFunction},
+		{"tools", catalog.EntryTool},
+		{"concepts", catalog.EntryConcept},
+		{"workflows", catalog.EntryWorkflow},
+		{"chapters", catalog.EntryChapter},
+	} {
+		_, _ = fmt.Fprintf(w, "%s: %d\n", row.label, counts[row.entryType])
+	}
+	_, _ = fmt.Fprintf(w, "total: %d\n", len(entries))
+}
+
+func printEntryDetail(w io.Writer, entry catalog.Entry) {
+	_, _ = fmt.Fprintf(w, "id: %s\n", entry.ID)
+	_, _ = fmt.Fprintf(w, "name: %s\n", entry.Name)
+	_, _ = fmt.Fprintf(w, "type: %s\n", entry.Type)
+	if entry.Summary != "" {
+		_, _ = fmt.Fprintf(w, "summary: %s\n", entry.Summary)
+	}
+	if entry.Command != "" {
+		_, _ = fmt.Fprintf(w, "command: %s\n", entry.Command)
+	}
+	if len(entry.Sources) > 0 {
+		for _, source := range entry.Sources {
+			_, _ = fmt.Fprintf(w, "source: %s\n", formatSource(source))
+		}
+	} else if entry.Source.Path != "" {
+		_, _ = fmt.Fprintf(w, "source: %s\n", formatSource(entry.Source))
+	}
+	if len(entry.Tags) > 0 {
+		_, _ = fmt.Fprintf(w, "tags: %s\n", strings.Join(entry.Tags, ", "))
+	}
+}
+
+func parseOptionalEntryType(value string) (catalog.EntryType, error) {
+	if value == "" {
+		return "", nil
+	}
+	entryType := catalog.EntryType(value)
+	switch entryType {
+	case catalog.EntryAlias, catalog.EntryFunction, catalog.EntryTool, catalog.EntryConcept,
+		catalog.EntryWorkflow, catalog.EntryShortcut, catalog.EntryBinding, catalog.EntryChapter:
+		return entryType, nil
+	default:
+		return "", fmt.Errorf("unknown entry type %q (accepted: alias, function, tool, concept, workflow, shortcut, binding, chapter)", value)
+	}
+}
+
+func findEntries(c catalog.Catalog, query string) []catalog.Entry {
+	query = strings.ToLower(strings.TrimSpace(query))
+	var matches []catalog.Entry
+	for _, entry := range c.Entries() {
+		if strings.ToLower(entry.ID) == query || strings.ToLower(entry.Name) == query {
+			matches = append(matches, entry)
+		}
+	}
+	return matches
+}
+
+func entryRefs(entries []catalog.Entry) string {
+	refs := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		refs = append(refs, string(entry.Type)+":"+entry.ID)
+	}
+	return strings.Join(refs, ", ")
+}
+
+func formatSource(source catalog.Source) string {
+	if source.Line > 0 {
+		return fmt.Sprintf("%s:%d", source.Path, source.Line)
+	}
+	return source.Path
 }

@@ -39,6 +39,13 @@
 - [x] Add `multiple-choice` exercises.
 - [x] Add `scenario` exercises.
 - [x] Add simple non-executing shell simulator.
+- [x] Add `scan --summary`.
+- [x] Add `scan --type <type>`.
+- [x] Improve `directory --type <type>` validation and output.
+- [x] Improve `search <query>` output and empty-result message.
+- [x] Improve `show <entry>` detail output and ambiguity handling.
+- [x] Add `init --print`.
+- [x] Add concise config-missing notices.
 
 ## P3 — TUI
 
