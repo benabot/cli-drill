@@ -2,10 +2,47 @@ id: 07-lecture-preview
 title: Lecture et preview
 description: Utiliser les outils de lecture et de preview.
 items:
-  - id: bat
+  - id: bat-file
     type: tool
     exercise_type: free-answer
-    prompt: Quel outil affiche un fichier avec coloration syntaxique dans le terminal ?
+    prompt: Quel outil lit un fichier avec coloration syntaxique dans le terminal ?
     answer:
       primary: bat
-    explanation: bat est une alternative moderne a cat avec coloration.
+    explanation: bat rend les fichiers plus lisibles que cat.
+  - id: glow-md
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux previsualiser un Markdown sans quitter le terminal.
+    answer:
+      primary: glow
+    explanation: Glow affiche le Markdown dans le terminal.
+  - id: markedit-app
+    type: workflow
+    exercise_type: scenario
+    prompt: Tu veux ouvrir un Markdown dans une app d'edition dediee detectee par alias.
+    answer:
+      primary: markedit
+      accepted: ["MarkEdit"]
+    explanation: L'alias markedit ouvre l'application MarkEdit.
+  - id: marked2-preview
+    type: workflow
+    exercise_type: free-answer
+    prompt: Quelle app est souvent associee a MarkEdit pour la preview Markdown ?
+    answer:
+      primary: Marked 2
+      accepted: ["marked", "marked2"]
+    explanation: Marked 2 est pertinent pour un workflow de preview Markdown.
+  - id: mdpreview-function
+    type: function
+    exercise_type: scenario
+    prompt: Quelle fonction detectee evoque un workflow de preview Markdown ?
+    answer:
+      primary: mdpreview
+    explanation: mdpreview est une fonction ZSH detectee.
+  - id: bat-readme
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Afficher README.md avec bat.
+    answer:
+      primary: bat README.md
+    explanation: Le shell simule ne fait que comparer cette saisie.

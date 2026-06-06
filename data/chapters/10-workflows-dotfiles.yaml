@@ -8,7 +8,51 @@ items:
     prompt: Le scan du MVP execute-t-il les alias et fonctions detectes ?
     answer:
       primary: non
-      accepted:
-        - no
-        - jamais
+      accepted: ["no", "jamais"]
     explanation: Le MVP fait un scan statique et n'execute aucune commande utilisateur.
+  - id: git-status-short
+    type: alias
+    exercise_type: scenario
+    prompt: Avant de toucher aux dotfiles, quel alias donne un statut Git court ?
+    answer:
+      primary: cgs
+    explanation: cgs = git status --short.
+  - id: check-dotfiles
+    type: workflow
+    exercise_type: free-answer
+    prompt: Quel workflow conceptuel sert a verifier rapidement l'etat des dotfiles ?
+    answer:
+      primary: check-dotfiles
+      accepted: ["dotfiles check", "dotaudit"]
+    explanation: check-dotfiles represente le controle avant modification ou release.
+  - id: update-dotfiles
+    type: workflow
+    exercise_type: free-answer
+    prompt: Quel workflow conceptuel sert a rafraichir ou maintenir les dotfiles ?
+    answer:
+      primary: update-dotfiles
+      accepted: ["dotfiles update", "maj"]
+    explanation: update-dotfiles represente la maintenance reguliere des dotfiles.
+  - id: generate-tools-inventory
+    type: workflow
+    exercise_type: scenario
+    prompt: Tu veux regenerer l'inventaire des outils documentes. Quel workflow conceptuel cherches-tu ?
+    answer:
+      primary: generate-tools-inventory
+      accepted: ["tools inventory", "inventory"]
+    explanation: Ce workflow maintient la documentation des outils disponibles.
+  - id: gitleaks-before-commit
+    type: tool
+    exercise_type: scenario
+    prompt: Avant de publier, quel outil detecte aide a chercher des secrets accidentels ?
+    answer:
+      primary: gitleaks
+    explanation: gitleaks detecte des secrets potentiels dans un repo.
+  - id: dotfiles-status-shell
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Afficher le statut Git court des dotfiles avec la commande complete.
+    answer:
+      primary: git status --short
+      accepted: ["cgs"]
+    explanation: Le shell simule compare la saisie; aucune commande n'est executee.

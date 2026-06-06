@@ -46,6 +46,13 @@
 - [x] Improve `show <entry>` detail output and ambiguity handling.
 - [x] Add `init --print`.
 - [x] Add concise config-missing notices.
+- [x] Enrich default YAML chapters with about 5 to 10 exercises per chapter.
+- [x] Cover required terminal shortcuts, navigation tools, detected aliases and
+  detected ZSH functions in default chapters.
+- [x] Add realistic non-executing shell-sim and scenario drills for search,
+  Markdown preview and dotfiles workflows.
+- [ ] Review chapter wording after several real training sessions.
+- [ ] Add more advanced drills only after the MVP exercises feel stable.
 
 ## P3 — TUI
 

@@ -45,6 +45,9 @@ tool.
   paths.
 - Default editable chapters live in `data/chapters/` and are embedded through
   `data/defaults.go`.
+- Default chapters now contain about 68 short daily-training exercises across
+  terminal shortcuts, shell navigation, ZSH aliases/functions, daily tools,
+  search, Markdown preview, Micro and dotfiles workflows.
 - Unit tests cover ZSH parsing, answer matching, chapter loading, config
   loading, safe path filtering, catalog deduplication, scanner noise reduction
   and progress storage.
@@ -99,5 +102,5 @@ testdata/
 
 ## Next step
 
-Review the MVP behavior manually, then decide whether to refine CLI/TUI UX or
-start using a real dotfiles config for scan/generation testing.
+Review the enriched chapter content during real daily training, then decide
+whether P2 needs more practice depth before moving back to TUI polish.

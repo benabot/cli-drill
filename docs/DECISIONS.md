@@ -57,3 +57,18 @@ List-style output is stable and tabular: `type`, `id`, `name`, `summary`.
 Detailed output from `show` includes source and tags when present.
 
 `init --print` prints the default TOML config without writing to disk.
+
+## 2026-06-06 — Default Training Chapters P2.2
+
+Default chapters are short, topic-separated YAML drills intended for daily
+terminal practice. They favor realistic macOS/ZSH power-user workflows while
+remaining static and non-executing.
+
+Exercises may reference detected aliases and functions when they are present in
+the catalog. Generic concepts stay explicit as concepts or workflows rather
+than pretending to be user-specific shell definitions.
+
+The embedded chapter set now covers terminal shortcuts, navigation, aliases,
+functions, daily tools, search, reading/preview, Micro, Markdown and dotfiles
+workflows with a mix of `free-answer`, `multiple-choice`, `scenario` and
+`simple-shell-sim` exercises.

@@ -2,12 +2,52 @@ id: 04-fonctions-zsh
 title: Fonctions ZSH
 description: Identifier les fonctions ZSH disponibles.
 items:
-  - id: function-example
+  - id: y
+    type: function
+    exercise_type: scenario
+    prompt: Quelle fonction detectee ouvre Yazi et aide a revenir dans le dossier choisi ?
+    answer:
+      primary: y
+    explanation: y est une fonction ZSH detectee pour le workflow Yazi.
+  - id: mdpreview
     type: function
     exercise_type: free-answer
-    prompt: Quel type d'entree represente une commande definie avec name() { ... } ?
+    prompt: Quelle fonction detectee sert au workflow de preview Markdown ?
     answer:
-      primary: function
-      accepted:
-        - fonction
-    explanation: Le MVP detecte les noms de fonctions ZSH sans les executer.
+      primary: mdpreview
+    explanation: mdpreview est une fonction ZSH detectee.
+  - id: funclist
+    type: function
+    exercise_type: scenario
+    prompt: Tu veux lister tes fonctions shell utiles. Quelle fonction detectee cherches-tu ?
+    answer:
+      primary: funclist
+    explanation: funclist aide a retrouver les fonctions disponibles.
+  - id: clip
+    type: function
+    exercise_type: free-answer
+    prompt: Quelle fonction detectee evoque la copie vers le presse-papiers ?
+    answer:
+      primary: clip
+    explanation: clip fait partie des fonctions ZSH detectees.
+  - id: slug
+    type: function
+    exercise_type: scenario
+    prompt: Tu veux transformer un titre en identifiant lisible pour fichier ou URL. Quelle fonction detectee utilises-tu ?
+    answer:
+      primary: slug
+    explanation: slug est une fonction detectee pour normaliser un texte court.
+  - id: port
+    type: function
+    exercise_type: free-answer
+    prompt: Quelle fonction detectee evoque l'inspection d'un port local ?
+    answer:
+      primary: port
+    explanation: port est une fonction ZSH detectee.
+  - id: zedstdin
+    type: function
+    exercise_type: scenario
+    prompt: Tu veux envoyer du texte depuis stdin vers Zed. Quelle fonction detectee correspond ?
+    answer:
+      primary: zedstdin
+    explanation: zedstdin est une fonction ZSH detectee.

@@ -2,10 +2,53 @@ id: 03-alias-zsh
 title: Alias ZSH
 description: Retenir les alias ZSH utiles.
 items:
-  - id: alias-example
+  - id: cgs
     type: alias
     exercise_type: free-answer
-    prompt: Quel alias pourrait representer git status --short ?
+    prompt: Quel alias affiche git status --short ?
     answer:
       primary: cgs
-    explanation: Les alias ZSH sont detectes statiquement dans les fichiers configures.
+    explanation: cgs = git status --short.
+  - id: cgd
+    type: alias
+    exercise_type: free-answer
+    prompt: Quel alias affiche un resume du diff Git ?
+    answer:
+      primary: cgd
+    explanation: cgd = git diff --stat.
+  - id: cgdn
+    type: alias
+    exercise_type: scenario
+    prompt: Tu veux seulement la liste des fichiers modifies par Git. Quel alias utilises-tu ?
+    answer:
+      primary: cgdn
+    explanation: cgdn = git diff --name-only.
+  - id: lg
+    type: alias
+    exercise_type: multiple-choice
+    prompt: Quel alias ouvre lazygit ?
+    choices: ["lg", "mc", "dtf", "cgs"]
+    answer:
+      primary: lg
+    explanation: lg lance lazygit.
+  - id: dtf
+    type: alias
+    exercise_type: scenario
+    prompt: Tu veux rejoindre le repo dotfiles. Quel alias detecte utilises-tu ?
+    answer:
+      primary: dtf
+    explanation: dtf change vers le dossier dotfiles.
+  - id: mc
+    type: alias
+    exercise_type: free-answer
+    prompt: Quel alias ouvre micro ?
+    answer:
+      primary: mc
+    explanation: mc = micro.
+  - id: ezac
+    type: alias
+    exercise_type: scenario
+    prompt: Tu veux une liste detaillee avec eza et icones. Quel alias detecte peux-tu utiliser ?
+    answer:
+      primary: ezac
+    explanation: ezac lance eza -la --icons.

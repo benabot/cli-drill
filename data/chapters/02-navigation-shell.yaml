@@ -2,12 +2,50 @@ id: 02-navigation-shell
 title: Navigation shell
 description: S'entrainer aux outils de navigation du shell.
 items:
-  - id: zoxide
+  - id: zoxide-jump
     type: tool
     exercise_type: scenario
     prompt: Tu veux rejoindre rapidement un dossier deja visite. Quel outil utilises-tu ?
     answer:
       primary: zoxide
-      accepted:
-        - z
+      accepted: ["z"]
     explanation: zoxide apprend les dossiers frequents et permet d'y revenir vite.
+  - id: fzf-pick
+    type: tool
+    exercise_type: free-answer
+    prompt: Quel outil sert a choisir interactivement une entree dans une liste ?
+    answer:
+      primary: fzf
+    explanation: fzf filtre une liste et laisse choisir une entree.
+  - id: fd-find-dir
+    type: tool
+    exercise_type: multiple-choice
+    prompt: Quel outil moderne sert a trouver rapidement des fichiers ou dossiers ?
+    choices: ["fd", "bat", "glow", "vale"]
+    answer:
+      primary: fd
+    explanation: fd est une alternative simple et rapide a find.
+  - id: eza-tree
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux visualiser une arborescence lisible avec icones. Quel outil utilises-tu ?
+    answer:
+      primary: eza
+      accepted: ["ezal"]
+    explanation: eza peut lister et afficher des arbres lisibles dans le terminal.
+  - id: yazi-open
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux naviguer visuellement dans les fichiers depuis le terminal. Quel outil ou fonction ouvres-tu ?
+    answer:
+      primary: yazi
+      accepted: ["y"]
+    explanation: yazi est un gestionnaire de fichiers terminal; la fonction y est detectee.
+  - id: fd-fzf-dir
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Trouver des dossiers puis en choisir un avec fzf.
+    answer:
+      primary: fd -t d | fzf
+      accepted: ["fd --type d | fzf"]
+    explanation: Le shell simule compare la reponse sans executer la commande.

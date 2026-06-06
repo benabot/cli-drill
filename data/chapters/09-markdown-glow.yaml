@@ -1,6 +1,6 @@
 id: 09-markdown-glow
 title: Markdown et Glow
-description: Travailler avec Markdown et Glow.
+description: Travailler avec Markdown, Glow et les checks de prose.
 items:
   - id: glow-preview
     type: tool
@@ -9,3 +9,47 @@ items:
     answer:
       primary: glow
     explanation: Glow affiche le Markdown dans le terminal.
+  - id: glow-readme
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Afficher README.md avec glow.
+    answer:
+      primary: glow README.md
+    explanation: Le shell simule compare la reponse sans executer la commande.
+  - id: markdownlint
+    type: tool
+    exercise_type: free-answer
+    prompt: Quel outil detecte sert a verifier le style Markdown en CLI ?
+    answer:
+      primary: markdownlint-cli2
+      accepted: ["markdownlint"]
+    explanation: markdownlint-cli2 controle les regles Markdown.
+  - id: vale
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux relire la prose et le style d'un document. Quel outil detecte peux-tu utiliser ?
+    answer:
+      primary: vale
+    explanation: Vale aide a verifier la qualite redactionnelle.
+  - id: mdpreview
+    type: function
+    exercise_type: free-answer
+    prompt: Quelle fonction detectee evoque la preview Markdown ?
+    answer:
+      primary: mdpreview
+    explanation: mdpreview est une fonction ZSH detectee.
+  - id: markdown-pipeline
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Trouver un Markdown puis le previsualiser avec glow.
+    answer:
+      primary: glow $(fd -e md | fzf)
+      accepted: ["glow \"$(fd -e md | fzf)\""]
+    explanation: Le shell simule compare seulement la saisie attendue.
+  - id: markdown-generate-preview
+    type: workflow
+    exercise_type: scenario
+    prompt: Apres generation d'un document Markdown, quel outil terminal utilises-tu pour le relire rapidement ?
+    answer:
+      primary: glow
+    explanation: Glow est utile juste apres une generation ou modification Markdown.

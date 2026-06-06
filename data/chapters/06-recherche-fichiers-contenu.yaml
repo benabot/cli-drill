@@ -1,25 +1,57 @@
 id: 06-recherche-fichiers-contenu
 title: Recherche fichiers et contenu
-description: S'entrainer avec fd, rg et fzf.
+description: S'entrainer avec fd, rg, fzf et bat.
 items:
-  - id: fd-rg
+  - id: rg-content
     type: tool
     exercise_type: multiple-choice
     prompt: Quel outil sert a chercher dans le contenu des fichiers ?
-    choices:
-      - fd
-      - rg
-      - eza
-      - bat
+    choices: ["fd", "rg", "eza", "bat"]
     answer:
       primary: rg
-      accepted:
-        - ripgrep
+      accepted: ["ripgrep"]
     explanation: rg, ou ripgrep, cherche dans le contenu des fichiers.
-  - id: fd-fzf-shell
+  - id: fd-files
+    type: tool
+    exercise_type: free-answer
+    prompt: Quel outil sert a trouver rapidement des fichiers par nom ?
+    answer:
+      primary: fd
+    explanation: fd trouve fichiers et dossiers avec une syntaxe simple.
+  - id: fzf-filter
+    type: tool
+    exercise_type: scenario
+    prompt: Tu as une longue liste de resultats et tu veux choisir interactivement.
+    answer:
+      primary: fzf
+    explanation: fzf filtre une liste dans le terminal.
+  - id: bat-preview
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux lire rapidement un fichier trouve avec coloration syntaxique.
+    answer:
+      primary: bat
+    explanation: bat rend les fichiers plus lisibles.
+  - id: fd-fzf-md
     type: workflow
     exercise_type: simple-shell-sim
     prompt: Lister les fichiers Markdown puis en choisir un avec fzf.
     answer:
       primary: fd -e md | fzf
     explanation: Le shell simule compare la reponse sans executer la commande.
+  - id: rg-fzf-todo
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Chercher TODO puis choisir une ligne avec fzf.
+    answer:
+      primary: rg TODO | fzf
+      accepted: ["rg \"TODO\" | fzf"]
+    explanation: rg produit les lignes, fzf permet de filtrer.
+  - id: rg-bat
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Chercher le mot cli-drill dans docs puis afficher un fichier avec bat.
+    answer:
+      primary: rg cli-drill docs | fzf
+      accepted: ["rg \"cli-drill\" docs | fzf"]
+    explanation: Ce workflow selectionne d'abord un resultat; bat peut ensuite servir a lire le fichier.

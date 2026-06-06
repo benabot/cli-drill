@@ -2,12 +2,58 @@ id: 05-outils-quotidiens
 title: Outils quotidiens
 description: Reviser les outils CLI courants.
 items:
-  - id: lazygit
+  - id: atuin
     type: tool
     exercise_type: scenario
-    prompt: Tu veux piloter Git dans une interface terminal. Quel outil peux-tu ouvrir ?
+    prompt: Tu veux retrouver une commande ancienne dans l'historique. Quel outil est le plus adapte ?
+    answer:
+      primary: atuin
+      accepted: ["Ctrl+R"]
+    explanation: Atuin enrichit la recherche d'historique du shell.
+  - id: yazi
+    type: tool
+    exercise_type: free-answer
+    prompt: Quel gestionnaire de fichiers terminal est utile pour naviguer visuellement ?
+    answer:
+      primary: yazi
+      accepted: ["y"]
+    explanation: Yazi facilite la navigation fichier dans le terminal.
+  - id: zoxide
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux sauter vers un dossier frequent sans taper tout le chemin.
+    answer:
+      primary: zoxide
+      accepted: ["z"]
+    explanation: zoxide apprend les chemins frequents.
+  - id: lazygit
+    type: tool
+    exercise_type: multiple-choice
+    prompt: Quel outil fournit une interface terminal pour Git ?
+    choices: ["lazygit", "bat", "glow", "zoxide"]
     answer:
       primary: lazygit
-      accepted:
-        - lg
-    explanation: lazygit fournit une interface terminal pour les operations Git.
+      accepted: ["lg"]
+    explanation: lazygit donne une interface TUI pour Git.
+  - id: bat
+    type: tool
+    exercise_type: free-answer
+    prompt: Quel outil affiche un fichier avec coloration syntaxique ?
+    answer:
+      primary: bat
+    explanation: bat est une alternative lisible a cat.
+  - id: eza
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux remplacer ls par une sortie plus lisible avec icones.
+    answer:
+      primary: eza
+      accepted: ["ezac", "ezal"]
+    explanation: eza ameliore les listes de fichiers.
+  - id: glow
+    type: tool
+    exercise_type: scenario
+    prompt: Tu veux lire du Markdown dans le terminal.
+    answer:
+      primary: glow
+    explanation: Glow rend le Markdown directement dans le terminal.

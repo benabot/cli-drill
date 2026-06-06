@@ -1,11 +1,52 @@
 id: 08-micro
 title: Micro
-description: Retenir les commandes et raccourcis Micro.
+description: Retenir les usages essentiels de l'editeur terminal Micro.
 items:
-  - id: micro-tool
+  - id: micro-open
     type: tool
     exercise_type: free-answer
     prompt: Quel editeur terminal simple est vise par ce chapitre ?
     answer:
       primary: micro
-    explanation: Micro fait partie des outils prioritaires du setup initial.
+      accepted: ["mc"]
+    explanation: micro est ouvert directement ou via l'alias mc.
+  - id: mc-alias
+    type: alias
+    exercise_type: scenario
+    prompt: Tu veux ouvrir micro avec l'alias detecte. Quel alias utilises-tu ?
+    answer:
+      primary: mc
+    explanation: mc = micro.
+  - id: micro-open-file
+    type: workflow
+    exercise_type: simple-shell-sim
+    prompt: Ouvrir TODO.md avec micro.
+    answer:
+      primary: micro TODO.md
+      accepted: ["mc TODO.md"]
+    explanation: Le shell simule compare la commande attendue.
+  - id: micro-save
+    type: shortcut
+    exercise_type: free-answer
+    prompt: Dans Micro, quel raccourci courant sauvegarde le fichier ?
+    answer:
+      primary: Ctrl+S
+      accepted: ["control-s", "ctrl s", "^S"]
+    explanation: Ctrl+S est le raccourci de sauvegarde courant dans Micro.
+  - id: micro-search
+    type: shortcut
+    exercise_type: multiple-choice
+    prompt: Quel raccourci courant lance la recherche dans Micro ?
+    choices: ["Ctrl+F", "Ctrl+L", "Ctrl+U", "Ctrl+Y"]
+    answer:
+      primary: Ctrl+F
+      accepted: ["control-f", "ctrl f", "^F"]
+    explanation: Ctrl+F sert a rechercher dans beaucoup d'editeurs, dont Micro.
+  - id: micro-quit
+    type: shortcut
+    exercise_type: free-answer
+    prompt: Quel raccourci courant quitte Micro ?
+    answer:
+      primary: Ctrl+Q
+      accepted: ["control-q", "ctrl q", "^Q"]
+    explanation: Ctrl+Q quitte Micro.
