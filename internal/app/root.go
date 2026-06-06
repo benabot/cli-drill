@@ -18,6 +18,7 @@ import (
 	"github.com/benabot/cli-drill/internal/progress"
 	"github.com/benabot/cli-drill/internal/tui"
 	"github.com/benabot/cli-drill/internal/xdg"
+	"github.com/charmbracelet/x/term"
 	"github.com/spf13/cobra"
 )
 
@@ -350,12 +351,47 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 	}
 	reader := bufio.NewReader(opts.In)
 
-	_, _ = fmt.Fprintf(opts.Out, "Chapitre: %s\n", selected.Title)
-	for i, item := range selected.Items {
+	textHeaderPrinted := false
+	keyStats := keySequenceStats{}
+	keyQuit := false
+	for i := 0; i < len(selected.Items); {
+		item := selected.Items[i]
+		if item.ExerciseType == exercise.TypeKeySequence {
+			result, err := runKeySequenceExercise(opts, reader, &state, selected, item, i, len(selected.Items))
+			if err != nil && !errors.Is(err, io.EOF) {
+				return err
+			}
+			if result.Action == keySequenceQuit {
+				keyQuit = true
+				break
+			}
+			if result.Action == keySequenceNext {
+				keyStats.Total++
+				if result.Correct {
+					keyStats.Correct++
+				} else {
+					keyStats.Missed = append(keyStats.Missed, keySequenceReviewItem{Item: item})
+				}
+				i++
+			}
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			continue
+		}
+
+		if !textHeaderPrinted {
+			_, _ = fmt.Fprintf(opts.Out, "Chapitre: %s\n", selected.Title)
+			textHeaderPrinted = true
+		}
 		_, _ = fmt.Fprintf(opts.Out, "\n%d/%d %s\n> ", i+1, len(selected.Items), item.Prompt)
-		input, err := reader.ReadString('\n')
+		input, aborted, err := readTrainingInput(opts, reader, item.ExerciseType)
 		if err != nil && !errors.Is(err, io.EOF) {
 			return err
+		}
+		if aborted {
+			_, _ = fmt.Fprintln(opts.Out, "Session interrompue.")
+			break
 		}
 		correct := exercise.MatchAnswer(input, item.Answer)
 		if correct {
@@ -370,8 +406,255 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 		if errors.Is(err, io.EOF) {
 			break
 		}
+		i++
+	}
+	if keyStats.Total > 0 && !keyQuit {
+		if err := runKeySequenceReview(opts, reader, &state, selected, keyStats); err != nil && !errors.Is(err, io.EOF) {
+			return err
+		}
 	}
 	return progress.Save(progressPath(opts), state)
+}
+
+type keySequenceStats struct {
+	Total   int
+	Correct int
+	Missed  []keySequenceReviewItem
+}
+
+type keySequenceReviewItem struct {
+	Item chapter.Item
+}
+
+type keySequenceAction int
+
+const (
+	keySequenceNext keySequenceAction = iota
+	keySequenceRetry
+	keySequenceQuit
+)
+
+type keySequenceResult struct {
+	Action  keySequenceAction
+	Correct bool
+}
+
+func runKeySequenceExercise(opts Options, reader *bufio.Reader, state *progress.Progress, selected chapter.Chapter, item chapter.Item, index, total int) (keySequenceResult, error) {
+	for {
+		renderKeySequenceCapture(opts.Out, selected.Title, index+1, total, item.Prompt)
+		input, aborted, err := readTrainingInput(opts, reader, item.ExerciseType)
+		if err != nil {
+			return keySequenceResult{Action: keySequenceNext}, err
+		}
+		if aborted {
+			_, _ = fmt.Fprintln(opts.Out, "Session interrompue.")
+			return keySequenceResult{Action: keySequenceQuit}, nil
+		}
+		if input == "?" {
+			renderKeySequenceHelp(opts.Out)
+			continue
+		}
+
+		_, _ = fmt.Fprintf(opts.Out, "\nRecu: %s\n", input)
+		correct := exercise.MatchAnswer(input, item.Answer)
+		if correct {
+			_, _ = fmt.Fprintln(opts.Out, "Correct.")
+		} else {
+			_, _ = fmt.Fprintln(opts.Out, "Pas encore.")
+		}
+		if correct && item.Explanation != "" {
+			_, _ = fmt.Fprintln(opts.Out, item.Explanation)
+		}
+		state.MarkCompleted(selected.ID, item.ID, correct)
+		renderKeySequenceFeedbackBar(opts.Out, correct)
+
+		action, err := readKeySequenceFeedbackAction(opts, reader, item, correct)
+		if err != nil {
+			return keySequenceResult{Action: keySequenceNext, Correct: correct}, err
+		}
+		return keySequenceResult{Action: action, Correct: correct}, nil
+	}
+}
+
+func renderKeySequenceCapture(w io.Writer, title string, index, total int, prompt string) {
+	_, _ = fmt.Fprintf(w, "\nChapitre: %s\n\n%d/%d %s\n\nWaiting for key...\n\n%s\n", title, index, total, prompt, commandBar("Esc quit", "? help"))
+}
+
+func renderKeySequenceHelp(w io.Writer) {
+	_, _ = fmt.Fprintf(w, "\nHelp: press the requested shortcut. Normal keys count as answers.\n%s\n", commandBar("Esc quit", "? help"))
+}
+
+func renderKeySequenceFeedbackBar(w io.Writer, correct bool) {
+	if correct {
+		_, _ = fmt.Fprintf(w, "%s\n", commandBar("Enter next", "Esc quit"))
+		return
+	}
+	_, _ = fmt.Fprintf(w, "%s\n", commandBar("Enter next", "r retry", "s solution", "Esc quit"))
+}
+
+func commandBar(commands ...string) string {
+	return "────────────────────────────────────────\n" + strings.Join(commands, " · ")
+}
+
+func readKeySequenceFeedbackAction(opts Options, reader *bufio.Reader, item chapter.Item, correct bool) (keySequenceAction, error) {
+	for {
+		input, err := readKeySequence(opts, reader)
+		if err != nil {
+			return keySequenceNext, err
+		}
+		switch input {
+		case "Enter":
+			return keySequenceNext, nil
+		case "r", "R":
+			if correct {
+				_, _ = fmt.Fprintf(opts.Out, "\n%s\n", commandBar("Enter next", "Esc quit"))
+				continue
+			}
+			return keySequenceRetry, nil
+		case "s", "S":
+			if correct {
+				_, _ = fmt.Fprintf(opts.Out, "\n%s\n", commandBar("Enter next", "Esc quit"))
+				continue
+			}
+			renderKeySequenceSolution(opts.Out, item)
+		case "Esc", "Ctrl+C":
+			_, _ = fmt.Fprintln(opts.Out, "\nSession interrompue.")
+			return keySequenceQuit, nil
+		default:
+			renderKeySequenceFeedbackBar(opts.Out, correct)
+		}
+	}
+}
+
+func renderKeySequenceSolution(w io.Writer, item chapter.Item) {
+	_, _ = fmt.Fprintf(w, "\nSolution: %s\n", item.Answer.Primary)
+	if item.Explanation != "" {
+		_, _ = fmt.Fprintln(w, item.Explanation)
+	}
+	renderKeySequenceFeedbackBar(w, false)
+}
+
+func runKeySequenceReview(opts Options, reader *bufio.Reader, state *progress.Progress, selected chapter.Chapter, stats keySequenceStats) error {
+	missed := stats.Missed
+	for {
+		renderKeySequenceSummary(opts.Out, stats.Correct, stats.Total, len(missed))
+		if len(missed) == 0 {
+			return nil
+		}
+		action, err := readKeySequenceReviewAction(opts, reader)
+		if err != nil {
+			return err
+		}
+		if action == keySequenceQuit {
+			return nil
+		}
+
+		reviewStats := keySequenceStats{}
+		for i := 0; i < len(missed); {
+			review := missed[i]
+			result, err := runKeySequenceExercise(opts, reader, state, selected, review.Item, i, len(missed))
+			if err != nil {
+				return err
+			}
+			if result.Action == keySequenceQuit {
+				return nil
+			}
+			if result.Action == keySequenceRetry {
+				continue
+			}
+			reviewStats.Total++
+			if result.Correct {
+				reviewStats.Correct++
+			} else {
+				reviewStats.Missed = append(reviewStats.Missed, review)
+			}
+			i++
+		}
+		stats = reviewStats
+		missed = reviewStats.Missed
+	}
+}
+
+func renderKeySequenceSummary(w io.Writer, correct, total, missed int) {
+	_, _ = fmt.Fprintf(w, "\nChapitre termine.\nCorrect: %d/%d\nÀ revoir: %d\n", correct, total, missed)
+	if missed > 0 {
+		_, _ = fmt.Fprintf(w, "%s\n", commandBar("Enter review missed", "Esc quit"))
+	}
+}
+
+func readKeySequenceReviewAction(opts Options, reader *bufio.Reader) (keySequenceAction, error) {
+	for {
+		input, err := readKeySequence(opts, reader)
+		if err != nil {
+			return keySequenceQuit, err
+		}
+		switch input {
+		case "Enter":
+			return keySequenceNext, nil
+		case "Esc", "Ctrl+C":
+			_, _ = fmt.Fprintln(opts.Out, "\nSession interrompue.")
+			return keySequenceQuit, nil
+		default:
+			_, _ = fmt.Fprintf(opts.Out, "\n%s\n", commandBar("Enter review missed", "Esc quit"))
+		}
+	}
+}
+
+func readTrainingInput(opts Options, reader *bufio.Reader, exerciseType exercise.Type) (string, bool, error) {
+	if exerciseType != exercise.TypeKeySequence {
+		input, err := reader.ReadString('\n')
+		return input, false, err
+	}
+
+	input, err := readKeySequence(opts, reader)
+	if err != nil {
+		return "", false, err
+	}
+	if input == "Esc" || input == "Ctrl+C" {
+		return input, true, nil
+	}
+	return input, false, nil
+}
+
+func readKeySequence(opts Options, reader *bufio.Reader) (string, error) {
+	if file, ok := opts.In.(*os.File); ok && term.IsTerminal(file.Fd()) {
+		return readRawKey(file)
+	}
+
+	b, err := reader.ReadByte()
+	if err != nil {
+		return "", err
+	}
+	if b == '\r' || b == '\n' {
+		return "Enter", nil
+	}
+	if notation, ok := exercise.KeyByteNotation(b); ok {
+		return notation, nil
+	}
+	return string([]byte{b}), nil
+}
+
+func readRawKey(file *os.File) (string, error) {
+	fd := file.Fd()
+	state, err := term.MakeRaw(fd)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = term.Restore(fd, state)
+	}()
+
+	var b [1]byte
+	if _, err := file.Read(b[:]); err != nil {
+		return "", err
+	}
+	if b[0] == '\r' || b[0] == '\n' {
+		return "Enter", nil
+	}
+	if notation, ok := exercise.KeyByteNotation(b[0]); ok {
+		return notation, nil
+	}
+	return string(b[:]), nil
 }
 
 func loadConfig(opts Options, missingNotice string) (config.Config, error) {

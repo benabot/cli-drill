@@ -72,3 +72,22 @@ The embedded chapter set now covers terminal shortcuts, navigation, aliases,
 functions, daily tools, search, reading/preview, Micro, Markdown and dotfiles
 workflows with a mix of `free-answer`, `multiple-choice`, `scenario` and
 `simple-shell-sim` exercises.
+
+## 2026-06-06 — Raw Shortcut Training P2.4/P2.4b/P2.4c
+
+Shortcut drills use raw key capture through `key-sequence`; text answers remain
+for other exercise types.
+
+Only `key-sequence` exercises enter raw terminal mode. The training loop
+restores the terminal state with `defer` after each captured key, maps control
+bytes to canonical `Ctrl+<letter>` notation and treats `Esc` or `Ctrl+C` as a
+clean session exit.
+
+`key-sequence` uses raw key capture with a lightweight command bar, not a full
+TUI. After each captured answer, `Enter` advances, `r` retries the same
+exercise, and `Esc` or `Ctrl+C` quits cleanly.
+
+The command bar is intentionally contextual. Correct answers only offer next or
+quit. Missed answers offer next, retry or solution. `key-sequence` uses a
+lightweight drill loop with session review for missed shortcuts; the review
+list is in-memory only and does not add persistent storage.

@@ -9,6 +9,7 @@ const (
 	TypeMultipleChoice Type = "multiple-choice"
 	TypeScenario       Type = "scenario"
 	TypeSimpleShellSim Type = "simple-shell-sim"
+	TypeKeySequence    Type = "key-sequence"
 )
 
 type Answer struct {
@@ -53,10 +54,14 @@ func normalizePipeSpacing(value string) string {
 }
 
 func normalizeRawControlShortcut(value string) (string, bool) {
-	if len(value) == 1 && value[0] >= 1 && value[0] <= 26 {
-		return "ctrl+" + string(rune('a'+value[0]-1)), true
+	if len(value) != 1 {
+		return "", false
 	}
-	return "", false
+	notation, ok := KeyByteNotation(value[0])
+	if !ok {
+		return "", false
+	}
+	return strings.ToLower(notation), true
 }
 
 func normalizeControlShortcut(value string) string {
@@ -74,4 +79,14 @@ func normalizeControlShortcut(value string) string {
 
 func isASCIILetter(value byte) bool {
 	return value >= 'a' && value <= 'z'
+}
+
+func KeyByteNotation(value byte) (string, bool) {
+	if value == 0x1b {
+		return "Esc", true
+	}
+	if value >= 1 && value <= 26 {
+		return "Ctrl+" + string(rune('A'+value-1)), true
+	}
+	return "", false
 }

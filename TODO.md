@@ -51,6 +51,12 @@
   detected ZSH functions in default chapters.
 - [x] Add realistic non-executing shell-sim and scenario drills for search,
   Markdown preview and dotfiles workflows.
+- [x] Add `key-sequence` shortcut drills with raw key capture for terminal
+  control-key practice.
+- [x] Add a lightweight command bar to `key-sequence` training for help, retry,
+  next and quit actions.
+- [x] Add an in-memory session review loop for missed `key-sequence` shortcut
+  drills.
 - [ ] Review chapter wording after several real training sessions.
 - [ ] Add more advanced drills only after the MVP exercises feel stable.
 

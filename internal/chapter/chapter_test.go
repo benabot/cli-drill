@@ -3,6 +3,8 @@ package chapter
 import (
 	"strings"
 	"testing"
+
+	"github.com/benabot/cli-drill/internal/exercise"
 )
 
 func TestLoadChapterFromYAML(t *testing.T) {
@@ -35,6 +37,28 @@ items:
 	}
 	if chapter.Items[0].Answer.Primary != "Ctrl+A" {
 		t.Fatalf("unexpected answer: %#v", chapter.Items[0].Answer)
+	}
+}
+
+func TestLoadKeySequenceChapterItemFromYAML(t *testing.T) {
+	input := strings.NewReader(`
+id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-l
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour nettoyer l'ecran.
+    answer:
+      primary: Ctrl+L
+`)
+
+	chapter, err := Load(input)
+	if err != nil {
+		t.Fatalf("Load returned error: %v", err)
+	}
+	if chapter.Items[0].ExerciseType != exercise.TypeKeySequence {
+		t.Fatalf("expected key-sequence exercise type, got %q", chapter.Items[0].ExerciseType)
 	}
 }
 

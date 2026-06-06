@@ -48,6 +48,12 @@ tool.
 - Default chapters now contain about 68 short daily-training exercises across
   terminal shortcuts, shell navigation, ZSH aliases/functions, daily tools,
   search, Markdown preview, Micro and dotfiles workflows.
+- Shortcut drills in `01-raccourcis-terminal` use the `key-sequence` exercise
+  type to capture real control keys in raw terminal mode during CLI training.
+- `key-sequence` training uses a lightweight CLI command bar for help, retry,
+  next and clean quit actions; it does not use the Bubble Tea TUI.
+- `key-sequence` keeps an in-memory session review list for missed shortcuts
+  and can relaunch only missed items at the end of the chapter.
 - Unit tests cover ZSH parsing, answer matching, chapter loading, config
   loading, safe path filtering, catalog deduplication, scanner noise reduction
   and progress storage.

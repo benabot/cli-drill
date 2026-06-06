@@ -4,65 +4,64 @@ description: Memoriser les raccourcis de navigation et edition de ligne.
 items:
   - id: ctrl-a
     type: shortcut
-    exercise_type: free-answer
-    prompt: Aller au debut de la ligne.
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour aller au debut de la ligne.
     answer:
       primary: Ctrl+A
       accepted: ["^A", "control-a", "ctrl a"]
     explanation: Ctrl+A place le curseur au debut de la ligne.
   - id: ctrl-e
     type: shortcut
-    exercise_type: free-answer
-    prompt: Aller a la fin de la ligne.
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour aller a la fin de la ligne.
     answer:
       primary: Ctrl+E
       accepted: ["^E", "control-e", "ctrl e"]
     explanation: Ctrl+E place le curseur a la fin de la ligne.
   - id: ctrl-u
     type: shortcut
-    exercise_type: scenario
-    prompt: Tu veux effacer tout ce qui est avant le curseur. Quel raccourci utilises-tu ?
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour effacer tout ce qui est avant le curseur.
     answer:
       primary: Ctrl+U
       accepted: ["^U", "control-u", "ctrl u"]
     explanation: Ctrl+U coupe le texte du debut de ligne jusqu'au curseur.
   - id: ctrl-k
     type: shortcut
-    exercise_type: scenario
-    prompt: Tu veux effacer tout ce qui est apres le curseur. Quel raccourci utilises-tu ?
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour effacer tout ce qui est apres le curseur.
     answer:
       primary: Ctrl+K
       accepted: ["^K", "control-k", "ctrl k"]
     explanation: Ctrl+K coupe du curseur jusqu'a la fin de ligne.
   - id: ctrl-w
     type: shortcut
-    exercise_type: free-answer
-    prompt: Supprimer le mot avant le curseur.
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour supprimer le mot avant le curseur.
     answer:
       primary: Ctrl+W
       accepted: ["^W", "control-w", "ctrl w"]
     explanation: Ctrl+W coupe le mot precedent.
   - id: ctrl-y
     type: shortcut
-    exercise_type: free-answer
-    prompt: Recoller le texte coupe avec Ctrl+U, Ctrl+K ou Ctrl+W.
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour recoller le texte coupe.
     answer:
       primary: Ctrl+Y
       accepted: ["^Y", "control-y", "ctrl y"]
     explanation: Ctrl+Y colle le dernier texte coupe.
   - id: ctrl-r
     type: shortcut
-    exercise_type: multiple-choice
-    prompt: Quel raccourci ouvre la recherche dans l'historique du shell ?
-    choices: ["Ctrl+A", "Ctrl+R", "Ctrl+L", "Ctrl+K"]
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour ouvrir la recherche dans l'historique du shell.
     answer:
       primary: Ctrl+R
       accepted: ["^R", "control-r", "ctrl r"]
     explanation: Ctrl+R lance la recherche d'historique, souvent enrichie par Atuin.
   - id: ctrl-l
     type: shortcut
-    exercise_type: free-answer
-    prompt: Nettoyer l'ecran du terminal sans fermer la session.
+    exercise_type: key-sequence
+    prompt: Appuie sur le raccourci pour nettoyer l'ecran du terminal sans fermer la session.
     answer:
       primary: Ctrl+L
       accepted: ["^L", "control-l", "ctrl l"]

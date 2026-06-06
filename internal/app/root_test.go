@@ -161,6 +161,293 @@ items:
 	}
 }
 
+func TestTrainKeySequenceMatchesOneControlBytePerExercise(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+  - id: ctrl-l
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+L.
+    answer:
+      primary: Ctrl+L
+  - id: ctrl-l-bare
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+L.
+    answer:
+      primary: Ctrl+L
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("\x01\n\x0c\nL"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if strings.Count(got, "Correct.") != 2 {
+		t.Fatalf("expected two key sequence answers to be correct, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Recu: L") || !strings.Contains(got, "Pas encore.") {
+		t.Fatalf("expected bare L to be rejected, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Correct: 2/3") || !strings.Contains(got, "À revoir: 1") {
+		t.Fatalf("expected chapter summary with one missed exercise, got:\n%s", got)
+	}
+}
+
+func TestCommandBarFormat(t *testing.T) {
+	got := commandBar("Enter next", "r retry", "Esc quit")
+	want := "────────────────────────────────────────\nEnter next · r retry · Esc quit"
+	if got != want {
+		t.Fatalf("unexpected command bar:\n%s", got)
+	}
+}
+
+func TestKeySequenceFeedbackBarsDependOnResult(t *testing.T) {
+	var correct bytes.Buffer
+	renderKeySequenceFeedbackBar(&correct, true)
+	if strings.Contains(correct.String(), "r retry") || strings.Contains(correct.String(), "s solution") {
+		t.Fatalf("correct feedback bar should not contain retry or solution, got:\n%s", correct.String())
+	}
+	if !strings.Contains(correct.String(), "Enter next · Esc quit") {
+		t.Fatalf("correct feedback bar should contain next and quit, got:\n%s", correct.String())
+	}
+
+	var wrong bytes.Buffer
+	renderKeySequenceFeedbackBar(&wrong, false)
+	if !strings.Contains(wrong.String(), "Enter next · r retry · s solution · Esc quit") {
+		t.Fatalf("wrong feedback bar should contain retry and solution, got:\n%s", wrong.String())
+	}
+}
+
+func TestTrainKeySequenceSupportsRetryCommand(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-l
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+L.
+    answer:
+      primary: Ctrl+L
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("Lr\x0c\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if strings.Count(got, "1/1 Press Ctrl+L.") != 2 {
+		t.Fatalf("expected retry to render the same exercise twice, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Recu: L") || !strings.Contains(got, "Pas encore.") {
+		t.Fatalf("expected first attempt to be wrong, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Recu: Ctrl+L") || !strings.Contains(got, "Correct.") {
+		t.Fatalf("expected retry attempt to be correct, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceShowsHelpBeforeAnswer(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("?\x01\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if !strings.Contains(got, "Help: press the requested shortcut.") {
+		t.Fatalf("expected help text, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Recu: Ctrl+A") || !strings.Contains(got, "Correct.") {
+		t.Fatalf("expected answer after help to be accepted, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceSolutionCommandShowsExpectedAnswer(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-l
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+L.
+    answer:
+      primary: Ctrl+L
+    explanation: Ctrl+L clears the screen.
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("Ls\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if !strings.Contains(got, "Solution: Ctrl+L") {
+		t.Fatalf("expected solution command to print expected answer, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Ctrl+L clears the screen.") {
+		t.Fatalf("expected solution command to print explanation, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceReviewsMissedExercises(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+  - id: ctrl-e
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+E.
+    answer:
+      primary: Ctrl+E
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("L\n\x05\n\n\x01\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if !strings.Contains(got, "Correct: 1/2") || !strings.Contains(got, "À revoir: 1") {
+		t.Fatalf("expected initial summary with one missed exercise, got:\n%s", got)
+	}
+	if strings.Count(got, "1/1 Press Ctrl+A.") != 1 {
+		t.Fatalf("expected review pass to include only missed Ctrl+A exercise, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Correct: 1/1") || !strings.Contains(got, "À revoir: 0") {
+		t.Fatalf("expected review summary to clear missed exercise, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceExitsCleanlyOnEscapeAndCtrlC(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		{name: "escape", input: "\x1b\x01"},
+		{name: "ctrl c", input: "\x03\x01"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+			progressPath := filepath.Join(t.TempDir(), "progress.json")
+			chapters := fstest.MapFS{
+				"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+  - id: ctrl-e
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+E.
+    answer:
+      primary: Ctrl+E
+`)},
+			}
+
+			var out bytes.Buffer
+			cmd := NewRootCommand(chapters)
+			cmd.SetIn(strings.NewReader(tt.input))
+			cmd.SetOut(&out)
+			cmd.SetErr(&out)
+			cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+			if err := cmd.Execute(); err != nil {
+				t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+			}
+
+			got := out.String()
+			if !strings.Contains(got, "Session interrompue.") {
+				t.Fatalf("expected clean interruption message, got:\n%s", got)
+			}
+			if strings.Contains(got, "2/2") || strings.Contains(got, "Correct.") {
+				t.Fatalf("expected session to stop before next exercise, got:\n%s", got)
+			}
+		})
+	}
+}
+
 func writeAppTestConfigWithFunctions(t *testing.T, root string) string {
 	t.Helper()
 	path := filepath.Join(root, "config.toml")
