@@ -440,8 +440,15 @@ type keySequenceResult struct {
 }
 
 func runKeySequenceExercise(opts Options, reader *bufio.Reader, state *progress.Progress, selected chapter.Chapter, item chapter.Item, index, total int) (keySequenceResult, error) {
+	showHelp := false
 	for {
-		renderKeySequenceCapture(opts.Out, selected.Title, index+1, total, item.Prompt)
+		writeKeySequenceScreen(opts, renderKeySequenceQuestion(keySequenceQuestionView{
+			Title:    selected.Title,
+			Index:    index + 1,
+			Total:    total,
+			Prompt:   item.Prompt,
+			ShowHelp: showHelp,
+		}))
 		input, aborted, err := readTrainingInput(opts, reader, item.ExerciseType)
 		if err != nil {
 			return keySequenceResult{Action: keySequenceNext}, err
@@ -450,25 +457,28 @@ func runKeySequenceExercise(opts Options, reader *bufio.Reader, state *progress.
 			_, _ = fmt.Fprintln(opts.Out, "Session interrompue.")
 			return keySequenceResult{Action: keySequenceQuit}, nil
 		}
-		if input == "?" {
-			renderKeySequenceHelp(opts.Out)
+		if input == "h" {
+			showHelp = !showHelp
+			continue
+		}
+		if input == "Enter" {
 			continue
 		}
 
-		_, _ = fmt.Fprintf(opts.Out, "\nRecu: %s\n", input)
 		correct := exercise.MatchAnswer(input, item.Answer)
-		if correct {
-			_, _ = fmt.Fprintln(opts.Out, "Correct.")
-		} else {
-			_, _ = fmt.Fprintln(opts.Out, "Pas encore.")
-		}
-		if correct && item.Explanation != "" {
-			_, _ = fmt.Fprintln(opts.Out, item.Explanation)
-		}
 		state.MarkCompleted(selected.ID, item.ID, correct)
-		renderKeySequenceFeedbackBar(opts.Out, correct)
+		explanation := ""
+		if correct {
+			explanation = item.Explanation
+		}
+		feedback := keySequenceFeedbackView{
+			Received:    input,
+			Correct:     correct,
+			Explanation: explanation,
+		}
+		writeKeySequenceScreen(opts, renderKeySequenceFeedback(feedback))
 
-		action, err := readKeySequenceFeedbackAction(opts, reader, item, correct)
+		action, err := readKeySequenceFeedbackAction(opts, reader, item, feedback)
 		if err != nil {
 			return keySequenceResult{Action: keySequenceNext, Correct: correct}, err
 		}
@@ -476,27 +486,77 @@ func runKeySequenceExercise(opts Options, reader *bufio.Reader, state *progress.
 	}
 }
 
-func renderKeySequenceCapture(w io.Writer, title string, index, total int, prompt string) {
-	_, _ = fmt.Fprintf(w, "\nChapitre: %s\n\n%d/%d %s\n\nWaiting for key...\n\n%s\n", title, index, total, prompt, commandBar("Esc quit", "? help"))
+type keySequenceQuestionView struct {
+	Title    string
+	Index    int
+	Total    int
+	Prompt   string
+	ShowHelp bool
 }
 
-func renderKeySequenceHelp(w io.Writer) {
-	_, _ = fmt.Fprintf(w, "\nHelp: press the requested shortcut. Normal keys count as answers.\n%s\n", commandBar("Esc quit", "? help"))
+type keySequenceFeedbackView struct {
+	Received    string
+	Correct     bool
+	Explanation string
 }
 
-func renderKeySequenceFeedbackBar(w io.Writer, correct bool) {
-	if correct {
-		_, _ = fmt.Fprintf(w, "%s\n", commandBar("Enter next", "Esc quit"))
-		return
+type keySequenceSolutionView struct {
+	Expected    string
+	Explanation string
+}
+
+type keySequenceSummaryView struct {
+	Correct int
+	Total   int
+	Missed  int
+}
+
+func renderKeySequenceQuestion(view keySequenceQuestionView) string {
+	footer := commandBar("h help", "Esc quit")
+	help := ""
+	if view.ShowHelp {
+		help = "\nHelp: press the requested shortcut. Normal keys count as answers.\n"
+		footer = commandBar("h hide help", "Esc quit")
 	}
-	_, _ = fmt.Fprintf(w, "%s\n", commandBar("Enter next", "r retry", "s solution", "Esc quit"))
+	return fmt.Sprintf(
+		"\nChapitre: %s\nProgression: %d/%d\n\n%s\n\nWaiting for key...\n%s\n%s\n",
+		view.Title,
+		view.Index,
+		view.Total,
+		view.Prompt,
+		help,
+		footer,
+	)
+}
+
+func renderKeySequenceFeedback(view keySequenceFeedbackView) string {
+	var builder strings.Builder
+	_, _ = fmt.Fprintf(&builder, "\nRecu: %s\n", view.Received)
+	if view.Correct {
+		_, _ = fmt.Fprintln(&builder, "Correct.")
+		if view.Explanation != "" {
+			_, _ = fmt.Fprintln(&builder, view.Explanation)
+		}
+		_, _ = fmt.Fprintf(&builder, "\n%s\n", commandBar("Enter next", "Esc quit"))
+		return builder.String()
+	}
+	_, _ = fmt.Fprintln(&builder, "Pas encore.")
+	_, _ = fmt.Fprintf(&builder, "\n%s\n", commandBar("Enter next", "r retry", "s solution", "Esc quit"))
+	return builder.String()
 }
 
 func commandBar(commands ...string) string {
 	return "────────────────────────────────────────\n" + strings.Join(commands, " · ")
 }
 
-func readKeySequenceFeedbackAction(opts Options, reader *bufio.Reader, item chapter.Item, correct bool) (keySequenceAction, error) {
+func writeKeySequenceScreen(opts Options, content string) {
+	if output, ok := opts.Out.(*os.File); ok && term.IsTerminal(output.Fd()) {
+		_, _ = fmt.Fprint(opts.Out, "\x1b[2J\x1b[H")
+	}
+	_, _ = fmt.Fprint(opts.Out, content)
+}
+
+func readKeySequenceFeedbackAction(opts Options, reader *bufio.Reader, item chapter.Item, feedback keySequenceFeedbackView) (keySequenceAction, error) {
 	for {
 		input, err := readKeySequence(opts, reader)
 		if err != nil {
@@ -506,32 +566,37 @@ func readKeySequenceFeedbackAction(opts Options, reader *bufio.Reader, item chap
 		case "Enter":
 			return keySequenceNext, nil
 		case "r", "R":
-			if correct {
-				_, _ = fmt.Fprintf(opts.Out, "\n%s\n", commandBar("Enter next", "Esc quit"))
+			if feedback.Correct {
+				writeKeySequenceScreen(opts, renderKeySequenceFeedback(feedback))
 				continue
 			}
 			return keySequenceRetry, nil
 		case "s", "S":
-			if correct {
-				_, _ = fmt.Fprintf(opts.Out, "\n%s\n", commandBar("Enter next", "Esc quit"))
+			if feedback.Correct {
+				writeKeySequenceScreen(opts, renderKeySequenceFeedback(feedback))
 				continue
 			}
-			renderKeySequenceSolution(opts.Out, item)
+			writeKeySequenceScreen(opts, renderKeySequenceSolution(keySequenceSolutionView{
+				Expected:    item.Answer.Primary,
+				Explanation: item.Explanation,
+			}))
 		case "Esc", "Ctrl+C":
 			_, _ = fmt.Fprintln(opts.Out, "\nSession interrompue.")
 			return keySequenceQuit, nil
 		default:
-			renderKeySequenceFeedbackBar(opts.Out, correct)
+			writeKeySequenceScreen(opts, renderKeySequenceFeedback(feedback))
 		}
 	}
 }
 
-func renderKeySequenceSolution(w io.Writer, item chapter.Item) {
-	_, _ = fmt.Fprintf(w, "\nSolution: %s\n", item.Answer.Primary)
-	if item.Explanation != "" {
-		_, _ = fmt.Fprintln(w, item.Explanation)
+func renderKeySequenceSolution(view keySequenceSolutionView) string {
+	var builder strings.Builder
+	_, _ = fmt.Fprintf(&builder, "\nSolution: %s\n", view.Expected)
+	if view.Explanation != "" {
+		_, _ = fmt.Fprintln(&builder, view.Explanation)
 	}
-	renderKeySequenceFeedbackBar(w, false)
+	_, _ = fmt.Fprintf(&builder, "\n%s\n", commandBar("Enter next", "r retry", "Esc quit"))
+	return builder.String()
 }
 
 func runKeySequenceReview(opts Options, reader *bufio.Reader, state *progress.Progress, selected chapter.Chapter, stats keySequenceStats) error {
@@ -576,10 +641,20 @@ func runKeySequenceReview(opts Options, reader *bufio.Reader, state *progress.Pr
 }
 
 func renderKeySequenceSummary(w io.Writer, correct, total, missed int) {
-	_, _ = fmt.Fprintf(w, "\nChapitre termine.\nCorrect: %d/%d\nÀ revoir: %d\n", correct, total, missed)
-	if missed > 0 {
-		_, _ = fmt.Fprintf(w, "%s\n", commandBar("Enter review missed", "Esc quit"))
+	_, _ = fmt.Fprint(w, renderKeySequenceSummaryView(keySequenceSummaryView{
+		Correct: correct,
+		Total:   total,
+		Missed:  missed,
+	}))
+}
+
+func renderKeySequenceSummaryView(view keySequenceSummaryView) string {
+	var builder strings.Builder
+	_, _ = fmt.Fprintf(&builder, "\nChapitre termine.\nCorrect: %d/%d\nÀ revoir: %d\n", view.Correct, view.Total, view.Missed)
+	if view.Missed > 0 {
+		_, _ = fmt.Fprintf(&builder, "\n%s\n", commandBar("Enter review missed", "Esc quit"))
 	}
+	return builder.String()
 }
 
 func readKeySequenceReviewAction(opts Options, reader *bufio.Reader) (keySequenceAction, error) {

@@ -220,20 +220,134 @@ func TestCommandBarFormat(t *testing.T) {
 	}
 }
 
-func TestKeySequenceFeedbackBarsDependOnResult(t *testing.T) {
-	var correct bytes.Buffer
-	renderKeySequenceFeedbackBar(&correct, true)
-	if strings.Contains(correct.String(), "r retry") || strings.Contains(correct.String(), "s solution") {
-		t.Fatalf("correct feedback bar should not contain retry or solution, got:\n%s", correct.String())
+func TestRenderKeySequenceQuestion(t *testing.T) {
+	got := renderKeySequenceQuestion(keySequenceQuestionView{
+		Title:  "Shortcuts",
+		Index:  1,
+		Total:  3,
+		Prompt: "Press Ctrl+A.",
+	})
+
+	for _, want := range []string{
+		"Chapitre: Shortcuts",
+		"Progression: 1/3",
+		"Press Ctrl+A.",
+		"Waiting for key...",
+		"h help · Esc quit",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected question render to contain %q, got:\n%s", want, got)
+		}
 	}
-	if !strings.Contains(correct.String(), "Enter next · Esc quit") {
-		t.Fatalf("correct feedback bar should contain next and quit, got:\n%s", correct.String())
+}
+
+func TestRenderKeySequenceQuestionWithHelp(t *testing.T) {
+	got := renderKeySequenceQuestion(keySequenceQuestionView{
+		Title:    "Shortcuts",
+		Index:    1,
+		Total:    3,
+		Prompt:   "Press Ctrl+A.",
+		ShowHelp: true,
+	})
+
+	for _, want := range []string{
+		"Press Ctrl+A.",
+		"Waiting for key...",
+		"Help: press the requested shortcut.",
+		"h hide help · Esc quit",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected help question render to contain %q, got:\n%s", want, got)
+		}
+	}
+}
+
+func TestRenderKeySequenceFeedbackCorrect(t *testing.T) {
+	got := renderKeySequenceFeedback(keySequenceFeedbackView{
+		Received:    "Ctrl+A",
+		Correct:     true,
+		Explanation: "Ctrl+A moves to line start.",
+	})
+
+	for _, want := range []string{
+		"Recu: Ctrl+A",
+		"Correct.",
+		"Ctrl+A moves to line start.",
+		"Enter next · Esc quit",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected correct feedback to contain %q, got:\n%s", want, got)
+		}
+	}
+	for _, unwanted := range []string{"r retry", "s solution"} {
+		if strings.Contains(got, unwanted) {
+			t.Fatalf("correct feedback should not contain %q, got:\n%s", unwanted, got)
+		}
+	}
+}
+
+func TestRenderKeySequenceFeedbackIncorrect(t *testing.T) {
+	got := renderKeySequenceFeedback(keySequenceFeedbackView{
+		Received: "Ctrl+L",
+		Correct:  false,
+	})
+
+	for _, want := range []string{
+		"Recu: Ctrl+L",
+		"Pas encore.",
+		"Enter next · r retry · s solution · Esc quit",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected incorrect feedback to contain %q, got:\n%s", want, got)
+		}
+	}
+}
+
+func TestRenderKeySequenceSolution(t *testing.T) {
+	got := renderKeySequenceSolution(keySequenceSolutionView{
+		Expected:    "Ctrl+W",
+		Explanation: "Ctrl+W deletes the previous word.",
+	})
+
+	for _, want := range []string{
+		"Solution: Ctrl+W",
+		"Ctrl+W deletes the previous word.",
+		"Enter next · r retry · Esc quit",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected solution render to contain %q, got:\n%s", want, got)
+		}
+	}
+	if strings.Contains(got, "s solution") {
+		t.Fatalf("solution render should not contain solution command again, got:\n%s", got)
+	}
+}
+
+func TestRenderKeySequenceSummary(t *testing.T) {
+	got := renderKeySequenceSummaryView(keySequenceSummaryView{
+		Correct: 2,
+		Total:   3,
+		Missed:  1,
+	})
+
+	for _, want := range []string{
+		"Chapitre termine.",
+		"Correct: 2/3",
+		"À revoir: 1",
+		"Enter review missed · Esc quit",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected summary render to contain %q, got:\n%s", want, got)
+		}
 	}
 
-	var wrong bytes.Buffer
-	renderKeySequenceFeedbackBar(&wrong, false)
-	if !strings.Contains(wrong.String(), "Enter next · r retry · s solution · Esc quit") {
-		t.Fatalf("wrong feedback bar should contain retry and solution, got:\n%s", wrong.String())
+	got = renderKeySequenceSummaryView(keySequenceSummaryView{
+		Correct: 3,
+		Total:   3,
+		Missed:  0,
+	})
+	if strings.Contains(got, "Enter review missed") {
+		t.Fatalf("perfect summary should not contain review footer, got:\n%s", got)
 	}
 }
 
@@ -265,7 +379,7 @@ items:
 	}
 
 	got := out.String()
-	if strings.Count(got, "1/1 Press Ctrl+L.") != 2 {
+	if strings.Count(got, "Progression: 1/1\n\nPress Ctrl+L.") != 2 {
 		t.Fatalf("expected retry to render the same exercise twice, got:\n%s", got)
 	}
 	if !strings.Contains(got, "Recu: L") || !strings.Contains(got, "Pas encore.") {
@@ -276,7 +390,7 @@ items:
 	}
 }
 
-func TestTrainKeySequenceShowsHelpBeforeAnswer(t *testing.T) {
+func TestTrainKeySequenceShowsHelpWithHBeforeAnswer(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -294,7 +408,7 @@ items:
 
 	var out bytes.Buffer
 	cmd := NewRootCommand(chapters)
-	cmd.SetIn(strings.NewReader("?\x01\n"))
+	cmd.SetIn(strings.NewReader("h\x01\n"))
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
 	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
@@ -307,8 +421,197 @@ items:
 	if !strings.Contains(got, "Help: press the requested shortcut.") {
 		t.Fatalf("expected help text, got:\n%s", got)
 	}
+	if !strings.Contains(got, "h hide help · Esc quit") {
+		t.Fatalf("expected help footer to advertise h hide help, got:\n%s", got)
+	}
 	if !strings.Contains(got, "Recu: Ctrl+A") || !strings.Contains(got, "Correct.") {
 		t.Fatalf("expected answer after help to be accepted, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceHelpToggleHidesHelp(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("hh\x01\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if strings.Count(got, "Help: press the requested shortcut.") != 1 {
+		t.Fatalf("expected help to be shown once before being hidden, got:\n%s", got)
+	}
+	if !strings.Contains(got, "h hide help · Esc quit") || !strings.Contains(got, "h help · Esc quit") {
+		t.Fatalf("expected help toggle footers, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Recu: Ctrl+A") || !strings.Contains(got, "Correct.") {
+		t.Fatalf("expected answer after help toggle to be accepted, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceHelpEnterIsIgnored(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("h\n\x01\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if !strings.Contains(got, "Help: press the requested shortcut.") {
+		t.Fatalf("expected help text, got:\n%s", got)
+	}
+	if strings.Contains(got, "Recu: Enter") || strings.Contains(got, "Pas encore.") {
+		t.Fatalf("enter while capture help is visible should be ignored, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Recu: Ctrl+A") || !strings.Contains(got, "Correct.") {
+		t.Fatalf("expected answer after ignored enter to be accepted, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Correct: 1/1") || !strings.Contains(got, "À revoir: 0") {
+		t.Fatalf("help and ignored enter should not add review items, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceHelpDoesNotRecordHAsAnswer(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("h\x01\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if strings.Contains(got, "Recu: h") || strings.Contains(got, "Pas encore.") {
+		t.Fatalf("h help should not be recorded as a wrong answer, got:\n%s", got)
+	}
+	if !strings.Contains(got, "Correct: 1/1") || !strings.Contains(got, "À revoir: 0") {
+		t.Fatalf("h help should not add the exercise to review, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceDoesNotRetryAfterCorrectAnswer(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("\x01r\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if strings.Count(got, "Progression: 1/1\n\nPress Ctrl+A.") != 1 {
+		t.Fatalf("correct retry command should not re-render the exercise, got:\n%s", got)
+	}
+	if strings.Contains(got, "Recu: r") || strings.Contains(got, "r retry") {
+		t.Fatalf("correct retry command should only keep the next/quit footer, got:\n%s", got)
+	}
+}
+
+func TestTrainKeySequenceDoesNotShowSolutionAfterCorrectAnswer(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("\x01s\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if strings.Contains(got, "Solution:") || strings.Contains(got, "Recu: s") || strings.Contains(got, "s solution") {
+		t.Fatalf("correct solution command should only keep the next/quit footer, got:\n%s", got)
 	}
 }
 
@@ -386,7 +689,7 @@ items:
 	if !strings.Contains(got, "Correct: 1/2") || !strings.Contains(got, "À revoir: 1") {
 		t.Fatalf("expected initial summary with one missed exercise, got:\n%s", got)
 	}
-	if strings.Count(got, "1/1 Press Ctrl+A.") != 1 {
+	if strings.Count(got, "Progression: 1/1\n\nPress Ctrl+A.") != 1 {
 		t.Fatalf("expected review pass to include only missed Ctrl+A exercise, got:\n%s", got)
 	}
 	if !strings.Contains(got, "Correct: 1/1") || !strings.Contains(got, "À revoir: 0") {
