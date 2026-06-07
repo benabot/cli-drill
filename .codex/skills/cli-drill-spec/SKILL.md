@@ -1,3 +1,7 @@
+---
+name: cli-drill-spec
+description: Project-specific rules and constraints for cli-drill, a Go CLI/TUI training app that teaches shell shortcuts, aliases, functions and dotfiles workflows.
+---
 # Skill — cli-drill specification guardian
 
 ## Purpose
