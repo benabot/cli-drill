@@ -100,21 +100,32 @@
   - Added stable footer.
   - Added inline `h help` / `h hide help`.
   - Kept Bubble Tea out of the training flow for now.
-
-- [X] Improve visual polish of training screens.
-  - Add restrained colors.
-  - Improve separators.
-  - Improve spacing.
-  - Improve final chapter summary.
-  - Keep output readable in plain terminals.
-
+- [x] Improve visual polish of key-sequence training screens.
+  - Added restrained colors.
+  - Improved separators.
+  - Improved spacing and visual hierarchy.
+  - Kept output readable in plain terminals.
+  - Kept ANSI styling disabled in tests / non-interactive output.
+- [ ] P4.2 — Final summary polish.
+  - Improve final chapter summary layout.
+  - Clarify score, missed items and review action.
+  - Keep summary readable without color.
+  - Avoid changing raw key capture or training logic.
 - [ ] Consider Bubble Tea for training mode only if the CLI renderer becomes too limited.
 
-## P5 — Later
+## P5 — Distribution and release
+
+- [ ] Add a Makefile or Taskfile for common commands.
+- [ ] Add GitHub repository metadata.
+- [ ] Add GitHub Releases.
+- [ ] Add release builds for macOS/Linux/Windows.
+- [ ] Add Homebrew tap.
+
+## P6 — Later
 
 - [ ] Bash support.
 - [ ] Fish support.
 - [ ] Ollama-assisted chapter generation.
 - [ ] MCP integrations.
-- [ ] GitHub Releases.
-- [ ] Homebrew tap.
+- [ ] Review chapter wording after several real training sessions.
+- [ ] Add more advanced drills only after the MVP exercises feel stable.

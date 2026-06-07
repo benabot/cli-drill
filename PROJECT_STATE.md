@@ -74,6 +74,13 @@ tool.
   provided or present; otherwise they use embedded/default chapters.
 - Without config, `show` can fall back to default scan paths when an entry is
   not found in embedded chapters.
+- `key-sequence` training now uses a minimal renderer with restrained ANSI
+    styling when supported by the terminal.
+- Styling is centralized, disabled for tests/non-interactive output, and keeps
+    all semantic labels readable without color.
+- The current CLI training renderer supports inline `h help`, clean redraw,
+    stable footer hints, correct/incorrect feedback, solution display and
+    session-only review of missed shortcuts.
 
 ## Validation status
 
@@ -108,5 +115,15 @@ testdata/
 
 ## Next step
 
-Review the enriched chapter content during real daily training, then decide
-whether P2 needs more practice depth before moving back to TUI polish.
+Next active work:
+
+1. P3.1 — Improve TUI onboarding and navigation.
+   - Add a home screen explaining cli-drill.
+   - Show dotfiles configuration status.
+   - Improve chapter context and navigation.
+   - Add clear back/home/chapter-list paths.
+
+2. P4.2 — Polish final training summaries only if real usage confirms the need.
+
+Distribution work such as GitHub Releases, Homebrew tap and release binaries is
+deferred until the local MVP feels stable in daily use.
