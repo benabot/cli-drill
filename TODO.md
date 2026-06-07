@@ -101,7 +101,7 @@
   - Added inline `h help` / `h hide help`.
   - Kept Bubble Tea out of the training flow for now.
 
-- [ ] Improve visual polish of training screens.
+- [X] Improve visual polish of training screens.
   - Add restrained colors.
   - Improve separators.
   - Improve spacing.
