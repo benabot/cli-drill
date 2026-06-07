@@ -229,7 +229,7 @@ func TestRenderKeySequenceQuestion(t *testing.T) {
 	})
 
 	for _, want := range []string{
-		"Chapitre: Shortcuts",
+		"Shortcuts",
 		"Progression: 1/3",
 		"Press Ctrl+A.",
 		"Waiting for key...",
@@ -238,6 +238,38 @@ func TestRenderKeySequenceQuestion(t *testing.T) {
 		if !strings.Contains(got, want) {
 			t.Fatalf("expected question render to contain %q, got:\n%s", want, got)
 		}
+	}
+}
+
+func TestRenderKeySequenceQuestionDefaultStyleHasNoANSI(t *testing.T) {
+	got := renderKeySequenceQuestion(keySequenceQuestionView{
+		Title:  "Shortcuts",
+		Index:  1,
+		Total:  3,
+		Prompt: "Press Ctrl+A.",
+	})
+
+	if strings.Contains(got, "\x1b[") {
+		t.Fatalf("default render should stay ANSI-free for stable tests, got:\n%q", got)
+	}
+}
+
+func TestRenderKeySequenceQuestionStyledKeepsReadableText(t *testing.T) {
+	got := renderKeySequenceQuestion(keySequenceQuestionView{
+		Title:  "Shortcuts",
+		Index:  1,
+		Total:  3,
+		Prompt: "Press Ctrl+A.",
+		Style:  keySequenceStyle{Color: true},
+	})
+
+	for _, want := range []string{"Shortcuts", "Progression: 1/3", "Press Ctrl+A.", "h help · Esc quit"} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("styled render should preserve readable text %q, got:\n%s", want, got)
+		}
+	}
+	if !strings.Contains(got, "\x1b[") {
+		t.Fatalf("styled render should contain ANSI styling, got:\n%q", got)
 	}
 }
 
