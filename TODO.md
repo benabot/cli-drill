@@ -3,7 +3,7 @@
 ## P0 — Initialization
 
 - [x] Initialize Git repository.
-- [ ] Run `codex init`.
+- [X] Run `codex init`.
 - [x] Ask Codex to inspect the project and propose a plan.
 - [x] Validate standard Go architecture.
 - [x] Validate CLI command list.
@@ -60,7 +60,7 @@
 - [ ] Review chapter wording after several real training sessions.
 - [ ] Add more advanced drills only after the MVP exercises feel stable.
 
-## P3 — TUI
+## P3 — TUI MVP
 
 - [x] Add Bubble Tea main menu.
 - [x] Add chapter picker.
@@ -68,7 +68,49 @@
 - [x] Add directory browser.
 - [x] Add stats screen.
 
-## P4 — Later
+## P3.1 — TUI onboarding and navigation
+
+- [ ] Add a home screen that introduces cli-drill.
+  - Explain what the app does.
+  - Show whether a dotfiles repo is configured.
+  - Offer quick access to configuration, scan, chapters, directory and stats.
+- [ ] Add a first-run configuration flow.
+  - Detect whether a dotfiles repo is configured.
+  - Let the user point cli-drill to a dotfiles path.
+  - Keep the flow safe and non-destructive.
+- [ ] Improve TUI chapter context.
+  - Always show the current chapter title.
+  - Show current exercise position inside the chapter.
+  - Show whether the user is in training, review, directory or stats.
+- [ ] Improve TUI navigation.
+  - Add a clear way to go back.
+  - Add a clear way to return to the chapter list.
+  - Add a clear way to return to the home screen.
+  - Keep keyboard hints visible.
+- [ ] Improve TUI chapter browsing.
+  - Navigate previous/next chapter.
+  - Preview chapter description and exercise count.
+  - Start or resume a chapter from the picker.
+
+## P4 — CLI training UX polish
+
+- [x] Polish key-sequence training UX.
+  - Added minimal redraw for key-sequence training.
+  - Reduced repeated command bars.
+  - Added stable footer.
+  - Added inline `h help` / `h hide help`.
+  - Kept Bubble Tea out of the training flow for now.
+
+- [ ] Improve visual polish of training screens.
+  - Add restrained colors.
+  - Improve separators.
+  - Improve spacing.
+  - Improve final chapter summary.
+  - Keep output readable in plain terminals.
+
+- [ ] Consider Bubble Tea for training mode only if the CLI renderer becomes too limited.
+
+## P5 — Later
 
 - [ ] Bash support.
 - [ ] Fish support.
