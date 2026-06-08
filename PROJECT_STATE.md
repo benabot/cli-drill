@@ -1,5 +1,48 @@
 # Project State
 
+## Current state
+
+cli-drill now has a functional CLI/TUI MVP.
+
+Implemented:
+
+- Root Go module with Cobra commands.
+- Embedded YAML chapters.
+- Static dotfiles scanner for ZSH aliases, functions, tools and Markdown docs.
+- Typed catalog with deduplication.
+- Local JSON progress storage.
+- CLI training modes:
+  - free-answer;
+  - multiple-choice;
+  - scenario;
+  - simple shell simulation;
+  - key-sequence with real raw key capture.
+- Polished CLI key-sequence renderer:
+  - real Ctrl-key capture;
+  - inline `h help`;
+  - stable footer;
+  - restrained colors;
+  - monochrome fallback;
+  - session review for missed shortcuts.
+- Bubble Tea TUI cockpit:
+  - Home screen;
+  - chapter browser;
+  - chapter detail;
+  - text training screen;
+  - directory browser;
+  - stats screen;
+  - read-only configuration status;
+  - read-only scan guidance.
+- Key-sequence chapters are detected by the TUI and delegated to the dedicated key training mode.
+- After dedicated key training, cli-drill returns automatically to the TUI Home screen.
+
+Current product model:
+
+- The TUI is the navigation cockpit.
+- Text-based chapters can be trained inside Bubble Tea.
+- Real keyboard shortcut chapters use the dedicated key training mode.
+- The user should not have to copy commands manually or relaunch cli-drill to continue.
+
 ## Current phase
 
 MVP foundation implemented and validated.
@@ -117,13 +160,19 @@ testdata/
 
 Next active work:
 
-1. P3.1 — Improve TUI onboarding and navigation.
-   - Add a home screen explaining cli-drill.
-   - Show dotfiles configuration status.
-   - Improve chapter context and navigation.
-   - Add clear back/home/chapter-list paths.
+1. Improve Home visual identity.
+   - Add a large ASCII `cli-drill` banner.
+   - Keep the Home screen readable in narrow terminals.
+   - Keep configuration and chapter actions visible.
 
-2. P4.2 — Polish final training summaries only if real usage confirms the need.
+2. Improve TUI visual consistency if needed.
+   - Keep footers homogeneous.
+   - Keep colors restrained and accessible.
+   - Avoid introducing a large UI framework change.
 
-Distribution work such as GitHub Releases, Homebrew tap and release binaries is
-deferred until the local MVP feels stable in daily use.
+Deferred:
+
+- Return to chapter detail after dedicated key training instead of Home.
+- Polish final training summaries after real usage.
+- Prepare public GitHub README, screenshots and GIF.
+- GitHub Releases and Homebrew tap.

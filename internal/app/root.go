@@ -31,6 +31,12 @@ type Options struct {
 	DefaultFS    fs.FS
 }
 
+var (
+	isTerminalFD           = term.IsTerminal
+	readRawKeyFromTerminal = readRawKey
+	runTUIWithOptions      = tui.RunWithOptions
+)
+
 func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 	opts := Options{
 		In:        os.Stdin,
@@ -50,7 +56,27 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 				return err
 			}
 			entries := chapter.ToCatalog(chapters).Entries()
-			return tui.Run(chapters, entries)
+			for {
+				result, err := runTUIWithOptions(tui.Options{
+					Chapters:     chapters,
+					Entries:      entries,
+					ConfigPath:   configPath(runOpts),
+					ProgressPath: progressPath(runOpts),
+				})
+				if err != nil {
+					return err
+				}
+				if result.RunCLITrainChapterID == "" {
+					return nil
+				}
+				selected, ok := findChapter(chapters, result.RunCLITrainChapterID)
+				if !ok {
+					return fmt.Errorf("chapter not found: %s", result.RunCLITrainChapterID)
+				}
+				if err := runTraining(runOpts, selected); err != nil {
+					return err
+				}
+			}
 		},
 	}
 	root.PersistentFlags().StringVar(&opts.ConfigPath, "config", "", "path to config TOML")
@@ -198,21 +224,24 @@ func newTrainCommand(opts *Options) *cobra.Command {
 			}
 			selected := chapters[0]
 			if len(args) == 1 {
-				var found bool
-				for _, candidate := range chapters {
-					if candidate.ID == args[0] {
-						selected = candidate
-						found = true
-						break
-					}
-				}
-				if !found {
+				var ok bool
+				selected, ok = findChapter(chapters, args[0])
+				if !ok {
 					return fmt.Errorf("chapter not found: %s", args[0])
 				}
 			}
 			return runTraining(runOpts, selected)
 		},
 	}
+}
+
+func findChapter(chapters []chapter.Chapter, id string) (chapter.Chapter, bool) {
+	for _, candidate := range chapters {
+		if candidate.ID == id {
+			return candidate, true
+		}
+	}
+	return chapter.Chapter{}, false
 }
 
 func newDirectoryCommand(opts *Options) *cobra.Command {
@@ -562,8 +591,7 @@ type keySequenceStyle struct {
 }
 
 func keySequenceStyleFor(opts Options) keySequenceStyle {
-	output, ok := opts.Out.(*os.File)
-	if !ok || !term.IsTerminal(output.Fd()) {
+	if !writerIsTerminal(opts.Out) {
 		return keySequenceStyle{}
 	}
 	if os.Getenv("NO_COLOR") != "" || os.Getenv("TERM") == "dumb" {
@@ -598,7 +626,7 @@ func (s keySequenceStyle) paint(code, value string) string {
 }
 
 func writeKeySequenceScreen(opts Options, content string) {
-	if output, ok := opts.Out.(*os.File); ok && term.IsTerminal(output.Fd()) {
+	if writerIsTerminal(opts.Out) {
 		_, _ = fmt.Fprint(opts.Out, "\x1b[2J\x1b[H")
 	}
 	_, _ = fmt.Fprint(opts.Out, content)
@@ -744,8 +772,8 @@ func readTrainingInput(opts Options, reader *bufio.Reader, exerciseType exercise
 }
 
 func readKeySequence(opts Options, reader *bufio.Reader) (string, error) {
-	if file, ok := opts.In.(*os.File); ok && term.IsTerminal(file.Fd()) {
-		return readRawKey(file)
+	if file, ok := opts.In.(*os.File); ok && isTerminalFD(file.Fd()) {
+		return readRawKeyFromTerminal(file)
 	}
 
 	b, err := reader.ReadByte()
@@ -782,6 +810,23 @@ func readRawKey(file *os.File) (string, error) {
 		return notation, nil
 	}
 	return string(b[:]), nil
+}
+
+type fdProvider interface {
+	Fd() uintptr
+}
+
+func writerIsTerminal(w io.Writer) bool {
+	fd, ok := writerFD(w)
+	return ok && isTerminalFD(fd)
+}
+
+func writerFD(w io.Writer) (uintptr, bool) {
+	provider, ok := w.(fdProvider)
+	if !ok {
+		return 0, false
+	}
+	return provider.Fd(), true
 }
 
 func loadConfig(opts Options, missingNotice string) (config.Config, error) {

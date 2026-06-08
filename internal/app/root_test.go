@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bufio"
 	"bytes"
 	"os"
 	"path/filepath"
@@ -9,7 +10,17 @@ import (
 	"testing/fstest"
 
 	"github.com/benabot/cli-drill/data"
+	"github.com/benabot/cli-drill/internal/tui"
 )
+
+type fdBuffer struct {
+	bytes.Buffer
+	fd uintptr
+}
+
+func (b fdBuffer) Fd() uintptr {
+	return b.fd
+}
 
 func TestDirectoryUsesScanCatalogWhenConfigIsProvided(t *testing.T) {
 	root := t.TempDir()
@@ -212,6 +223,51 @@ items:
 	}
 }
 
+func TestRootRunsCLITrainingAndReturnsToTUIWhenTUIRequestsKeySequenceChapter(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+`)},
+	}
+	calls := 0
+	restore := stubTUIRunner(func(opts tui.Options) (tui.Result, error) {
+		calls++
+		if calls == 1 {
+			return tui.Result{RunCLITrainChapterID: "shortcuts"}, nil
+		}
+		return tui.Result{}, nil
+	})
+	defer restore()
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("\x01\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if !strings.Contains(got, "Recu: Ctrl+A") || !strings.Contains(got, "Correct.") {
+		t.Fatalf("expected TUI intent to run CLI key-sequence training, got:\n%s", got)
+	}
+	if calls != 2 {
+		t.Fatalf("expected TUI to relaunch after CLI training, calls = %d", calls)
+	}
+}
+
 func TestCommandBarFormat(t *testing.T) {
 	got := commandBar("Enter next", "r retry", "Esc quit")
 	want := "────────────────────────────────────────\nEnter next · r retry · Esc quit"
@@ -273,6 +329,46 @@ func TestRenderKeySequenceQuestionStyledKeepsReadableText(t *testing.T) {
 	}
 }
 
+func TestKeySequenceStyleUsesTerminalFDWriter(t *testing.T) {
+	restore := stubTerminalDetector(func(fd uintptr) bool {
+		return fd == 42
+	})
+	defer restore()
+	t.Setenv("NO_COLOR", "")
+	t.Setenv("TERM", "xterm-256color")
+
+	style := keySequenceStyleFor(Options{Out: &fdBuffer{fd: 42}})
+
+	if !style.Color {
+		t.Fatal("expected terminal fd writer to enable key-sequence color")
+	}
+}
+
+func TestKeySequenceStyleDisablesColorForNoColorAndDumbTerminal(t *testing.T) {
+	restore := stubTerminalDetector(func(fd uintptr) bool {
+		return fd == 42
+	})
+	defer restore()
+
+	t.Run("NO_COLOR", func(t *testing.T) {
+		t.Setenv("NO_COLOR", "1")
+		t.Setenv("TERM", "xterm-256color")
+		style := keySequenceStyleFor(Options{Out: &fdBuffer{fd: 42}})
+		if style.Color {
+			t.Fatal("expected NO_COLOR=1 to disable key-sequence color")
+		}
+	})
+
+	t.Run("TERM dumb", func(t *testing.T) {
+		t.Setenv("NO_COLOR", "")
+		t.Setenv("TERM", "dumb")
+		style := keySequenceStyleFor(Options{Out: &fdBuffer{fd: 42}})
+		if style.Color {
+			t.Fatal("expected TERM=dumb to disable key-sequence color")
+		}
+	})
+}
+
 func TestRenderKeySequenceQuestionWithHelp(t *testing.T) {
 	got := renderKeySequenceQuestion(keySequenceQuestionView{
 		Title:    "Shortcuts",
@@ -291,6 +387,33 @@ func TestRenderKeySequenceQuestionWithHelp(t *testing.T) {
 		if !strings.Contains(got, want) {
 			t.Fatalf("expected help question render to contain %q, got:\n%s", want, got)
 		}
+	}
+}
+
+func TestReadKeySequenceUsesRawReaderForTerminalInput(t *testing.T) {
+	restoreTerminal := stubTerminalDetector(func(fd uintptr) bool {
+		return fd == os.Stdin.Fd()
+	})
+	defer restoreTerminal()
+	called := false
+	restoreRaw := stubRawKeyReader(func(file *os.File) (string, error) {
+		called = true
+		if file != os.Stdin {
+			t.Fatalf("raw reader received %v, want os.Stdin", file)
+		}
+		return "Ctrl+A", nil
+	})
+	defer restoreRaw()
+
+	got, err := readKeySequence(Options{In: os.Stdin}, bufio.NewReader(strings.NewReader("x")))
+	if err != nil {
+		t.Fatalf("readKeySequence returned error: %v", err)
+	}
+	if got != "Ctrl+A" {
+		t.Fatalf("readKeySequence = %q, want Ctrl+A", got)
+	}
+	if !called {
+		t.Fatal("expected terminal input to use raw key reader")
 	}
 }
 
@@ -578,6 +701,56 @@ items:
 	}
 }
 
+func TestTrainKeySequenceHelpStateResetsBetweenQuestions(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	progressPath := filepath.Join(t.TempDir(), "progress.json")
+	chapters := fstest.MapFS{
+		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
+title: Shortcuts
+items:
+  - id: ctrl-a
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+A.
+    answer:
+      primary: Ctrl+A
+  - id: ctrl-e
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+E.
+    answer:
+      primary: Ctrl+E
+`)},
+	}
+
+	var out bytes.Buffer
+	cmd := NewRootCommand(chapters)
+	cmd.SetIn(strings.NewReader("h\x01\n\x05\n"))
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"--progress", progressPath, "train", "shortcuts"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	secondQuestion := strings.LastIndex(got, "Progression: 2/2")
+	if secondQuestion == -1 {
+		t.Fatalf("expected second question render, got:\n%s", got)
+	}
+	afterSecondQuestion := got[secondQuestion:]
+	if strings.Contains(afterSecondQuestion, "h hide help · Esc quit") {
+		t.Fatalf("help state should reset before the next question, got:\n%s", afterSecondQuestion)
+	}
+	if !strings.Contains(afterSecondQuestion, "h help · Esc quit") {
+		t.Fatalf("expected default help footer on next question, got:\n%s", afterSecondQuestion)
+	}
+	if strings.Contains(afterSecondQuestion, "Help: press the requested shortcut.") {
+		t.Fatalf("help text should not carry into next question, got:\n%s", afterSecondQuestion)
+	}
+}
+
 func TestTrainKeySequenceDoesNotRetryAfterCorrectAnswer(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
@@ -854,5 +1027,29 @@ func writeAppTestFile(t *testing.T, root, name, content string) {
 	}
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
+	}
+}
+
+func stubTerminalDetector(fn func(uintptr) bool) func() {
+	previous := isTerminalFD
+	isTerminalFD = fn
+	return func() {
+		isTerminalFD = previous
+	}
+}
+
+func stubRawKeyReader(fn func(*os.File) (string, error)) func() {
+	previous := readRawKeyFromTerminal
+	readRawKeyFromTerminal = fn
+	return func() {
+		readRawKeyFromTerminal = previous
+	}
+}
+
+func stubTUIRunner(fn func(tui.Options) (tui.Result, error)) func() {
+	previous := runTUIWithOptions
+	runTUIWithOptions = fn
+	return func() {
+		runTUIWithOptions = previous
 	}
 }

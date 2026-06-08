@@ -70,27 +70,37 @@
 
 ## P3.1 — TUI onboarding and navigation
 
-- [ ] Add a home screen that introduces cli-drill.
+- [x] Add a home screen that introduces cli-drill.
   - Explain what the app does.
   - Show whether a dotfiles repo is configured.
   - Offer quick access to configuration, scan, chapters, directory and stats.
-- [ ] Add a first-run configuration flow.
-  - Detect whether a dotfiles repo is configured.
-  - Let the user point cli-drill to a dotfiles path.
+- [x] Add read-only configuration status.
+  - Detect whether a config file exists.
+  - Show the configured dotfiles path when available.
   - Keep the flow safe and non-destructive.
-- [ ] Improve TUI chapter context.
+- [x] Improve TUI chapter context.
   - Always show the current chapter title.
   - Show current exercise position inside the chapter.
   - Show whether the user is in training, review, directory or stats.
-- [ ] Improve TUI navigation.
+- [x] Improve TUI navigation.
   - Add a clear way to go back.
-  - Add a clear way to return to the chapter list.
   - Add a clear way to return to the home screen.
+  - Add a clear way to return to the chapter list.
   - Keep keyboard hints visible.
-- [ ] Improve TUI chapter browsing.
-  - Navigate previous/next chapter.
+- [x] Improve TUI chapter browsing.
+  - Navigate chapters.
   - Preview chapter description and exercise count.
   - Start or resume a chapter from the picker.
+- [x] Delegate key-sequence chapters to the dedicated key training mode.
+  - Detect chapters that require real key capture.
+  - Start the dedicated key training mode from the TUI.
+  - Return automatically to the TUI after key training.
+  - Keep the CLI key-sequence renderer separate from Bubble Tea.
+
+### Later
+
+- [ ] Return to chapter detail after dedicated key training instead of Home.
+- [ ] Consider native Bubble Tea key-sequence training only if the dedicated CLI mode becomes limiting.
 
 ## P4 — CLI training UX polish
 
@@ -129,3 +139,5 @@
 - [ ] MCP integrations.
 - [ ] Review chapter wording after several real training sessions.
 - [ ] Add more advanced drills only after the MVP exercises feel stable.
+- [ ] Return to chapter detail after dedicated key training instead of Home.(look 3.1)
+- [ ] Consider native Bubble Tea key-sequence training only if the dedicated CLI mode becomes limiting. (look at 3.1)
