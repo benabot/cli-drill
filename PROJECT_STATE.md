@@ -25,7 +25,8 @@ Implemented:
   - monochrome fallback;
   - session review for missed shortcuts.
 - Bubble Tea TUI cockpit:
-  - Home screen;
+  - Home screen with ASCII `CLI-drill` banner and compact narrow-terminal
+    fallback;
   - chapter browser;
   - chapter detail;
   - text training screen;
@@ -102,6 +103,8 @@ tool.
   and progress storage.
 - The TUI includes a main menu, chapter picker, training screen, directory
   browser and stats summary.
+- The Home screen shows a styled ASCII `CLI-drill` banner, the product tagline,
+  configuration status, main actions and contextual footer hints.
 - CLI commands implemented:
   `init`, `scan`, `generate`, `chapters`, `train`, `directory`, `search`,
   `show`, `stats`, `reset`.
@@ -160,12 +163,7 @@ testdata/
 
 Next active work:
 
-1. Improve Home visual identity.
-   - Add a large ASCII `cli-drill` banner.
-   - Keep the Home screen readable in narrow terminals.
-   - Keep configuration and chapter actions visible.
-
-2. Improve TUI visual consistency if needed.
+1. Improve TUI visual consistency if needed.
    - Keep footers homogeneous.
    - Keep colors restrained and accessible.
    - Avoid introducing a large UI framework change.

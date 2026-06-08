@@ -74,6 +74,10 @@
   - Explain what the app does.
   - Show whether a dotfiles repo is configured.
   - Offer quick access to configuration, scan, chapters, directory and stats.
+- [x] Add Home visual identity.
+  - Show a large ASCII `CLI-drill` banner.
+  - Fall back to compact `cli-drill` in narrow terminals.
+  - Keep configuration status, main actions and footer hints visible.
 - [x] Add read-only configuration status.
   - Detect whether a config file exists.
   - Show the configured dotfiles path when available.

@@ -18,14 +18,26 @@ func TestHomeViewExplainsAppAndShowsConfigStatus(t *testing.T) {
 	view := m.View()
 
 	assertContains(t, view, "cli-drill")
-	assertContains(t, view, "Train terminal shortcuts")
+	assertContains(t, view, "____ _     ___")
+	assertContains(t, view, homeTagline)
 	assertContains(t, view, "Dotfiles: not configured")
 	assertContains(t, view, "Start training")
 	assertContains(t, view, "Browse chapters")
+	assertContains(t, view, "Scan dotfiles")
+	assertContains(t, view, "Directory")
+	assertContains(t, view, "Stats")
 	assertContains(t, view, "Configuration")
 	assertContains(t, view, "enter select")
 	assertContains(t, view, "esc back")
 	assertContains(t, view, "g home")
+}
+
+func TestHomeBannerFallsBackWhenTerminalIsNarrow(t *testing.T) {
+	styles := newTUIStyles()
+	banner := renderHomeBanner(20, styles)
+
+	assertContains(t, banner, "cli-drill")
+	assertNotContains(t, banner, "____ _     ___")
 }
 
 func TestConfigStatusMissingIsReadOnlyGuidance(t *testing.T) {

@@ -40,6 +40,16 @@ const (
 	homeActionQuit          = "Quit"
 )
 
+const homeTagline = "Train your terminal until commands and shortcuts become muscle memory."
+
+var homeASCIIBanner = []string{
+	"   ____ _     ___               _      _ _ _",
+	"  / ___| |   |_ _|           __| |_ __(_) | |",
+	" | |   | |    | |   _____   / _` | '__| | | |",
+	" | |___| |___ | |  |_____| | (_| | |  | | | |",
+	"  \\____|_____|___|          \\__,_|_|  |_|_|_|",
+}
+
 const (
 	footerNavigation        = "enter select · j/k move · esc back · g home · h help · q quit"
 	footerChapterDetail     = "enter start training · esc chapters · g home · h help · q quit"
@@ -238,7 +248,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.handleEnter()
 		}
 	case tea.WindowSizeMsg:
-		m.home.SetSize(msg.Width, msg.Height-2)
+		m.home.SetSize(msg.Width, homeListHeight(msg.Height))
 		m.chapterList.SetSize(msg.Width, msg.Height-2)
 		m.directory.SetSize(msg.Width, msg.Height-2)
 	}
@@ -423,14 +433,34 @@ func (m model) currentChapter() *chapter.Chapter {
 func (m model) homeView() string {
 	styles := newTUIStyles()
 	return strings.Join([]string{
-		styles.AppTitle.Render("cli-drill"),
-		styles.Subtitle.Render("Train terminal shortcuts, aliases, shell tools, and dotfiles workflows."),
+		renderHomeBanner(m.home.Width(), styles),
+		styles.Subtitle.Render(homeTagline),
 		"",
 		styles.Info.Render(m.configSummaryLine()),
 		styles.Separator.Render("────────────────────────────────────────"),
 		"",
 		m.home.View(),
 	}, "\n")
+}
+
+func renderHomeBanner(width int, styles tuiStyleSet) string {
+	if width > 0 && width < homeBannerWidth() {
+		return styles.AppTitle.Render("cli-drill")
+	}
+	return styles.AppTitle.Render(strings.Join(homeASCIIBanner, "\n"))
+}
+
+func homeBannerWidth() int {
+	width := 0
+	for _, line := range homeASCIIBanner {
+		width = max(width, lipgloss.Width(line))
+	}
+	return width
+}
+
+func homeListHeight(windowHeight int) int {
+	const homeChromeHeight = 13
+	return max(7, windowHeight-homeChromeHeight)
 }
 
 func (m model) configView() string {
