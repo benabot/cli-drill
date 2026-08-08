@@ -27,10 +27,70 @@ Le module Go vit à la racine du repo.
 
 L'entrée principale du binaire vit dans `cmd/cli-drill/`.
 
-L'installation cible est :
+Installation locale depuis le repo :
+
+```bash
+go install ./cmd/cli-drill
+```
+
+Installation future depuis GitHub, une fois le repo public et accessible :
 
 ```bash
 go install github.com/benabot/cli-drill/cmd/cli-drill@latest
+```
+
+Cette commande fonctionnera quand le dépôt GitHub public sera disponible.
+
+## Commandes utilisateur
+
+Lancer la TUI :
+
+```bash
+cli-drill
+```
+
+Lister les chapitres :
+
+```bash
+cli-drill chapters
+```
+
+Lancer un chapitre :
+
+```bash
+cli-drill train 01-raccourcis-terminal
+```
+
+Scanner les dotfiles :
+
+```bash
+cli-drill scan --summary
+```
+
+Voir l'annuaire :
+
+```bash
+cli-drill directory
+cli-drill directory --type tool
+```
+
+Chercher une entrée :
+
+```bash
+cli-drill search rg
+```
+
+Voir une entrée :
+
+```bash
+cli-drill show tool-rg
+```
+
+Créer ou prévisualiser la config :
+
+```bash
+cli-drill init --print
+cli-drill init
 ```
 
 La documentation stable vit dans `docs/`.

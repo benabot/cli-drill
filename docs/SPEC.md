@@ -564,19 +564,24 @@ glow/glow.yml
 
 Si le parsing est fragile, importer comme référence textuelle au lieu de casser.
 
-## 18. Commandes CLI prévues
+## 18. Installation et commandes CLI prévues
 
 ```bash
+go install ./cmd/cli-drill
+go install github.com/benabot/cli-drill/cmd/cli-drill@latest
+cli-drill
 cli-drill init
+cli-drill init --print
 cli-drill scan
+cli-drill scan --summary
 cli-drill generate
 cli-drill chapters
 cli-drill train
 cli-drill train 01-raccourcis-terminal
 cli-drill directory
-cli-drill directory --type alias
-cli-drill search <query>
-cli-drill show <entry>
+cli-drill directory --type tool
+cli-drill search rg
+cli-drill show tool-rg
 cli-drill stats
 cli-drill reset
 ```

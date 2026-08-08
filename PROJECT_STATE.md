@@ -34,8 +34,10 @@ Implemented:
   - stats screen;
   - read-only configuration status;
   - read-only scan guidance.
-- Key-sequence chapters are detected by the TUI and delegated to the dedicated key training mode.
-- After dedicated key training, cli-drill returns automatically to the TUI Home screen.
+- Key-sequence chapters are detected by the TUI and delegated to the dedicated
+  key training mode.
+- After dedicated key training, cli-drill returns automatically to the TUI Home
+  screen.
 
 Current product model:
 
@@ -125,8 +127,10 @@ tool.
 - Styling is centralized, disabled for tests/non-interactive output, and keeps
     all semantic labels readable without color.
 - The current CLI training renderer supports inline `h help`, clean redraw,
-    stable footer hints, correct/incorrect feedback, solution display and
-    session-only review of missed shortcuts.
+    stable left-aligned footer hints, correct/incorrect feedback, solution
+    display and session-only review of missed shortcuts.
+- `README.md` documents local install, future GitHub install and the main user
+  commands for TUI, chapters, training, scan, directory, search, show and init.
 
 ## Validation status
 
