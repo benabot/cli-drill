@@ -549,20 +549,20 @@ type keySequenceSummaryView struct {
 func renderKeySequenceQuestion(view keySequenceQuestionView) string {
 	style := view.Style
 	footer := style.commandBar("h help", "Esc quit")
-	help := ""
-	if view.ShowHelp {
-		help = "\n" + style.help("Help: press the requested shortcut. Normal keys count as answers.") + "\n"
-		footer = style.commandBar("h hide help", "Esc quit")
-	}
-	return fmt.Sprintf(
-		"\n%s\n%s\n\n%s\n\n%s\n%s\n%s\n",
+	lines := []string{
 		style.title(view.Title),
 		style.progress(fmt.Sprintf("Progression: %d/%d", view.Index, view.Total)),
+		"",
 		style.prompt(view.Prompt),
+		"",
 		style.muted("Waiting for key..."),
-		help,
-		footer,
-	)
+	}
+	if view.ShowHelp {
+		lines = append(lines, "", style.help("Help: press the requested shortcut. Normal keys count as answers."))
+		footer = style.commandBar("h hide help", "Esc quit")
+	}
+	lines = append(lines, "", footer)
+	return strings.Join(lines, "\n") + "\n"
 }
 
 func renderKeySequenceFeedback(view keySequenceFeedbackView) string {

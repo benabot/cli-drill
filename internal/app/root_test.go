@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -293,6 +294,50 @@ func TestRenderKeySequenceQuestion(t *testing.T) {
 	} {
 		if !strings.Contains(got, want) {
 			t.Fatalf("expected question render to contain %q, got:\n%s", want, got)
+		}
+	}
+}
+
+func TestRenderKeySequenceQuestionUsesStableVerticalLayout(t *testing.T) {
+	got := renderKeySequenceQuestion(keySequenceQuestionView{
+		Title:  "Raccourcis terminal",
+		Index:  2,
+		Total:  8,
+		Prompt: "Appuie sur le raccourci pour aller à la fin de la ligne.",
+	})
+	want := strings.Join([]string{
+		"Raccourcis terminal",
+		"Progression: 2/8",
+		"",
+		"Appuie sur le raccourci pour aller à la fin de la ligne.",
+		"",
+		"Waiting for key...",
+		"",
+		"────────────────────────────────────────",
+		"h help · Esc quit",
+		"",
+	}, "\n")
+
+	if got != want {
+		t.Fatalf("unexpected vertical key-sequence question layout\nwant:\n%q\ngot:\n%q", want, got)
+	}
+}
+
+func TestRenderKeySequenceQuestionDoesNotPadWideTerminalLayout(t *testing.T) {
+	got := stripANSI(renderKeySequenceQuestion(keySequenceQuestionView{
+		Title:  "Shortcuts",
+		Index:  1,
+		Total:  3,
+		Prompt: "Press Ctrl+A.",
+		Style:  keySequenceStyle{Color: true},
+	}))
+
+	for _, line := range strings.Split(strings.TrimSuffix(got, "\n"), "\n") {
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, " ") || strings.HasPrefix(line, "\t") {
+			t.Fatalf("key-sequence question line should be left-aligned, got %q in:\n%s", line, got)
 		}
 	}
 }
@@ -1052,4 +1097,8 @@ func stubTUIRunner(fn func(tui.Options) (tui.Result, error)) func() {
 	return func() {
 		runTUIWithOptions = previous
 	}
+}
+
+func stripANSI(value string) string {
+	return regexp.MustCompile(`\x1b\[[0-9;]*m`).ReplaceAllString(value, "")
 }
