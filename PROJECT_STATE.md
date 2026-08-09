@@ -107,6 +107,8 @@ tool.
   browser and stats summary.
 - The Home screen shows a styled ASCII `CLI-drill` banner, the product tagline,
   configuration status, main actions and contextual footer hints.
+- TUI footers are centralized by interaction context. Global single-key
+  shortcuts are disabled while typing a free-text answer.
 - CLI commands implemented:
   `init`, `scan`, `generate`, `chapters`, `train`, `directory`, `search`,
   `show`, `stats`, `reset`.

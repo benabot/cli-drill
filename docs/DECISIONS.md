@@ -91,3 +91,10 @@ The command bar is intentionally contextual. Correct answers only offer next or
 quit. Missed answers offer next, retry or solution. `key-sequence` uses a
 lightweight drill loop with session review for missed shortcuts; the review
 list is in-memory only and does not add persistent storage.
+
+## 2026-08-08 — TUI Text Input Shortcuts
+
+TUI footers are selected by interaction context. While typing a free-text
+answer, global single-key shortcuts are disabled so every printable key reaches
+the text input. `Enter` submits, `Esc` returns to the chapter detail, and
+`Ctrl+C` quits the TUI.

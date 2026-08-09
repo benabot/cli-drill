@@ -182,14 +182,80 @@ func TestChapterDetailStillStartsBubbleTrainingForTextChapter(t *testing.T) {
 	assertContains(t, m.View(), "Aller au debut de ligne")
 }
 
-func TestTrainingTextFooterIsConsistent(t *testing.T) {
+func TestTrainingTextInputKeepsPrintableKeysInTheAnswer(t *testing.T) {
 	m := newTestModel(t, Options{Chapters: []chapter.Chapter{textChapter()}})
 	m.home.Select(homeActionIndex("Browse chapters"))
 	m = press(t, m, tea.KeyEnter)
 	m = press(t, m, tea.KeyEnter)
 	m = press(t, m, tea.KeyEnter)
 
-	assertContains(t, m.View(), "enter submit/next · esc chapter · g home · h help · q quit")
+	for _, key := range []rune{'c', 'g', 's'} {
+		m = press(t, m, tea.KeyRunes, key)
+	}
+
+	if m.input.Value() != "cgs" {
+		t.Fatalf("input = %q, want cgs", m.input.Value())
+	}
+	assertScreen(t, m, screenTraining)
+	if m.showHelp {
+		t.Fatal("h should be typed into the answer instead of opening help")
+	}
+}
+
+func TestTrainingTextInputDisablesGlobalSingleKeyShortcuts(t *testing.T) {
+	m := newTrainingModel(t)
+
+	for _, key := range []rune{'g', 'h', 'q', 'c'} {
+		updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{key}})
+		next, ok := updated.(model)
+		if !ok {
+			t.Fatalf("expected model, got %T", updated)
+		}
+		if cmd != nil {
+			if _, ok := cmd().(tea.QuitMsg); ok {
+				t.Fatalf("%q should not quit while typing", key)
+			}
+		}
+		m = next
+	}
+
+	assertScreen(t, m, screenTraining)
+	if m.showHelp {
+		t.Fatal("h should not open help while typing")
+	}
+	if m.input.Value() != "ghqc" {
+		t.Fatalf("input = %q, want ghqc", m.input.Value())
+	}
+}
+
+func TestTrainingTextInputFooterIsContextual(t *testing.T) {
+	m := newTrainingModel(t)
+
+	assertContains(t, m.View(), "enter submit · esc chapter · ctrl+c quit")
+	assertNotContains(t, m.View(), "g home")
+	assertNotContains(t, m.View(), "h help")
+	assertNotContains(t, m.View(), "q quit")
+
+	m = press(t, m, tea.KeyEnter)
+
+	assertContains(t, m.View(), "enter next · esc chapter · ctrl+c quit")
+}
+
+func TestTrainingTextInputEscReturnsToChapterDetail(t *testing.T) {
+	m := newTrainingModel(t)
+
+	m = press(t, m, tea.KeyEsc)
+
+	assertScreen(t, m, screenChapterDetail)
+}
+
+func TestTrainingTextInputCtrlCQuits(t *testing.T) {
+	m := newTrainingModel(t)
+
+	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyCtrlC})
+	if cmd == nil {
+		t.Fatal("expected ctrl+c to quit while typing")
+	}
 }
 
 func TestScanScreenIsGuidanceOnly(t *testing.T) {
@@ -273,6 +339,17 @@ func newTestModel(t *testing.T, opts Options) model {
 		}}
 	}
 	return newModel(opts)
+}
+
+func newTrainingModel(t *testing.T) model {
+	t.Helper()
+	m := newTestModel(t, Options{Chapters: []chapter.Chapter{textChapter()}})
+	m.home.Select(homeActionIndex("Browse chapters"))
+	m = press(t, m, tea.KeyEnter)
+	m = press(t, m, tea.KeyEnter)
+	m = press(t, m, tea.KeyEnter)
+	assertScreen(t, m, screenTraining)
+	return m
 }
 
 func textChapter() chapter.Chapter {

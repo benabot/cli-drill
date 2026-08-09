@@ -50,12 +50,14 @@ var homeASCIIBanner = []string{
 	"  \\____|_____|___|          \\__,_|_|  |_|_|_|",
 }
 
+type footerContext int
+
 const (
-	footerNavigation        = "enter select · j/k move · esc back · g home · h help · q quit"
-	footerChapterDetail     = "enter start training · esc chapters · g home · h help · q quit"
-	footerKeySequenceDetail = "enter start key training · esc chapters · g home · h help · q quit"
-	footerTraining          = "enter submit/next · esc chapter · g home · h help · q quit"
-	footerStatic            = "esc back · g home · h help · q quit"
+	footerNavigation footerContext = iota
+	footerChapterDetail
+	footerKeySequenceDetail
+	footerTextInput
+	footerTextFeedback
 )
 
 var homeActions = []listItem{
@@ -232,6 +234,23 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.screen == screenTraining {
+			switch msg.String() {
+			case "ctrl+c":
+				return m, tea.Quit
+			case "esc":
+				m.back()
+				return m, nil
+			case "enter":
+				return m.handleEnter()
+			}
+			if m.feedback == "" {
+				var cmd tea.Cmd
+				m.input, cmd = m.input.Update(msg)
+				return m, cmd
+			}
+			return m, nil
+		}
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
@@ -383,6 +402,7 @@ func (m model) startTraining(index int) model {
 	m.screen = screenTraining
 	m.itemIndex = 0
 	m.feedback = ""
+	m.showHelp = false
 	m.input.SetValue("")
 	m.input.Focus()
 	return m
@@ -612,24 +632,42 @@ func (m model) helpView() string {
 
 func (m model) footer() string {
 	styles := newTUIStyles()
-	var footer string
+	return styles.Footer.Render(footerText(m.footerContext()))
+}
+
+func (m model) footerContext() footerContext {
 	switch m.screen {
-	case screenHome:
-		footer = footerNavigation
-	case screenChapters, screenDirectory:
-		footer = footerNavigation
+	case screenHome, screenChapters, screenDirectory, screenConfig, screenScan, screenStats:
+		return footerNavigation
 	case screenChapterDetail:
 		if current := m.currentChapter(); current != nil && chapterUsesKeySequence(*current) {
-			footer = footerKeySequenceDetail
+			return footerKeySequenceDetail
 		} else {
-			footer = footerChapterDetail
+			return footerChapterDetail
 		}
 	case screenTraining:
-		footer = footerTraining
+		if m.feedback != "" {
+			return footerTextFeedback
+		}
+		return footerTextInput
 	default:
-		footer = footerStatic
+		return footerNavigation
 	}
-	return styles.Footer.Render(footer)
+}
+
+func footerText(context footerContext) string {
+	switch context {
+	case footerChapterDetail:
+		return "enter start training · esc chapters · g home · h help · q quit"
+	case footerKeySequenceDetail:
+		return "enter start key training · esc chapters · g home · h help · q quit"
+	case footerTextInput:
+		return "enter submit · esc chapter · ctrl+c quit"
+	case footerTextFeedback:
+		return "enter next · esc chapter · ctrl+c quit"
+	default:
+		return "enter select · j/k move · esc back · g home · h help · q quit"
+	}
 }
 
 func (m model) configSummaryLine() string {
