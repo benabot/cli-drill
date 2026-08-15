@@ -104,7 +104,8 @@
 ### Later
 
 - [ ] Return to chapter detail after dedicated key training instead of Home.
-- [ ] Consider native Bubble Tea key-sequence training only if the dedicated CLI mode becomes limiting.
+- [ ] Consider native Bubble Tea key-sequence training only if the dedicated
+  CLI mode becomes limiting.
 
 ## P4 — CLI training UX polish
 
@@ -120,12 +121,20 @@
   - Improved spacing and visual hierarchy.
   - Kept output readable in plain terminals.
   - Kept ANSI styling disabled in tests / non-interactive output.
-- [ ] P4.2 — Final summary polish.
-  - Improve final chapter summary layout.
-  - Clarify score, missed items and review action.
-  - Keep summary readable without color.
-  - Avoid changing raw key capture or training logic.
-- [ ] Consider Bubble Tea for training mode only if the CLI renderer becomes too limited.
+- [x] P4.2 — Final summary polish.
+  - Show a session score and available missed answers.
+  - Offer retry only when the completed session has misses.
+  - Keep the summary readable without color.
+  - Keep raw key capture and persistent scoring unchanged.
+- [ ] Future randomized training sessions.
+  - Grow each chapter family to dozens of questions without changing YAML now.
+  - Draw a limited session from the pool, for example 8 questions or a
+    configurable count, instead of traversing every question.
+  - Draw questions randomly and avoid immediate repeats when possible.
+  - Keep tests deterministic with an injectable random source or controlled
+    seed.
+- [ ] Consider Bubble Tea for training mode only if the CLI renderer becomes
+  too limited.
 
 ## P5 — Distribution and release
 
@@ -143,5 +152,7 @@
 - [ ] MCP integrations.
 - [ ] Review chapter wording after several real training sessions.
 - [ ] Add more advanced drills only after the MVP exercises feel stable.
-- [ ] Return to chapter detail after dedicated key training instead of Home.(look 3.1)
-- [ ] Consider native Bubble Tea key-sequence training only if the dedicated CLI mode becomes limiting. (look at 3.1)
+- [ ] Return to chapter detail after dedicated key training instead of Home.
+  (look 3.1)
+- [ ] Consider native Bubble Tea key-sequence training only if the dedicated
+  CLI mode becomes limiting. (look at 3.1)

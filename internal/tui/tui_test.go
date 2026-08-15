@@ -258,6 +258,62 @@ func TestTrainingTextInputCtrlCQuits(t *testing.T) {
 	}
 }
 
+func TestTrainingSummaryShowsMissedAnswersAndOffersRetry(t *testing.T) {
+	m := newTrainingModel(t)
+	m.input.SetValue("Ctrl+L")
+	m = press(t, m, tea.KeyEnter)
+	m = press(t, m, tea.KeyEnter)
+
+	assertScreen(t, m, screenTrainingSummary)
+	view := m.View()
+	assertContains(t, view, "Score: 0/1 correct")
+	assertContains(t, view, "Missed:")
+	assertContains(t, view, "Aller au debut de ligne")
+	assertContains(t, view, "Expected: Ctrl+A")
+	assertContains(t, view, "Answered: Ctrl+L")
+	assertContains(t, view, "enter retry · esc chapter · g home · q quit")
+
+	m = press(t, m, tea.KeyEnter)
+	assertScreen(t, m, screenTraining)
+}
+
+func TestTrainingReturnsHomeWithoutMissedAnswers(t *testing.T) {
+	m := newTrainingModel(t)
+	m.input.SetValue("Ctrl+A")
+	m = press(t, m, tea.KeyEnter)
+	m = press(t, m, tea.KeyEnter)
+
+	assertScreen(t, m, screenHome)
+	view := m.View()
+	assertNotContains(t, view, "Missed:")
+	assertNotContains(t, view, "enter retry")
+}
+
+func TestTrainingSummaryEscReturnsToChapterDetail(t *testing.T) {
+	m := newMissedTrainingSummary(t)
+
+	m = press(t, m, tea.KeyEsc)
+
+	assertScreen(t, m, screenChapterDetail)
+}
+
+func TestTrainingSummaryQQuits(t *testing.T) {
+	m := newMissedTrainingSummary(t)
+
+	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'q'}})
+	if cmd == nil {
+		t.Fatal("expected q to quit from the training summary")
+	}
+}
+
+func TestTrainingSummaryGReturnsHome(t *testing.T) {
+	m := newMissedTrainingSummary(t)
+
+	m = press(t, m, tea.KeyRunes, 'g')
+
+	assertScreen(t, m, screenHome)
+}
+
 func TestScanScreenIsGuidanceOnly(t *testing.T) {
 	m := newTestModel(t, Options{})
 	m.home.Select(homeActionIndex("Scan dotfiles"))
@@ -349,6 +405,16 @@ func newTrainingModel(t *testing.T) model {
 	m = press(t, m, tea.KeyEnter)
 	m = press(t, m, tea.KeyEnter)
 	assertScreen(t, m, screenTraining)
+	return m
+}
+
+func newMissedTrainingSummary(t *testing.T) model {
+	t.Helper()
+	m := newTrainingModel(t)
+	m.input.SetValue("Ctrl+L")
+	m = press(t, m, tea.KeyEnter)
+	m = press(t, m, tea.KeyEnter)
+	assertScreen(t, m, screenTrainingSummary)
 	return m
 }
 

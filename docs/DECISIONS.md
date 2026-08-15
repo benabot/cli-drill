@@ -98,3 +98,10 @@ TUI footers are selected by interaction context. While typing a free-text
 answer, global single-key shortcuts are disabled so every printable key reaches
 the text input. `Enter` submits, `Esc` returns to the chapter detail, and
 `Ctrl+C` quits the TUI.
+
+## 2026-08-09 — TUI Chapter Completion
+
+Text chapter completion uses a session-only summary. It shows the score and
+available missed answers without changing persistent scoring. Retry restarts
+the chapter and is offered only when the completed session has misses. `g`
+returns Home from that summary; a session without misses returns Home directly.

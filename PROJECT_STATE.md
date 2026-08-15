@@ -109,6 +109,9 @@ tool.
   configuration status, main actions and contextual footer hints.
 - TUI footers are centralized by interaction context. Global single-key
   shortcuts are disabled while typing a free-text answer.
+- Text chapter completion now shows a session-only summary with score and up to
+  three missed answers. Retry is offered only when the session has misses, and
+  the summary also offers chapter detail, Home and quit actions.
 - CLI commands implemented:
   `init`, `scan`, `generate`, `chapters`, `train`, `directory`, `search`,
   `show`, `stats`, `reset`.

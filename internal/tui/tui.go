@@ -26,6 +26,7 @@ const (
 	screenChapters
 	screenChapterDetail
 	screenTraining
+	screenTrainingSummary
 	screenDirectory
 	screenStats
 )
@@ -58,6 +59,8 @@ const (
 	footerKeySequenceDetail
 	footerTextInput
 	footerTextFeedback
+	footerTrainingSummary
+	footerTrainingSummaryRetry
 )
 
 var homeActions = []listItem{
@@ -100,6 +103,22 @@ type configStatus struct {
 	DotfilesExists    bool
 }
 
+type trainingMiss struct {
+	Prompt   string
+	Expected string
+	Answered string
+}
+
+type trainingSummary struct {
+	Total   int
+	Correct int
+	Missed  []trainingMiss
+}
+
+func (s trainingSummary) retryAvailable() bool {
+	return len(s.Missed) > 0
+}
+
 type tuiStyleSet struct {
 	AppTitle    lipgloss.Style
 	ScreenTitle lipgloss.Style
@@ -138,6 +157,7 @@ type model struct {
 	chapterIndex  int
 	itemIndex     int
 	feedback      string
+	summary       trainingSummary
 	showHelp      bool
 	result        Result
 }
@@ -234,6 +254,21 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.screen == screenTrainingSummary {
+			switch msg.String() {
+			case "ctrl+c", "q":
+				return m, tea.Quit
+			case "g":
+				m.goHome()
+				return m, nil
+			case "esc":
+				m.back()
+				return m, nil
+			case "enter":
+				return m.handleEnter()
+			}
+			return m, nil
+		}
 		if m.screen == screenTraining {
 			switch msg.String() {
 			case "ctrl+c":
@@ -306,6 +341,8 @@ func (m model) View() string {
 		view = m.statsView()
 	case screenTraining:
 		view = m.trainingView()
+	case screenTrainingSummary:
+		view = m.trainingSummaryView()
 	}
 	if m.showHelp {
 		view += "\n\n" + m.helpView()
@@ -359,6 +396,10 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 		return m.startTraining(m.chapterIndex), nil
 	case screenTraining:
 		return m.answerOrAdvance(), nil
+	case screenTrainingSummary:
+		if m.summary.retryAvailable() {
+			return m.startTraining(m.chapterIndex), nil
+		}
 	}
 	return m, nil
 }
@@ -373,6 +414,8 @@ func (m *model) back() {
 		m.screen = screenChapterDetail
 		m.feedback = ""
 		m.input.SetValue("")
+	case screenTrainingSummary:
+		m.screen = screenChapterDetail
 	default:
 		m.screen = screenHome
 	}
@@ -402,6 +445,7 @@ func (m model) startTraining(index int) model {
 	m.screen = screenTraining
 	m.itemIndex = 0
 	m.feedback = ""
+	m.summary = trainingSummary{}
 	m.showHelp = false
 	m.input.SetValue("")
 	m.input.Focus()
@@ -419,14 +463,26 @@ func (m model) answerOrAdvance() model {
 		m.feedback = ""
 		m.input.SetValue("")
 		if m.currentItem() == nil {
-			m.screen = screenStats
+			if m.summary.retryAvailable() {
+				m.screen = screenTrainingSummary
+			} else {
+				m.goHome()
+			}
 		}
 		return m
 	}
 
-	if exercise.MatchAnswer(m.input.Value(), current.Answer) {
+	answered := m.input.Value()
+	m.summary.Total++
+	if exercise.MatchAnswer(answered, current.Answer) {
+		m.summary.Correct++
 		m.feedback = "Correct. " + current.Explanation
 	} else {
+		m.summary.Missed = append(m.summary.Missed, trainingMiss{
+			Prompt:   current.Prompt,
+			Expected: current.Answer.Primary,
+			Answered: answered,
+		})
 		m.feedback = "Pas encore. Reponse attendue: " + current.Answer.Primary
 	}
 	return m
@@ -596,6 +652,38 @@ func (m model) trainingView() string {
 	)
 }
 
+func (m model) trainingSummaryView() string {
+	styles := newTUIStyles()
+	title := "Training"
+	if current := m.currentChapter(); current != nil {
+		title = current.Title
+	}
+	lines := []string{
+		styles.ScreenTitle.Render("Chapter complete"),
+		styles.Subtitle.Render(title),
+		styles.Separator.Render("────────────────────────────────────────"),
+		"",
+		fmt.Sprintf("Score: %d/%d correct", m.summary.Correct, m.summary.Total),
+	}
+	if len(m.summary.Missed) == 0 {
+		return strings.Join(lines, "\n")
+	}
+
+	lines = append(lines, "", styles.Warning.Render("Missed:"))
+	for i, missed := range m.summary.Missed {
+		if i == 3 {
+			lines = append(lines, fmt.Sprintf("And %d more.", len(m.summary.Missed)-i))
+			break
+		}
+		lines = append(lines,
+			missed.Prompt,
+			styles.Muted.Render("Expected: "+missed.Expected),
+			styles.Muted.Render("Answered: "+valueOrFallback(missed.Answered, "(empty)")),
+		)
+	}
+	return strings.Join(lines, "\n")
+}
+
 func (m model) statsView() string {
 	styles := newTUIStyles()
 	total := 0
@@ -650,6 +738,11 @@ func (m model) footerContext() footerContext {
 			return footerTextFeedback
 		}
 		return footerTextInput
+	case screenTrainingSummary:
+		if m.summary.retryAvailable() {
+			return footerTrainingSummaryRetry
+		}
+		return footerTrainingSummary
 	default:
 		return footerNavigation
 	}
@@ -665,6 +758,10 @@ func footerText(context footerContext) string {
 		return "enter submit · esc chapter · ctrl+c quit"
 	case footerTextFeedback:
 		return "enter next · esc chapter · ctrl+c quit"
+	case footerTrainingSummaryRetry:
+		return "enter retry · esc chapter · g home · q quit"
+	case footerTrainingSummary:
+		return "esc chapter · g home · q quit"
 	default:
 		return "enter select · j/k move · esc back · g home · h help · q quit"
 	}
