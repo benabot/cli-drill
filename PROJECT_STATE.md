@@ -25,14 +25,15 @@ Implemented:
   - monochrome fallback;
   - session review for missed shortcuts.
 - Bubble Tea TUI cockpit:
-  - Home screen with ASCII `CLI-drill` banner and compact narrow-terminal
-    fallback;
-  - chapter browser;
+  - informative Home screen with ASCII `CLI-drill` banner, actionable dotfiles
+    setup guidance and compact narrow-terminal fallback;
+  - chapter browser with existing descriptions, IDs and exercise counts;
   - chapter detail;
   - text training screen;
   - directory browser;
   - stats screen;
-  - read-only configuration status;
+  - read-only configuration guide separating config presence, configured
+    dotfiles paths and existing or missing paths;
   - read-only scan guidance.
 - Key-sequence chapters are detected by the TUI and delegated to the dedicated
   key training mode.
@@ -106,9 +107,11 @@ tool.
 - The TUI includes a main menu, chapter picker, training screen, directory
   browser and stats summary.
 - The Home screen shows a styled ASCII `CLI-drill` banner, the product tagline,
-  configuration status, main actions and contextual footer hints.
+  concise setup guidance when needed, useful action descriptions and contextual
+  footer hints.
 - TUI footers are centralized by interaction context. Global single-key
-  shortcuts are disabled while typing a free-text answer.
+  shortcuts are disabled while typing a free-text answer. List screens hide the
+  built-in Bubbles help so only the centralized footer is visible.
 - Text chapter completion now shows a session-only summary with score and up to
   three missed answers. Retry is offered only when the session has misses, and
   the summary also offers chapter detail, Home and quit actions.

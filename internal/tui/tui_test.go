@@ -21,15 +21,32 @@ func TestHomeViewExplainsAppAndShowsConfigStatus(t *testing.T) {
 	assertContains(t, view, "____ _     ___")
 	assertContains(t, view, homeTagline)
 	assertContains(t, view, "Dotfiles: not configured")
+	assertContains(t, view, "Run cli-drill init or open Configuration to set dotfiles paths.")
 	assertContains(t, view, "Start training")
+	assertContains(t, view, "Begin the first available chapter.")
 	assertContains(t, view, "Browse chapters")
+	assertContains(t, view, "Choose a chapter and inspect its exercises.")
 	assertContains(t, view, "Scan dotfiles")
+	assertContains(t, view, "commands are not executed")
 	assertContains(t, view, "Directory")
 	assertContains(t, view, "Stats")
 	assertContains(t, view, "Configuration")
 	assertContains(t, view, "enter select")
 	assertContains(t, view, "esc back")
 	assertContains(t, view, "g home")
+}
+
+func TestHomeUsesOnlyCentralizedFooter(t *testing.T) {
+	m := newTestModel(t, Options{})
+
+	view := m.View()
+	wantFooter := footerText(footerNavigation)
+
+	if count := strings.Count(view, wantFooter); count != 1 {
+		t.Fatalf("centralized footer count = %d, want 1\nview:\n%s", count, view)
+	}
+	assertNotContains(t, view, "↑/k up")
+	assertNotContains(t, view, "? more")
 }
 
 func TestHomeBannerFallsBackWhenTerminalIsNarrow(t *testing.T) {
@@ -51,21 +68,33 @@ func TestConfigStatusMissingIsReadOnlyGuidance(t *testing.T) {
 	assertScreen(t, m, screenConfig)
 	assertContains(t, view, "Configuration")
 	assertContains(t, view, configPath)
-	assertContains(t, view, "Status: not configured")
+	assertContains(t, view, "Config file: not found")
+	assertContains(t, view, "Dotfiles paths: not configured")
 	assertContains(t, view, "cli-drill init --print")
+	assertContains(t, view, "cli-drill init")
+	assertContains(t, view, "cli-drill scan --summary")
+	assertContains(t, view, "Scan is static. cli-drill does not execute shell commands from dotfiles.")
 	if _, err := os.Stat(configPath); !os.IsNotExist(err) {
 		t.Fatalf("expected config screen to avoid creating %s, got err=%v", configPath, err)
 	}
 }
 
-func TestConfigStatusPresentShowsDotfilesPath(t *testing.T) {
+func TestConfigStatusPresentSeparatesConfiguredExistingAndMissingPaths(t *testing.T) {
 	dir := t.TempDir()
 	dotfilesPath := filepath.Join(dir, "dotfiles")
-	if err := os.Mkdir(dotfilesPath, 0o755); err != nil {
+	aliasesPath := filepath.Join(dotfilesPath, "zsh", "aliases.zsh")
+	if err := os.MkdirAll(filepath.Dir(aliasesPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(aliasesPath, []byte("# aliases\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	configPath := filepath.Join(dir, "config.toml")
-	data := "dotfiles_path = " + quoteTOML(dotfilesPath) + "\nshell = \"zsh\"\n"
+	data := "dotfiles_path = " + quoteTOML(dotfilesPath) + "\nshell = \"zsh\"\n\n" +
+		"[paths]\n" +
+		"aliases = [\"zsh/aliases.zsh\"]\n" +
+		"functions = []\n" +
+		"docs = [\"README.md\"]\n"
 	if err := os.WriteFile(configPath, []byte(data), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -76,9 +105,53 @@ func TestConfigStatusPresentShowsDotfilesPath(t *testing.T) {
 
 	view := m.View()
 
-	assertContains(t, view, "Status: configured")
-	assertContains(t, view, "Dotfiles path: "+dotfilesPath)
-	assertContains(t, view, "Path exists: yes")
+	assertContains(t, view, "Config file: found")
+	assertContains(t, view, "Dotfiles paths: configured")
+	assertContains(t, view, "Dotfiles root: "+dotfilesPath+" — existing")
+	assertContains(t, view, "Configured paths:")
+	assertContains(t, view, "aliases: zsh/aliases.zsh — existing")
+	assertContains(t, view, "docs: README.md — missing")
+	assertContains(t, view, "Scan is static. cli-drill does not execute shell commands from dotfiles.")
+}
+
+func TestChaptersShowDescriptionMetadataAndCentralizedFooter(t *testing.T) {
+	first := textChapter()
+	second := textChapter()
+	second.ID = "02-navigation-shell"
+	second.Title = "Navigation shell"
+	second.Description = "Move between directories."
+	m := newTestModel(t, Options{Chapters: []chapter.Chapter{first, second}})
+	m.home.Select(homeActionIndex("Browse chapters"))
+	m = press(t, m, tea.KeyEnter)
+
+	view := m.View()
+	wantFooter := footerText(footerNavigation)
+
+	assertContains(t, view, "01-raccourcis-terminal · 1 exercise · Memoriser les raccourcis de navigation.")
+	assertContains(t, view, "02-navigation-shell · 1 exercise · Move between directories.")
+	if count := strings.Count(view, wantFooter); count != 1 {
+		t.Fatalf("centralized footer count = %d, want 1\nview:\n%s", count, view)
+	}
+	assertNotContains(t, view, "↑/k up")
+
+	m = press(t, m, tea.KeyRunes, 'j')
+	m = press(t, m, tea.KeyEnter)
+	assertScreen(t, m, screenChapterDetail)
+	assertContains(t, m.View(), "Navigation shell")
+}
+
+func TestDirectoryUsesOnlyCentralizedFooter(t *testing.T) {
+	m := newTestModel(t, Options{})
+	m.home.Select(homeActionIndex("Directory"))
+	m = press(t, m, tea.KeyEnter)
+
+	view := m.View()
+	wantFooter := footerText(footerNavigation)
+
+	if count := strings.Count(view, wantFooter); count != 1 {
+		t.Fatalf("centralized footer count = %d, want 1\nview:\n%s", count, view)
+	}
+	assertNotContains(t, view, "↑/k up")
 }
 
 func TestNavigationHomeChaptersDetailBackHome(t *testing.T) {

@@ -99,6 +99,10 @@ answer, global single-key shortcuts are disabled so every printable key reaches
 the text input. `Enter` submits, `Esc` returns to the chapter detail, and
 `Ctrl+C` quits the TUI.
 
+List-based screens hide the built-in Bubbles help when cli-drill renders its
+centralized contextual footer. Home, Chapters and Directory therefore show one
+footer source without changing their existing navigation shortcuts.
+
 ## 2026-08-09 — TUI Chapter Completion
 
 Text chapter completion uses a session-only summary. It shows the score and

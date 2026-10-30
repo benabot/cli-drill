@@ -103,6 +103,20 @@
 
 ### Later
 
+- [ ] Configuration preferences.
+  - Review the config model before adding preferences.
+  - Keep beginner defaults simple and explicit.
+  - Keep tests deterministic.
+  - Avoid hidden states that are difficult to explain.
+  - Consider a default start screen.
+  - Consider a preferred training session length.
+  - Consider random question order on/off.
+  - Consider a configurable number of questions per session.
+  - Consider including or excluding chapter families.
+  - Consider color output with `auto`, `on` and `off` modes.
+  - Consider compact versus detailed chapter lists.
+  - Consider showing or hiding extended help.
+  - Consider a preferred post-training return target: Home or chapter detail.
 - [ ] Return to chapter detail after dedicated key training instead of Home.
 - [ ] Consider native Bubble Tea key-sequence training only if the dedicated
   CLI mode becomes limiting.

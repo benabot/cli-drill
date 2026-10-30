@@ -9,6 +9,7 @@ import (
 	"github.com/benabot/cli-drill/internal/catalog"
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/config"
+	"github.com/benabot/cli-drill/internal/detect"
 	"github.com/benabot/cli-drill/internal/exercise"
 	"github.com/benabot/cli-drill/internal/progress"
 	"github.com/charmbracelet/bubbles/list"
@@ -64,13 +65,13 @@ const (
 )
 
 var homeActions = []listItem{
-	{title: homeActionStartTraining, description: "Begin the first available chapter"},
-	{title: homeActionBrowse, description: "Pick a chapter and inspect its exercises"},
-	{title: homeActionScan, description: "Read-only guidance for scanning configured dotfiles"},
-	{title: homeActionDirectory, description: "Browse embedded shortcuts, aliases, tools, and workflows"},
-	{title: homeActionStats, description: "Review local progress"},
-	{title: homeActionConfig, description: "Check dotfiles configuration status"},
-	{title: homeActionQuit, description: "Close cli-drill"},
+	{title: homeActionStartTraining, description: "Begin the first available chapter."},
+	{title: homeActionBrowse, description: "Choose a chapter and inspect its exercises."},
+	{title: homeActionScan, description: "Read configured dotfiles statically; commands are not executed."},
+	{title: homeActionDirectory, description: "Browse embedded or detected shortcuts, aliases, tools and workflows."},
+	{title: homeActionStats, description: "Review local training progress."},
+	{title: homeActionConfig, description: "Check config path, dotfiles status and setup next steps."},
+	{title: homeActionQuit, description: "Close cli-drill."},
 }
 
 type Options struct {
@@ -101,6 +102,13 @@ type configStatus struct {
 	DotfilesPath      string
 	DotfilesPathCheck string
 	DotfilesExists    bool
+	ConfiguredPaths   []configuredPathStatus
+}
+
+type configuredPathStatus struct {
+	Category string
+	Path     string
+	State    string
 }
 
 type trainingMiss struct {
@@ -200,19 +208,21 @@ func newModel(opts Options) model {
 	home.Title = "Actions"
 	home.SetShowStatusBar(false)
 	home.SetFilteringEnabled(false)
+	home.SetShowHelp(false)
 	home.Styles.Title = styles.ScreenTitle
 
 	chapterItems := make([]list.Item, 0, len(opts.Chapters))
 	for i, chapter := range opts.Chapters {
 		chapterItems = append(chapterItems, listItem{
 			title:       chapter.Title,
-			description: fmt.Sprintf("%s - %d exercises", chapter.ID, len(chapter.Items)),
+			description: chapterListDescription(chapter),
 			index:       i,
 		})
 	}
 	chapterList := list.New(chapterItems, delegate, 80, 20)
 	chapterList.Title = "Chapters"
 	chapterList.SetShowStatusBar(false)
+	chapterList.SetShowHelp(false)
 	chapterList.Styles.Title = styles.ScreenTitle
 
 	directoryItems := make([]list.Item, 0, len(opts.Entries))
@@ -226,6 +236,7 @@ func newModel(opts Options) model {
 	directory := list.New(directoryItems, delegate, 80, 20)
 	directory.Title = "Directory"
 	directory.SetShowStatusBar(false)
+	directory.SetShowHelp(false)
 	directory.Styles.Title = styles.ScreenTitle
 
 	input := textinput.New()
@@ -508,15 +519,21 @@ func (m model) currentChapter() *chapter.Chapter {
 
 func (m model) homeView() string {
 	styles := newTUIStyles()
-	return strings.Join([]string{
+	lines := []string{
 		renderHomeBanner(m.home.Width(), styles),
 		styles.Subtitle.Render(homeTagline),
 		"",
 		styles.Info.Render(m.configSummaryLine()),
+	}
+	if hint := m.homeConfigHint(); hint != "" {
+		lines = append(lines, styles.Muted.Render(hint))
+	}
+	lines = append(lines,
 		styles.Separator.Render("────────────────────────────────────────"),
 		"",
 		m.home.View(),
-	}, "\n")
+	)
+	return strings.Join(lines, "\n")
 }
 
 func renderHomeBanner(width int, styles tuiStyleSet) string {
@@ -546,23 +563,34 @@ func (m model) configView() string {
 		styles.Subtitle.Render("Read-only status. No config file is created from the TUI."),
 		styles.Separator.Render("────────────────────────────────────────"),
 		"",
-		"Config file: " + valueOrFallback(m.config.Path, "unknown"),
-		styles.Info.Render("Status: " + m.configStatusLabel()),
+		"Config path: " + valueOrFallback(m.config.Path, "unknown"),
+		styles.Info.Render("Config file: " + m.configFileStatusLabel()),
+		styles.Info.Render("Dotfiles paths: " + m.dotfilesPathsStatusLabel()),
 	}
 	if m.config.LoadError != "" {
 		lines = append(lines, styles.Warning.Render("Error: "+m.config.LoadError))
 	}
 	if m.config.DotfilesPath != "" {
-		lines = append(lines, "Dotfiles path: "+m.config.DotfilesPath)
-		if m.config.DotfilesPathCheck != "" {
-			lines = append(lines, "Checked path: "+m.config.DotfilesPathCheck)
+		state := "missing"
+		if m.config.DotfilesExists {
+			state = "existing"
 		}
-		lines = append(lines, "Path exists: "+yesNo(m.config.DotfilesExists))
+		lines = append(lines, "Dotfiles root: "+m.config.DotfilesPath+" — "+state)
+	}
+	if len(m.config.ConfiguredPaths) > 0 {
+		lines = append(lines, "", "Configured paths:")
+		for _, configured := range m.config.ConfiguredPaths {
+			lines = append(lines, fmt.Sprintf("- %s: %s — %s", configured.Category, configured.Path, configured.State))
+		}
 	}
 	lines = append(lines,
 		"",
-		"To preview a starter config, run:",
-		"cli-drill init --print",
+		"Next steps:",
+		"- Preview the default config: cli-drill init --print",
+		"- Create the config if missing: cli-drill init",
+		"- Summarize configured paths: cli-drill scan --summary",
+		"",
+		styles.Info.Render("Scan is static. cli-drill does not execute shell commands from dotfiles."),
 	)
 	return strings.Join(lines, "\n")
 }
@@ -786,12 +814,32 @@ func (m model) configSummaryLine() string {
 	return "Dotfiles: " + m.config.DotfilesPath + " (missing)"
 }
 
-func (m model) configStatusLabel() string {
-	if !m.config.Exists {
-		return "not configured"
+func (m model) homeConfigHint() string {
+	if m.config.Path == "" {
+		return "Open Configuration to check the expected config path and setup steps."
 	}
-	if m.config.LoadError != "" {
-		return "error"
+	if !m.config.Exists {
+		return "Run cli-drill init or open Configuration to set dotfiles paths."
+	}
+	if m.config.LoadError != "" || m.config.DotfilesPath == "" {
+		return "Open Configuration to review the config and dotfiles paths."
+	}
+	if !m.config.DotfilesExists {
+		return "Open Configuration to review missing dotfiles paths."
+	}
+	return ""
+}
+
+func (m model) configFileStatusLabel() string {
+	if !m.config.Exists {
+		return "not found"
+	}
+	return "found"
+}
+
+func (m model) dotfilesPathsStatusLabel() string {
+	if m.config.DotfilesPath == "" {
+		return "not configured"
 	}
 	return "configured"
 }
@@ -853,11 +901,43 @@ func loadConfigStatus(path string) configStatus {
 	}
 	status.DotfilesPath = cfg.DotfilesPath
 	status.DotfilesPathCheck = expandHome(cfg.DotfilesPath)
-	if status.DotfilesPathCheck == "" {
+	if status.DotfilesPathCheck != "" {
+		if _, err := os.Stat(status.DotfilesPathCheck); err == nil {
+			status.DotfilesExists = true
+		}
+	}
+	groups := []struct {
+		category string
+		paths    []string
+	}{
+		{category: "aliases", paths: cfg.Paths.Aliases},
+		{category: "functions", paths: cfg.Paths.Functions},
+		{category: "docs", paths: cfg.Paths.Docs},
+	}
+	for _, group := range groups {
+		for _, configuredPath := range group.paths {
+			status.ConfiguredPaths = append(status.ConfiguredPaths, configuredPathState(cfg, group.category, configuredPath))
+		}
+	}
+	return status
+}
+
+func configuredPathState(cfg config.Config, category, configuredPath string) configuredPathStatus {
+	status := configuredPathStatus{Category: category, Path: configuredPath, State: "not checked"}
+	resolved, err := detect.ResolveConfiguredPath(cfg.DotfilesPath, configuredPath)
+	if err != nil {
 		return status
 	}
-	if _, err := os.Stat(status.DotfilesPathCheck); err == nil {
-		status.DotfilesExists = true
+	if detect.IsExcluded(resolved, cfg.Security.Exclude) {
+		status.State = "excluded"
+		return status
+	}
+	if _, err := os.Stat(resolved); err == nil {
+		status.State = "existing"
+	} else if os.IsNotExist(err) {
+		status.State = "missing"
+	} else {
+		status.State = "unavailable"
 	}
 	return status
 }
@@ -910,11 +990,19 @@ func valueOrFallback(value, fallback string) string {
 	return value
 }
 
-func yesNo(value bool) string {
-	if value {
-		return "yes"
+func chapterListDescription(chapter chapter.Chapter) string {
+	metadata := fmt.Sprintf("%s · %s", chapter.ID, exerciseCountLabel(len(chapter.Items)))
+	if chapter.Description == "" {
+		return metadata
 	}
-	return "no"
+	return metadata + " · " + chapter.Description
+}
+
+func exerciseCountLabel(count int) string {
+	if count == 1 {
+		return "1 exercise"
+	}
+	return fmt.Sprintf("%d exercises", count)
 }
 
 func titleStyle() lipgloss.Style {
