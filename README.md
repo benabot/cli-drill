@@ -2,9 +2,12 @@
 
 # CLI-Drill
 
-<img src="docs/assets/cli-drill-hero.webp" width="820"
-  alt="CLI-Drill running: cyan ASCII banner, mint Actions heading
-  and Browse chapters selected in fuchsia.">
+<!-- Keep this anchor without href to prevent GitHub image auto-linking. -->
+<a name="cli-drill-hero">
+  <img src="docs/assets/cli-drill-hero.webp" width="820"
+    alt="CLI-Drill running: cyan ASCII banner, mint Actions heading
+    and Browse chapters selected in fuchsia.">
+</a>
 
 **Make your terminal second nature.**
 
