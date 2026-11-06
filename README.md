@@ -2,53 +2,48 @@
 
 # CLI-Drill
 
+<a href="docs/assets/cli-drill-hero.webp">
+  <img src="docs/assets/cli-drill-hero.webp" width="820"
+    alt="CLI-Drill running: cyan ASCII banner, mint Actions heading
+    and Browse chapters selected in fuchsia.">
+</a>
+
 **Make your terminal second nature.**
 
 A terminal trainer for your shortcuts and ZSH dotfiles.
 
-[![Work in progress](https://img.shields.io/badge/status-work_in_progress-D9A441?style=flat-square)](PROJECT_STATE.md)
-[![Go 1.23+](https://img.shields.io/badge/Go-1.23%2B-00ADD8?style=flat-square&logo=go&logoColor=white)](go.mod)
-[![ZSH](https://img.shields.io/badge/shell-ZSH-4E9A68?style=flat-square)](docs/SPEC.md)
+[![Work in progress](https://img.shields.io/badge/status-work_in_progress-FF87FF?style=flat-square&labelColor=182033)](PROJECT_STATE.md)
+[![Go 1.23+](https://img.shields.io/badge/Go-1.23%2B-5FD7FF?style=flat-square&labelColor=182033&logo=go&logoColor=5FD7FF)](go.mod)
+[![ZSH](https://img.shields.io/badge/shell-ZSH-5FFFD7?style=flat-square&labelColor=182033)](docs/SPEC.md)
 
-[English](#english) · [Français](#français)
+**[English](#english)** &nbsp; / &nbsp; **[Français](#français)**
 
-[Install](#installation) · [First drill](#quick-start) · [Repository](https://github.com/benabot/cli-drill)
+[Install](#installation) · [First drill](#quick-start) &nbsp; / &nbsp;
+[Installer](#installer-cli-drill) · [Premier exercice](#demarrage-rapide)
+
+<sub>Live TUI · demo dotfiles · cropped /
+TUI réelle · dotfiles de démonstration · recadrée</sub>
 
 </div>
-
-```text
-  ┌────────────────────────────────┐
-  │  >_ CLI-DRILL                  │
-  │                                │
-  │  Know the command.             │
-  │  Remember the shortcut.        │
-  │  Make it a habit.              │
-  └────────────────────────────────┘
-```
-
-A terminal training app that turns shell knowledge into practice. Start with
-**10 built-in chapters and 68 exercises**, then build editable lessons from
-your own ZSH dotfiles. Browse, practise and review without leaving the terminal.
-
-Une application pour apprendre son terminal par la pratique. Commencez avec
-**10 chapitres et 68 exercices intégrés**, puis créez vos leçons à partir de
-vos dotfiles ZSH. Explorez, entraînez-vous et révisez depuis le terminal.
-
-> **Work in progress.** A usable CLI/TUI MVP, still evolving. Menus mix English
-> and French; bundled lessons and feedback are currently in French.
->
-> **Projet en cours.** Un MVP CLI/TUI utilisable, en évolution. Les menus mêlent
-> anglais et français ; les leçons et corrections intégrées sont en français.
 
 ---
 
 ## English
 
+A terminal training app that turns shell knowledge into practice. Start with
+**10 built-in chapters and 68 exercises**, then build editable lessons from
+your own ZSH dotfiles. Browse, practise and review without leaving the terminal.
+
+> **Work in progress.** A usable CLI/TUI MVP, still evolving. Menus mix English
+> and French; bundled lessons and feedback are currently in French.
+
 [Install](#installation) · [Quick start](#quick-start) ·
 [Examples](#examples) ·
 [Your dotfiles](#train-with-your-dotfiles) · [Development](#development)
 
-### Why CLI-Drill?
+<a name="why-cli-drill"></a>
+
+### `01` / Why CLI-Drill?
 
 A dotfiles repository records how your shell works. Remembering what you put
 in it is another skill entirely. That alias you wrote last month, the shortcut
@@ -62,7 +57,9 @@ their dotfiles documentation into something they can practise.
 
 **Start with the included lessons. Make the next ones your own.**
 
-### What you can do today
+<a name="features"></a>
+
+### `02` / Features
 
 - **Practise actual keystrokes.** Press shortcuts such as `Ctrl+A`, get immediate
   feedback and revisit missed shortcuts in a dedicated key capture mode.
@@ -81,7 +78,11 @@ Exercise formats include free answers, multiple choice, scenarios, command-text
 simulation and real shortcut capture. The simulator **compares text; it never
 executes your answer**. Tools mentioned in lessons need not be installed to practise.
 
-### Installation
+---
+
+<a name="installation"></a>
+
+### `03` / Installation
 
 You need [Go 1.23 or newer](https://go.dev/doc/install), Git and an interactive
 terminal for the TUI and shortcut capture. These commands use a Unix shell on
@@ -117,7 +118,12 @@ cli-drill
 download Go dependencies; the app itself works offline. Prebuilt releases and
 a Homebrew tap are still on the roadmap.
 
-### Quick start
+<a name="quick-start"></a>
+
+### `04` / Quick Start
+
+**Home** → **Browse chapters** → **Raccourcis terminal** →
+<kbd>Ctrl</kbd> + <kbd>A</kbd>
 
 1. Run `cli-drill`. Select **Browse chapters** with `j`/`k` or the arrow keys,
    then press `Enter`.
@@ -138,7 +144,39 @@ In key training, `h` toggles help and `Esc` or `Ctrl+C` exits. After a wrong
 answer, `r` retries and `s` reveals the solution. In TUI text exercises, type an
 answer and press `Enter`; `Esc` returns to the chapter and `Ctrl+C` quits.
 
-### Terminal preview
+---
+
+<a name="terminal-preview"></a>
+
+### `05` / Terminal Preview
+
+The hero captures the live Home menu with **Browse chapters** selected.
+Opening the first chapter shows its exercise count, progress and launch action.
+
+<details>
+<summary>Browse → inspect → start: the chapter detail screen</summary>
+
+Fresh progress, before starting the first drill; outer padding omitted.
+
+```text
+Raccourcis terminal
+Memoriser les raccourcis de navigation et edition de ligne.
+────────────────────────────────────────
+
+Chapter: 01-raccourcis-terminal
+Exercises: 8
+Progress: 0/8 completed
+Score: 0/0 correct
+
+Ce chapitre entraîne les vrais raccourcis clavier.
+cli-drill ouvre un mode dédié pour capturer les touches.
+
+enter start key training · esc chapters · g home · h help · q quit
+```
+
+</details>
+
+**Press the shortcut. Get feedback. Keep going.**
 
 Actual text from the first shortcut drill, with colour and redraw sequences
 removed. These are two successive screens, not a screenshot.
@@ -166,7 +204,9 @@ Ctrl+A place le curseur au debut de la ligne.
 Enter next · Esc quit
 ```
 
-### Examples
+<a name="examples"></a>
+
+### `06` / Examples
 
 These examples use the bundled chapters. Custom chapters or a scan configuration
 can change the available entries. Outputs retain the app’s original language.
@@ -227,7 +267,9 @@ Streak: 0
 Counts depend on your sessions. The current implementation does not update
 `Streak`; completed exercises and chapter attempts are the useful counters.
 
-### Train with your dotfiles
+<a name="train-with-your-dotfiles"></a>
+
+### `07` / Train with your dotfiles
 
 This optional path personalises the lessons. Preview the default configuration
 without writing anything, then create it:
@@ -258,6 +300,27 @@ For a minimal repository whose configured alias file contains only
 ```text
 alias   cgs   cgs   git status --short
 ```
+
+<details>
+<summary>See the scan summary for this one-alias example</summary>
+
+With the same minimal configuration:
+
+```sh
+cli-drill scan --summary
+```
+
+```text
+aliases: 1
+functions: 0
+tools: 0
+concepts: 0
+workflows: 0
+chapters: 0
+total: 1
+```
+
+</details>
 
 The columns are `type`, `id`, `name` and `summary`. The alias is read as text,
 never executed. Generated exercises ask you to recall the detected alias.
@@ -297,7 +360,11 @@ deletes the selected progress file.
 
 </details>
 
-### How it works
+---
+
+<a name="how-it-works"></a>
+
+### `08` / How it works
 
 ```text
 Configured ZSH + Markdown
@@ -314,6 +381,9 @@ Editable YAML chapters
  Bundled chapters provide the first-run lessons
 ```
 
+<details>
+<summary>Under the hood: shared packages and catalog sources</summary>
+
 Cobra wires the CLI; Bubble Tea, Bubbles and Lip Gloss provide the TUI. Shared
 Go packages parse sources, deduplicate entries by type and ID, load YAML and
 match answers against accepted variants. The ZSH parser detects alias definitions
@@ -325,7 +395,11 @@ fall back to default dotfiles paths if an entry is missing. The TUI directory
 uses loaded chapters. Its **Configuration** and **Scan dotfiles** screens give
 read-only guidance; use the CLI to create config or scan files.
 
-### 📂 Project Structure
+</details>
+
+<a name="project-structure"></a>
+
+### `09` / 📂 Project Structure
 
 ```text
 cli-drill/
@@ -355,7 +429,11 @@ cli-drill/
 └── README.md               # You are here
 ```
 
-### Development
+---
+
+<a name="development"></a>
+
+### `10` / Development
 
 From the repository root:
 
@@ -376,7 +454,9 @@ Read the [specification](docs/SPEC.md), [architecture](docs/ARCHITECTURE.md),
 [working instructions](AGENTS.md) before a substantial change. Technical
 project documentation currently mixes French and English.
 
-### Roadmap, license & author
+<a name="roadmap-license-author"></a>
+
+### `11` / Roadmap, license & author
 
 The [backlog](TODO.md) includes lesson refinement through real use, randomised
 sessions, TUI preferences, releases and a Homebrew tap. Bash and Fish support
@@ -392,11 +472,20 @@ Created by [benabot](https://github.com/benabot).
 
 ## Français
 
-[Installation](#installer-cli-drill) · [Démarrage](#démarrage-rapide) ·
-[Exemples](#exemples-pratiques) ·
-[Vos dotfiles](#apprendre-avec-vos-dotfiles) · [Développement](#développer-et-contribuer)
+Une application pour apprendre son terminal par la pratique. Commencez avec
+**10 chapitres et 68 exercices intégrés**, puis créez vos leçons à partir de
+vos dotfiles ZSH. Explorez, entraînez-vous et révisez depuis le terminal.
 
-### Pourquoi CLI-Drill ?
+> **Projet en cours.** Un MVP CLI/TUI utilisable, en évolution. Les menus mêlent
+> anglais et français ; les leçons et corrections intégrées sont en français.
+
+[Installation](#installer-cli-drill) · [Démarrage](#demarrage-rapide) ·
+[Exemples](#exemples-pratiques) ·
+[Vos dotfiles](#apprendre-avec-vos-dotfiles) · [Développement](#developper-et-contribuer)
+
+<a name="pourquoi-cli-drill"></a>
+
+### `01` / Pourquoi CLI-Drill ?
 
 Vos dotfiles décrivent votre environnement. Encore faut-il se souvenir de ce
 qu’on y a ajouté : un alias écrit le mois dernier, un raccourci qu’on recherche
@@ -411,7 +500,9 @@ dotfiles en support d’entraînement.
 
 **Commencez avec les leçons intégrées. Construisez ensuite les vôtres.**
 
-### Ce que vous pouvez déjà faire
+<a name="fonctionnalites"></a>
+
+### `02` / Fonctionnalités
 
 - **Pratiquer les vraies touches.** Appuyez sur des raccourcis comme `Ctrl+A`,
   obtenez une correction immédiate et révisez vos erreurs dans un mode dédié.
@@ -432,7 +523,11 @@ simulation de commandes et capture de raccourcis. Le simulateur **compare le
 texte saisi sans jamais l’exécuter**. Les outils cités n’ont pas besoin d’être
 installés pour s’entraîner.
 
-### Installer CLI-Drill
+---
+
+<a name="installer-cli-drill"></a>
+
+### `03` / Installation
 
 Prévoyez [Go 1.23 ou plus récent](https://go.dev/doc/install), Git et un terminal
 interactif pour la TUI et la capture des raccourcis. Ces commandes utilisent un
@@ -469,7 +564,12 @@ compilation peut télécharger les dépendances Go ; l’application fonctionne
 ensuite hors ligne. Les binaires prêts à télécharger et le tap Homebrew sont
 prévus pour plus tard.
 
-### Démarrage rapide
+<a name="demarrage-rapide"></a>
+
+### `04` / Démarrage rapide
+
+**Accueil** → **Browse chapters** → **Raccourcis terminal** →
+<kbd>Ctrl</kbd> + <kbd>A</kbd>
 
 1. Lancez `cli-drill`. Sélectionnez **Browse chapters** avec `j`/`k` ou les
    flèches, puis validez avec `Entrée`.
@@ -493,7 +593,40 @@ Dans les exercices textuels TUI, saisissez une réponse et validez
 avec `Entrée` ;
 `Échap` revient au chapitre et `Ctrl+C` quitte l’application.
 
-### Aperçu du terminal
+---
+
+<a name="apercu-du-terminal"></a>
+
+### `05` / Aperçu du terminal
+
+Le hero montre le véritable menu d’accueil, avec **Browse chapters** sélectionné.
+Ouvrir le premier chapitre affiche son nombre d’exercices, la progression et
+l’action permettant de démarrer.
+
+<details>
+<summary>Parcourir → consulter → démarrer : la fiche du chapitre</summary>
+
+Progression initialement vide, avant le premier exercice ; marges retirées.
+
+```text
+Raccourcis terminal
+Memoriser les raccourcis de navigation et edition de ligne.
+────────────────────────────────────────
+
+Chapter: 01-raccourcis-terminal
+Exercises: 8
+Progress: 0/8 completed
+Score: 0/0 correct
+
+Ce chapitre entraîne les vrais raccourcis clavier.
+cli-drill ouvre un mode dédié pour capturer les touches.
+
+enter start key training · esc chapters · g home · h help · q quit
+```
+
+</details>
+
+**Appuyez sur le raccourci. Voyez la correction. Continuez.**
 
 Texte réel du premier exercice, sans couleurs ni séquences de rafraîchissement.
 Voici deux écrans successifs, sous forme textuelle :
@@ -521,7 +654,9 @@ Ctrl+A place le curseur au debut de la ligne.
 Enter next · Esc quit
 ```
 
-### Exemples pratiques
+<a name="exemples-pratiques"></a>
+
+### `06` / Exemples pratiques
 
 Ces exemples utilisent les chapitres intégrés. Des chapitres personnels ou une
 configuration de scan peuvent changer les entrées disponibles. Les sorties
@@ -585,7 +720,9 @@ Les résultats dépendent de vos sessions. L’implémentation actuelle ne met p
 à jour `Streak` ; les compteurs utiles concernent les exercices réussis et
 les chapitres tentés.
 
-### Apprendre avec vos dotfiles
+<a name="apprendre-avec-vos-dotfiles"></a>
+
+### `07` / Apprendre avec vos dotfiles
 
 Ce parcours facultatif personnalise les leçons. Prévisualisez la configuration
 par défaut sans écrire de fichier, puis créez-la :
@@ -616,6 +753,27 @@ vides, `directory --type alias` renvoie ces champs séparés par des tabulations
 ```text
 alias   cgs   cgs   git status --short
 ```
+
+<details>
+<summary>Voir le résumé du scan pour cet exemple à un alias</summary>
+
+Avec la même configuration minimale :
+
+```sh
+cli-drill scan --summary
+```
+
+```text
+aliases: 1
+functions: 0
+tools: 0
+concepts: 0
+workflows: 0
+chapters: 0
+total: 1
+```
+
+</details>
 
 Les colonnes sont `type`, `id`, `name` et `summary`. L’alias est lu comme du texte,
 sans être exécuté. Les exercices générés demandent de retrouver l’alias détecté.
@@ -655,7 +813,11 @@ refusent d’écraser les fichiers existants, sauf avec `--force`.
 
 </details>
 
-### Fonctionnement
+---
+
+<a name="fonctionnement"></a>
+
+### `08` / Fonctionnement
 
 ```text
 Fichiers ZSH + Markdown configurés
@@ -672,6 +834,9 @@ Chapitres YAML modifiables
  Chapitres intégrés pour le premier lancement
 ```
 
+<details>
+<summary>Sous le capot : packages partagés et sources du catalogue</summary>
+
 Cobra organise la CLI ; Bubble Tea, Bubbles et Lip Gloss composent la TUI.
 Les packages Go partagés analysent les sources, dédupliquent les entrées par
 type et identifiant, chargent le YAML et comparent les réponses aux variantes
@@ -685,7 +850,11 @@ si une entrée manque. L’annuaire TUI utilise les chapitres chargés. Ses écr
 **Configuration** et **Scan dotfiles** fournissent des indications en lecture
 seule : utilisez la CLI pour créer la configuration ou scanner les fichiers.
 
-### 📂 Structure du projet
+</details>
+
+<a name="structure-du-projet"></a>
+
+### `09` / 📂 Structure du projet
 
 ```text
 cli-drill/
@@ -715,7 +884,11 @@ cli-drill/
 └── README.md               # Vous êtes ici
 ```
 
-### Développer et contribuer
+---
+
+<a name="developper-et-contribuer"></a>
+
+### `10` / Développer et contribuer
 
 Depuis la racine du dépôt :
 
@@ -737,7 +910,9 @@ l’[architecture](docs/ARCHITECTURE.md), les [décisions](docs/DECISIONS.md),
 l’[état courant](PROJECT_STATE.md) et les [consignes du dépôt](AGENTS.md).
 La documentation technique du projet est actuellement en français et en anglais.
 
-### Feuille de route, licence et auteur
+<a name="feuille-de-route-licence-et-auteur"></a>
+
+### `11` / Feuille de route, licence et auteur
 
 Le [backlog](TODO.md) prévoit d’affiner les leçons à l’usage, d’explorer des
 sessions aléatoires, d’améliorer les préférences TUI et de préparer les releases
@@ -757,5 +932,8 @@ Créé par [benabot](https://github.com/benabot).
 **CLI-Drill** · Learn your tools. Make them yours.
 
 Apprenez vos outils. Prenez vos habitudes.
+
+[Source](https://github.com/benabot/cli-drill) ·
+[Issues](https://github.com/benabot/cli-drill/issues)
 
 </div>
