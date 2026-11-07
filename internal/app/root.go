@@ -22,7 +22,6 @@ type Options struct {
 	ProgressPath string
 	In           io.Reader
 	Out          io.Writer
-	Err          io.Writer
 	DefaultFS    fs.FS
 }
 
@@ -36,7 +35,6 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 	opts := Options{
 		In:        os.Stdin,
 		Out:       os.Stdout,
-		Err:       os.Stderr,
 		DefaultFS: defaultFS,
 	}
 
@@ -387,10 +385,6 @@ func renderKeySequenceFeedback(view keySequenceFeedbackView) string {
 	return builder.String()
 }
 
-func commandBar(commands ...string) string {
-	return "────────────────────────────────────────\n" + strings.Join(commands, " · ")
-}
-
 type keySequenceStyle struct {
 	Color bool
 }
@@ -641,7 +635,6 @@ func loadChapters(opts Options) ([]chapter.Chapter, error) {
 func commandOptions(cmd *cobra.Command, opts Options) Options {
 	opts.In = cmd.InOrStdin()
 	opts.Out = cmd.OutOrStdout()
-	opts.Err = cmd.ErrOrStderr()
 	return opts
 }
 

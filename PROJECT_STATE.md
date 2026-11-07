@@ -1,7 +1,7 @@
 # État du projet — CLI-Drill
 
-**Constat du 7 novembre 2026, base `dev` : `b82dbaf` (P0.1 intégrée).**
-P0.2 est réalisée sur `refactor/remove-dotfiles-surface`, en attente de validation
+**Constat du 7 novembre 2026, base `dev` : `14b12bd` (P0.1 et P0.2 intégrées).**
+P0.3 est réalisée sur `refactor/remove-dotfiles-internals`, en attente de validation
 et d'intégration. La migration V2 complète reste à réaliser.
 
 ## Implémentation actuelle
@@ -29,7 +29,7 @@ embarqué transmis par `data.Chapters()`. Les anciens YAML ne remplacent ni ne
 complètent le corpus et ne sont ni déplacés, ni convertis, ni supprimés.
 Un chapitre présent seulement dans le dossier utilisateur est indisponible.
 
-### P0.2 — Surface dotfiles retirée, à valider
+### P0.2 — Surface dotfiles retirée, intégrée dans `dev`
 
 Le câblage Cobra, les aides et l'interface TUI ne lisent plus de configuration
 TOML, n'exposent plus d'annuaire, de scan ou de génération et ne présentent plus
@@ -59,13 +59,34 @@ titre, du pied de page et du padding pour éviter un écran tronqué.
 My progress réutilise les statistiques existantes, sans compteur d'annuaire.
 Aucun schéma, clé, compteur ou mécanisme de sauvegarde de progression n'est modifié.
 
-## Internes et limites encore présents
+### P0.3 — Internes hérités retirés, à valider
 
-Les packages `detect`, `catalog`, `config`, `markdown` et `shell/zsh`, leurs
-modèles et tests restent présents et inchangés pour P0.3. `chapter` conserve
-ses dépendances aux types du catalogue, les fonctions de génération et de
-conversion ; `xdg` conserve les anciens helpers de chemins. La dépendance TOML
-est encore déclarée. Ces éléments ne sont plus accessibles par la surface CLI/TUI.
+L'architecture conserve six packages internes : `app`, `chapter`, `exercise`,
+`progress`, `tui` et `xdg`, conformément à l'[architecture cible](docs/ARCHITECTURE.md).
+Les cinq packages `detect`, `catalog`, `config`, `markdown` et `shell/zsh`,
+leurs tests et leurs fixtures exclusivement internes ont été supprimés.
+Aucun composant actif ne dépend plus du scanner, du parseur utilisateur ou du catalogue.
+
+`chapter` conserve le chargement YAML (`Load`, `LoadFS`) et sa validation.
+La génération, la conversion vers le catalogue et les lecteurs/écrivains de
+répertoires externes ont été retirés. `Item.Type` est une chaîne conservant
+les valeurs pédagogiques existantes ; la provenance `Source`, absente du corpus
+intégré et utilisée seulement par le catalogue, a été retirée du modèle Go.
+Aucun YAML intégré ni identifiant n'est modifié.
+
+`xdg` ne résout plus que le chemin de progression, toujours
+`$XDG_DATA_HOME/cli-drill/progress.json` ou, par défaut,
+`~/.local/share/cli-drill/progress.json`. Les anciens chemins TOML/YAML ne sont
+plus résolus par la production. Les tests construisent seuls leurs fixtures héritées.
+La dépendance `BurntSushi/toml` a été retirée ; aucune version conservée ne change.
+
+Dans `app` et `tui`, seuls des helpers et une option interne sans consommateur
+réel ont été retirés ; un helper réservé aux tests a été déplacé dans les tests.
+Le rendu, les parcours actifs, les moteurs, les contrôles techniques du terminal
+et le stockage JSON restent inchangés. Aucun fichier utilisateur n'est lu,
+déplacé, converti ou supprimé par cette refactorisation.
+
+## Limites encore présentes
 
 Les contenus YAML conservent des alias, fonctions et formulations personnelles
 héritées ; leur révision pédagogique est une étape distincte. Le README public
@@ -94,31 +115,43 @@ fonctionnel n'autorise aucune purge, réécriture ou migration automatique.
 Les vérifications techniques du terminal restent requises ; les deux moteurs
 et le fonctionnement local et hors ligne restent centraux.
 
-Le prochain chantier est `refactor/remove-dotfiles-internals` : retirer les
-packages devenus inutiles, découpler les métadonnées et nettoyer les dépendances.
-Ensuite viennent la fiabilité, le corpus pédagogique et les ajustements de
-navigation réellement nécessaires après révision des contenus. Aucun travail
-P0.3, nouvelle leçon, nouvelle dépendance ou refonte graphique n'est réalisé ici.
-Voir le [backlog](TODO.md) et l'[architecture cible](docs/ARCHITECTURE.md).
+Les prochaines étapes portent sur la fiabilité P1, puis le corpus pédagogique
+et les ajustements de navigation réellement nécessaires après révision des contenus.
+Aucune correction P1, nouvelle leçon, nouvelle dépendance ou refonte graphique
+n'est réalisée dans P0.3. Voir le [backlog](TODO.md).
 
 ## Validation et limites de preuve
 
-Sur la base P0.1, les tests de référence ont réussi sans réutilisation des
-résultats. Les nouvelles régressions P0.2 ont échoué avant les changements,
-puis réussi après. Les tests de l'ancienne surface ont été retirés ; les tests
-des packages conservés et des moteurs d'entraînement restent en place.
+Les contrôles de référence sur la base P0.2 ont réussi avant modification.
+Après suppression : `go test -count=1 ./...`, `go vet ./...`,
+`go run ./cmd/cli-drill --help`, `gofmt -w cmd internal data`, `go mod tidy`
+et `git diff --check`. La cartographie des imports confirme l'absence des
+packages retirés et du code de génération. Le corpus, `exercise`, `progress`
+et les fonctions actives de rendu/capture ont été comparés à la base Git.
 
-Contrôles P0.2 : `go test ./...`, `go vet ./...`, aide du binaire,
-contrôle du formatage et `git diff --check`. Les régressions couvrent les
-commandes/options retirées, le menu, le démarrage textuel, les indices de la
-vue clavier, les filtres, les dimensions et la préservation des fixtures héritées.
+Deux tests de caractérisation ajoutés passent avant et après le découplage :
+chargement des dix chapitres/68 exercices dans le même ordre avec leurs
+métadonnées pédagogiques, et chemin JSON historique par défaut, avec surcharge
+XDG et sans répertoire personnel disponible. Les tests de préservation des
+anciennes données et de la surface V2 restent en place ; leurs chemins de
+fixtures ne dépendent plus de helpers de production supprimés. Le test du pied
+de page clavier vise désormais la méthode réellement utilisée par le rendu.
 
-Le binaire a aussi été essayé dans un pseudo-terminal isolé : premier lancement
-sans configuration, navigation, entraînement CLI, historique JSON, capture de
-`Ctrl+A`, sortie `Esc`, retour à l'accueil et restauration de l'état du terminal.
-Les vérifications de données utilisent uniquement des fichiers synthétiques ;
-les sessions d'entraînement et le test explicite de reset visent des fichiers
-temporaires distincts. Aucune vraie donnée utilisateur n'est lue ou modifiée.
+Le binaire a aussi été essayé dans un pseudo-terminal isolé à 80×24 : premier
+lancement sans configuration, entraînement textuel immédiat, menu paginé,
+progression, capture réelle de `Ctrl+A`, sortie `Esc`, retour à l'accueil et
+restauration des modes du terminal. Les commandes `chapters`, `train`, `stats`
+et `reset --yes` ont été exécutées sur des fichiers temporaires distincts.
+L'historique JSON version 1 est chargé et conservé lors de l'ajout de résultats.
+Les anciens TOML/YAML synthétiques, même invalides, sont ignorés et leurs octets,
+ainsi que ceux du JSON historique de référence, restent identiques après les essais.
+Aucune vraie donnée utilisateur n'est lue ou modifiée pour ces validations.
+
+La comparaison des attributs du pseudo-terminal exclut seulement `PENDIN`,
+[drapeau d'état macOS](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/termios.h)
+lié à l'entrée en attente. Ce même écart est reproduit avec le binaire de la base
+`14b12bd` ; tous les autres attributs sont restaurés. La capture n'a pas été
+modifiée pour masquer cet écart dans le code applicatif.
 
 Ces validations ne couvrent ni la V2 complète, ni tous les émulateurs et
 raccourcis. La compatibilité avec le minimum Go 1.23 n'est pas vérifiée ;

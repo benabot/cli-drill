@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/benabot/cli-drill/internal/catalog"
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/exercise"
 	tea "github.com/charmbracelet/bubbletea"
@@ -373,7 +372,7 @@ func textChapter() chapter.Chapter {
 		Description: "Memoriser les raccourcis de navigation.",
 		Items: []chapter.Item{{
 			ID:           "line-start",
-			Type:         catalog.EntryShortcut,
+			Type:         "shortcut",
 			ExerciseType: exercise.TypeFreeAnswer,
 			Prompt:       "Aller au debut de ligne",
 			Answer:       exercise.Answer{Primary: "Ctrl+A"},
@@ -417,4 +416,13 @@ func assertNotContains(t *testing.T, value, needle string) {
 	if strings.Contains(value, needle) {
 		t.Fatalf("expected view not to contain %q\nview:\n%s", needle, value)
 	}
+}
+
+func homeActionIndex(title string) int {
+	for i, action := range homeActions {
+		if action.title == title {
+			return i
+		}
+	}
+	return 0
 }

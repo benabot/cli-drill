@@ -140,11 +140,6 @@ type model struct {
 	result        Result
 }
 
-func Run(chapters []chapter.Chapter) error {
-	_, err := RunWithOptions(Options{Chapters: chapters})
-	return err
-}
-
 func RunWithOptions(opts Options) (Result, error) {
 	finalModel, err := tea.NewProgram(newModel(opts)).Run()
 	if err != nil {
@@ -768,15 +763,6 @@ func loadProgress(path string) (progress.Progress, string) {
 	return localProgress, ""
 }
 
-func homeActionIndex(title string) int {
-	for i, action := range homeActions {
-		if action.title == title {
-			return i
-		}
-	}
-	return 0
-}
-
 func valueOrFallback(value, fallback string) string {
 	if value == "" {
 		return fallback
@@ -797,8 +783,4 @@ func exerciseCountLabel(count int) string {
 		return "1 exercise"
 	}
 	return fmt.Sprintf("%d exercises", count)
-}
-
-func titleStyle() lipgloss.Style {
-	return lipgloss.NewStyle().Bold(true)
 }

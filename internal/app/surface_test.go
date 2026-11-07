@@ -40,9 +40,9 @@ func TestHelpExposesOnlyTrainingCommands(t *testing.T) {
 func TestRemovedInterfaceRejectsRequestsAndPreservesLegacyFiles(t *testing.T) {
 	isolateChapterHome(t)
 	files := map[string]string{
-		xdg.ConfigFile(): "[broken legacy TOML",
-		filepath.Join(xdg.ChaptersDir(), "old.yaml"): "items: [",
-		xdg.ProgressFile():                           `{"version":1,"completed_exercises":["old/item"],"chapter_scores":{},"last_session":null,"streak":0}`,
+		filepath.Join(legacyConfigRoot(t), "config.toml"):          "[broken legacy TOML",
+		filepath.Join(legacyConfigRoot(t), "chapters", "old.yaml"): "items: [",
+		xdg.ProgressFile(): `{"version":1,"completed_exercises":["old/item"],"chapter_scores":{},"last_session":null,"streak":0}`,
 	}
 	for path, content := range files {
 		writeAppTestFile(t, filepath.Dir(path), filepath.Base(path), content)

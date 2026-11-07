@@ -173,7 +173,7 @@ items:
 }
 
 func TestCommandBarFormat(t *testing.T) {
-	got := commandBar("Enter next", "r retry", "Esc quit")
+	got := (keySequenceStyle{}).commandBar("Enter next", "r retry", "Esc quit")
 	want := "────────────────────────────────────────\nEnter next · r retry · Esc quit"
 	if got != want {
 		t.Fatalf("unexpected command bar:\n%s", got)

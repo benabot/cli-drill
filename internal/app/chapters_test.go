@@ -30,7 +30,7 @@ func TestChapterCommandsIgnoreUserYAML(t *testing.T) {
 						embeddedTestChapter("User only", "echo extra"), "id: embedded", "id: user-only"),
 				}
 				for name, content := range userFiles {
-					writeAppTestFile(t, xdg.ChaptersDir(), name, content)
+					writeAppTestFile(t, filepath.Join(legacyConfigRoot(t), "chapters"), name, content)
 				}
 
 				var output bytes.Buffer
@@ -84,12 +84,12 @@ func TestChapterCommandsIgnoreUserYAML(t *testing.T) {
 					}
 				}
 				for name, original := range userFiles {
-					got, err := os.ReadFile(filepath.Join(xdg.ChaptersDir(), name))
+					got, err := os.ReadFile(filepath.Join(legacyConfigRoot(t), "chapters", name))
 					if err != nil || string(got) != original {
 						t.Errorf("user YAML %s changed: %q, %v", name, got, err)
 					}
 				}
-				if _, err := os.Stat(xdg.ConfigFile()); !os.IsNotExist(err) {
+				if _, err := os.Stat(filepath.Join(legacyConfigRoot(t), "config.toml")); !os.IsNotExist(err) {
 					t.Fatalf("a configuration was created: %v", err)
 				}
 			})
@@ -100,9 +100,9 @@ func TestChapterCommandsIgnoreUserYAML(t *testing.T) {
 func TestEmbeddedChapterLoadingPreservesLegacyData(t *testing.T) {
 	isolateChapterHome(t)
 	files := map[string]string{
-		filepath.Join(xdg.ChaptersDir(), "user.yaml"): strings.ReplaceAll(
+		filepath.Join(legacyConfigRoot(t), "chapters", "user.yaml"): strings.ReplaceAll(
 			embeddedTestChapter("User only", "echo user"), "id: embedded", "id: user-only"),
-		xdg.ConfigFile():   "# Existing config must not be rewritten\nshell = \"zsh\"\n",
+		filepath.Join(legacyConfigRoot(t), "config.toml"): "# Existing config must not be rewritten\nshell = \"zsh\"\n",
 		xdg.ProgressFile(): `{"version":1,"completed_exercises":["embedded/pwd","user-only/old"],"chapter_scores":{"embedded":{"attempts":3,"correct":1},"user-only":{"attempts":4,"correct":2}},"last_session":"2026-06-06T12:00:00Z","streak":0}`,
 	}
 	for path, content := range files {
@@ -156,4 +156,14 @@ func embeddedTestChapter(title, answer string) string {
 	return "id: embedded\ntitle: " + title + "\nitems:\n" +
 		"  - id: pwd\n    type: workflow\n    exercise_type: simple-shell-sim\n" +
 		"    prompt: Print the current directory\n    answer:\n      primary: " + answer + "\n"
+}
+
+// Legacy paths are test fixtures only; the application no longer resolves them.
+func legacyConfigRoot(t *testing.T) string {
+	t.Helper()
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return filepath.Join(dir, "cli-drill")
 }
