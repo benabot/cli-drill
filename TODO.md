@@ -1,7 +1,7 @@
 # Backlog — CLI-Drill V2
 
-**Mis à jour le 7 novembre 2026.** P0.1 et P0.2 intégrées dans `dev` (`14b12bd`).
-P0.3 réalisée sur `refactor/remove-dotfiles-internals`, en attente de validation
+**Mis à jour le 7 novembre 2026.** P0.1 à P0.3 intégrées dans `dev` (`8ec5c00`).
+P1.1 réalisée sur `fix/progress-storage`, en attente de validation
 et d'intégration ; migration fonctionnelle V2 partielle.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
@@ -18,7 +18,7 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 - [x] Retirer `init`, `scan`, `generate`, `directory`, `search`, `show`,
   `--config` et les écrans Configuration, Scan et Annuaire.
 - [x] Découpler les métadonnées de `chapter` du catalogue ; retirer génération,
-  conversion vers l'annuaire, packages abandonnés et dépendance TOML (P0.3 à valider).
+  conversion vers l'annuaire, packages abandonnés et dépendance TOML (P0.3 intégrée).
   Conserver le corpus, les moteurs, les contrôles terminal et le chemin JSON existant.
 - [x] Conserver les vérifications techniques TTY, dimensions, couleurs et capture
   clavier ; ne pas les confondre avec la détection d'outils ou de dotfiles.
@@ -28,8 +28,11 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 
 ## P1 — Fiabilité des entraînements
 
-- [ ] Sauvegarder atomiquement la progression ; conserver les champs et résultats
-  historiques, refuser l'écrasement silencieux d'un JSON invalide ou non pris en charge.
+- [x] Sauvegarder atomiquement la progression ; conserver les champs et résultats
+  historiques, refuser l'écrasement silencieux d'un JSON invalide ou non pris en charge
+  (P1.1 réalisée, à valider). Temporaire voisin, Sync, fermeture et renommage ;
+  nouveaux fichiers privés et modes POSIX existants conservés. Un seul écrivain,
+  sans garantie contre une coupure électrique ni copie des ACL/attributs étendus.
 - [ ] Partager la règle d'enregistrement CLI/TUI ; persister chaque réponse
   réellement soumise, sans doublon lors du feedback, d'un retour ou d'une sortie.
 - [ ] Ne pas créer de tentative pour l'aide, une solution affichée, la navigation
@@ -94,7 +97,7 @@ scan runtime ou capture globale macOS n'est entretenue pour le nouveau MVP.
 
 ## Branches atomiques proposées
 
-P0.1 et P0.2 sont intégrées. P0.3 est réalisée sur `refactor/remove-dotfiles-internals`,
+P0.1 à P0.3 sont intégrées. P1.1 est réalisée sur `fix/progress-storage`,
 à valider avant commit, merge ou push. Les unités suivantes restent planifiées.
 Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
@@ -105,8 +108,8 @@ et conserver les commandes d'entraînement encore disponibles.
 | --- | --- | --- |
 | P0 — `refactor/embedded-only` (intégrée) | Corpus intégré seul pour l'entraînement et sa liste ; YAML non chargés et données héritées préservées. | Tests et essais isolés CLI/TUI réussis ; risque de changement du corpus visible caractérisé ; surface TOML retirée par P0.2. |
 | P0 — `refactor/remove-dotfiles-surface` (intégrée) | Retirer commandes, option et écrans dotfiles en conservant l'entraînement et les contrôles terminal. | Aide CLI et navigation ; rupture intentionnelle des anciennes commandes ; après corpus intégré seul. |
-| P0 — `refactor/remove-dotfiles-internals` (réalisée, à valider) | Six packages internes ; `chapter` sans catalogue ni génération, anciens chemins supprimés, TOML retiré ; corpus et données utilisateur préservés. | Tests sans cache, vet, aide, imports et dépendances vérifiés ; essais CLI/TUI isolés et restauration terminal réussis ; reste la validation humaine avant intégration. |
-| P1 — `fix/progress-storage` | Sauvegarde atomique, historique préservé et erreurs visibles. | JSON version 1, fichiers invalides, échec de remplacement ; risque de perte de données à prévenir ; après P0. |
+| P0 — `refactor/remove-dotfiles-internals` (intégrée) | Six packages internes ; `chapter` sans catalogue ni génération, anciens chemins supprimés, TOML retiré ; corpus et données utilisateur préservés. | Tests sans cache, vet, aide, imports et dépendances vérifiés ; essais CLI/TUI isolés et restauration terminal réussis ; intégrée dans `dev` à `8ec5c00`. |
+| P1 — `fix/progress-storage` (réalisée, à valider) | Sauvegarde atomique, historique v1 et modes POSIX préservés, erreurs visibles ; aucun changement du comptage ou des appels CLI/TUI. | Tests de corruption, écriture partielle, renommage refusé, nettoyage et permissions ; essais CLI/TUI isolés ; validation humaine avant intégration. |
 | P1 — `fix/training-recording` | Même comptage et persistance CLI/TUI, sans tentative fictive ou double compte. | Réouverture, sortie, retries et EOF ; risque de sémantique des tentatives ; après stockage fiable. |
 | P1 — `fix/exercise-correction` | QCM affichés et correction adaptée aux commandes et raccourcis. | Casse, espaces significatifs, variantes et choix ; risque de refus de faux positifs auparavant acceptés ; après P0. |
 | P1 — `fix/terminal-training` | Vérifier les capacités, traiter les erreurs, préserver la capture dédiée et l'accès textuel sans configuration. | Terminal compatible/limité, sans couleur, restauration et retour TUI ; risque d'état terminal ; après enregistrement partagé. |
@@ -119,8 +122,9 @@ Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
 utilisateur emploieront des fixtures synthétiques isolées, jamais les vraies
 configurations. La livraison documentaire précédente n'a pas modifié Go.
 P0.1 valide le chargement intégré, P0.2 la surface utilisateur et P0.3 le retrait
-des internes hérités. Ces étapes ne valident pas la V2 complète ; les corrections
-P1 et la révision pédagogique restent à réaliser.
+des internes hérités. P1.1 fiabilise le stockage, sans modifier les entraînements.
+La V2 complète reste à valider ; les autres corrections P1 et la révision pédagogique restent
+à réaliser.
 
 ## Archive V1 — Réalisations et abandons
 

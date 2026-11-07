@@ -1,7 +1,7 @@
 # État du projet — CLI-Drill
 
-**Constat du 7 novembre 2026, base `dev` : `14b12bd` (P0.1 et P0.2 intégrées).**
-P0.3 est réalisée sur `refactor/remove-dotfiles-internals`, en attente de validation
+**Constat du 7 novembre 2026, base `dev` : `8ec5c00` (P0.1, P0.2 et P0.3 intégrées).**
+P1.1 est réalisée sur `fix/progress-storage`, en attente de validation
 et d'intégration. La migration V2 complète reste à réaliser.
 
 ## Implémentation actuelle
@@ -20,7 +20,8 @@ L'interface présente CLI-Drill comme un outil d'entraînement local au terminal
 - Bannière ASCII, palette, composants de liste et de saisie et pieds de page conservés.
 - Deux moteurs d'entraînement conservés : texte dans la CLI/TUI et capture réelle
   dédiée. La TUI revient automatiquement à l'accueil après le mode de capture.
-- Progression JSON version 1 et comportement de sauvegarde inchangés.
+- Progression JSON version 1, chemin et déclenchements de sauvegarde inchangés ;
+  écriture atomique et erreurs de stockage renforcées par P1.1.
 
 ### P0.1 — Corpus intégré exclusif, intégrée dans `dev`
 
@@ -59,7 +60,7 @@ titre, du pied de page et du padding pour éviter un écran tronqué.
 My progress réutilise les statistiques existantes, sans compteur d'annuaire.
 Aucun schéma, clé, compteur ou mécanisme de sauvegarde de progression n'est modifié.
 
-### P0.3 — Internes hérités retirés, à valider
+### P0.3 — Internes hérités retirés, intégrée dans `dev`
 
 L'architecture conserve six packages internes : `app`, `chapter`, `exercise`,
 `progress`, `tui` et `xdg`, conformément à l'[architecture cible](docs/ARCHITECTURE.md).
@@ -86,6 +87,40 @@ Le rendu, les parcours actifs, les moteurs, les contrôles techniques du termina
 et le stockage JSON restent inchangés. Aucun fichier utilisateur n'est lu,
 déplacé, converti ou supprimé par cette refactorisation.
 
+### P1.1 — Stockage de progression fiable, à valider
+
+Sur la base P0.3, `Save` tronquait directement le fichier cible ; `Load`
+acceptait `null` et des versions non prises en charge. Ces défauts sont corrigés.
+Le stockage sérialise le même JSON version 1, indenté et terminé par un saut de
+ligne, puis écrit un fichier temporaire dans le répertoire de destination.
+Les permissions POSIX, la synchronisation du fichier (`Sync`) et sa fermeture
+sont traitées avant le remplacement par `Rename`, atomique sur les Unix ciblés.
+Un échec avant ce remplacement laisse le dernier fichier valide intact ; les
+temporaires sont nettoyés sur les sorties d'erreur traitées. Si le système
+refuse aussi leur suppression, cette erreur est retournée avec l'erreur initiale.
+
+Un fichier absent produit l'état vide historique sans écriture. Les champs
+optionnels absents gardent les valeurs par défaut existantes, dont la version 1
+si elle est omise et une table de scores vide si elle est absente ou `null`.
+Un JSON invalide, un objet racine `null`, une version autre que 1 ou une erreur de
+lecture produisent une erreur contextualisée. `Save` refuse aussi de remplacer
+un fichier existant illisible, invalide ou non pris en charge, même si l'appelant
+lui fournit un état vide. Les identifiants et résultats des exercices retirés
+restent présents après sauvegarde et rechargement.
+
+Les nouveaux JSON ont le mode `0600` ; les bits POSIX d'un fichier existant sont
+conservés. Les destinations non régulières, notamment les liens symboliques,
+sont refusées explicitement pour éviter de remplacer le lien à la place de sa
+cible. Aucun schéma, chemin, score ou déclenchement de sauvegarde CLI/TUI ne
+change. `reset --yes` conserve sa suppression explicitement demandée.
+
+Garanties limitées aux fichiers locaux sous macOS et Linux, avec un seul
+écrivain. Le remplacement change l'inode : les ACL, attributs étendus et autres
+métadonnées spécifiques ne sont pas recopiés. Pas de verrouillage concurrent,
+de synchronisation du répertoire ou de garantie contre une coupure électrique.
+Un arrêt brutal empêchant les nettoyages peut laisser un temporaire voisin,
+qui n'est jamais chargé comme progression ni purgé automatiquement.
+
 ## Limites encore présentes
 
 Les contenus YAML conservent des alias, fonctions et formulations personnelles
@@ -97,7 +132,6 @@ Défauts connus encore au backlog :
 - Bilan textuel TUI en mémoire sans persistance des réponses.
 - Choix des QCM non affichés dans les entraînements.
 - Normalisation trop permissive de la casse et de certains espaces de commandes.
-- Sauvegarde JSON directe, sans remplacement atomique.
 - `streak` non mis à jour, `last_session` sans curseur de reprise.
 - Contrôles et diagnostics supplémentaires des terminaux indisponibles à traiter
   en P1 ; la capture n'est pas promise pour toutes les combinaisons macOS.
@@ -115,12 +149,15 @@ fonctionnel n'autorise aucune purge, réécriture ou migration automatique.
 Les vérifications techniques du terminal restent requises ; les deux moteurs
 et le fonctionnement local et hors ligne restent centraux.
 
-Les prochaines étapes portent sur la fiabilité P1, puis le corpus pédagogique
-et les ajustements de navigation réellement nécessaires après révision des contenus.
-Aucune correction P1, nouvelle leçon, nouvelle dépendance ou refonte graphique
-n'est réalisée dans P0.3. Voir le [backlog](TODO.md).
+Après validation de P1.1, les prochaines étapes portent sur les autres travaux
+P1, puis le corpus pédagogique et les ajustements de navigation nécessaires.
+`fix/training-recording` n'est pas commencé : ni comptage des réponses, ni
+calcul des scores, ni persistance textuelle TUI ne sont modifiés ici.
+Voir le [backlog](TODO.md).
 
 ## Validation et limites de preuve
+
+### P0.3 — Historique
 
 Les contrôles de référence sur la base P0.2 ont réussi avant modification.
 Après suppression : `go test -count=1 ./...`, `go vet ./...`,
@@ -156,3 +193,28 @@ modifiée pour masquer cet écart dans le code applicatif.
 Ces validations ne couvrent ni la V2 complète, ni tous les émulateurs et
 raccourcis. La compatibilité avec le minimum Go 1.23 n'est pas vérifiée ;
 les contrôles de développement utilisent Go 1.27.3 sur macOS arm64.
+
+### P1.1 — Stockage
+
+Tests de référence sur P0.3 puis contrôles après modification :
+`go test -count=1 ./...`, `go vet ./...`, formatage Go et `git diff --check`.
+Les tests ajoutés ont d'abord exposé l'écrasement des JSON invalides, l'acceptation
+de versions non prises en charge, la troncature de l'ancien inode et la création
+en `0644`, puis réussi après correction.
+
+La suite couvre absence de fichier, création des répertoires, aller-retour du
+JSON historique et de ses cinq champs, valeurs par défaut, erreurs de lecture,
+sérialisation et écriture, permissions et refus des liens symboliques.
+Des erreurs provoquées après une écriture partielle et sur un fichier fermé
+vérifient l'intégrité de la destination et le nettoyage du temporaire ; un
+renommage réellement refusé vers un répertoire teste aussi ce nettoyage.
+Un refus de nettoyage par permissions est signalé avec l'erreur d'écriture.
+Les tests de permissions Unix sont exécutés sur macOS avec un utilisateur non
+root. Les tests de stockage sont compilés pour Linux amd64, sans exécution Linux.
+
+Le binaire a été essayé avec un HOME et un XDG isolés : aide, `chapters`,
+`stats`, six réponses de `train`, conservation des résultats retirés et du mode
+`0640`, nouvelle progression en `0600`, refus des JSON invalides et reset avec
+confirmation. Le lancement et la sortie de la TUI n'écrasent pas un JSON invalide.
+Aucun consommateur, YAML, moteur clavier, règle pédagogique ou dépendance ne
+change. Toutes les données de test sont synthétiques et temporaires.
