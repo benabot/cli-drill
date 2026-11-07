@@ -1,148 +1,125 @@
 # État du projet — CLI-Drill
 
-**Constat du 7 novembre 2026, base `dev` : `563fdd3`.**
-P0.1 est réalisée sur `refactor/embedded-only`, en attente de validation et
-d'intégration. La migration fonctionnelle V2 complète reste à réaliser.
-Ce changement porte uniquement sur la source des chapitres ; contenus, identifiants,
-dépendances, moteurs d'entraînement et données utilisateur sont conservés.
+**Constat du 7 novembre 2026, base `dev` : `b82dbaf` (P0.1 intégrée).**
+P0.2 est réalisée sur `refactor/remove-dotfiles-surface`, en attente de validation
+et d'intégration. La migration V2 complète reste à réaliser.
 
 ## Implémentation actuelle
 
-Le MVP CLI/TUI existant reste orienté dotfiles :
+L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
-- Module Go à la racine, point d'entrée `cmd/cli-drill/` et packages dans `internal/`.
-- Dix chapitres YAML intégrés et 68 exercices, dont huit en capture réelle.
-- Chargement exclusif du corpus intégré pour la liste des chapitres,
-  les entraînements CLI et les chapitres fournis à la TUI, même si des YAML
-  utilisateur valides ou invalides existent.
-- Scan statique de sources ZSH et Markdown configurées, parsing d'alias et noms
-  de fonctions, catalogue dédupliqué et génération de chapitres YAML.
-- Configuration TOML dotfiles ; commandes `init`, `scan`, `generate`, `chapters`,
-  `train`, `directory`, `search`, `show`, `stats`, `reset`.
-- Options globales `--config` et `--progress`.
-- CLI d'entraînement textuel et moteur dédié de capture des touches de contrôle.
-- TUI avec accueil, navigateur et fiche chapitre, entraînement textuel,
-  annuaire, statistiques et écrans d'instructions Configuration / Scan.
-- Passage de la TUI au moteur de capture, puis retour automatique à l'accueil.
-- JSON local version 1 avec acquis uniques et tentatives cumulées par chapitre.
-- Contrôles techniques existants pour la capture et les couleurs ; rendu
-  CLI monochrome selon le terminal, `TERM` et `NO_COLOR`.
+- Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
+- Dix chapitres YAML intégrés, 68 exercices, contenus et identifiants inchangés.
+- Corpus exclusivement intégré depuis P0.1 ; aucun chargement automatique des
+  anciens YAML utilisateur, même lorsqu'ils sont invalides.
+- Commandes publiques : `chapters`, `train [chapter-id]`, `stats`, `reset --yes`,
+  avec `--progress`, l'aide et la complétion standard Cobra.
+- Anciennes commandes `init`, `scan`, `generate`, `directory`, `search`, `show`
+  et option `--config` retirées ; elles produisent désormais une erreur.
+- Accueil TUI : Start training, Browse chapters, Keyboard shortcuts, My progress, Quit.
+- Bannière ASCII, palette, composants de liste et de saisie et pieds de page conservés.
+- Deux moteurs d'entraînement conservés : texte dans la CLI/TUI et capture réelle
+  dédiée. La TUI revient automatiquement à l'accueil après le mode de capture.
+- Progression JSON version 1 et comportement de sauvegarde inchangés.
 
-### Étape P0.1 — Source des chapitres
+### P0.1 — Corpus intégré exclusif, intégrée dans `dev`
 
 Le chargeur partagé `loadChapters` lit uniquement le système de fichiers
-embarqué transmis par `data.Chapters()`. Le dossier utilisateur n'est plus
-recherché ni chargé. Un chapitre présent seulement dans ce dossier n'est plus
-disponible pour `train`, et un YAML utilisateur invalide ne bloque plus le lancement.
+embarqué transmis par `data.Chapters()`. Les anciens YAML ne remplacent ni ne
+complètent le corpus et ne sont ni déplacés, ni convertis, ni supprimés.
+Un chapitre présent seulement dans le dossier utilisateur est indisponible.
 
-`generate` reste disponible et peut toujours écrire des YAML, dans son dossier
-habituel ou via `--out` ; ces sorties ne sont plus automatiquement activées.
-Les fichiers existants ne sont ni déplacés, ni convertis, ni supprimés.
-`--config` ne choisit pas le corpus pédagogique. Les diagnostics TOML de la TUI
-et les commandes de scan restent présents pour les prochaines étapes P0.
+### P0.2 — Surface dotfiles retirée, à valider
 
-L'annuaire CLI sans configuration partage ce chargeur : il utilise lui aussi
-le corpus intégré. Avec configuration, son catalogue reste issu du scan,
-comme auparavant. Aucun lecteur ou package des fonctions dotfiles n'est supprimé ici.
+Le câblage Cobra, les aides et l'interface TUI ne lisent plus de configuration
+TOML, n'exposent plus d'annuaire, de scan ou de génération et ne présentent plus
+les messages d'installation des dotfiles. Les diagnostics et chemins associés
+ont été retirés de l'interface, sans supprimer les fichiers utilisateur.
 
-Les cinq types d'exercices existent dans le modèle : `free-answer`, `scenario`,
-`multiple-choice`, `simple-shell-sim`, `key-sequence`. Le simulateur compare
-les réponses sans exécuter les commandes. Le scan n'exécute pas les définitions.
+Start training choisit le premier chapitre textuel non vide du corpus actuel,
+soit `02-navigation-shell`, et ouvre directement l'exercice. Si aucun chapitre
+textuel n'est disponible, il ouvre le navigateur sans forcer la capture brute.
+Le chapitre sélectionné reste cohérent avec la liste lors des retours arrière.
+Le comportement de `train` sans identifiant reste inchangé : premier chapitre
+intégré, actuellement le chapitre de raccourcis.
 
-### Limites constatées dans l'audit de cette base
+Keyboard shortcuts réutilise le navigateur en ne montrant que les chapitres
+contenant un exercice `key-sequence`. La sélection conserve les indices du
+corpus complet et délègue au moteur existant. Les familles pédagogiques n'ont
+pas encore de métadonnées nouvelles ; les raccourcis seulement textuels des
+chapitres mixtes, comme Micro, ne sont pas ajoutés à cette vue de capture.
+Browse chapters restaure la liste complète.
 
-- L'entraînement textuel TUI calcule un bilan en mémoire sans enregistrer la
-  progression JSON. La CLI enregistre sa progression en fin de session.
-- Les choix YAML des QCM ne sont affichés ni par la CLI ni par la TUI.
-- La correction textuelle normalise toutes les réponses en minuscules, y compris
-  les commandes sensibles à la casse.
-- Les raccourcis globaux peuvent intercepter la saisie dans les filtres des listes.
-- La progression est écrite directement ; aucune sauvegarde atomique n'est implémentée.
-- `streak` reste à zéro ; `last_session` est une date, sans curseur de reprise.
-- Le premier chapitre actuel utilise la capture brute ; un premier parcours
-  textuel indépendant de cette capacité reste à définir dans le corpus V2.
-- La protection actuelle du scan ne résout pas les liens symboliques et ses
-  exclusions sont configurables. Le scan sera retiré, pas développé davantage.
+Les filtres reçoivent leurs lettres et le retour arrière avant les raccourcis
+globaux. Entrée applique le filtre, puis permet de choisir ; Échap annule la
+saisie ou efface le filtre appliqué avant de quitter le navigateur. Les pieds
+de page reflètent ces contextes. Les dimensions de liste réservent l'espace du
+titre, du pied de page et du padding pour éviter un écran tronqué.
 
-Ces limites ne sont pas corrigées par P0.1.
-Le [README public](README.md) conserve la présentation du logiciel disponible.
+My progress réutilise les statistiques existantes, sans compteur d'annuaire.
+Aucun schéma, clé, compteur ou mécanisme de sauvegarde de progression n'est modifié.
 
-## Vision V2 décidée
+## Internes et limites encore présents
 
-**CLI-Drill — Learn the terminal by doing.**
+Les packages `detect`, `catalog`, `config`, `markdown` et `shell/zsh`, leurs
+modèles et tests restent présents et inchangés pour P0.3. `chapter` conserve
+ses dépendances aux types du catalogue, les fonctions de génération et de
+conversion ; `xdg` conserve les anciens helpers de chemins. La dépendance TOML
+est encore déclarée. Ces éléments ne sont plus accessibles par la surface CLI/TUI.
 
-La [spécification V2](docs/SPEC.md) définit un entraînement local par la pratique :
-corpus écrit et vérifié, saisie de commandes, vraie capture clavier compatible,
-correction utile et progression persistante. Les sessions visent cinq à dix
-minutes, sans configuration initiale ni dépendance à l'environnement personnel.
+Les contenus YAML conservent des alias, fonctions et formulations personnelles
+héritées ; leur révision pédagogique est une étape distincte. Le README public
+n'est pas modifié et attend son alignement après migration fonctionnelle.
 
-Trois familles : Unix & Shell Fundamentals, Keyboard Shortcuts, Modern CLI &
-macOS. La portabilité, les variantes BSD/macOS et GNU/Linux et les préconditions
-shell/terminal seront explicites. Les outils tiers restent des contenus,
-sans détection ni obligation d'installation.
+Défauts connus encore au backlog :
 
-Le corpus cible est exclusivement intégré. La migration préservera intégralement
-les anciennes données utilisateur JSON, YAML et TOML, sans réécriture, déplacement
-ou suppression automatiques ; seuls les usages abandonnés seront retirés.
-L'entraînement pourra enrichir la progression sans purger les résultats historiques.
+- Bilan textuel TUI en mémoire sans persistance des réponses.
+- Choix des QCM non affichés dans les entraînements.
+- Normalisation trop permissive de la casse et de certains espaces de commandes.
+- Sauvegarde JSON directe, sans remplacement atomique.
+- `streak` non mis à jour, `last_session` sans curseur de reprise.
+- Contrôles et diagnostics supplémentaires des terminaux indisponibles à traiter
+  en P1 ; la capture n'est pas promise pour toutes les combinaisons macOS.
 
-L'introspection abandonnée concerne dotfiles et outils installés. Les contrôles
-techniques nécessaires à la TUI, aux couleurs et à la capture restent autorisés
-et requis avant d'utiliser ces capacités. Le premier chapitre cible sera textuel ;
-un terminal limité recevra un diagnostic et un accès CLI textuel adapté.
+## Vision décidée et travaux suivants
 
-La [décision du 7 novembre 2026](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
-remplace les anciennes orientations dotfiles pour les travaux à venir, tout en
-préservant leur historique.
+**CLI-Drill — Learn the terminal by doing.** La [spécification](docs/SPEC.md)
+organise un corpus vérifié en Unix & Shell Fundamentals, Keyboard Shortcuts,
+Modern CLI & macOS, avec contexte portable/BSD/macOS/GNU/Linux/tiers explicite.
+Les sessions visent cinq à dix minutes, sans détection d'outils installés.
 
-## Travaux non encore réalisés
+La [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
+conserve intégralement les anciennes données JSON/YAML/TOML. Leur abandon
+fonctionnel n'autorise aucune purge, réécriture ou migration automatique.
+Les vérifications techniques du terminal restent requises ; les deux moteurs
+et le fonctionnement local et hors ligne restent centraux.
 
-Le [backlog V2](TODO.md) décrit les futures branches vers `dev` :
-
-1. Après validation de P0.1, retirer les commandes/écrans/options dotfiles,
-   puis les packages et la dépendance TOML devenus inutilisés.
-2. Fiabiliser le stockage, l'enregistrement partagé des résultats, les QCM,
-   la correction des commandes et les événements clavier.
-3. Réviser les contenus personnels, fournir un premier chapitre textuel et
-   organiser le corpus en trois familles, sans réutiliser des clés pour un
-   apprentissage différent.
-4. Adapter la navigation en réutilisant les composants existants et vérifier
-   les limites du terminal ; conserver le moteur de capture dédié.
-5. Mettre à jour le README après migration et validation fonctionnelles.
-
-L'[architecture cible](docs/ARCHITECTURE.md) conserve six packages internes.
-P0.1 ne livre ni retrait des commandes ou packages dotfiles, ni nouvelle
-navigation, ni nouvelle leçon. Le premier chapitre et le moteur de capture
-restent inchangés ; le premier parcours textuel V2 appartient aux étapes suivantes.
+Le prochain chantier est `refactor/remove-dotfiles-internals` : retirer les
+packages devenus inutiles, découpler les métadonnées et nettoyer les dépendances.
+Ensuite viennent la fiabilité, le corpus pédagogique et les ajustements de
+navigation réellement nécessaires après révision des contenus. Aucun travail
+P0.3, nouvelle leçon, nouvelle dépendance ou refonte graphique n'est réalisé ici.
+Voir le [backlog](TODO.md) et l'[architecture cible](docs/ARCHITECTURE.md).
 
 ## Validation et limites de preuve
 
-L'audit préalable, exécuté sur la même base de code, a validé `go test ./...`,
-`go test -count=1 -cover ./...`, `go vet ./...`, l'aide CLI, le contrôle de
-formatage Go et `go mod verify`, avec Go 1.27.3 sur macOS arm64.
-Des essais de TUI en pseudo-terminal ont confirmé les écarts de progression,
-de QCM et de filtre ; ce constat ne valide pas tous les terminaux réels.
+Sur la base P0.1, les tests de référence ont réussi sans réutilisation des
+résultats. Les nouvelles régressions P0.2 ont échoué avant les changements,
+puis réussi après. Les tests de l'ancienne surface ont été retirés ; les tests
+des packages conservés et des moteurs d'entraînement restent en place.
 
-Pour P0.1, les nouvelles régressions ont échoué avant la modification du chargeur,
-puis réussi après. Elles couvrent CLI et transmission à la TUI, remplacement et
-ajout de YAML utilisateur, YAML invalide, refus d'un chapitre utilisateur seul,
-lecture de progression version 1 et préservation des fixtures JSON/YAML/TOML.
-La boucle terminal est substituée dans le test unitaire du lancement TUI ;
-les contrôles interactifs ci-dessous ont été effectués séparément.
+Contrôles P0.2 : `go test ./...`, `go vet ./...`, aide du binaire,
+contrôle du formatage et `git diff --check`. Les régressions couvrent les
+commandes/options retirées, le menu, le démarrage textuel, les indices de la
+vue clavier, les filtres, les dimensions et la préservation des fixtures héritées.
 
-Contrôles P0.1 exécutés : `go test ./...`, `go vet ./...`,
-`go run ./cmd/cli-drill --help`, contrôle du formatage et `git diff --check`.
-Le binaire a aussi été essayé dans un pseudo-terminal isolé : lancement sans
-configuration malgré des YAML utilisateur invalides, lecture des acquis
-historiques, ouverture d'un exercice textuel, capture de `Ctrl+A`, sortie par
-`Esc`, retour à l'accueil et restauration des attributs du terminal.
-Un entraînement CLI textuel de six exercices a été terminé avec succès.
+Le binaire a aussi été essayé dans un pseudo-terminal isolé : premier lancement
+sans configuration, navigation, entraînement CLI, historique JSON, capture de
+`Ctrl+A`, sortie `Esc`, retour à l'accueil et restauration de l'état du terminal.
+Les vérifications de données utilisent uniquement des fichiers synthétiques ;
+les sessions d'entraînement et le test explicite de reset visent des fichiers
+temporaires distincts. Aucune vraie donnée utilisateur n'est lue ou modifiée.
 
-Seuls des fichiers synthétiques temporaires ont été utilisés ; leur JSON,
-YAML et TOML hérités sont restés identiques à l'octet près. Les entraînements
-de vérification ont écrit leurs résultats dans des JSON de session distincts,
-également temporaires. Aucune vraie donnée utilisateur n'a été lue ou modifiée.
-
-Ces résultats ne valident ni la V2 complète, ni tous les émulateurs/raccourcis,
-ni la compatibilité avec Go 1.23. Les défauts de progression textuelle TUI,
-de QCM et de correction restent dans le backlog P1.
+Ces validations ne couvrent ni la V2 complète, ni tous les émulateurs et
+raccourcis. La compatibilité avec le minimum Go 1.23 n'est pas vérifiée ;
+les contrôles de développement utilisent Go 1.27.3 sur macOS arm64.

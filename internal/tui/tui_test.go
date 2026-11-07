@@ -1,8 +1,6 @@
 package tui
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -12,25 +10,17 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func TestHomeViewExplainsAppAndShowsConfigStatus(t *testing.T) {
-	m := newTestModel(t, Options{ConfigPath: filepath.Join(t.TempDir(), "config.toml")})
+func TestHomeBannerAndTrainingTagline(t *testing.T) {
+	m := newTestModel(t, Options{})
 
 	view := m.View()
 
 	assertContains(t, view, "cli-drill")
 	assertContains(t, view, "____ _     ___")
 	assertContains(t, view, homeTagline)
-	assertContains(t, view, "Dotfiles: not configured")
-	assertContains(t, view, "Run cli-drill init or open Configuration to set dotfiles paths.")
 	assertContains(t, view, "Start training")
-	assertContains(t, view, "Begin the first available chapter.")
 	assertContains(t, view, "Browse chapters")
 	assertContains(t, view, "Choose a chapter and inspect its exercises.")
-	assertContains(t, view, "Scan dotfiles")
-	assertContains(t, view, "commands are not executed")
-	assertContains(t, view, "Directory")
-	assertContains(t, view, "Stats")
-	assertContains(t, view, "Configuration")
 	assertContains(t, view, "enter select")
 	assertContains(t, view, "esc back")
 	assertContains(t, view, "g home")
@@ -57,63 +47,6 @@ func TestHomeBannerFallsBackWhenTerminalIsNarrow(t *testing.T) {
 	assertNotContains(t, banner, "____ _     ___")
 }
 
-func TestConfigStatusMissingIsReadOnlyGuidance(t *testing.T) {
-	configPath := filepath.Join(t.TempDir(), "config.toml")
-	m := newTestModel(t, Options{ConfigPath: configPath})
-	m.home.Select(homeActionIndex("Configuration"))
-	m = press(t, m, tea.KeyEnter)
-
-	view := m.View()
-
-	assertScreen(t, m, screenConfig)
-	assertContains(t, view, "Configuration")
-	assertContains(t, view, configPath)
-	assertContains(t, view, "Config file: not found")
-	assertContains(t, view, "Dotfiles paths: not configured")
-	assertContains(t, view, "cli-drill init --print")
-	assertContains(t, view, "cli-drill init")
-	assertContains(t, view, "cli-drill scan --summary")
-	assertContains(t, view, "Scan is static. cli-drill does not execute shell commands from dotfiles.")
-	if _, err := os.Stat(configPath); !os.IsNotExist(err) {
-		t.Fatalf("expected config screen to avoid creating %s, got err=%v", configPath, err)
-	}
-}
-
-func TestConfigStatusPresentSeparatesConfiguredExistingAndMissingPaths(t *testing.T) {
-	dir := t.TempDir()
-	dotfilesPath := filepath.Join(dir, "dotfiles")
-	aliasesPath := filepath.Join(dotfilesPath, "zsh", "aliases.zsh")
-	if err := os.MkdirAll(filepath.Dir(aliasesPath), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(aliasesPath, []byte("# aliases\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	configPath := filepath.Join(dir, "config.toml")
-	data := "dotfiles_path = " + quoteTOML(dotfilesPath) + "\nshell = \"zsh\"\n\n" +
-		"[paths]\n" +
-		"aliases = [\"zsh/aliases.zsh\"]\n" +
-		"functions = []\n" +
-		"docs = [\"README.md\"]\n"
-	if err := os.WriteFile(configPath, []byte(data), 0o644); err != nil {
-		t.Fatal(err)
-	}
-
-	m := newTestModel(t, Options{ConfigPath: configPath})
-	m.home.Select(homeActionIndex("Configuration"))
-	m = press(t, m, tea.KeyEnter)
-
-	view := m.View()
-
-	assertContains(t, view, "Config file: found")
-	assertContains(t, view, "Dotfiles paths: configured")
-	assertContains(t, view, "Dotfiles root: "+dotfilesPath+" — existing")
-	assertContains(t, view, "Configured paths:")
-	assertContains(t, view, "aliases: zsh/aliases.zsh — existing")
-	assertContains(t, view, "docs: README.md — missing")
-	assertContains(t, view, "Scan is static. cli-drill does not execute shell commands from dotfiles.")
-}
-
 func TestChaptersShowDescriptionMetadataAndCentralizedFooter(t *testing.T) {
 	first := textChapter()
 	second := textChapter()
@@ -138,20 +71,6 @@ func TestChaptersShowDescriptionMetadataAndCentralizedFooter(t *testing.T) {
 	m = press(t, m, tea.KeyEnter)
 	assertScreen(t, m, screenChapterDetail)
 	assertContains(t, m.View(), "Navigation shell")
-}
-
-func TestDirectoryUsesOnlyCentralizedFooter(t *testing.T) {
-	m := newTestModel(t, Options{})
-	m.home.Select(homeActionIndex("Directory"))
-	m = press(t, m, tea.KeyEnter)
-
-	view := m.View()
-	wantFooter := footerText(footerNavigation)
-
-	if count := strings.Count(view, wantFooter); count != 1 {
-		t.Fatalf("centralized footer count = %d, want 1\nview:\n%s", count, view)
-	}
-	assertNotContains(t, view, "↑/k up")
 }
 
 func TestNavigationHomeChaptersDetailBackHome(t *testing.T) {
@@ -387,19 +306,6 @@ func TestTrainingSummaryGReturnsHome(t *testing.T) {
 	assertScreen(t, m, screenHome)
 }
 
-func TestScanScreenIsGuidanceOnly(t *testing.T) {
-	m := newTestModel(t, Options{})
-	m.home.Select(homeActionIndex("Scan dotfiles"))
-	m = press(t, m, tea.KeyEnter)
-
-	view := m.View()
-
-	assertScreen(t, m, screenScan)
-	assertContains(t, view, "Scan dotfiles")
-	assertContains(t, view, "read-only")
-	assertContains(t, view, "cli-drill scan --summary")
-}
-
 func TestFooterHintsAreContextual(t *testing.T) {
 	m := newTestModel(t, Options{})
 
@@ -416,32 +322,9 @@ func TestFooterHintsAreContextual(t *testing.T) {
 	assertContains(t, m.View(), "g home")
 }
 
-func TestConfigScanStatsFootersAreConsistent(t *testing.T) {
-	tests := []struct {
-		name   string
-		action string
-		screen screen
-	}{
-		{name: "config", action: "Configuration", screen: screenConfig},
-		{name: "scan", action: "Scan dotfiles", screen: screenScan},
-		{name: "stats", action: "Stats", screen: screenStats},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := newTestModel(t, Options{})
-			m.home.Select(homeActionIndex(tt.action))
-			m = press(t, m, tea.KeyEnter)
-
-			assertScreen(t, m, tt.screen)
-			assertContains(t, m.View(), "esc back · g home · h help · q quit")
-		})
-	}
-}
-
 func TestBackAndQuitKeys(t *testing.T) {
 	m := newTestModel(t, Options{})
-	m.home.Select(homeActionIndex("Stats"))
+	m.home.Select(homeActionIndex("My progress"))
 	m = press(t, m, tea.KeyEnter)
 	assertScreen(t, m, screenStats)
 
@@ -458,14 +341,6 @@ func newTestModel(t *testing.T, opts Options) model {
 	t.Helper()
 	if opts.Chapters == nil {
 		opts.Chapters = []chapter.Chapter{textChapter()}
-	}
-	if opts.Entries == nil {
-		opts.Entries = []catalog.Entry{{
-			ID:      "ctrl-a",
-			Name:    "Ctrl+A",
-			Type:    catalog.EntryShortcut,
-			Summary: "Aller au debut de ligne",
-		}}
 	}
 	return newModel(opts)
 }
@@ -542,8 +417,4 @@ func assertNotContains(t *testing.T, value, needle string) {
 	if strings.Contains(value, needle) {
 		t.Fatalf("expected view not to contain %q\nview:\n%s", needle, value)
 	}
-}
-
-func quoteTOML(value string) string {
-	return `"` + strings.ReplaceAll(value, `\`, `\\`) + `"`
 }

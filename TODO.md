@@ -1,7 +1,8 @@
 # Backlog — CLI-Drill V2
 
-**Mis à jour le 7 novembre 2026.** P0.1 réalisée sur `refactor/embedded-only`,
-en attente de validation et d'intégration ; migration fonctionnelle V2 partielle.
+**Mis à jour le 7 novembre 2026.** P0.1 intégrée dans `dev` (`b82dbaf`).
+P0.2 réalisée sur `refactor/remove-dotfiles-surface`, en attente de validation
+et d'intégration ; migration fonctionnelle V2 partielle.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
 la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
@@ -12,13 +13,13 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 - [x] Formaliser la vision V2 et la distinguer de l'implémentation dans les documents.
 - [x] Charger exclusivement les chapitres intégrés pour CLI/TUI et leur liste,
   sans charger les anciens YAML utilisateur ; conserver intégralement leurs fichiers.
-- [ ] Retirer la lecture et les diagnostics du TOML dotfiles avec la surface
-  correspondante ; ces diagnostics TUI restent présents après P0.1.
-- [ ] Retirer `init`, `scan`, `generate`, `directory`, `search`, `show`,
+- [x] Retirer la lecture et les diagnostics du TOML dotfiles de la surface CLI/TUI
+  (P0.2), sans toucher aux anciens fichiers utilisateur.
+- [x] Retirer `init`, `scan`, `generate`, `directory`, `search`, `show`,
   `--config` et les écrans Configuration, Scan et Annuaire.
 - [ ] Découpler les métadonnées de `chapter` du catalogue ; retirer génération,
   conversion vers l'annuaire, packages abandonnés et dépendance TOML.
-- [ ] Conserver les vérifications techniques TTY, dimensions, couleurs et capture
+- [x] Conserver les vérifications techniques TTY, dimensions, couleurs et capture
   clavier ; ne pas les confondre avec la détection d'outils ou de dotfiles.
 - [x] Tester sur des données synthétiques que le changement de chargement ne
   supprime, ne déplace, ne réécrit ni ne purge les anciennes données JSON/YAML/TOML.
@@ -35,13 +36,15 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 - [ ] Afficher les choix des QCM dans les deux interfaces et valider leur cohérence.
 - [ ] Corriger les commandes sans effacer casse, options ou espaces significatifs ;
   garder les variantes explicites et la normalisation des raccourcis.
-- [ ] Donner priorité à la saisie des réponses et des filtres avant les raccourcis globaux.
+- [x] Donner priorité à la saisie des réponses et des filtres avant les raccourcis globaux (navigation P0.2).
 - [ ] Vérifier capacités, capture, restauration du terminal et retour TUI, y compris
   en cas d'erreur ; ne jamais créditer une touche non réellement capturée.
 - [ ] Calculer les acquis du corpus actif par identifiants présents, sans purger
   le JSON des anciens exercices. Garder `streak` hors des indicateurs actifs.
-- [ ] Garantir un premier entraînement textuel sans configuration ni capacité
-  brute supposée ; guider vers la CLI textuelle si la TUI est indisponible.
+- [x] Démarrer directement un chapitre textuel depuis Start training, sans configuration
+  ni activation implicite de capture brute (P0.2).
+- [ ] Guider vers la CLI textuelle si la TUI est indisponible ; compléter les diagnostics
+  de capacités terminal sans changer les données utilisateur.
 
 ## P2 — Corpus pédagogique et expérience utilisateur
 
@@ -50,9 +53,9 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 - [ ] Réviser chaque exercice conservé : consigne discriminante, correction,
   explication, contexte portable/BSD/macOS/GNU/Linux/tiers vérifié et absence
   de dépendance à une installation personnelle.
-- [ ] Prévoir un premier chapitre textuel ; faire de la saisie de commandes et
-  de la vraie capture des activités centrales, avec QCM complémentaires.
-- [ ] Adapter le menu cible en réutilisant navigateur, fiche et statistiques ;
+- [ ] Réviser la première leçon textuelle pour le corpus V2 ; garder saisie de commandes
+  et vraie capture comme activités centrales, avec QCM complémentaires.
+- [x] Adapter le menu cible en réutilisant navigateur, fiche et statistiques (P0.2) ;
   Keyboard shortcuts est une vue filtrée, pas un moteur supplémentaire.
 - [ ] Conserver l'identité graphique, le mode sans couleur et le retour à l'accueil
   après capture ; ne pas ajouter de préférences de navigation.
@@ -90,30 +93,32 @@ scan runtime ou capture globale macOS n'est entretenue pour le nouveau MVP.
 
 ## Branches atomiques proposées
 
-P0.1 est réalisée sur `refactor/embedded-only`, sans commit, merge ou push à ce
-stade ; les autres unités restent planifiées. Chaque nouvelle branche partira de `dev` à jour,
+P0.1 est intégrée. P0.2 est réalisée sur `refactor/remove-dotfiles-surface`,
+à valider avant commit, merge ou push. Les unités suivantes restent planifiées.
+Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
 Les unités de retrait se suivent dans l'ordre indiqué ; chaque PR doit compiler
 et conserver les commandes d'entraînement encore disponibles.
 
 | Priorité / branche | Périmètre et acceptation | Validation, risque et dépendance |
 | --- | --- | --- |
-| P0 — `refactor/embedded-only` (réalisée, à valider) | Corpus intégré seul pour l'entraînement et sa liste ; YAML non chargés et données héritées préservées. | Tests et essais isolés CLI/TUI réussis ; les diagnostics TOML restent pour la prochaine unité ; risque de changement du corpus visible. |
-| P0 — `refactor/remove-dotfiles-surface` | Retirer commandes, option et écrans dotfiles en conservant l'entraînement et les contrôles terminal. | Aide CLI et navigation ; rupture intentionnelle des anciennes commandes ; après corpus intégré seul. |
+| P0 — `refactor/embedded-only` (intégrée) | Corpus intégré seul pour l'entraînement et sa liste ; YAML non chargés et données héritées préservées. | Tests et essais isolés CLI/TUI réussis ; risque de changement du corpus visible caractérisé ; surface TOML retirée par P0.2. |
+| P0 — `refactor/remove-dotfiles-surface` (réalisée, à valider) | Retirer commandes, option et écrans dotfiles en conservant l'entraînement et les contrôles terminal. | Aide CLI et navigation ; rupture intentionnelle des anciennes commandes ; après corpus intégré seul. |
 | P0 — `refactor/remove-dotfiles-internals` | Découpler `chapter`, retirer packages abandonnés et TOML, sans toucher aux données utilisateur. | Compilation, imports, tests, dépendances ; risque de couplages résiduels ; après retrait de la surface. |
 | P1 — `fix/progress-storage` | Sauvegarde atomique, historique préservé et erreurs visibles. | JSON version 1, fichiers invalides, échec de remplacement ; risque de perte de données à prévenir ; après P0. |
 | P1 — `fix/training-recording` | Même comptage et persistance CLI/TUI, sans tentative fictive ou double compte. | Réouverture, sortie, retries et EOF ; risque de sémantique des tentatives ; après stockage fiable. |
 | P1 — `fix/exercise-correction` | QCM affichés et correction adaptée aux commandes et raccourcis. | Casse, espaces significatifs, variantes et choix ; risque de refus de faux positifs auparavant acceptés ; après P0. |
 | P1 — `fix/terminal-training` | Vérifier les capacités, traiter les erreurs, préserver la capture dédiée et l'accès textuel sans configuration. | Terminal compatible/limité, sans couleur, restauration et retour TUI ; risque d'état terminal ; après enregistrement partagé. |
 | P2 — `content/v2-foundations` | Réviser le corpus et ses trois familles ; fournir le premier chapitre textuel et préserver les identifiants pertinents. | Validation YAML, références officielles et essais pédagogiques ; risque de réattribution d'acquis ; après P1. |
-| P2 — `refactor/v2-navigation` | Réutiliser les écrans pour le menu cible et les vues filtrées, sans changer l'identité graphique. | Premier lancement, clavier, filtres, terminal étroit ; risque de focus ; après corpus V2 et vérification terminal. |
+| P2 — `refactor/v2-navigation` (à réévaluer après corpus) | Le menu et la vue clavier sont livrés par P0.2 ; limiter les futurs ajustements aux besoins démontrés du corpus révisé. | Navigation par familles si le corpus le requiert ; ne pas refaire l'accueil ni changer l'identité graphique. |
 | P2 — `docs/readme-v2` | Décrire le comportement V2 effectivement livré. | Exemples, liens et comparaison avec le binaire ; risque de promesse prématurée ; après validation fonctionnelle V2. |
 
 Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
 `go vet ./...`, le contrôle de formatage et l'aide CLI concernée. Les tests
 utilisateur emploieront des fixtures synthétiques isolées, jamais les vraies
 configurations. La livraison documentaire précédente n'a pas modifié Go.
-P0.1 valide uniquement le chargement intégré exclusif, pas la V2 complète.
+P0.1 valide le chargement intégré et P0.2 la surface utilisateur ; aucune des deux
+ne valide la V2 complète ni le retrait des packages internes.
 
 ## Archive V1 — Réalisations et abandons
 
