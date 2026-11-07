@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/benabot/cli-drill/internal/catalog"
@@ -846,10 +845,6 @@ func loadConfig(opts Options, missingNotice string) (config.Config, error) {
 }
 
 func loadChapters(opts Options) ([]chapter.Chapter, error) {
-	userDir := xdg.ChaptersDir()
-	if entries, err := filepath.Glob(filepath.Join(userDir, "*.yaml")); err == nil && len(entries) > 0 {
-		return chapter.LoadDir(userDir)
-	}
 	return chapter.LoadFS(opts.DefaultFS, "*.yaml")
 }
 

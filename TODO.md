@@ -1,6 +1,7 @@
 # Backlog — CLI-Drill V2
 
-**Réorganisé le 7 novembre 2026.** Vision décidée, migration fonctionnelle à faire.
+**Mis à jour le 7 novembre 2026.** P0.1 réalisée sur `refactor/embedded-only`,
+en attente de validation et d'intégration ; migration fonctionnelle V2 partielle.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
 la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
@@ -9,15 +10,17 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 ## P0 — Simplification du périmètre
 
 - [x] Formaliser la vision V2 et la distinguer de l'implémentation dans les documents.
-- [ ] Charger exclusivement les chapitres intégrés, sans lire les anciens YAML
-  utilisateur ni le TOML dotfiles ; conserver intégralement leurs fichiers.
+- [x] Charger exclusivement les chapitres intégrés pour CLI/TUI et leur liste,
+  sans charger les anciens YAML utilisateur ; conserver intégralement leurs fichiers.
+- [ ] Retirer la lecture et les diagnostics du TOML dotfiles avec la surface
+  correspondante ; ces diagnostics TUI restent présents après P0.1.
 - [ ] Retirer `init`, `scan`, `generate`, `directory`, `search`, `show`,
   `--config` et les écrans Configuration, Scan et Annuaire.
 - [ ] Découpler les métadonnées de `chapter` du catalogue ; retirer génération,
   conversion vers l'annuaire, packages abandonnés et dépendance TOML.
 - [ ] Conserver les vérifications techniques TTY, dimensions, couleurs et capture
   clavier ; ne pas les confondre avec la détection d'outils ou de dotfiles.
-- [ ] Tester sur des données synthétiques que le changement de périmètre ne
+- [x] Tester sur des données synthétiques que le changement de chargement ne
   supprime, ne déplace, ne réécrit ni ne purge les anciennes données JSON/YAML/TOML.
   Le premier lancement et les consultations ne doivent provoquer aucune migration écrite.
 
@@ -87,14 +90,15 @@ scan runtime ou capture globale macOS n'est entretenue pour le nouveau MVP.
 
 ## Branches atomiques proposées
 
-Ces branches sont planifiées, pas créées. Chacune partira de `dev` à jour,
+P0.1 est réalisée sur `refactor/embedded-only`, sans commit, merge ou push à ce
+stade ; les autres unités restent planifiées. Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
 Les unités de retrait se suivent dans l'ordre indiqué ; chaque PR doit compiler
 et conserver les commandes d'entraînement encore disponibles.
 
 | Priorité / branche | Périmètre et acceptation | Validation, risque et dépendance |
 | --- | --- | --- |
-| P0 — `refactor/embedded-only` | Corpus intégré seul ; aucun ancien YAML/TOML lu, déplacé ou modifié. | Fixtures de surcharge héritée ; risque de changement du corpus visible ; aucune dépendance. |
+| P0 — `refactor/embedded-only` (réalisée, à valider) | Corpus intégré seul pour l'entraînement et sa liste ; YAML non chargés et données héritées préservées. | Tests et essais isolés CLI/TUI réussis ; les diagnostics TOML restent pour la prochaine unité ; risque de changement du corpus visible. |
 | P0 — `refactor/remove-dotfiles-surface` | Retirer commandes, option et écrans dotfiles en conservant l'entraînement et les contrôles terminal. | Aide CLI et navigation ; rupture intentionnelle des anciennes commandes ; après corpus intégré seul. |
 | P0 — `refactor/remove-dotfiles-internals` | Découpler `chapter`, retirer packages abandonnés et TOML, sans toucher aux données utilisateur. | Compilation, imports, tests, dépendances ; risque de couplages résiduels ; après retrait de la surface. |
 | P1 — `fix/progress-storage` | Sauvegarde atomique, historique préservé et erreurs visibles. | JSON version 1, fichiers invalides, échec de remplacement ; risque de perte de données à prévenir ; après P0. |
@@ -108,8 +112,8 @@ et conserver les commandes d'entraînement encore disponibles.
 Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
 `go vet ./...`, le contrôle de formatage et l'aide CLI concernée. Les tests
 utilisateur emploieront des fixtures synthétiques isolées, jamais les vraies
-configurations. Aucune PR, validation fonctionnelle V2 ou refactorisation Go
-n'est réalisée par cette branche documentaire.
+configurations. La livraison documentaire précédente n'a pas modifié Go.
+P0.1 valide uniquement le chargement intégré exclusif, pas la V2 complète.
 
 ## Archive V1 — Réalisations et abandons
 
