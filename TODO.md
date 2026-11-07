@@ -1,172 +1,130 @@
-# TODO
+# Backlog — CLI-Drill V2
 
-## P0 — Initialization
+**Réorganisé le 7 novembre 2026.** Vision décidée, migration fonctionnelle à faire.
+Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
+La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
+la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
+explique les abandons. Les cases cochées ne désignent que des travaux réalisés.
 
-- [x] Initialize Git repository.
-- [X] Run `codex init`.
-- [x] Ask Codex to inspect the project and propose a plan.
-- [x] Validate standard Go architecture.
-- [x] Validate CLI command list.
-- [x] Validate TUI MVP.
-- [x] Validate config and chapter formats.
-- [x] Remove unused `app/` directory if still empty.
-- [x] Run `gofmt -w cmd internal data` once Go tooling is available.
-- [x] Run `go mod tidy` once Go tooling is available.
-- [x] Run `go test ./...` once Go tooling is available.
-- [x] Run `go run ./cmd/cli-drill --help` once Go tooling is available.
+## P0 — Simplification du périmètre
 
-## P1 — MVP foundation
+- [x] Formaliser la vision V2 et la distinguer de l'implémentation dans les documents.
+- [ ] Charger exclusivement les chapitres intégrés, sans lire les anciens YAML
+  utilisateur ni le TOML dotfiles ; conserver intégralement leurs fichiers.
+- [ ] Retirer `init`, `scan`, `generate`, `directory`, `search`, `show`,
+  `--config` et les écrans Configuration, Scan et Annuaire.
+- [ ] Découpler les métadonnées de `chapter` du catalogue ; retirer génération,
+  conversion vers l'annuaire, packages abandonnés et dépendance TOML.
+- [ ] Conserver les vérifications techniques TTY, dimensions, couleurs et capture
+  clavier ; ne pas les confondre avec la détection d'outils ou de dotfiles.
+- [ ] Tester sur des données synthétiques que le changement de périmètre ne
+  supprime, ne déplace, ne réécrit ni ne purge les anciennes données JSON/YAML/TOML.
+  Le premier lancement et les consultations ne doivent provoquer aucune migration écrite.
 
-- [x] Create Go module at repository root.
-- [x] Add Cobra CLI skeleton in `cmd/cli-drill/`.
-- [x] Add config loader.
-- [x] Add YAML chapter loader.
-- [x] Add progress JSON storage.
-- [x] Add answer matching engine.
-- [x] Add ZSH alias parser.
-- [x] Add ZSH function name parser.
-- [x] Add basic Markdown parser.
-- [x] Add catalog model.
-- [x] Deduplicate catalog entries by `(type, id)`.
-- [x] Merge duplicate catalog sources and tags.
-- [x] Reduce noisy Markdown heading concepts.
-- [x] Reject absolute scan paths outside `dotfiles_path`.
-- [x] Clarify `directory`, `search` and `show` catalog source behavior.
+## P1 — Fiabilité des entraînements
 
-## P2 — Training
+- [ ] Sauvegarder atomiquement la progression ; conserver les champs et résultats
+  historiques, refuser l'écrasement silencieux d'un JSON invalide ou non pris en charge.
+- [ ] Partager la règle d'enregistrement CLI/TUI ; persister chaque réponse
+  réellement soumise, sans doublon lors du feedback, d'un retour ou d'une sortie.
+- [ ] Ne pas créer de tentative pour l'aide, une solution affichée, la navigation
+  ou un EOF vide ; tester retries, EOF après réponse et interruption.
+- [ ] Afficher les choix des QCM dans les deux interfaces et valider leur cohérence.
+- [ ] Corriger les commandes sans effacer casse, options ou espaces significatifs ;
+  garder les variantes explicites et la normalisation des raccourcis.
+- [ ] Donner priorité à la saisie des réponses et des filtres avant les raccourcis globaux.
+- [ ] Vérifier capacités, capture, restauration du terminal et retour TUI, y compris
+  en cas d'erreur ; ne jamais créditer une touche non réellement capturée.
+- [ ] Calculer les acquis du corpus actif par identifiants présents, sans purger
+  le JSON des anciens exercices. Garder `streak` hors des indicateurs actifs.
+- [ ] Garantir un premier entraînement textuel sans configuration ni capacité
+  brute supposée ; guider vers la CLI textuelle si la TUI est indisponible.
 
-- [x] Add `free-answer` exercises.
-- [x] Add `multiple-choice` exercises.
-- [x] Add `scenario` exercises.
-- [x] Add simple non-executing shell simulator.
-- [x] Add `scan --summary`.
-- [x] Add `scan --type <type>`.
-- [x] Improve `directory --type <type>` validation and output.
-- [x] Improve `search <query>` output and empty-result message.
-- [x] Improve `show <entry>` detail output and ambiguity handling.
-- [x] Add `init --print`.
-- [x] Add concise config-missing notices.
-- [x] Enrich default YAML chapters with about 5 to 10 exercises per chapter.
-- [x] Cover required terminal shortcuts, navigation tools, detected aliases and
-  detected ZSH functions in default chapters.
-- [x] Add realistic non-executing shell-sim and scenario drills for search,
-  Markdown preview and dotfiles workflows.
-- [x] Add `key-sequence` shortcut drills with raw key capture for terminal
-  control-key practice.
-- [x] Add a lightweight command bar to `key-sequence` training for help, retry,
-  next and quit actions.
-- [x] Add an in-memory session review loop for missed `key-sequence` shortcut
-  drills.
-- [ ] Review chapter wording after several real training sessions.
-- [ ] Add more advanced drills only after the MVP exercises feel stable.
+## P2 — Corpus pédagogique et expérience utilisateur
 
-## P3 — TUI MVP
+- [ ] Fournir un corpus court jouable dans chaque famille : Unix & Shell Fundamentals,
+  Keyboard Shortcuts, Modern CLI & macOS. Viser cinq à dix minutes par chapitre.
+- [ ] Réviser chaque exercice conservé : consigne discriminante, correction,
+  explication, contexte portable/BSD/macOS/GNU/Linux/tiers vérifié et absence
+  de dépendance à une installation personnelle.
+- [ ] Prévoir un premier chapitre textuel ; faire de la saisie de commandes et
+  de la vraie capture des activités centrales, avec QCM complémentaires.
+- [ ] Adapter le menu cible en réutilisant navigateur, fiche et statistiques ;
+  Keyboard shortcuts est une vue filtrée, pas un moteur supplémentaire.
+- [ ] Conserver l'identité graphique, le mode sans couleur et le retour à l'accueil
+  après capture ; ne pas ajouter de préférences de navigation.
+- [ ] Relire et essayer les leçons après de vraies sessions avant d'élargir le corpus.
+- [ ] Mettre à jour le README public seulement après la migration fonctionnelle.
 
-- [x] Add Bubble Tea main menu.
-- [x] Add chapter picker.
-- [x] Add training screen.
-- [x] Add directory browser.
-- [x] Add stats screen.
+### Évaluation du corpus existant à réaliser
 
-## P3.1 — TUI onboarding and navigation
+| Chapitre actuel | Orientation V2, sans modification YAML dans la mission documentaire |
+| --- | --- |
+| `01-raccourcis-terminal` | Conserver les exercices de capture pertinents ; préciser shell, mode d'édition et limites du terminal. |
+| `02-navigation-shell` | Conserver les notions générales et outils tiers utiles ; retirer les variantes d'alias personnels. |
+| `03-alias-zsh`, `04-fonctions-zsh` | Retirer les leçons dépendant des noms et fonctions personnels ; ne pas les convertir automatiquement en questions générales. |
+| `05-outils-quotidiens`, `06-recherche-fichiers-contenu` | Conserver et vérifier les usages généraux ; distinguer outils tiers et commandes portables. |
+| `07-lecture-preview` | Garder les pratiques générales ; réévaluer les associations d'applications et fonctions personnelles. |
+| `08-micro`, `09-markdown-glow` | Évaluer comme contenus tiers secondaires ; retirer les alias et fonctions dits détectés. |
+| `10-workflows-dotfiles` | Retirer les workflows personnels ; extraire seulement les exercices généraux utiles, par exemple Git. |
 
-- [x] Add a home screen that introduces cli-drill.
-  - Explain what the app does.
-  - Show whether a dotfiles repo is configured.
-  - Offer quick access to configuration, scan, chapters, directory and stats.
-- [x] Add Home visual identity.
-  - Show a large ASCII `CLI-drill` banner.
-  - Fall back to compact `cli-drill` in narrow terminals.
-  - Keep configuration status, main actions and footer hints visible.
-- [x] Add read-only configuration status.
-  - Detect whether a config file exists.
-  - Show the configured dotfiles path when available.
-  - Keep the flow safe and non-destructive.
-- [x] Improve TUI chapter context.
-  - Always show the current chapter title.
-  - Show current exercise position inside the chapter.
-  - Show whether the user is in training, review, directory or stats.
-- [x] Improve TUI navigation.
-  - Add a clear way to go back.
-  - Add a clear way to return to the home screen.
-  - Add a clear way to return to the chapter list.
-  - Keep keyboard hints visible.
-- [x] Improve TUI chapter browsing.
-  - Navigate chapters.
-  - Preview chapter description and exercise count.
-  - Start or resume a chapter from the picker.
-- [x] Delegate key-sequence chapters to the dedicated key training mode.
-  - Detect chapters that require real key capture.
-  - Start the dedicated key training mode from the TUI.
-  - Return automatically to the TUI after key training.
-  - Keep the CLI key-sequence renderer separate from Bubble Tea.
+Ne conserver un couple d'identifiants que si l'apprentissage reste identique.
+Un nouveau concept reçoit de nouveaux identifiants ; les anciens résultats
+restent stockés. L'encodage minimal des familles/contextes sera documenté dans
+la PR de corpus, sans nouvelle infrastructure de contenu.
 
-### Later
+## Plus tard — Sous réserve d'un besoin observé
 
-- [ ] Configuration preferences.
-  - Review the config model before adding preferences.
-  - Keep beginner defaults simple and explicit.
-  - Keep tests deterministic.
-  - Avoid hidden states that are difficult to explain.
-  - Consider a default start screen.
-  - Consider a preferred training session length.
-  - Consider random question order on/off.
-  - Consider a configurable number of questions per session.
-  - Consider including or excluding chapter families.
-  - Consider color output with `auto`, `on` and `off` modes.
-  - Consider compact versus detailed chapter lists.
-  - Consider showing or hiding extended help.
-  - Consider a preferred post-training return target: Home or chapter detail.
-- [ ] Return to chapter detail after dedicated key training instead of Home.
-- [ ] Consider native Bubble Tea key-sequence training only if the dedicated
-  CLI mode becomes limiting.
+- Distribution par releases et éventuellement Homebrew, après stabilisation.
+- Enrichissement mesuré des exercices et sujets avancés, après validation du corpus court.
+- Sessions aléatoires, préférences, import personnalisé ou reprise au curseur :
+  différés, sans tâches d'implémentation actives ni nouvelle configuration prévue.
 
-## P4 — CLI training UX polish
+Aucune roadmap de moteurs Bash/Fish, d'IA, MCP, compte, synchronisation,
+scan runtime ou capture globale macOS n'est entretenue pour le nouveau MVP.
 
-- [x] Polish key-sequence training UX.
-  - Added minimal redraw for key-sequence training.
-  - Reduced repeated command bars.
-  - Added stable footer.
-  - Added inline `h help` / `h hide help`.
-  - Kept Bubble Tea out of the training flow for now.
-- [x] Improve visual polish of key-sequence training screens.
-  - Added restrained colors.
-  - Improved separators.
-  - Improved spacing and visual hierarchy.
-  - Kept output readable in plain terminals.
-  - Kept ANSI styling disabled in tests / non-interactive output.
-- [x] P4.2 — Final summary polish.
-  - Show a session score and available missed answers.
-  - Offer retry only when the completed session has misses.
-  - Keep the summary readable without color.
-  - Keep raw key capture and persistent scoring unchanged.
-- [ ] Future randomized training sessions.
-  - Grow each chapter family to dozens of questions without changing YAML now.
-  - Draw a limited session from the pool, for example 8 questions or a
-    configurable count, instead of traversing every question.
-  - Draw questions randomly and avoid immediate repeats when possible.
-  - Keep tests deterministic with an injectable random source or controlled
-    seed.
-- [ ] Consider Bubble Tea for training mode only if the CLI renderer becomes
-  too limited.
+<a id="branches-atomiques-proposees"></a>
 
-## P5 — Distribution and release
+## Branches atomiques proposées
 
-- [ ] Add a Makefile or Taskfile for common commands.
-- [ ] Add GitHub repository metadata.
-- [ ] Add GitHub Releases.
-- [ ] Add release builds for macOS/Linux/Windows.
-- [ ] Add Homebrew tap.
+Ces branches sont planifiées, pas créées. Chacune partira de `dev` à jour,
+portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
+Les unités de retrait se suivent dans l'ordre indiqué ; chaque PR doit compiler
+et conserver les commandes d'entraînement encore disponibles.
 
-## P6 — Later
+| Priorité / branche | Périmètre et acceptation | Validation, risque et dépendance |
+| --- | --- | --- |
+| P0 — `refactor/embedded-only` | Corpus intégré seul ; aucun ancien YAML/TOML lu, déplacé ou modifié. | Fixtures de surcharge héritée ; risque de changement du corpus visible ; aucune dépendance. |
+| P0 — `refactor/remove-dotfiles-surface` | Retirer commandes, option et écrans dotfiles en conservant l'entraînement et les contrôles terminal. | Aide CLI et navigation ; rupture intentionnelle des anciennes commandes ; après corpus intégré seul. |
+| P0 — `refactor/remove-dotfiles-internals` | Découpler `chapter`, retirer packages abandonnés et TOML, sans toucher aux données utilisateur. | Compilation, imports, tests, dépendances ; risque de couplages résiduels ; après retrait de la surface. |
+| P1 — `fix/progress-storage` | Sauvegarde atomique, historique préservé et erreurs visibles. | JSON version 1, fichiers invalides, échec de remplacement ; risque de perte de données à prévenir ; après P0. |
+| P1 — `fix/training-recording` | Même comptage et persistance CLI/TUI, sans tentative fictive ou double compte. | Réouverture, sortie, retries et EOF ; risque de sémantique des tentatives ; après stockage fiable. |
+| P1 — `fix/exercise-correction` | QCM affichés et correction adaptée aux commandes et raccourcis. | Casse, espaces significatifs, variantes et choix ; risque de refus de faux positifs auparavant acceptés ; après P0. |
+| P1 — `fix/terminal-training` | Vérifier les capacités, traiter les erreurs, préserver la capture dédiée et l'accès textuel sans configuration. | Terminal compatible/limité, sans couleur, restauration et retour TUI ; risque d'état terminal ; après enregistrement partagé. |
+| P2 — `content/v2-foundations` | Réviser le corpus et ses trois familles ; fournir le premier chapitre textuel et préserver les identifiants pertinents. | Validation YAML, références officielles et essais pédagogiques ; risque de réattribution d'acquis ; après P1. |
+| P2 — `refactor/v2-navigation` | Réutiliser les écrans pour le menu cible et les vues filtrées, sans changer l'identité graphique. | Premier lancement, clavier, filtres, terminal étroit ; risque de focus ; après corpus V2 et vérification terminal. |
+| P2 — `docs/readme-v2` | Décrire le comportement V2 effectivement livré. | Exemples, liens et comparaison avec le binaire ; risque de promesse prématurée ; après validation fonctionnelle V2. |
 
-- [ ] Bash support.
-- [ ] Fish support.
-- [ ] Ollama-assisted chapter generation.
-- [ ] MCP integrations.
-- [ ] Review chapter wording after several real training sessions.
-- [ ] Add more advanced drills only after the MVP exercises feel stable.
-- [ ] Return to chapter detail after dedicated key training instead of Home.
-  (look 3.1)
-- [ ] Consider native Bubble Tea key-sequence training only if the dedicated
-  CLI mode becomes limiting. (look at 3.1)
+Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
+`go vet ./...`, le contrôle de formatage et l'aide CLI concernée. Les tests
+utilisateur emploieront des fixtures synthétiques isolées, jamais les vraies
+configurations. Aucune PR, validation fonctionnelle V2 ou refactorisation Go
+n'est réalisée par cette branche documentaire.
+
+## Archive V1 — Réalisations et abandons
+
+La V1 a livré le module Go, Cobra, les dix chapitres intégrés, la TUI,
+les moteurs textuel/clavier, le scan ZSH/Markdown, le catalogue, la génération,
+le TOML et le stockage JSON. Leur présence actuelle est décrite dans
+[l'état du projet](PROJECT_STATE.md) ; les décisions historiques restent dans
+[DECISIONS.md](docs/DECISIONS.md).
+
+Sont sortis du backlog actif : amélioration du scan, déduplication du catalogue,
+génération depuis les dotfiles, préférences de configuration dotfiles et support
+de nouveaux parseurs. Les corrections de sécurité propres au scanner proposées
+par l'audit précédent sont remplacées par son retrait ; la sécurité des données
+et du terminal reste obligatoire. L'ancienne préparation du README bilingue est
+réalisée ; sa prochaine mise à jour attendra la V2. Les doublons de relecture
+pédagogique, retour après capture et migration Bubble Tea ont été retirés.
+Makefile/Taskfile, refonte visuelle et unification des moteurs ne constituent
+pas des objectifs actifs.

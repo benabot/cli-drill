@@ -1,188 +1,108 @@
-# Project State
+# État du projet — CLI-Drill
 
-## Current state
+**Constat du 7 novembre 2026, base de code `c66f329` sur `dev`.**
+La vision V2 est décidée ; sa migration fonctionnelle n'est pas réalisée.
+Cette livraison est documentaire et ne change ni le binaire, ni les chapitres,
+ni les dépendances, ni les données utilisateur.
 
-cli-drill now has a functional CLI/TUI MVP.
+## Implémentation actuelle
 
-Implemented:
+Le MVP CLI/TUI existant reste orienté dotfiles :
 
-- Root Go module with Cobra commands.
-- Embedded YAML chapters.
-- Static dotfiles scanner for ZSH aliases, functions, tools and Markdown docs.
-- Typed catalog with deduplication.
-- Local JSON progress storage.
-- CLI training modes:
-  - free-answer;
-  - multiple-choice;
-  - scenario;
-  - simple shell simulation;
-  - key-sequence with real raw key capture.
-- Polished CLI key-sequence renderer:
-  - real Ctrl-key capture;
-  - inline `h help`;
-  - stable footer;
-  - restrained colors;
-  - monochrome fallback;
-  - session review for missed shortcuts.
-- Bubble Tea TUI cockpit:
-  - informative Home screen with ASCII `CLI-drill` banner, actionable dotfiles
-    setup guidance and compact narrow-terminal fallback;
-  - chapter browser with existing descriptions, IDs and exercise counts;
-  - chapter detail;
-  - text training screen;
-  - directory browser;
-  - stats screen;
-  - read-only configuration guide separating config presence, configured
-    dotfiles paths and existing or missing paths;
-  - read-only scan guidance.
-- Key-sequence chapters are detected by the TUI and delegated to the dedicated
-  key training mode.
-- After dedicated key training, cli-drill returns automatically to the TUI Home
-  screen.
+- Module Go à la racine, point d'entrée `cmd/cli-drill/` et packages dans `internal/`.
+- Dix chapitres YAML intégrés et 68 exercices, dont huit en capture réelle.
+- Chargement des YAML utilisateur à la place du corpus intégré dès que le
+  dossier de chapitres utilisateur contient des fichiers `*.yaml`.
+- Scan statique de sources ZSH et Markdown configurées, parsing d'alias et noms
+  de fonctions, catalogue dédupliqué et génération de chapitres YAML.
+- Configuration TOML dotfiles ; commandes `init`, `scan`, `generate`, `chapters`,
+  `train`, `directory`, `search`, `show`, `stats`, `reset`.
+- Options globales `--config` et `--progress`.
+- CLI d'entraînement textuel et moteur dédié de capture des touches de contrôle.
+- TUI avec accueil, navigateur et fiche chapitre, entraînement textuel,
+  annuaire, statistiques et écrans d'instructions Configuration / Scan.
+- Passage de la TUI au moteur de capture, puis retour automatique à l'accueil.
+- JSON local version 1 avec acquis uniques et tentatives cumulées par chapitre.
+- Contrôles techniques existants pour la capture et les couleurs ; rendu
+  CLI monochrome selon le terminal, `TERM` et `NO_COLOR`.
 
-Current product model:
+Les cinq types d'exercices existent dans le modèle : `free-answer`, `scenario`,
+`multiple-choice`, `simple-shell-sim`, `key-sequence`. Le simulateur compare
+les réponses sans exécuter les commandes. Le scan n'exécute pas les définitions.
 
-- The TUI is the navigation cockpit.
-- Text-based chapters can be trained inside Bubble Tea.
-- Real keyboard shortcut chapters use the dedicated key training mode.
-- The user should not have to copy commands manually or relaunch cli-drill to continue.
+### Limites constatées dans l'audit de cette base
 
-## Current phase
+- L'entraînement textuel TUI calcule un bilan en mémoire sans enregistrer la
+  progression JSON. La CLI enregistre sa progression en fin de session.
+- Les choix YAML des QCM ne sont affichés ni par la CLI ni par la TUI.
+- La correction textuelle normalise toutes les réponses en minuscules, y compris
+  les commandes sensibles à la casse.
+- Les raccourcis globaux peuvent intercepter la saisie dans les filtres des listes.
+- La progression est écrite directement ; aucune sauvegarde atomique n'est implémentée.
+- `streak` reste à zéro ; `last_session` est une date, sans curseur de reprise.
+- Le premier chapitre actuel utilise la capture brute ; un premier parcours
+  textuel indépendant de cette capacité reste à définir dans le corpus V2.
+- La protection actuelle du scan ne résout pas les liens symboliques et ses
+  exclusions sont configurables. Le scan sera retiré, pas développé davantage.
 
-MVP foundation implemented and validated.
+Ces limites ne sont pas corrigées par la présente livraison documentaire.
+Le [README public](README.md) conserve la présentation du logiciel disponible.
 
-`cli-drill` is being prepared as a Go CLI/TUI application that turns a
-dotfiles repository into a typed command directory and a chapter-based training
-tool.
+## Vision V2 décidée
 
-## Current decisions
+**CLI-Drill — Learn the terminal by doing.**
 
-- Project name: `cli-drill`.
-- Language: Go.
-- Go module lives at the repository root.
-- Executable entrypoint lives in `cmd/cli-drill/`.
-- Internal Go code lives in `internal/`.
-- Default chapters and embeddable data live in `data/`.
-- Test fixtures live in `testdata/`.
-- Project documentation lives in `docs/`.
-- Agent instructions live in `AGENTS.md`.
-- Current project state lives in `PROJECT_STATE.md`.
-- Human backlog lives in `TODO.md`.
-- `app/` is not used for the MVP.
-- MVP shell support: ZSH only.
-- Future shell support: Bash and Fish.
-- Config format: TOML.
-- Chapter format: YAML.
-- Progress format: JSON.
-- No AI in the MVP.
-- No MCP implementation in the MVP.
-- No telemetry.
-- No network access.
-- No execution of user aliases or shell functions.
-- Static scan by default.
-- Target install command:
-  `go install github.com/benabot/cli-drill/cmd/cli-drill@latest`.
+La [spécification V2](docs/SPEC.md) définit un entraînement local par la pratique :
+corpus écrit et vérifié, saisie de commandes, vraie capture clavier compatible,
+correction utile et progression persistante. Les sessions visent cinq à dix
+minutes, sans configuration initiale ni dépendance à l'environnement personnel.
 
-## Current implementation
+Trois familles : Unix & Shell Fundamentals, Keyboard Shortcuts, Modern CLI &
+macOS. La portabilité, les variantes BSD/macOS et GNU/Linux et les préconditions
+shell/terminal seront explicites. Les outils tiers restent des contenus,
+sans détection ni obligation d'installation.
 
-- Root Go module declared in `go.mod`.
-- Cobra CLI entrypoint lives in `cmd/cli-drill/`.
-- Internal packages exist for app orchestration, catalog, chapters, config,
-  detection, exercises, Markdown parsing, progress, ZSH parsing, TUI and XDG
-  paths.
-- Default editable chapters live in `data/chapters/` and are embedded through
-  `data/defaults.go`.
-- Default chapters now contain about 68 short daily-training exercises across
-  terminal shortcuts, shell navigation, ZSH aliases/functions, daily tools,
-  search, Markdown preview, Micro and dotfiles workflows.
-- Shortcut drills in `01-raccourcis-terminal` use the `key-sequence` exercise
-  type to capture real control keys in raw terminal mode during CLI training.
-- `key-sequence` training uses a lightweight CLI command bar for help, retry,
-  next and clean quit actions; it does not use the Bubble Tea TUI.
-- `key-sequence` keeps an in-memory session review list for missed shortcuts
-  and can relaunch only missed items at the end of the chapter.
-- Unit tests cover ZSH parsing, answer matching, chapter loading, config
-  loading, safe path filtering, catalog deduplication, scanner noise reduction
-  and progress storage.
-- The TUI includes a main menu, chapter picker, training screen, directory
-  browser and stats summary.
-- The Home screen shows a styled ASCII `CLI-drill` banner, the product tagline,
-  concise setup guidance when needed, useful action descriptions and contextual
-  footer hints.
-- TUI footers are centralized by interaction context. Global single-key
-  shortcuts are disabled while typing a free-text answer. List screens hide the
-  built-in Bubbles help so only the centralized footer is visible.
-- Text chapter completion now shows a session-only summary with score and up to
-  three missed answers. Retry is offered only when the session has misses, and
-  the summary also offers chapter detail, Home and quit actions.
-- CLI commands implemented:
-  `init`, `scan`, `generate`, `chapters`, `train`, `directory`, `search`,
-  `show`, `stats`, `reset`.
-- CLI UX P2.1 includes `scan --summary`, `scan --type <type>`,
-  `init --print`, clearer empty-result messages, typed tabular directory/search
-  output and detailed `show` output.
-- The catalog deduplicates entries by `(type, id)` and merges tags/sources.
-- Markdown headings are filtered before becoming concepts to avoid generic
-  exercise noise.
-- Absolute configured scan paths outside `dotfiles_path` are rejected by
-  default.
-- `directory`, `search` and `show` use the scan catalog when a config is
-  provided or present; otherwise they use embedded/default chapters.
-- Without config, `show` can fall back to default scan paths when an entry is
-  not found in embedded chapters.
-- `key-sequence` training now uses a minimal renderer with restrained ANSI
-    styling when supported by the terminal.
-- Styling is centralized, disabled for tests/non-interactive output, and keeps
-    all semantic labels readable without color.
-- The current CLI training renderer supports inline `h help`, clean redraw,
-    stable left-aligned footer hints, correct/incorrect feedback, solution
-    display and session-only review of missed shortcuts.
-- `README.md` documents local install, future GitHub install and the main user
-  commands for TUI, chapters, training, scan, directory, search, show and init.
+Le corpus cible est exclusivement intégré. La migration préservera intégralement
+les anciennes données utilisateur JSON, YAML et TOML, sans réécriture, déplacement
+ou suppression automatiques ; seuls les usages abandonnés seront retirés.
+L'entraînement pourra enrichir la progression sans purger les résultats historiques.
 
-## Validation status
+L'introspection abandonnée concerne dotfiles et outils installés. Les contrôles
+techniques nécessaires à la TUI, aux couleurs et à la capture restent autorisés
+et requis avant d'utiliser ces capacités. Le premier chapitre cible sera textuel ;
+un terminal limité recevra un diagnostic et un accès CLI textuel adapté.
 
-The current implementation was validated with:
+La [décision du 7 novembre 2026](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
+remplace les anciennes orientations dotfiles pour les travaux à venir, tout en
+préservant leur historique.
 
-```bash
-gofmt -w cmd internal data
-go mod tidy
-go test ./...
-go run ./cmd/cli-drill --help
-```
+## Travaux non encore réalisés
 
-## Current repository layout
+Le [backlog V2](TODO.md) décrit les futures branches vers `dev` :
 
-```text
-README.md
-AGENTS.md
-PROJECT_STATE.md
-TODO.md
-go.mod
-go.sum
-cmd/
-internal/
-data/
-docs/
-mcp/
-testdata/
-.codex/
-```
+1. Retirer la surcharge automatique du corpus, les commandes/écrans/options
+   dotfiles puis les packages et la dépendance TOML devenus inutilisés.
+2. Fiabiliser le stockage, l'enregistrement partagé des résultats, les QCM,
+   la correction des commandes et les événements clavier.
+3. Réviser les contenus personnels, fournir un premier chapitre textuel et
+   organiser le corpus en trois familles, sans réutiliser des clés pour un
+   apprentissage différent.
+4. Adapter la navigation en réutilisant les composants existants et vérifier
+   les limites du terminal ; conserver le moteur de capture dédié.
+5. Mettre à jour le README après migration et validation fonctionnelles.
 
-`go.sum` is generated.
+L'[architecture cible](docs/ARCHITECTURE.md) conserve six packages internes.
+Aucun retrait de code, nouvelle navigation ni nouvelle leçon n'est livré ici.
 
-## Next step
+## Validation et limites de preuve
 
-Next active work:
+L'audit préalable, exécuté sur la même base de code, a validé `go test ./...`,
+`go test -count=1 -cover ./...`, `go vet ./...`, l'aide CLI, le contrôle de
+formatage Go et `go mod verify`, avec Go 1.27.3 sur macOS arm64.
+Des essais de TUI en pseudo-terminal ont confirmé les écarts de progression,
+de QCM et de filtre ; ce constat ne valide pas tous les terminaux réels.
 
-1. Improve TUI visual consistency if needed.
-   - Keep footers homogeneous.
-   - Keep colors restrained and accessible.
-   - Avoid introducing a large UI framework change.
-
-Deferred:
-
-- Return to chapter detail after dedicated key training instead of Home.
-- Polish final training summaries after real usage.
-- Prepare public GitHub README, screenshots and GIF.
-- GitHub Releases and Homebrew tap.
+Ces résultats ne sont pas une validation fonctionnelle V2 et ne garantissent
+pas la compatibilité avec Go 1.23. La mission documentaire vérifie son diff,
+les liens internes, la cohérence et le périmètre de fichiers ; elle ne relance
+pas automatiquement les tests Go et n'exécute aucune migration utilisateur.

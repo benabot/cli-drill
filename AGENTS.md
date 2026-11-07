@@ -6,97 +6,102 @@ Consignes communes pour les agents travaillant sur ce dépôt.
 
 Avant toute modification, lire :
 
-- `README.md`
-- `AGENTS.md`
-- `PROJECT_STATE.md`
-- `TODO.md`
-- `docs/SPEC.md`
+- [README.md](README.md) pour le logiciel disponible ;
+- [AGENTS.md](AGENTS.md), [PROJECT_STATE.md](PROJECT_STATE.md) et [TODO.md](TODO.md) ;
+- [docs/SPEC.md](docs/SPEC.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+  et [docs/DECISIONS.md](docs/DECISIONS.md) ;
+- [.codex/skills/cli-drill-spec/SKILL.md](.codex/skills/cli-drill-spec/SKILL.md).
 
-Si présents, lire aussi :
+Lire les instructions plus proches et éventuels fichiers d'override applicables.
+Examiner le code courant avant de décrire un comportement implémenté.
 
-- `docs/ARCHITECTURE.md`
-- `docs/DECISIONS.md`
-- `docs/ROADMAP.md`
-- `.codex/skills/cli-drill-spec/SKILL.md`
+## Direction produit et transition V2
 
-## Règles
+**CLI-Drill — Learn the terminal by doing.** La V2 vise l'entraînement par
+corpus intégré vérifié, saisie de commandes simulées et capture réelle des
+raccourcis compatibles. La [spécification](docs/SPEC.md) définit le périmètre.
 
-- Ne pas lire de secrets.
-- Ne pas scanner `~/.config/secrets`, `~/.ssh`, `~/.gnupg`,
+La V2 est décidée, pas encore implémentée. Distinguer le code existant, les
+choix futurs et les travaux réalisés ; ne pas annoncer un retrait ou une
+validation fonctionnelle sur la seule base d'une modification documentaire.
+Le README décrit la version disponible ; sa refonte attend la migration.
+
+Ne pas ajouter ni réintroduire scan des dotfiles, détection des outils installés,
+parsing utilisateur, génération ou catalogue. Ne pas recréer de configuration
+dotfiles, importer automatiquement d'anciens YAML ou anticiper IA/MCP/multi-shell.
+Les suppressions Go se feront uniquement dans les tâches explicitement autorisées.
+
+L'abandon de l'introspection ne concerne pas les vérifications techniques du
+terminal. Conserver les contrôles nécessaires à la TUI, aux couleurs et à la
+capture, et traiter les capacités indisponibles sans les supposer. Le premier
+entraînement cible est textuel et immédiatement accessible sans configuration.
+Conserver l'identité graphique et réutiliser les composants existants.
+
+<a id="regles-de-securite"></a>
+
+## Règles de sécurité
+
+- Ne pas lire de secrets ni afficher de variables sensibles.
+- Ne pas scanner ou lire `~/.config/secrets`, `~/.ssh`, `~/.gnupg`,
   `~/.config/gh/hosts.yml` ou `~/.config/zed/settings.json`.
-- Ne pas exécuter d'alias ou fonctions shell utilisateur.
+- Ne pas exécuter d'alias, fonctions shell utilisateur ou commandes saisies
+  pour les exercices. Le simulateur compare du texte.
 - Ne pas lancer Docker, Colima, Ollama ou n8n.
-- Ne pas modifier un repo dotfiles utilisateur.
-- Ne pas modifier `.zshrc`.
-- Ne pas commit/push sans validation explicite.
-- Garder le MVP simple.
+- Ne pas modifier un repo dotfiles utilisateur ni `.zshrc`.
+- Préserver intégralement les anciennes données utilisateur JSON, YAML et TOML :
+  aucune purge, conversion, réécriture ou déplacement automatiques par migration.
+  Les entraînements enrichissent la progression sans supprimer ses résultats
+  historiques ; `reset --yes` ne doit jamais être une étape implicite.
+- Ne pas lire ni modifier les vraies données utilisateur pour tester la migration ;
+  utiliser des fixtures synthétiques isolées.
+- Ne pas ajouter réseau applicatif nécessaire, télémétrie, compte, sync, IA ou MCP.
+- Vérifier le terminal avant usage de la TUI ou du mode brut et restaurer son état
+  après capture, interruption ou erreur traitée ; prévoir le mode sans couleur.
+- Garder le MVP simple et local. Ne pas ajouter de dépendance ou abstraction
+  spéculative pour remplacer les fonctionnalités retirées.
 
-## Projet
+## Structure du projet
 
-Le module Go vit à la racine du repo.
+Le module Go est à la racine ; le point d'entrée est `cmd/cli-drill/`.
+Le code interne vit dans `internal/`, les chapitres intégrés et l'embarquement
+dans `data/`, les fixtures dans `testdata/` et la documentation dans `docs/`.
+La cible conserve `app`, `chapter`, `exercise`, `progress`, `tui` et `xdg` ;
+les autres packages actuels ne seront retirés que par les futures PR concernées.
+Ne pas créer de répertoires réservés à des intégrations futures.
 
-Le point d'entrée du binaire vit dans :
+## État, backlog et documentation
 
-```text
-cmd/cli-drill/
-```
-
-Le code interne vit dans :
-
-```text
-internal/
-```
-
-Les chapitres par défaut et données embarquables vivent dans :
-
-```text
-data/
-```
-
-Les fixtures de tests vivent dans :
-
-```text
-testdata/
-```
-
-La documentation vit dans :
-
-```text
-docs/
-```
-
-Le dossier `mcp/` est réservé pour plus tard.
-
-## Project state and TODO
-
-`PROJECT_STATE.md` est versionné et doit décrire l'état courant du projet.
-
-Le mettre à jour quand une décision durable change.
-
-`TODO.md` est versionné et contient le backlog lisible par un humain.
+`PROJECT_STATE.md` décrit l'implémentation et la transition ; `TODO.md` porte
+le backlog actif. La spécification porte le produit, l'architecture les
+frontières techniques et `docs/DECISIONS.md` les décisions datées.
+Préserver les anciennes décisions ; ajouter la décision qui les remplace.
+Éviter les copies concurrentes ; préférer les liens vers les documents de référence.
 
 Ne pas utiliser `docs/llm/scratch/`, `docs/llm/runs/`,
-`docs/llm/transcripts/` ou `docs/llm/context/` comme mémoire durable du
-projet. Ces dossiers sont locaux et ignorés par Git.
+`docs/llm/transcripts/` ou `docs/llm/context/` comme mémoire durable du projet.
+Ces dossiers restent locaux et ignorés par Git. Ne pas publier d'historiques
+d'agents sans autorisation explicite.
 
-Les décisions durables doivent être résumées dans :
+## Politique de changement et Git
 
-- `PROJECT_STATE.md`
-- `TODO.md`
-- `docs/DECISIONS.md`
-- `docs/ARCHITECTURE.md`
+Avant un changement important : résumer l'intention, lister les fichiers,
+expliquer les risques et proposer les validations. Préserver les changements
+existants ; ne pas faire de reset destructif ou de stash automatique.
 
-## Politique de changement
+Pour les futurs changements V2 : partir de `dev` propre et actualisée par
+fast-forward uniquement ; une branche, un objectif cohérent, une PR vers `dev`.
+Utiliser `refactor/<scope>`, `fix/<scope>`, `content/<scope>` ou `docs/<scope>`
+selon la tâche. Ne pas cibler directement `main`.
 
-Avant un changement important :
+Ne pas créer de commit, push, merge ou PR sans validation explicite correspondante.
+La validation d'un plan ne vaut pas autorisation d'intégrer les modifications.
+Une mission documentaire n'autorise pas de refactorisation Go ni de changement
+des chapitres, dépendances ou du README hors du périmètre validé.
 
-1. résumer l'intention ;
-2. lister les fichiers prévus ;
-3. expliquer les risques ;
-4. proposer les tests.
+Après modification, vérifier le résultat et indiquer limites et validations :
 
-Après modification :
-
-1. lancer les tests pertinents ;
-2. résumer les résultats ;
-3. ne pas commit/push sans validation explicite.
+- Documentation seule : cohérence, liens, diff, `git diff --check` et périmètre.
+- Code Go : tests pertinents, `go test ./...`, `go vet ./...`, contrôle du
+  formatage et aide CLI concernée ; ne pas confondre tests et validation terminal réelle.
+- Ne pas lancer un formateur réécrivant les sources ou `go mod tidy` dans une
+  tâche exclusivement documentaire.
