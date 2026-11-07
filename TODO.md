@@ -1,8 +1,9 @@
 # Backlog — CLI-Drill V2
 
-**Mis à jour le 7 novembre 2026.** P0.1 à P0.3 intégrées dans `dev` (`8ec5c00`).
-P1.1 réalisée sur `fix/progress-storage`, en attente de validation
-et d'intégration ; migration fonctionnelle V2 partielle.
+**Mis à jour le 7 novembre 2026.** P0.1 à P0.3 et P1.1 terminées, intégrées
+localement dans `dev`. Le stockage initial (`25c344b`) est complété par les
+corrections acceptées de `fix/progress-storage-hardening` (P1.1b).
+Migration fonctionnelle V2 partielle ; P1.2 n'est pas commencée.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
 la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
@@ -30,9 +31,11 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 
 - [x] Sauvegarder atomiquement la progression ; conserver les champs et résultats
   historiques, refuser l'écrasement silencieux d'un JSON invalide ou non pris en charge
-  (P1.1 réalisée, à valider). Temporaire voisin, Sync, fermeture et renommage ;
+  (P1.1 terminée, corrections P1.1b acceptées). Temporaire voisin, Sync, fermeture et renommage ;
   nouveaux fichiers privés et modes POSIX existants conservés. Un seul écrivain,
   sans garantie contre une coupure électrique ni copie des ACL/attributs étendus.
+  P1.1b traite exclusivement les `null` invalides, l'ouverture des cibles en écriture
+  sans troncature et les tests d'erreurs et d'ordre des opérations `Sync`/`Close`.
 - [ ] Partager la règle d'enregistrement CLI/TUI ; persister chaque réponse
   réellement soumise, sans doublon lors du feedback, d'un retour ou d'une sortie.
 - [ ] Ne pas créer de tentative pour l'aide, une solution affichée, la navigation
@@ -97,8 +100,9 @@ scan runtime ou capture globale macOS n'est entretenue pour le nouveau MVP.
 
 ## Branches atomiques proposées
 
-P0.1 à P0.3 sont intégrées. P1.1 est réalisée sur `fix/progress-storage`,
-à valider avant commit, merge ou push. Les unités suivantes restent planifiées.
+P0.1 à P0.3 et P1.1, corrections de `fix/progress-storage-hardening` comprises,
+sont terminées et intégrées localement dans `dev`. Aucun push n'est effectué.
+Les unités suivantes restent planifiées ; P1.2 n'est pas commencée.
 Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
 Les unités de retrait se suivent dans l'ordre indiqué ; chaque PR doit compiler
@@ -109,7 +113,8 @@ et conserver les commandes d'entraînement encore disponibles.
 | P0 — `refactor/embedded-only` (intégrée) | Corpus intégré seul pour l'entraînement et sa liste ; YAML non chargés et données héritées préservées. | Tests et essais isolés CLI/TUI réussis ; risque de changement du corpus visible caractérisé ; surface TOML retirée par P0.2. |
 | P0 — `refactor/remove-dotfiles-surface` (intégrée) | Retirer commandes, option et écrans dotfiles en conservant l'entraînement et les contrôles terminal. | Aide CLI et navigation ; rupture intentionnelle des anciennes commandes ; après corpus intégré seul. |
 | P0 — `refactor/remove-dotfiles-internals` (intégrée) | Six packages internes ; `chapter` sans catalogue ni génération, anciens chemins supprimés, TOML retiré ; corpus et données utilisateur préservés. | Tests sans cache, vet, aide, imports et dépendances vérifiés ; essais CLI/TUI isolés et restauration terminal réussis ; intégrée dans `dev` à `8ec5c00`. |
-| P1 — `fix/progress-storage` (réalisée, à valider) | Sauvegarde atomique, historique v1 et modes POSIX préservés, erreurs visibles ; aucun changement du comptage ou des appels CLI/TUI. | Tests de corruption, écriture partielle, renommage refusé, nettoyage et permissions ; essais CLI/TUI isolés ; validation humaine avant intégration. |
+| P1 — `fix/progress-storage` (intégrée localement) | Sauvegarde atomique et historique v1 ; aucun changement du comptage ou des appels CLI/TUI. | `25c344b` ; trois problèmes de revue corrigés par P1.1b, P1.1 terminée. |
+| P1.1b — `fix/progress-storage-hardening` (intégrée localement) | Refus des `null` invalides et des cibles interdites en écriture ; injection privée de `Sync`/`Close` par appel. | Revue acceptée ; tests applicatifs, permissions non root, erreurs et ordre de `Sync`/`Close`, nettoyage et cinq mutations vérifiés ; P1.1 terminée, aucun travail P1.2. |
 | P1 — `fix/training-recording` | Même comptage et persistance CLI/TUI, sans tentative fictive ou double compte. | Réouverture, sortie, retries et EOF ; risque de sémantique des tentatives ; après stockage fiable. |
 | P1 — `fix/exercise-correction` | QCM affichés et correction adaptée aux commandes et raccourcis. | Casse, espaces significatifs, variantes et choix ; risque de refus de faux positifs auparavant acceptés ; après P0. |
 | P1 — `fix/terminal-training` | Vérifier les capacités, traiter les erreurs, préserver la capture dédiée et l'accès textuel sans configuration. | Terminal compatible/limité, sans couleur, restauration et retour TUI ; risque d'état terminal ; après enregistrement partagé. |
@@ -122,7 +127,8 @@ Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
 utilisateur emploieront des fixtures synthétiques isolées, jamais les vraies
 configurations. La livraison documentaire précédente n'a pas modifié Go.
 P0.1 valide le chargement intégré, P0.2 la surface utilisateur et P0.3 le retrait
-des internes hérités. P1.1 fiabilise le stockage, sans modifier les entraînements.
+des internes hérités. P1.1, corrections P1.1b comprises, termine la fiabilisation
+du stockage dans son périmètre, sans modifier les entraînements.
 La V2 complète reste à valider ; les autres corrections P1 et la révision pédagogique restent
 à réaliser.
 

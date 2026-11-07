@@ -259,6 +259,79 @@ func TestResetRemainsExplicitlyDestructive(t *testing.T) {
 	}
 }
 
+func TestReplaceFileSyncAndCloseFailures(t *testing.T) {
+	for _, operation := range []string{"sync", "close"} {
+		t.Run(operation, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			path := filepath.Join(dir, "progress.json")
+			original := []byte(`{"version":1,"streak":7}`)
+			writeFixture(t, path, original)
+			injected := errors.New(operation + " failed")
+			var calls []string
+			err := replaceFileWithLifecycle(path, 0o600, func(file *os.File) error {
+				_, err := file.Write([]byte(`{"version":1,"streak":8}`))
+				return err
+			}, func(file *os.File) error {
+				calls = append(calls, "sync")
+				assertFileBytes(t, path, original)
+				if operation == "sync" {
+					return injected
+				}
+				return file.Sync()
+			}, func(file *os.File) error {
+				calls = append(calls, "close")
+				assertFileBytes(t, path, original)
+				// A real Close may report an error after releasing the descriptor.
+				return errors.Join(file.Close(), injected)
+			})
+			if !errors.Is(err, injected) || !strings.Contains(err.Error(), operation+" temporary file") {
+				t.Fatalf("lost %s error: %v", operation, err)
+			}
+			wantCalls := []string{"sync"}
+			if operation == "close" {
+				wantCalls = append(wantCalls, "close")
+			}
+			if !reflect.DeepEqual(calls, wantCalls) {
+				t.Fatalf("operations reached: %v, want %v", calls, wantCalls)
+			}
+			assertFileBytes(t, path, original)
+			assertNoTemporaryFiles(t, dir, "progress.json")
+		})
+	}
+}
+
+func TestReplaceFileSyncsAndClosesBeforeRename(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	path := filepath.Join(dir, "progress.json")
+	original := []byte(`{"version":1,"streak":7}`)
+	replacement := []byte(`{"version":1,"streak":8}`)
+	writeFixture(t, path, original)
+	var calls []string
+	err := replaceFileWithLifecycle(path, 0o600, func(file *os.File) error {
+		_, err := file.Write(replacement)
+		return err
+	}, func(file *os.File) error {
+		calls = append(calls, "sync")
+		assertFileBytes(t, path, original)
+		assertFileBytes(t, file.Name(), replacement)
+		return file.Sync()
+	}, func(file *os.File) error {
+		calls = append(calls, "close")
+		assertFileBytes(t, path, original)
+		return file.Close()
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(calls, []string{"sync", "close"}) {
+		t.Fatalf("operations before rename: %v", calls)
+	}
+	assertFileBytes(t, path, replacement)
+	assertNoTemporaryFiles(t, dir, "progress.json")
+}
+
 func writeFixture(t *testing.T, path string, data []byte) {
 	t.Helper()
 	if err := os.WriteFile(path, data, 0o600); err != nil {

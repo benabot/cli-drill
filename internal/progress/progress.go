@@ -32,6 +32,30 @@ func Default() Progress {
 	}
 }
 
+// These decoding-only types reject nulls that encoding/json otherwise silently
+// turns into zero values. Omitted fields and nullable v1 containers stay valid.
+type nonNullJSON struct{}
+
+func (*nonNullJSON) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		return errors.New("null is not allowed for a scalar progress value")
+	}
+	return nil
+}
+
+type scoreJSON struct {
+	Attempts nonNullJSON `json:"attempts"`
+	Correct  nonNullJSON `json:"correct"`
+}
+
+func (score *scoreJSON) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		return errors.New("chapter score must be an object, got null")
+	}
+	type fields scoreJSON
+	return json.Unmarshal(data, (*fields)(score))
+}
+
 func Load(path string) (Progress, error) {
 	data, err := os.ReadFile(path)
 	if errors.Is(err, os.ErrNotExist) {
@@ -39,6 +63,16 @@ func Load(path string) (Progress, error) {
 	}
 	if err != nil {
 		return Progress{}, fmt.Errorf("load progress %q: %w", path, err)
+	}
+
+	var structure struct {
+		Version            nonNullJSON          `json:"version"`
+		CompletedExercises []nonNullJSON        `json:"completed_exercises"`
+		ChapterScores      map[string]scoreJSON `json:"chapter_scores"`
+		Streak             nonNullJSON          `json:"streak"`
+	}
+	if err := json.Unmarshal(data, &structure); err != nil {
+		return Progress{}, fmt.Errorf("load progress %q: invalid JSON structure: %w", path, err)
 	}
 
 	initial := Default()
@@ -79,6 +113,15 @@ func Save(path string, progress Progress) error {
 		if _, err := Load(path); err != nil {
 			return fmt.Errorf("save progress %q: refusing to overwrite unreadable or invalid progress: %w", path, err)
 		}
+		// Check the existing file's write permission without touching its bytes.
+		// Rename alone only requires write permission on the parent directory.
+		existing, err := os.OpenFile(path, os.O_WRONLY, 0)
+		if err != nil {
+			return fmt.Errorf("save progress %q: open existing file for writing: %w", path, err)
+		}
+		if err := existing.Close(); err != nil {
+			return fmt.Errorf("save progress %q: close existing file: %w", path, err)
+		}
 		mode = info.Mode().Perm()
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("save progress %q: inspect existing file: %w", path, err)
@@ -95,7 +138,12 @@ func Save(path string, progress Progress) error {
 // replaceFile writes to a sibling temporary file, leaving the destination intact
 // until the write, sync and close have all succeeded. Rename is atomic on Unix;
 // it does not coordinate concurrent writers or guarantee power-loss durability.
-func replaceFile(path string, mode os.FileMode, write func(*os.File) error) (result error) {
+func replaceFile(path string, mode os.FileMode, write func(*os.File) error) error {
+	return replaceFileWithLifecycle(path, mode, write, (*os.File).Sync, (*os.File).Close)
+}
+
+// Lifecycle hooks are per call; cleanup always closes the real file itself.
+func replaceFileWithLifecycle(path string, mode os.FileMode, write, syncFile, closeFile func(*os.File) error) (result error) {
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
@@ -121,10 +169,10 @@ func replaceFile(path string, mode os.FileMode, write func(*os.File) error) (res
 	if err := file.Chmod(mode); err != nil {
 		return fmt.Errorf("set temporary file permissions: %w", err)
 	}
-	if err := file.Sync(); err != nil {
+	if err := syncFile(file); err != nil {
 		return fmt.Errorf("sync temporary file: %w", err)
 	}
-	if err := file.Close(); err != nil {
+	if err := closeFile(file); err != nil {
 		return fmt.Errorf("close temporary file: %w", err)
 	}
 	if err := os.Rename(temporaryPath, path); err != nil {

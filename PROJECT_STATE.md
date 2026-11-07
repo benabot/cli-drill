@@ -1,8 +1,9 @@
 # État du projet — CLI-Drill
 
-**Constat du 7 novembre 2026, base `dev` : `8ec5c00` (P0.1, P0.2 et P0.3 intégrées).**
-P1.1 est réalisée sur `fix/progress-storage`, en attente de validation
-et d'intégration. La migration V2 complète reste à réaliser.
+**Constat du 7 novembre 2026 : P0.1 à P0.3 et P1.1 terminées, intégrées localement dans `dev`.**
+P1.1 comprend le stockage initial (`25c344b`) et les corrections de
+`fix/progress-storage-hardening`, acceptées après revue. La migration V2
+complète reste à réaliser ; P1.2 n'est pas commencée.
 
 ## Implémentation actuelle
 
@@ -87,7 +88,7 @@ Le rendu, les parcours actifs, les moteurs, les contrôles techniques du termina
 et le stockage JSON restent inchangés. Aucun fichier utilisateur n'est lu,
 déplacé, converti ou supprimé par cette refactorisation.
 
-### P1.1 — Stockage de progression fiable, à valider
+### P1.1 — Stockage de progression terminé, intégré localement dans `dev`
 
 Sur la base P0.3, `Save` tronquait directement le fichier cible ; `Load`
 acceptait `null` et des versions non prises en charge. Ces défauts sont corrigés.
@@ -108,9 +109,20 @@ un fichier existant illisible, invalide ou non pris en charge, même si l'appela
 lui fournit un état vide. Les identifiants et résultats des exercices retirés
 restent présents après sauvegarde et rechargement.
 
+La revue de `25c344b` a exposé des `null` structurels acceptés silencieusement,
+le remplacement des fichiers en lecture seule et une couverture insuffisante
+de `Sync`/`Close`. P1.1b rejette une version explicitement `null`, les scores
+`null`, leurs compteurs `null`, un `streak` `null` et les acquisitions `null`
+dans une liste. Les champs omis, les scores partiels et les conteneurs v1
+`completed_exercises`/`chapter_scores` à `null` restent admis ; `last_session`
+reste nullable. La validation typée existante continue à refuser les mauvais
+types. Aucun schéma ni état historique valide n'est converti par migration.
+
 Les nouveaux JSON ont le mode `0600` ; les bits POSIX d'un fichier existant sont
-conservés. Les destinations non régulières, notamment les liens symboliques,
-sont refusées explicitement pour éviter de remplacer le lien à la place de sa
+conservés. Avant remplacement, P1.1b ouvre la cible existante en écriture sans
+troncature ni création, puis la referme ; un refus ou une erreur de fermeture
+arrête la sauvegarde. Les destinations non régulières, notamment les liens
+symboliques, sont refusées explicitement pour éviter de remplacer le lien à la place de sa
 cible. Aucun schéma, chemin, score ou déclenchement de sauvegarde CLI/TUI ne
 change. `reset --yes` conserve sa suppression explicitement demandée.
 
@@ -120,6 +132,10 @@ métadonnées spécifiques ne sont pas recopiés. Pas de verrouillage concurrent
 de synchronisation du répertoire ou de garantie contre une coupure électrique.
 Un arrêt brutal empêchant les nettoyages peut laisser un temporaire voisin,
 qui n'est jamais chargé comme progression ni purgé automatiquement.
+
+L'injection de `Sync` et `Close` est privée et passée par appel au helper de
+remplacement, sans état global mutable ni abstraction générale de fichiers.
+Le nettoyage ferme toujours le vrai descripteur, même après une erreur injectée.
 
 ## Limites encore présentes
 
@@ -149,7 +165,7 @@ fonctionnel n'autorise aucune purge, réécriture ou migration automatique.
 Les vérifications techniques du terminal restent requises ; les deux moteurs
 et le fonctionnement local et hors ligne restent centraux.
 
-Après validation de P1.1, les prochaines étapes portent sur les autres travaux
+P1.1 terminée, les prochaines étapes portent sur les autres travaux
 P1, puis le corpus pédagogique et les ajustements de navigation nécessaires.
 `fix/training-recording` n'est pas commencé : ni comptage des réponses, ni
 calcul des scores, ni persistance textuelle TUI ne sont modifiés ici.
@@ -194,7 +210,7 @@ Ces validations ne couvrent ni la V2 complète, ni tous les émulateurs et
 raccourcis. La compatibilité avec le minimum Go 1.23 n'est pas vérifiée ;
 les contrôles de développement utilisent Go 1.27.3 sur macOS arm64.
 
-### P1.1 — Stockage
+### P1.1 — Validations initiales, antérieures à la revue
 
 Tests de référence sur P0.3 puis contrôles après modification :
 `go test -count=1 ./...`, `go vet ./...`, formatage Go et `git diff --check`.
@@ -218,3 +234,37 @@ Le binaire a été essayé avec un HOME et un XDG isolés : aide, `chapters`,
 confirmation. Le lancement et la sortie de la TUI n'écrasent pas un JSON invalide.
 Aucun consommateur, YAML, moteur clavier, règle pédagogique ou dépendance ne
 change. Toutes les données de test sont synthétiques et temporaires.
+
+### P1.1b — Corrections après revue, acceptées et intégrées localement
+
+Les tests ajoutés avant correction ont reproduit l'écrasement des `null`
+invalides et des fichiers `0400`/`0444`. Les tests applicatifs passent par
+`Load`, les commandes `stats`/`train` et le refus direct de `Save`, avec contrôle
+des octets d'origine après chaque action. Cinq fixtures positives couvrent les
+omissions historiques, conteneurs `null`, scores partiels et un JSON v1
+complet enrichi par un entraînement, sans perte des résultats retirés.
+
+Les tests de remplacement atteignent séparément les erreurs injectées de `Sync`
+et de `Close`, vérifient l'intégrité de la destination et le nettoyage, ainsi
+que l'ordre nominal écriture/synchronisation/fermeture avant renommage.
+Des suppressions de temporaires réellement refusées par les permissions
+vérifient aussi la remontée conjointe de l'erreur initiale et du nettoyage.
+Les injections sont exercées en parallèle sur des fichiers isolés.
+
+Contrôles réussis sur macOS arm64, Go 1.27.3, utilisateur non root (UID 501) :
+`go test -count=1 ./...`, `go vet ./...`, formatage et `git diff --check` ;
+`go test -race -count=1 ./internal/progress ./internal/app` réussit également.
+Les tests de permissions ne sont pas sautés. L'aide CLI et le refus de `reset`
+sans confirmation puis `reset --yes` sont vérifiés sur une fixture temporaire.
+
+Cinq mutations par overlays temporaires font échouer les nouveaux tests :
+suppression de la validation structurelle, du contrôle d'écriture, de `Sync`,
+de `Close`, et fermeture déplacée après renommage. Les sources du checkout ne
+sont pas modifiées par ces essais. Aucune donnée utilisateur réelle n'est utilisée.
+Ni Linux, ni Go 1.23, ni une nouvelle session terminal interactive ne sont
+validés par P1.1b ; les limites de durabilité et de concurrence restent celles
+décrites plus haut. La revue des corrections est acceptée et leur intégration
+locale est autorisée. La finalisation de P1.1 comprend une dernière exécution
+des tests complets, de `go vet ./...` et de `git diff --check`, puis un commit
+des corrections et un fast-forward exclusivement vers `dev`. Aucun push ni
+travail P1.2 ne fait partie de cette finalisation.

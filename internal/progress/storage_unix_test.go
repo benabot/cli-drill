@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -61,6 +62,24 @@ func TestSaveRefusesSymlinkWithoutChangingItsTarget(t *testing.T) {
 func TestPermissionErrorsPreserveData(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("root bypasses Unix permission checks")
+	}
+	for _, mode := range []os.FileMode{0o400, 0o444} {
+		t.Run("read only "+mode.String(), func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "progress.json")
+			original := []byte(`{"version":1,"streak":7}`)
+			writeFixture(t, path, original)
+			if err := os.Chmod(path, mode); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := Load(path); err != nil {
+				t.Fatalf("read-only file must remain readable: %v", err)
+			}
+			if err := Save(path, Default()); !errors.Is(err, os.ErrPermission) {
+				t.Errorf("Save must respect write permission: %v", err)
+			}
+			assertFileBytes(t, path, original)
+			assertNoTemporaryFiles(t, filepath.Dir(path), "progress.json")
+		})
 	}
 	t.Run("read", func(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "progress.json")
@@ -138,23 +157,45 @@ func TestCleanupFailureIsReported(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("root bypasses Unix permission checks")
 	}
-	dir := t.TempDir()
-	path := filepath.Join(dir, "progress.json")
-	original := []byte(`{"version":1,"streak":7}`)
-	writeFixture(t, path, original)
-	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
-	interrupted := errors.New("write interrupted")
-	err := replaceFile(path, 0o600, func(file *os.File) error {
-		if _, err := file.Write([]byte("partial")); err != nil {
-			return err
-		}
-		if err := os.Chmod(dir, 0o500); err != nil {
-			return err
-		}
-		return interrupted
-	})
-	if !errors.Is(err, interrupted) || !errors.Is(err, os.ErrPermission) {
-		t.Fatalf("must report both write and cleanup errors: %v", err)
+	for _, operation := range []string{"write", "sync", "close"} {
+		t.Run(operation, func(t *testing.T) {
+			t.Parallel()
+			dir := t.TempDir()
+			path := filepath.Join(dir, "progress.json")
+			original := []byte(`{"version":1,"streak":7}`)
+			writeFixture(t, path, original)
+			t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+			interrupted := errors.New(operation + " interrupted")
+			fail := func() error {
+				if err := os.Chmod(dir, 0o500); err != nil {
+					t.Fatal(err)
+				}
+				return interrupted
+			}
+			err := replaceFileWithLifecycle(path, 0o600, func(file *os.File) error {
+				if _, err := file.Write([]byte("partial")); err != nil {
+					return err
+				}
+				if operation == "write" {
+					return fail()
+				}
+				return nil
+			}, func(file *os.File) error {
+				if operation == "sync" {
+					return fail()
+				}
+				return file.Sync()
+			}, func(file *os.File) error {
+				if err := file.Close(); err != nil {
+					return err
+				}
+				return fail()
+			})
+			if !errors.Is(err, interrupted) || !errors.Is(err, os.ErrPermission) ||
+				!strings.Contains(err.Error(), "remove temporary file") {
+				t.Fatalf("must report both %s and cleanup errors: %v", operation, err)
+			}
+			assertFileBytes(t, path, original)
+		})
 	}
-	assertFileBytes(t, path, original)
 }
