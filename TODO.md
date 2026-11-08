@@ -9,10 +9,12 @@ Son intégration et sa publication sur `dev` sont réalisées à `be2bf2b`.
 P1.3 est terminée, validée et intégrée dans `dev` à `db40d00`.
 P1.4 est terminée et validée après recette réelle dans Terminal.app sous macOS.
 P1 est clôturée et intégrée dans `dev` à `ef9b0a5`. P2.0 est terminée et
-approuvée le 8 novembre 2026 ; aucune fonction P2 n'est implémentée. La validation
-de finalisation autorise le commit documentaire, le fast-forward vers `dev` et
-la publication de `origin/dev`, en conservant `docs/p2-roadmap`. Elle n'autorise
-aucune implémentation P2.1.
+approuvée le 8 novembre 2026, intégrée et publiée à `91f13c6`.
+P2.1 est terminée et validée le 8 novembre 2026 sur `feat/pedagogical-metadata`,
+base `91f13c6`. La finalisation autorise commit, intégration par fast-forward
+dans `dev` et publication de `origin/dev`, en conservant la branche de travail.
+P2.2 est la prochaine étape ; aucun filtre, préférence, mélange ni travail P2.2
+n'est engagé.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
 la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
@@ -115,13 +117,21 @@ README ou fichier de configuration créé/modifié. Après validation documentai
 la finalisation du 8 novembre 2026 autorise commit, fast-forward et publication
 de ce seul cadrage ; aucun développement P2.1 n'est engagé.
 
-### P2.1 — Métadonnées pédagogiques rétrocompatibles
+### P2.1 — Métadonnées pédagogiques rétrocompatibles — terminée et validée
 
 Dépendance : P2.0. Ne pas encore activer les filtres sur le corpus non annoté.
 
-- [ ] Ajouter `difficulty` et `tools` à l'exercice, `family` et `learning_order`
+**Statut du 8 novembre 2026 : terminée et validée par l'utilisateur sur
+`feat/pedagogical-metadata`, base `91f13c6`.**
+Les champs, défauts et contrôles ci-dessous sont implémentés, testés et approuvés.
+P2.2 est la prochaine sous-phase, à engager dans une intervention distincte.
+Tests ciblés et complets sans cache, vet, formatage Go et diff contrôlés ; détails
+et limites dans [PROJECT_STATE.md](PROJECT_STATE.md). Les 10 YAML/68 exercices
+sont inchangés, les clés et mécanismes P1 conservés. Aucun filtre n'est activé.
+
+- [x] Ajouter `difficulty` et `tools` à l'exercice, `family` et `learning_order`
   au chapitre selon SPEC ; conserver les champs historiques et les deux moteurs.
-- [ ] Valider les valeurs, listes de modules et identifiants sans nouveau catalogue.
+- [x] Valider les valeurs, listes de modules et identifiants sans nouveau catalogue.
 
 Acceptation : les fixtures YAML historiques sans difficulté se chargent comme
 Beginner, sans réécriture ni changement d'identifiants ; l'ordre absent reste
@@ -130,7 +140,7 @@ et incohérences de QCM sont diagnostiqués. Les tests couvrent les trois niveau
 les outils multiples, l'ancien format et le corpus intégré inchangé. Aucun import
 automatique des YAML utilisateur, aucune modification du JSON de progression v1.
 
-### P2.2 — Premier corpus V2 jouable et annoté
+### P2.2 — Premier corpus V2 jouable et annoté — prochaine étape
 
 Dépendance : P2.1. Appliquer l'audit validé, sans nouvelle revue exhaustive.
 
@@ -292,7 +302,7 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P1.3 — `fix/exercise-correction` (terminée et validée) | Correction partagée des cinq types, variantes YAML conservées ; aucun changement d'affichage QCM (P1.4). | Tests de casse, espaces, syntaxe, choix, raccourcis et résultats CLI/TUI ; sept mutations détectées ; refus intentionnel de faux positifs ; base `be2bf2b`, stockage P1.1/P1.2 inchangé. |
 | P1.4 — `fix/terminal-training` (terminée et validée) | QCM TUI sélectionnables ; accès direct au seul chapitre clavier via la capture existante. Aucun changement de layout, YAML, correction ou stockage. | Tests complets, vet, formatage et diff réussis ; essais sous pseudo-terminal et huit tests manuels dans Terminal.app réussis. Aucun défaut bloquant ou important ; clôture de P1 validée. |
 | P2.0 — `docs/p2-roadmap` (terminée et validée) | Spécification, décisions et backlog P2, documentation seulement. | Liens, cohérence, périmètre et diff ; après P1 à `ef9b0a5`. |
-| P2.1 — `refactor/pedagogical-metadata` | Métadonnées additives et défauts historiques. | Critères P2.1 ; après P2.0 ; risque de rejet des anciens YAML. |
+| P2.1 — `feat/pedagogical-metadata` (terminée et validée) | Métadonnées additives, défauts historiques et validation approuvés. | Base `91f13c6` ; tests réussis, corpus inchangé ; finalisation par commit, fast-forward et publication autorisée. |
 | P2.2 — `content/v2-foundations` | Premier corpus révisé et annoté selon l'audit validé. | Critères P2.2 ; après P2.1 ; risque de réattribution d'acquis. Le correctif CLI QCM peut être isolé sur `fix/cli-multiple-choice`. |
 | P2.3 — `refactor/learning-preferences` | Modules manuels et préférences séparées. | Critères P2.3 ; après P2.2 ; risque d'écriture implicite ou de filtre incomplet. |
 | P2.4 — `refactor/session-order` | Préparation commune, niveau, mélange, guidage et projection des acquis. | Critères P2.4 ; après P2.3 ; risque de permutation des clés ou de double compte. |

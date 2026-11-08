@@ -1,7 +1,7 @@
 # État du projet — CLI-Drill
 
 **Constat du 8 novembre 2026 : P1 terminée et intégrée dans `dev` à `ef9b0a5` ;
-P2.0 terminée et approuvée, aucune fonction P2 implémentée.**
+P2.0 et P2.1 terminées et validées ; P2.2 est la prochaine étape.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
@@ -12,7 +12,11 @@ Son intégration et sa publication sont réalisées dans `dev` à `db40d00`.
 P1.4 est intégrée et publiée à `ef9b0a5`, après validation humaine et recette
 réelle dans Terminal.app sous macOS. Le cadrage P2.0 décrit ci-dessous est
 approuvé le 8 novembre 2026 pour commit, intégration par fast-forward dans `dev`
-et publication de `origin/dev`. La branche documentaire est conservée.
+et publication de `origin/dev`. Cette finalisation est réalisée à `91f13c6`.
+P2.1 part de cette base sur `feat/pedagogical-metadata`. La validation humaine
+du 8 novembre 2026 autorise son commit, son intégration par fast-forward dans
+`dev` et sa publication sur `origin/dev`, en conservant la branche de travail.
+P2.2 n'est pas commencée.
 
 ## Implémentation actuelle
 
@@ -320,10 +324,11 @@ héritées et des questions sur des applications graphiques hors du périmètre 
 leur révision pédagogique est une étape distincte. Le README public
 n'est pas modifié et attend son alignement après migration fonctionnelle.
 
-À la base `ef9b0a5`, `chapter.Item` n'a pas de difficulté ni de liste de modules ;
-les chapitres n'ont pas de famille ou d'ordre d'apprentissage déclaré. Aucun
-mécanisme de préférences ou de mélange n'est présent : les moteurs parcourent
-les exercices dans l'ordre du corpus. P2.0 ne change aucun de ces comportements.
+Avant P2.1 (base `91f13c6`), `chapter.Item` n'avait pas de difficulté ni de liste
+de modules et les chapitres n'avaient pas de famille ou d'ordre déclaré.
+L'implémentation P2.1 validée ci-dessous expose ces métadonnées sans activer leur
+sélection : aucun filtre, préférence ou mélange n'est présent. Les moteurs
+parcourent toujours les exercices dans l'ordre du corpus.
 
 Défauts connus encore au backlog :
 
@@ -375,11 +380,65 @@ de correction et de stockage P1 sont maintenus.
 
 Le [backlog P2](TODO.md#p2--feuille-de-route-pedagogique) ordonne métadonnées,
 premier corpus révisé, préférences, séances, enrichissement et recette/documentation,
-avec critères d'acceptation par sous-phase. Les fonctions P2.1 à P2.6 restent
-à réaliser lors de missions distinctes. P2.0 ne modifie ni Go, ni YAML, ni
+avec critères d'acceptation par sous-phase. Ce cadrage P2.0 ne réalisait aucune
+des fonctions P2.1 à P2.6 ; P2.1 est depuis validée ci-dessous et P2.2 est la
+prochaine étape. P2.0 ne modifie ni Go, ni YAML, ni
 dépendance, ni README et ne crée aucun fichier de configuration. La validation
 de finalisation autorise uniquement le commit et la publication du cadrage P2.0,
 sans commencer P2.1.
+
+### P2.1 — Métadonnées pédagogiques, terminée et validée
+
+Sur `feat/pedagogical-metadata`, depuis `dev` à `91f13c6`, `chapter.Chapter`
+expose `Family` et `LearningOrder`, et `chapter.Item` expose `Difficulty` et
+`Tools`. Les types chaîne et constantes `Difficulty`, `Family`, `LearningOrder`
+restent dans `internal/chapter`. Aucun nouveau package ni dépendance n'est ajouté.
+Le contrat et ses valeurs restent ceux de la [spécification](docs/SPEC.md#5-formats-dexercices).
+
+Au chargement YAML, une difficulté absente devient `beginner` et un ordre absent
+`guided`, uniquement en mémoire. Une famille absente reste vide, sans inférence ;
+une liste d'outils absente ou vide n'ajoute aucun module requis. Les valeurs
+de difficulté, famille et ordre explicitement vides, nulles, inconnues ou de
+mauvais type sont refusées, de même que les listes d'outils mal typées et les
+identifiants d'outils vides ou dupliqués. Les alias et fusions YAML sont résolus
+avant les contrôles de type, sans assouplissement des valeurs. Les champs hérités
+non reconnus restent ignorés, sans imposer de conversion aux anciens YAML.
+
+`Load`/`LoadFS` et `Validate` diagnostiquent les types d'exercice inconnus,
+identifiants de chapitre/exercice dupliqués et QCM sans choix cohérents avec une
+réponse acceptée. Les erreurs identifient le champ et, selon la couche concernée,
+le chapitre, l'exercice et le fichier. Les 10 YAML intégrés et leurs 68 exercices
+restent inchangés sur disque, avec leurs identifiants et leur ordre historiques.
+Le niveau Beginner chargé par défaut ne constitue pas une réévaluation éditoriale.
+
+Les tests ajoutés couvrent défauts historiques, trois difficultés, trois familles,
+deux ordres, outils multiples, champs hérités, valeurs invalides, alias/fusions,
+doublons, QCM et la conservation de tous les champs historiques des 68 exercices
+intégrés, comparés à un modèle miroir sans les nouveaux hooks de décodage.
+Un test CLI compare un chapitre historique à sa version annotée Advanced avec un module fictif non installé :
+mêmes sorties et règles de correction, mêmes acquis et compteurs v1, historique
+retiré conservé, consultation sans écriture de progression ni configuration créée.
+Les autres tests de correction et d'enregistrement CLI/TUI restent inchangés.
+
+Contrôles exécutés sur macOS arm64, Go 1.27.3 : tests ciblés, puis
+`go test -count=1 ./...`, `go vet ./...`, contrôle du formatage Go et
+`git diff --check`. Les tests de refus des métadonnées invalides ont d'abord
+échoué sur le chargeur antérieur, puis réussi après implémentation.
+Ces résultats n'établissent pas une nouvelle recette terminal physique,
+Linux ou Go 1.23. La validation humaine de P2.1 est accordée le 8 novembre 2026 ;
+la finalisation exécute de nouveau les tests complets, vet, formatage et contrôles
+de diff avant le commit, puis vérifie les tests après fast-forward.
+P2.2 — premier corpus V2 jouable et annoté — est la prochaine étape et n'est
+pas commencée.
+
+Aucun code de `exercise`, `progress`, `tui`, de capture ou de navigation n'est
+modifié. `chapter.Item.MatchAnswer`, `progress.RecordAnswer`, le stockage JSON v1
+et ses protections restent inchangés. Les outils sont des références éditoriales,
+sans détection d'installation, scan ou lecture des dotfiles. Les contextes de
+plateforme/shell restent dans les champs textuels prévus par P2.0. Aucun filtre,
+préférence utilisateur, mélange, nouveau contenu, YAML utilisateur importé ou
+fichier de configuration n'est ajouté ; ces fonctions restent dans les
+sous-phases suivantes.
 
 ## Validation et limites de preuve
 
