@@ -28,6 +28,23 @@ type Item struct {
 	Explanation  string          `json:"explanation,omitempty" yaml:"explanation,omitempty"`
 }
 
+// MatchAnswer selects the correction rule from the existing pedagogical metadata.
+// CLI and TUI must use this entry point so they cannot select different rules.
+func (item Item) MatchAnswer(input string) bool {
+	switch {
+	case item.ExerciseType == exercise.TypeKeySequence:
+		return exercise.MatchKeySequence(input, item.Answer)
+	case item.ExerciseType == exercise.TypeSimpleShellSim:
+		return exercise.MatchShellAnswer(input, item.Answer)
+	case item.Type == "shortcut":
+		return exercise.MatchKeySequence(input, item.Answer)
+	case item.Type == "tool" || item.Type == "concept":
+		return exercise.MatchConceptAnswer(input, item.Answer)
+	default:
+		return exercise.MatchAnswer(input, item.Answer)
+	}
+}
+
 func Load(r io.Reader) (Chapter, error) {
 	var chapter Chapter
 	if err := yaml.NewDecoder(r).Decode(&chapter); err != nil {

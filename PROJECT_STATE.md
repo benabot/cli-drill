@@ -1,12 +1,14 @@
 # État du projet — CLI-Drill
 
-**Constat du 8 novembre 2026 : P0.1 à P0.3 et P1.1 terminées, intégrées dans `dev` ; P1.2 terminée et validée.**
+**Constat du 8 novembre 2026 : P0.1 à P0.3, P1.1 et P1.2 terminées, intégrées dans `dev` ; P1.3 terminée et validée.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
 complémentaires `a60c819`, sur `fix/training-recording`, depuis `dev` à `1f61cb9`.
-La revue et la validation finale autorisent son intégration par fast-forward
-dans `dev` et sa publication ; aucun travail P1.3/P1.4 n'est inclus.
+Son intégration et sa publication sont réalisées dans `dev` à `be2bf2b`.
+P1.3 est terminée et validée sur `fix/exercise-correction` depuis cette base.
+La validation humaine autorise son intégration par fast-forward et sa publication
+sur `dev`. P1.4 est la prochaine étape ; aucun travail P1.4 n’est inclus.
 
 ## Implémentation actuelle
 
@@ -167,8 +169,8 @@ Choix explicité pour les validations vides : Entrée seule, espaces et fins de
 ligne ne soumettent pas de réponse, dans les deux interfaces. Cela évite les
 tentatives fictives sur la question suivante lors d'Entrées répétées. Les octets
 de contrôle historiquement acceptés comme réponses textuelles, dont `Ctrl+L`,
-ne sont pas effacés par ce filtre. La normalisation et les réponses admises
-restent inchangées.
+ne sont pas effacés par ce filtre. P1.2 n'a pas modifié la normalisation
+ni les réponses admises ; la correction est traitée séparément par P1.3.
 
 La sauvegarde a lieu avant le feedback et avant la lecture suivante. Esc et
 Ctrl+C abandonnent la saisie courante ; les réponses déjà sauvegardées restent
@@ -184,6 +186,79 @@ de réessayer après correction de la cause, sans double comptage. Quitter à ce
 stade ne sauvegarde pas la réponse en échec : aucun journal ni rejeu implicite
 n'est ajouté. Une consultation ou un abandon sans réponse ne crée pas de JSON.
 
+### P1.3 — Correction terminée et validée
+
+L'audit sur `be2bf2b` a reproduit des faux positifs dans le comparateur commun :
+`bat readme.md` pour `bat README.md`, `ls -a` pour `ls -A`, motifs de recherche
+ou commandes de casse différente, espaces comprimés dans les guillemets,
+pipes cités/échappés et séparateurs Unicode ou sauts de ligne confondus.
+Les réponses principales, variantes YAML et bonnes/mauvaises options des QCM
+étaient déjà reconnues ; aucun faux négatif du corpus n'a été confirmé.
+
+`chapter.Item.MatchAnswer` sélectionne la règle pure de `exercise` pour les
+deux moteurs CLI et la TUI, à partir des métadonnées existantes :
+
+- `simple-shell-sim` conserve la casse. Seuls les espaces ASCII/tabulations
+  entre mots simples et autour de pipes simples sont normalisés. Les mots
+  de cette tolérance se limitent aux lettres/chiffres ASCII et `_-./:=`.
+  Guillemets, échappements, expansions, redirections, `||` et autres syntaxes
+  sortent de cette tolérance et sont comparés littéralement.
+- `key-sequence` et les réponses textuelles de type `shortcut` conservent les
+  octets de contrôle et les notations `Ctrl+A`, `^A`, `control-a`, `ctrl a`.
+  Les lettres seules restent distinctes de Ctrl et respectent leur casse ;
+  les séparateurs malformés tels que `ctrl++a` ne sont plus admis implicitement.
+- Les noms pédagogiques `tool`/`concept` gardent une tolérance de casse limitée
+  aux noms nus ASCII (lettres, chiffres, tiret, souligné). Les phrases, chemins
+  et commandes ne bénéficient pas de cette tolérance. Une variante de contrôle
+  explicitement admise, comme `Ctrl+R` pour Atuin, conserve ses notations clavier.
+- Les autres réponses, dont les alias, fonctions et workflows textuels,
+  sont littérales. Aucune équivalence supplémentaire n'est inventée ;
+  les variantes déclarées, dont `MarkEdit`, restent acceptées.
+
+Les espaces, tabulations de bord et fins de ligne de saisie restent tolérés,
+sans supprimer un caractère final échappé. Le traitement des octets et notations
+clavier conserve ses règles antérieures, notamment pour `Ctrl+I`.
+Une réponse vide ne peut pas correspondre à une
+variante vide. Les 68 exercices et toutes leurs variantes sont testés sans
+modifier le YAML, les identifiants ou le contenu pédagogique. Des variantes
+sémantiquement équivalentes mais non déclarées peuvent rester refusées,
+notamment les changements de présentation des commandes complexes ou de
+casse des libellés de workflow (`Marked 2` reste une formulation littérale).
+Le cas `marked 2` refusé pour le nom d'application `Marked 2` est reporté
+explicitement à P2 ; aucune réponse YAML n'est ajoutée dans P1.3.
+
+Les tests ciblent casse, espaces significatifs, opérateurs, redirections,
+guillemets, échappements, options, raccourcis et les parcours réels CLI/TUI.
+Ils vérifient les scores et acquis exacts sur une progression v1 synthétique
+avec historique, le rechargement et l'absence de double compte du feedback.
+Sept mutations ciblées ont été détectées avec des overlays temporaires Go.
+Le stockage et `progress.RecordAnswer`, la capture, la navigation, le schéma
+JSON v1 et les dix YAML intégrés ne sont pas modifiés ; aucune dépendance
+ni version supplémentaire n'est introduite.
+
+Après revue, les deux anomalies importantes sont corrigées : les collages
+multilignes sont refusés avant leur conversion en espaces par Bubbles ;
+un diagnostic apparaît dans le champ, la saisie existante est conservée et
+Entrée ne soumet rien tant qu'elle n'est pas corrigée. Les collages du terminal
+et de `Ctrl+V` suivent ce contrôle, avec un message Bubble Tea privé pour le
+presse-papiers. La bibliothèque `atotto/clipboard`, déjà présente, devient
+une dépendance directe sans changement de version ni ajout de bibliothèque.
+Les tabulations de bord non échappées sont acceptées dans les réponses
+textuelles, y compris les variantes shell citées. Les tests ciblés couvrent
+le refus sans écriture du JSON initial, la reprise après édition, les deux
+interfaces et la préservation des tabulations significatives et de `Ctrl+I`.
+
+Validation exécutée : `go test -count=1 ./...`, `go vet ./...`, `-race -count=1`
+sur `app`, `tui`, `progress`, `chapter` et `exercise`, formatage Go et diff.
+Un essai du binaire en CLI puis en TUI sous pseudo-terminal sur le chapitre
+`07-lecture-preview` donne les mêmes six tentatives, cinq succès et acquis
+exacts ; `bat readme.md` est refusé, la sortie TUI normale fonctionne.
+Après corrections de revue, un nouvel essai sous pseudo-terminal confirme
+l'acceptation d'une tabulation de bord, le refus multiligne avec diagnostic
+et JSON inchangé, puis la reprise avec une seule sauvegarde et la sortie normale.
+Ces essais utilisent exclusivement des progressions temporaires synthétiques ;
+ils ne constituent pas une validation de tous les terminaux physiques.
+
 ## Limites encore présentes
 
 Les contenus YAML conservent des alias, fonctions et formulations personnelles
@@ -193,7 +268,7 @@ n'est pas modifié et attend son alignement après migration fonctionnelle.
 Défauts connus encore au backlog :
 
 - Choix des QCM non affichés dans les entraînements.
-- Normalisation trop permissive de la casse et de certains espaces de commandes.
+
 - Parcours Start training/Keyboard shortcuts redondants et footer compact tronqué
   au redimensionnement ; panneau d'aide complet inchangé, travaux P1.4 différés.
 - `streak` non mis à jour, `last_session` sans curseur de reprise.
@@ -213,8 +288,9 @@ fonctionnel n'autorise aucune purge, réécriture ou migration automatique.
 Les vérifications techniques du terminal restent requises ; les deux moteurs
 et le fonctionnement local et hors ligne restent centraux.
 
-P1.2 est validée. P1.3/P1.4, la correction des réponses,
-les choix QCM, les parcours redondants et le footer restent hors de cette branche.
+P1.2 est intégrée. P1.3 est terminée et validée pour intégration.
+P1.4 (affichage des QCM, parcours redondants et footer) est la prochaine étape,
+sans implémentation dans cette branche.
 Les travaux suivants porteront sur ces défauts, puis sur le corpus pédagogique.
 Voir le [backlog](TODO.md).
 

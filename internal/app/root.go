@@ -230,7 +230,7 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 			}
 			continue
 		}
-		correct := exercise.MatchAnswer(input, item.Answer)
+		correct := item.MatchAnswer(input)
 		if _, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct); err != nil {
 			return err
 		}
@@ -305,7 +305,7 @@ func runKeySequenceExercise(opts Options, reader *bufio.Reader, selected chapter
 			continue
 		}
 
-		correct := exercise.MatchAnswer(input, item.Answer)
+		correct := item.MatchAnswer(input)
 		if _, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct); err != nil {
 			return keySequenceResult{Action: keySequenceQuit}, err
 		}

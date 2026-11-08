@@ -1,9 +1,11 @@
 package tui
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/atotto/clipboard"
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/exercise"
 	"github.com/benabot/cli-drill/internal/progress"
@@ -72,6 +74,17 @@ type Options struct {
 
 type Result struct {
 	RunCLITrainChapterID string
+}
+
+// Keep the clipboard's raw text until it passes the same checks as terminal paste.
+type trainingPasteMsg struct {
+	text string
+	err  error
+}
+
+func pasteTrainingAnswer() tea.Msg {
+	text, err := clipboard.ReadAll()
+	return trainingPasteMsg{text: text, err: err}
 }
 
 type listItem struct {
@@ -214,6 +227,15 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case trainingPasteMsg:
+		if m.screen != screenTraining || m.feedback != "" {
+			return m, nil
+		}
+		if msg.err != nil {
+			m.input.Err = msg.err
+			return m, nil
+		}
+		return m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(msg.text), Paste: true})
 	case tea.KeyMsg:
 		if m.screen == screenChapters && msg.String() != "ctrl+c" {
 			if m.chapterList.FilterState() == list.Filtering {
@@ -242,6 +264,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		if m.screen == screenTraining {
+			if m.feedback == "" && msg.Type == tea.KeyRunes && strings.ContainsAny(string(msg.Runes), "\r\n") {
+				m.input.Err = errors.New("Paste rejected: enter the answer on a single line.")
+				return m, nil
+			}
 			switch msg.String() {
 			case "ctrl+c":
 				return m, tea.Quit
@@ -250,6 +276,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			case "enter":
 				return m.handleEnter()
+			case "ctrl+v":
+				if m.feedback == "" {
+					return m, pasteTrainingAnswer
+				}
 			}
 			if m.feedback == "" {
 				var cmd tea.Cmd
@@ -465,10 +495,10 @@ func (m model) answerOrAdvance() model {
 	}
 
 	answered := m.input.Value()
-	if strings.Trim(answered, " \r\n") == "" {
+	if m.input.Err != nil || strings.Trim(answered, " \r\n") == "" {
 		return m
 	}
-	correct := exercise.MatchAnswer(answered, current.Answer)
+	correct := current.MatchAnswer(answered)
 	recorded, err := progress.RecordAnswer(m.progressPath, m.chapters[m.chapterIndex].ID, current.ID, correct)
 	if err != nil {
 		m.progressError = "Progress could not be saved: " + err.Error()
@@ -592,6 +622,10 @@ func (m model) trainingView() string {
 	}
 	selected := m.chapters[m.chapterIndex]
 	title := styles.ScreenTitle.Render(selected.Title)
+	inputView := m.input.View()
+	if m.input.Err != nil {
+		inputView += "\n" + styles.Warning.Render(m.input.Err.Error())
+	}
 	return fmt.Sprintf(
 		"%s\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s",
 		title,
@@ -600,7 +634,7 @@ func (m model) trainingView() string {
 		styles.Muted.Render("Question:"),
 		current.Prompt,
 		styles.Muted.Render("Reponse:"),
-		m.input.View(),
+		inputView,
 		feedbackText(m.feedback, styles),
 	)
 }

@@ -5,7 +5,9 @@ localement dans `dev`. Le stockage initial (`25c344b`) est complété par les
 corrections acceptées de `fix/progress-storage-hardening` (P1.1b).
 Migration fonctionnelle V2 partielle. P1.2 est terminée et validée : implémentation
 `e7b4170` et complément de tests `a60c819`, depuis `dev` à `1f61cb9`.
-Son intégration par fast-forward et sa publication sur `dev` sont autorisées.
+Son intégration et sa publication sur `dev` sont réalisées à `be2bf2b`.
+P1.3 est terminée et validée sur `fix/exercise-correction` ; son intégration
+par fast-forward et sa publication sur `dev` sont autorisées. P1.4 est la prochaine étape.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
 la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
@@ -45,11 +47,21 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 - [x] Ne pas créer de tentative pour l'aide, une solution affichée, la navigation
   ou un EOF vide ; tester retries, EOF après réponse et interruption
   (P1.2 terminée et validée). Validations sans texte ignorées ; compteurs v1 inchangés.
-- [ ] Afficher les choix des QCM dans les deux interfaces et valider leur cohérence.
+- [ ] P1.4 : afficher les choix des QCM dans les deux interfaces ; leur correction
+  est testée indépendamment de l'affichage en P1.3.
 - [ ] P1.4 : revoir les parcours redondants Start training/Keyboard shortcuts et
   la troncature du footer compact au redimensionnement ; conserver l'aide complète.
-- [ ] Corriger les commandes sans effacer casse, options ou espaces significatifs ;
-  garder les variantes explicites et la normalisation des raccourcis.
+- [x] Corriger les commandes sans effacer casse, options ou espaces significatifs ;
+  garder les variantes explicites et la normalisation des raccourcis
+  (P1.3 terminée et validée). Routage commun par `chapter.Item.MatchAnswer` ;
+  espaces normalisés uniquement pour mots/pipes simples, autres commandes
+  littérales, noms pédagogiques nus tolérants à la casse et raccourcis dédiés.
+  Corpus et progression inchangés ; variantes, QCM, faux positifs, parcours
+  CLI/TUI et sept mutations testés. Les équivalences complexes non déclarées
+  et changements de casse des libellés de workflow ne sont pas déduits.
+  Après revue : collage multiligne refusé avant Bubbles (terminal et `Ctrl+V`),
+  sans tentative ni écriture ; reprise après édition et tabulations de bord
+  testées dans les deux interfaces, raccourcis inchangés.
 - [x] Donner priorité à la saisie des réponses et des filtres avant les raccourcis globaux (navigation P0.2).
 - [ ] Vérifier capacités, capture, restauration du terminal et retour TUI, y compris
   en cas d'erreur ; ne jamais créditer une touche non réellement capturée.
@@ -67,6 +79,9 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 - [ ] Réviser chaque exercice conservé : consigne discriminante, correction,
   explication, contexte portable/BSD/macOS/GNU/Linux/tiers vérifié et absence
   de dépendance à une installation personnelle.
+- [ ] Décider la tolérance de casse du nom d'application `Marked 2` : la saisie
+  `marked 2` reste refusée par P1.3. Traiter ce point mineur en P2, sans rendre
+  tous les workflows insensibles à la casse.
 - [ ] Réviser la première leçon textuelle pour le corpus V2 ; garder saisie de commandes
   et vraie capture comme activités centrales, avec QCM complémentaires.
 - [x] Adapter le menu cible en réutilisant navigateur, fiche et statistiques (P0.2) ;
@@ -109,8 +124,10 @@ scan runtime ou capture globale macOS n'est entretenue pour le nouveau MVP.
 
 P0.1 à P0.3 et P1.1, corrections de `fix/progress-storage-hardening` comprises,
 sont terminées et intégrées dans `dev`. P1.2 est terminée et validée sur
-`fix/training-recording`, avec `e7b4170` et `a60c819` ; intégration par fast-forward
-et publication sur `dev` autorisées. Les autres unités restent planifiées.
+`fix/training-recording`, avec `e7b4170` et `a60c819` ; intégration et publication
+sur `dev` réalisées à `be2bf2b`. P1.3 est terminée et validée sur
+`fix/exercise-correction` ; intégration et publication autorisées. P1.4 est
+la prochaine étape ; les autres unités restent planifiées.
 Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
 Les unités de retrait se suivent dans l'ordre indiqué ; chaque PR doit compiler
@@ -124,7 +141,7 @@ et conserver les commandes d'entraînement encore disponibles.
 | P1 — `fix/progress-storage` (intégrée localement) | Sauvegarde atomique et historique v1 ; aucun changement du comptage ou des appels CLI/TUI. | `25c344b` ; trois problèmes de revue corrigés par P1.1b, P1.1 terminée. |
 | P1.1b — `fix/progress-storage-hardening` (intégrée localement) | Refus des `null` invalides et des cibles interdites en écriture ; injection privée de `Sync`/`Close` par appel. | Revue acceptée ; tests applicatifs, permissions non root, erreurs et ordre de `Sync`/`Close`, nettoyage et cinq mutations vérifiés ; P1.1 terminée, aucun travail P1.2. |
 | P1.2 — `fix/training-recording` (terminée et validée) | Enregistrement commun par réponse via les API P1.1 ; CLI texte/clavier et TUI texte persistés ; pas de tentative vide ni de double compte sur feedback. | Revue acceptée ; identifiants exacts, vrais messages de sortie et échec suivi d'interruption vérifiés ; tests complets, vet et race réussis ; aucun travail P1.3/P1.4. |
-| P1 — `fix/exercise-correction` | QCM affichés et correction adaptée aux commandes et raccourcis. | Casse, espaces significatifs, variantes et choix ; risque de refus de faux positifs auparavant acceptés ; après P0. |
+| P1.3 — `fix/exercise-correction` (terminée et validée) | Correction partagée des cinq types, variantes YAML conservées ; aucun changement d'affichage QCM (P1.4). | Tests de casse, espaces, syntaxe, choix, raccourcis et résultats CLI/TUI ; sept mutations détectées ; refus intentionnel de faux positifs ; base `be2bf2b`, stockage P1.1/P1.2 inchangé. |
 | P1 — `fix/terminal-training` | Vérifier les capacités, traiter les erreurs, préserver la capture dédiée et l'accès textuel sans configuration. | Terminal compatible/limité, sans couleur, restauration et retour TUI ; risque d'état terminal ; après enregistrement partagé. |
 | P2 — `content/v2-foundations` | Réviser le corpus et ses trois familles ; fournir le premier chapitre textuel et préserver les identifiants pertinents. | Validation YAML, références officielles et essais pédagogiques ; risque de réattribution d'acquis ; après P1. |
 | P2 — `refactor/v2-navigation` (à réévaluer après corpus) | Le menu et la vue clavier sont livrés par P0.2 ; limiter les futurs ajustements aux besoins démontrés du corpus révisé. | Navigation par familles si le corpus le requiert ; ne pas refaire l'accueil ni changer l'identité graphique. |
