@@ -177,8 +177,7 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 		return fmt.Errorf("chapter %s has no exercises", selected.ID)
 	}
 
-	state, err := progress.Load(progressPath(opts))
-	if err != nil {
+	if _, err := progress.Load(progressPath(opts)); err != nil {
 		return err
 	}
 	reader := bufio.NewReader(opts.In)
@@ -189,7 +188,7 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 	for i := 0; i < len(selected.Items); {
 		item := selected.Items[i]
 		if item.ExerciseType == exercise.TypeKeySequence {
-			result, err := runKeySequenceExercise(opts, reader, &state, selected, item, i, len(selected.Items))
+			result, err := runKeySequenceExercise(opts, reader, selected, item, i, len(selected.Items))
 			if err != nil && !errors.Is(err, io.EOF) {
 				return err
 			}
@@ -225,7 +224,16 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 			_, _ = fmt.Fprintln(opts.Out, "Session interrompue.")
 			break
 		}
+		if strings.Trim(input, " \r\n") == "" {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			continue
+		}
 		correct := exercise.MatchAnswer(input, item.Answer)
+		if _, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct); err != nil {
+			return err
+		}
 		if correct {
 			_, _ = fmt.Fprintln(opts.Out, "Correct.")
 		} else {
@@ -234,18 +242,17 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 		if item.Explanation != "" {
 			_, _ = fmt.Fprintln(opts.Out, item.Explanation)
 		}
-		state.MarkCompleted(selected.ID, item.ID, correct)
 		if errors.Is(err, io.EOF) {
 			break
 		}
 		i++
 	}
 	if keyStats.Total > 0 && !keyQuit {
-		if err := runKeySequenceReview(opts, reader, &state, selected, keyStats); err != nil && !errors.Is(err, io.EOF) {
+		if err := runKeySequenceReview(opts, reader, selected, keyStats); err != nil && !errors.Is(err, io.EOF) {
 			return err
 		}
 	}
-	return progress.Save(progressPath(opts), state)
+	return nil
 }
 
 type keySequenceStats struct {
@@ -271,7 +278,7 @@ type keySequenceResult struct {
 	Correct bool
 }
 
-func runKeySequenceExercise(opts Options, reader *bufio.Reader, state *progress.Progress, selected chapter.Chapter, item chapter.Item, index, total int) (keySequenceResult, error) {
+func runKeySequenceExercise(opts Options, reader *bufio.Reader, selected chapter.Chapter, item chapter.Item, index, total int) (keySequenceResult, error) {
 	showHelp := false
 	for {
 		writeKeySequenceScreen(opts, renderKeySequenceQuestion(keySequenceQuestionView{
@@ -284,7 +291,7 @@ func runKeySequenceExercise(opts Options, reader *bufio.Reader, state *progress.
 		}))
 		input, aborted, err := readTrainingInput(opts, reader, item.ExerciseType)
 		if err != nil {
-			return keySequenceResult{Action: keySequenceNext}, err
+			return keySequenceResult{Action: keySequenceQuit}, err
 		}
 		if aborted {
 			_, _ = fmt.Fprintln(opts.Out, "Session interrompue.")
@@ -299,7 +306,9 @@ func runKeySequenceExercise(opts Options, reader *bufio.Reader, state *progress.
 		}
 
 		correct := exercise.MatchAnswer(input, item.Answer)
-		state.MarkCompleted(selected.ID, item.ID, correct)
+		if _, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct); err != nil {
+			return keySequenceResult{Action: keySequenceQuit}, err
+		}
 		explanation := ""
 		if correct {
 			explanation = item.Explanation
@@ -476,7 +485,7 @@ func renderKeySequenceSolution(view keySequenceSolutionView) string {
 	return builder.String()
 }
 
-func runKeySequenceReview(opts Options, reader *bufio.Reader, state *progress.Progress, selected chapter.Chapter, stats keySequenceStats) error {
+func runKeySequenceReview(opts Options, reader *bufio.Reader, selected chapter.Chapter, stats keySequenceStats) error {
 	missed := stats.Missed
 	for {
 		renderKeySequenceSummary(opts.Out, stats.Correct, stats.Total, len(missed), keySequenceStyleFor(opts))
@@ -494,7 +503,7 @@ func runKeySequenceReview(opts Options, reader *bufio.Reader, state *progress.Pr
 		reviewStats := keySequenceStats{}
 		for i := 0; i < len(missed); {
 			review := missed[i]
-			result, err := runKeySequenceExercise(opts, reader, state, selected, review.Item, i, len(missed))
+			result, err := runKeySequenceExercise(opts, reader, selected, review.Item, i, len(missed))
 			if err != nil {
 				return err
 			}
@@ -557,7 +566,7 @@ func readKeySequenceReviewAction(opts Options, reader *bufio.Reader) (keySequenc
 func readTrainingInput(opts Options, reader *bufio.Reader, exerciseType exercise.Type) (string, bool, error) {
 	if exerciseType != exercise.TypeKeySequence {
 		input, err := reader.ReadString('\n')
-		return input, false, err
+		return input, strings.ContainsAny(input, "\x1b\x03"), err
 	}
 
 	input, err := readKeySequence(opts, reader)

@@ -21,10 +21,13 @@ Examiner le code courant avant de décrire un comportement implémenté.
 corpus intégré vérifié, saisie de commandes simulées et capture réelle des
 raccourcis compatibles. La [spécification](docs/SPEC.md) définit le périmètre.
 
-La V2 est décidée, pas encore implémentée. Distinguer le code existant, les
-choix futurs et les travaux réalisés ; ne pas annoncer un retrait ou une
-validation fonctionnelle sur la seule base d'une modification documentaire.
-Le README décrit la version disponible ; sa refonte attend la migration.
+La migration V2 est partiellement réalisée. Consulter [PROJECT_STATE.md](PROJECT_STATE.md)
+pour les travaux intégrés et ceux qui attendent une validation humaine ; la
+présente clarification documentaire ne change aucun de ces statuts. Distinguer
+code existant, choix futurs et preuves réellement obtenues. Le README conserve
+la présentation du MVP antérieur, signalée comme historique ; ses exemples de
+scan/génération ne décrivent plus le checkout courant. Sa refonte complète reste
+distincte de cette clarification.
 
 Ne pas ajouter ni réintroduire scan des dotfiles, détection des outils installés,
 parsing utilisateur, génération ou catalogue. Ne pas recréer de configuration
@@ -65,8 +68,9 @@ Conserver l'identité graphique et réutiliser les composants existants.
 Le module Go est à la racine ; le point d'entrée est `cmd/cli-drill/`.
 Le code interne vit dans `internal/`, les chapitres intégrés et l'embarquement
 dans `data/`, les fixtures dans `testdata/` et la documentation dans `docs/`.
-La cible conserve `app`, `chapter`, `exercise`, `progress`, `tui` et `xdg` ;
-les autres packages actuels ne seront retirés que par les futures PR concernées.
+Le périmètre conserve `app`, `chapter`, `exercise`, `progress`, `tui` et `xdg`.
+L'état des retraits et du stockage est décrit dans `PROJECT_STATE.md` ; ne pas
+planifier à nouveau un retrait déjà réalisé ni déclarer toute la V2 terminée.
 Ne pas créer de répertoires réservés à des intégrations futures.
 
 ## État, backlog et documentation

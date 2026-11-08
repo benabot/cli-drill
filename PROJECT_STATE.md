@@ -3,7 +3,8 @@
 **Constat du 7 novembre 2026 : P0.1 à P0.3 et P1.1 terminées, intégrées localement dans `dev`.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
-complète reste à réaliser ; P1.2 n'est pas commencée.
+complète reste à réaliser. P1.2 est réalisée sur `fix/training-recording`,
+depuis `dev` à `1f61cb9`, en attente de validation humaine et d'intégration.
 
 ## Implémentation actuelle
 
@@ -21,8 +22,8 @@ L'interface présente CLI-Drill comme un outil d'entraînement local au terminal
 - Bannière ASCII, palette, composants de liste et de saisie et pieds de page conservés.
 - Deux moteurs d'entraînement conservés : texte dans la CLI/TUI et capture réelle
   dédiée. La TUI revient automatiquement à l'accueil après le mode de capture.
-- Progression JSON version 1, chemin et déclenchements de sauvegarde inchangés ;
-  écriture atomique et erreurs de stockage renforcées par P1.1.
+- Progression JSON version 1 et chemin inchangés ; stockage atomique P1.1
+  réutilisé par P1.2 pour sauvegarder chaque réponse soumise.
 
 ### P0.1 — Corpus intégré exclusif, intégrée dans `dev`
 
@@ -137,6 +138,50 @@ L'injection de `Sync` et `Close` est privée et passée par appel au helper de
 remplacement, sans état global mutable ni abstraction générale de fichiers.
 Le nettoyage ferme toujours le vrai descripteur, même après une erreur injectée.
 
+### P1.2 — Enregistrement des entraînements, réalisé à valider
+
+L'audit sur `1f61cb9` a reproduit trois défauts : `tui.answerOrAdvance`
+évaluait les réponses et le bilan sans mettre à jour la progression ;
+`app.runTraining` sauvegardait seulement à la fin et perdait les réponses déjà
+validées en cas d'erreur de lecture ; un EOF textuel vide créait une tentative
+incorrecte. Les parcours clavier de Browse chapters et Keyboard shortcuts
+délèguent au moteur CLI et héritaient de sa sauvegarde tardive.
+
+`progress.RecordAnswer` partage uniquement l'enregistrement : charger l'état
+v1 courant, appeler `MarkCompleted`, puis `Save`. Cette fonction concrète est
+commune aux moteurs texte et clavier CLI et au texte Bubble Tea. Elle ne renvoie
+un état utilisable qu'après sauvegarde réussie. Le stockage P1.1, ses protections,
+ses chemins et son contrat à un seul écrivain sont conservés.
+
+Règles conservées : une soumission correcte ou incorrecte ajoute une tentative,
+une réponse correcte ajoute un succès et l'acquis `chapter-id/item-id` reste
+unique. Les retries et nouvelles séances ajoutent des tentatives légitimes ;
+les scores et identifiants retirés restent stockés. Le bilan de séance en mémoire
+reste distinct des compteurs cumulés. Aide, solution, feedback et navigation ne
+sont pas enregistrés. Un texte non vide suivi d'EOF est soumis une fois ; un
+EOF vide abandonne sans écriture.
+
+Choix explicité pour les validations vides : Entrée seule, espaces et fins de
+ligne ne soumettent pas de réponse, dans les deux interfaces. Cela évite les
+tentatives fictives sur la question suivante lors d'Entrées répétées. Les octets
+de contrôle historiquement acceptés comme réponses textuelles, dont `Ctrl+L`,
+ne sont pas effacés par ce filtre. La normalisation et les réponses admises
+restent inchangées.
+
+La sauvegarde a lieu avant le feedback et avant la lecture suivante. Esc et
+Ctrl+C abandonnent la saisie courante ; les réponses déjà sauvegardées restent
+disponibles après retour au chapitre, menu, sortie et redémarrage. La CLI
+textuelle conserve sa lecture par ligne : Esc peut nécessiter Entrée avant
+d'être traité ; Ctrl+C natif peut interrompre le processus. Aucun passage
+supplémentaire en mode brut ni gestionnaire de signal n'est ajouté.
+
+La CLI remonte toute erreur de lecture ou sauvegarde. La TUI affiche le
+diagnostic dans les vues existantes ; en cas d'échec, elle garde la réponse
+éditable et n'avance ni le bilan ni la progression affichée. Entrée permet
+de réessayer après correction de la cause, sans double comptage. Quitter à ce
+stade ne sauvegarde pas la réponse en échec : aucun journal ni rejeu implicite
+n'est ajouté. Une consultation ou un abandon sans réponse ne crée pas de JSON.
+
 ## Limites encore présentes
 
 Les contenus YAML conservent des alias, fonctions et formulations personnelles
@@ -145,9 +190,10 @@ n'est pas modifié et attend son alignement après migration fonctionnelle.
 
 Défauts connus encore au backlog :
 
-- Bilan textuel TUI en mémoire sans persistance des réponses.
 - Choix des QCM non affichés dans les entraînements.
 - Normalisation trop permissive de la casse et de certains espaces de commandes.
+- Parcours Start training/Keyboard shortcuts redondants et footer compact tronqué
+  au redimensionnement ; panneau d'aide complet inchangé, travaux P1.4 différés.
 - `streak` non mis à jour, `last_session` sans curseur de reprise.
 - Contrôles et diagnostics supplémentaires des terminaux indisponibles à traiter
   en P1 ; la capture n'est pas promise pour toutes les combinaisons macOS.
@@ -165,10 +211,9 @@ fonctionnel n'autorise aucune purge, réécriture ou migration automatique.
 Les vérifications techniques du terminal restent requises ; les deux moteurs
 et le fonctionnement local et hors ligne restent centraux.
 
-P1.1 terminée, les prochaines étapes portent sur les autres travaux
-P1, puis le corpus pédagogique et les ajustements de navigation nécessaires.
-`fix/training-recording` n'est pas commencé : ni comptage des réponses, ni
-calcul des scores, ni persistance textuelle TUI ne sont modifiés ici.
+P1.2 attend sa validation avant intégration. P1.3/P1.4, la correction des réponses,
+les choix QCM, les parcours redondants et le footer restent hors de cette branche.
+Les travaux suivants porteront sur ces défauts, puis sur le corpus pédagogique.
 Voir le [backlog](TODO.md).
 
 ## Validation et limites de preuve
@@ -268,3 +313,58 @@ locale est autorisée. La finalisation de P1.1 comprend une dernière exécution
 des tests complets, de `go vet ./...` et de `git diff --check`, puis un commit
 des corrections et un fast-forward exclusivement vers `dev`. Aucun push ni
 travail P1.2 ne fait partie de cette finalisation.
+
+### P1.2 — Validation de l'enregistrement, à valider humainement
+
+Avant modification : arbre propre, deux commits P1.1 présents, fetch de `origin/dev`
+et égalité avec `dev` à `1f61cb9`, tests complets sans cache et vet réussis.
+L'index QMD ne renvoyait pas les règles de tentative ; les documents originaux
+du checkout ont servi de référence. Les défauts ont été reproduits avant correction.
+
+Les nouveaux tests couvrent les quatre types textuels par un même parcours et
+le moteur clavier séparément : réponses correctes/incorrectes, enregistrement
+avant la lecture suivante, sessions complètes/partielles, EOF vide et non vide,
+Esc/Ctrl+C, aides et solutions, retries et révision, feedback et Entrées répétées,
+nouvelles séances et rechargement. Ils passent par les commandes Cobra ou les
+événements Bubble Tea, avec lecture du JSON réel après soumission. Les résultats
+historiques retirés, les cinq champs v1, `stats` et `reset --yes` sont contrôlés.
+Les erreurs de stockage sont exercées sur des liens synthétiques refusés par
+P1.1, et la TUI est testée après correction de la cause et nouvelle validation.
+
+Les tests échouent avec les sources de `1f61cb9` en overlay temporaire. Deux
+mutations supplémentaires sont détectées : suppression de la sauvegarde commune
+et suppression de la garde de feedback TUI. Aucun fichier utilisateur réel
+n'est utilisé, et aucun code d'exercice n'est exécuté.
+
+Contrôles finaux réussis sur macOS arm64 avec Go 1.27.3 : formatage des seuls
+fichiers Go modifiés, `go test -count=1 ./...`, `go vet ./...`, `git diff --check`
+et `go test -race -count=1 ./internal/app ./internal/tui ./internal/progress`.
+
+Le binaire est aussi essayé dans un pseudo-terminal macOS isolé : Start training,
+Browse chapters textuel, Browse chapters clavier, Keyboard shortcuts et retour
+à l'accueil, erreur de sauvegarde TUI visible, interruption CLI par SIGINT et
+abandon CLI par Esc suivi d'Entrée. Les sept scénarios vérifient le JSON et la
+sortie du processus. Cela ne valide pas un émulateur macOS particulier, les
+raccourcis interceptés par le système ni tous les états du terminal.
+
+Les garanties contre coupure électrique, les écritures concurrentes et les
+arrêts avant déclenchement de la sauvegarde restent exclues. Aucun curseur de
+reprise ni stockage des réponses en échec n'est ajouté. Linux et Go 1.23 ne sont
+pas validés par ces essais ; P1.3/P1.4 restent hors périmètre.
+
+Pour une vérification complémentaire dans un terminal natif, depuis la racine
+du dépôt (procédure fournie, non exécutée dans un émulateur natif) :
+
+```sh
+recording_dir="$(mktemp -d)"
+go run ./cmd/cli-drill --progress "$recording_dir/progress.json"
+go run ./cmd/cli-drill --progress "$recording_dir/progress.json" stats
+```
+
+Dans la TUI : Start training, saisir `zoxide`, Entrée, Esc, `g`, puis `q`.
+Les statistiques doivent annoncer un exercice acquis et un chapitre pratiqué.
+Relancer avec le même `--progress`, vérifier My progress, puis pratiquer le même
+chapitre via Browse chapters : une nouvelle réponse ajoute une tentative,
+sans dupliquer l'acquis. Keyboard shortcuts, `Ctrl+A`, puis Esc doit enregistrer
+la réponse avant le retour à l'accueil. Tous ces essais restent dans le dossier
+temporaire explicite.

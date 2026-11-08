@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -227,6 +228,7 @@ func TestTrainingTextInputFooterIsContextual(t *testing.T) {
 	assertNotContains(t, m.View(), "h help")
 	assertNotContains(t, m.View(), "q quit")
 
+	m.input.SetValue("Ctrl+A")
 	m = press(t, m, tea.KeyEnter)
 
 	assertContains(t, m.View(), "enter next · esc chapter · ctrl+c quit")
@@ -340,6 +342,9 @@ func newTestModel(t *testing.T, opts Options) model {
 	t.Helper()
 	if opts.Chapters == nil {
 		opts.Chapters = []chapter.Chapter{textChapter()}
+	}
+	if opts.ProgressPath == "" {
+		opts.ProgressPath = filepath.Join(t.TempDir(), "progress.json")
 	}
 	return newModel(opts)
 }

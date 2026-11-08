@@ -31,6 +31,12 @@ TUI réelle · dotfiles de démonstration · recadrée</sub>
 
 ## English
 
+> **Documentation scope — 7 November 2026.** This README retains the earlier
+> dotfiles MVP presentation. The current checkout is partway through V2:
+> scanning, generation and directory commands described below have been removed.
+> See [Project State](PROJECT_STATE.md) for implemented changes and outstanding
+> validation. This note does not announce a release or completion of V2.
+
 A terminal training app that turns shell knowledge into practice. Start with
 **10 built-in chapters and 68 exercises**, then build editable lessons from
 your own ZSH dotfiles. Browse, practise and review without leaving the terminal.
@@ -472,6 +478,12 @@ Created by [benabot](https://github.com/benabot).
 ---
 
 ## Français
+
+> **Périmètre documentaire — 7 novembre 2026.** Ce README conserve la présentation
+> du MVP antérieur centré sur les dotfiles. Le checkout courant a engagé la V2 :
+> les commandes de scan, génération et annuaire décrites ci-dessous sont retirées.
+> Voir [l'état du projet](PROJECT_STATE.md) pour les travaux réalisés et les
+> validations restantes. Cette note n'annonce ni release ni V2 terminée.
 
 Une application pour apprendre son terminal par la pratique. Commencez avec
 **10 chapitres et 68 exercices intégrés**, puis créez vos leçons à partir de

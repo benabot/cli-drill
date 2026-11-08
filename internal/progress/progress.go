@@ -135,6 +135,21 @@ func Save(path string, progress Progress) error {
 	return nil
 }
 
+// RecordAnswer persists one submitted answer using the v1 counting rules.
+// Only a successfully saved state is returned; callers must not replay it on
+// feedback or navigation. The storage contract remains one writer per file.
+func RecordAnswer(path, chapterID, itemID string, correct bool) (Progress, error) {
+	state, err := Load(path)
+	if err != nil {
+		return Progress{}, err
+	}
+	state.MarkCompleted(chapterID, itemID, correct)
+	if err := Save(path, state); err != nil {
+		return Progress{}, err
+	}
+	return state, nil
+}
+
 // replaceFile writes to a sibling temporary file, leaving the destination intact
 // until the write, sync and close have all succeeded. Rename is atomic on Unix;
 // it does not coordinate concurrent writers or guarantee power-loss durability.

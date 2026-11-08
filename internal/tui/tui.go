@@ -131,6 +131,7 @@ type model struct {
 	input         textinput.Model
 	chapters      []chapter.Chapter
 	progress      progress.Progress
+	progressPath  string
 	progressError string
 	chapterIndex  int
 	itemIndex     int
@@ -202,6 +203,7 @@ func newModel(opts Options) model {
 		input:         input,
 		chapters:      opts.Chapters,
 		progress:      localProgress,
+		progressPath:  opts.ProgressPath,
 		progressError: progressErr,
 	}
 }
@@ -309,6 +311,9 @@ func (m model) View() string {
 	}
 	if m.showHelp {
 		view += "\n\n" + m.helpView()
+	}
+	if m.progressError != "" {
+		view += "\n\n" + newTUIStyles().Warning.Render(m.progressError)
 	}
 	view += "\n\n" + m.footer()
 	return style.Render(view)
@@ -460,8 +465,19 @@ func (m model) answerOrAdvance() model {
 	}
 
 	answered := m.input.Value()
+	if strings.Trim(answered, " \r\n") == "" {
+		return m
+	}
+	correct := exercise.MatchAnswer(answered, current.Answer)
+	recorded, err := progress.RecordAnswer(m.progressPath, m.chapters[m.chapterIndex].ID, current.ID, correct)
+	if err != nil {
+		m.progressError = "Progress could not be saved: " + err.Error()
+		return m
+	}
+	m.progress = recorded
+	m.progressError = ""
 	m.summary.Total++
-	if exercise.MatchAnswer(answered, current.Answer) {
+	if correct {
 		m.summary.Correct++
 		m.feedback = "Correct. " + current.Explanation
 	} else {
@@ -636,9 +652,6 @@ func (m model) statsView() string {
 		fmt.Sprintf("Exercises available: %d", total),
 		fmt.Sprintf("Completed locally: %d/%d", completed, total),
 	}
-	if m.progressError != "" {
-		lines = append(lines, "", "Progress could not be loaded: "+m.progressError)
-	}
 	return strings.Join(lines, "\n")
 }
 
@@ -758,7 +771,7 @@ func loadProgress(path string) (progress.Progress, string) {
 	}
 	localProgress, err := progress.Load(path)
 	if err != nil {
-		return progress.Default(), err.Error()
+		return progress.Default(), "Progress could not be loaded: " + err.Error()
 	}
 	return localProgress, ""
 }

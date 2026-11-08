@@ -1,7 +1,9 @@
 # CLI-Drill V2 — Architecture cible
 
-**Cible décidée le 7 novembre 2026 ; non encore implémentée.**
-La branche documentaire ne change aucun package Go ni aucune dépendance.
+**Cible décidée le 7 novembre 2026 ; réalisation partielle.**
+Les retraits P0 et le stockage P1.1 sont décrits comme intégrés dans
+l'état courant ; les étapes ultérieures gardent leurs statuts de validation.
+Cette clarification documentaire ne change aucun package Go ni dépendance.
 L'[état courant](../PROJECT_STATE.md) décrit le code disponible ; la
 [spécification](SPEC.md) définit les comportements V2 et les garanties de données.
 
@@ -36,7 +38,11 @@ registre de moteurs ou framework de session supplémentaire n'est nécessaire.
 Répartir éventuellement les gros fichiers dans leur package existant lorsque
 cela aide un changement ciblé ; ne pas engager une réorganisation générale.
 
-## Packages et responsabilités à retirer
+## Séquence initiale des retraits P0 — historique
+
+Les retraits ci-dessous décrivent le travail prévu au moment de la décision.
+Ils sont désormais réalisés selon [l'état courant](../PROJECT_STATE.md) ;
+ne pas les transformer en nouvelles tâches à exécuter.
 
 | Élément actuel | Retrait prévu et condition |
 | --- | --- |
@@ -48,16 +54,17 @@ cela aide un changement ciblé ; ne pas engager une réorganisation générale.
 | Génération dans `chapter` | Retirer `GenerateFromCatalog`, écriture de leçons générées et conversion `ToCatalog`. |
 | Chemins de configuration dans `xdg` | Retirer les helpers devenus inutilisés, sans nettoyage des dossiers utilisateur. |
 
-`chapter.Item` dépend actuellement de `catalog.EntryType` et `catalog.Source`.
-Les métadonnées pédagogiques encore utiles doivent devenir des données locales
-simples de `chapter`, sans nouvelle abstraction de catalogue. Le découplage
-ne doit pas imposer une conversion des YAML utilisateur conservés.
+Avant P0.3, `chapter.Item` dépendait de `catalog.EntryType` et `catalog.Source`.
+Le découplage décrit dans l'état courant conserve les données pédagogiques
+utiles dans `chapter`, sans nouvelle abstraction de catalogue ni conversion
+des YAML utilisateur conservés.
 
 ## CLI, TUI et vérifications du terminal
 
-La CLI cible conserve `chapters`, `train [chapter-id]`, `stats`, `reset --yes`
-et l'option `--progress`. Retirer `init`, `scan`, `generate`, `directory`,
-`search`, `show` et `--config`, ainsi que les écrans et états associés.
+La CLI courante conserve `chapters`, `train [chapter-id]`, `stats`, `reset --yes`
+et l'option `--progress`. `init`, `scan`, `generate`, `directory`, `search`,
+`show` et `--config`, ainsi que les écrans et états associés, ont été retirés
+dans P0.2 ; voir l'état courant pour les limites et preuves.
 
 Réutiliser le navigateur de chapitres pour la vue Keyboard shortcuts et les
 composants de progression pour My progress. Conserver les moteurs textuel et
@@ -108,15 +115,16 @@ de données ou de mécanisme de synchronisation.
   capture ou aux couleurs ; vérifier les usages avant de retirer une dépendance.
 - Un premier chapitre exigeant le mode brut exclurait certains terminaux ;
   garder le démarrage textuel et tester les capacités manquantes.
-- Les anciens défauts de persistance et de correction existent encore jusqu'aux
-  PR P1 ; ne pas annoncer la fiabilité V2 après les seuls retraits P0.
+- Les retraits P0, le stockage P1.1 et les travaux d'entraînement ont des preuves
+  et statuts distincts ; ne pas annoncer toute la fiabilité V2 après les seuls
+  retraits P0. Consulter l'état courant avant de replanifier un correctif.
 
 ## Dépendances
 
 Conserver Cobra, Bubble Tea, Bubbles, Lip Gloss, `x/term` et YAML.
-Retirer `BurntSushi/toml` seulement après suppression effective de ses usages,
-dans une future PR de code. Ne modifier ni `go.mod` ni `go.sum` dans la mission
-documentaire. Aucune nouvelle dépendance n'est nécessaire à cette cible.
+Le retrait de `BurntSushi/toml` après suppression de ses usages est consigné dans
+P0.3. Ne modifier ni `go.mod` ni `go.sum` dans la mission documentaire.
+Aucune nouvelle dépendance n'est nécessaire à cette cible.
 
 ## Séquence de migration et vérification
 

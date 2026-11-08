@@ -11,8 +11,10 @@ lire les [consignes](../../../AGENTS.md), le [README](../../../README.md),
 l'[état du projet](../../../PROJECT_STATE.md), le [backlog](../../../TODO.md),
 la [spécification](../../../docs/SPEC.md), l'[architecture](../../../docs/ARCHITECTURE.md)
 et les [décisions](../../../docs/DECISIONS.md).
-Le code courant établit le comportement implémenté ; les documents V2 décrivent
-une cible dont la migration n'est pas encore réalisée.
+Le code courant établit le comportement implémenté. La migration V2 est partielle :
+l'état du projet distingue les travaux intégrés et ceux en attente de validation,
+tandis que spécification et architecture décrivent la cible complète. Le README
+conserve la présentation historique du MVP antérieur, signalée comme telle.
 
 ## Contraintes qui orientent le travail
 

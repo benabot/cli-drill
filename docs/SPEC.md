@@ -1,8 +1,10 @@
 # CLI-Drill V2 — Spécification fonctionnelle
 
-**Vision décidée le 7 novembre 2026 ; migration fonctionnelle non réalisée.**
-Ce document décrit la cible V2. L'implémentation disponible reste décrite dans
-le [README](../README.md) et l'[état du projet](../PROJECT_STATE.md).
+**Vision décidée le 7 novembre 2026 ; migration fonctionnelle partielle.**
+Ce document décrit la cible V2 et ses critères, pas un état de livraison complet.
+L'[état du projet](../PROJECT_STATE.md) distingue les travaux intégrés et ceux
+qui attendent leur validation ; le [README](../README.md) conserve la présentation
+historique du MVP antérieur, avec un avertissement de périmètre.
 La [décision V2](DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
 explique le changement de direction ; le [backlog](../TODO.md) organise sa réalisation.
 
