@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -40,7 +41,7 @@ func runRecordingCLI(path string, input io.Reader, args ...string) (string, erro
 	return output.String(), err
 }
 
-func assertRecordingScore(t *testing.T, path, chapterID string, attempts, correct int) progress.Progress {
+func assertRecordingScore(t *testing.T, path, chapterID string, attempts, correct int, acquired ...string) progress.Progress {
 	t.Helper()
 	state, err := progress.Load(path)
 	if err != nil {
@@ -49,9 +50,12 @@ func assertRecordingScore(t *testing.T, path, chapterID string, attempts, correc
 	if got := state.ChapterScores[chapterID]; got != (progress.ChapterScore{Attempts: attempts, Correct: correct}) {
 		t.Fatalf("%s: got %#v, want %d attempts/%d correct", chapterID, got, attempts, correct)
 	}
-	if state.ChapterScores["retired"] != (progress.ChapterScore{Attempts: 7, Correct: 3}) || state.Streak != 4 ||
-		len(state.CompletedExercises) == 0 || state.CompletedExercises[0] != "retired/item" {
+	if state.ChapterScores["retired"] != (progress.ChapterScore{Attempts: 7, Correct: 3}) || state.Streak != 4 {
 		t.Fatalf("historical results changed: %#v", state)
+	}
+	want := append([]string{"retired/item"}, acquired...)
+	if !slices.Equal(state.CompletedExercises, want) {
+		t.Fatalf("acquisitions: got %q, want %q", state.CompletedExercises, want)
 	}
 	return state
 }
@@ -60,18 +64,19 @@ func TestCLIRecordsOnlySubmittedText(t *testing.T) {
 	for _, tc := range []struct {
 		name, input       string
 		attempts, correct int
+		acquired          []string
 	}{
-		{"empty EOF", "", 0, 0},
-		{"blank lines", "\n \n", 0, 0},
-		{"nonempty EOF", "pwd", 1, 1},
-		{"incorrect EOF", "wrong", 1, 0},
-		{"partial session", "pwd\n", 1, 1},
-		{"all text types", "pwd\nwrong\npwd\nwrong\n", 4, 2},
-		{"repeated enter", "\n\npwd\n\n\n", 1, 1},
-		{"escape before answer", "\x1b", 0, 0},
-		{"ctrl c before answer", "\x03", 0, 0},
-		{"escape after answer", "pwd\nunfinished\x1b\n", 1, 1},
-		{"ctrl c after answer", "pwd\nunfinished\x03", 1, 1},
+		{"empty EOF", "", 0, 0, nil},
+		{"blank lines", "\n \n", 0, 0, nil},
+		{"nonempty EOF", "pwd", 1, 1, []string{"text/free-answer"}},
+		{"incorrect EOF", "wrong", 1, 0, nil},
+		{"partial session", "pwd\n", 1, 1, []string{"text/free-answer"}},
+		{"all text types", "pwd\nwrong\npwd\nwrong\n", 4, 2, []string{"text/free-answer", "text/multiple-choice"}},
+		{"repeated enter", "\n\npwd\n\n\n", 1, 1, []string{"text/free-answer"}},
+		{"escape before answer", "\x1b", 0, 0, nil},
+		{"ctrl c before answer", "\x03", 0, 0, nil},
+		{"escape after answer", "pwd\nunfinished\x1b\n", 1, 1, []string{"text/free-answer"}},
+		{"ctrl c after answer", "pwd\nunfinished\x03", 1, 1, []string{"text/free-answer"}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "progress.json")
@@ -81,10 +86,7 @@ func TestCLIRecordsOnlySubmittedText(t *testing.T) {
 			if _, err := runRecordingCLI(path, strings.NewReader(tc.input), "train"); err != nil {
 				t.Fatal(err)
 			}
-			state := assertRecordingScore(t, path, "text", tc.attempts, tc.correct)
-			if len(state.CompletedExercises) != 1+tc.correct {
-				t.Fatalf("unexpected acquisitions: %#v", state.CompletedExercises)
-			}
+			assertRecordingScore(t, path, "text", tc.attempts, tc.correct, tc.acquired...)
 			if tc.attempts == 0 {
 				got, err := os.ReadFile(path)
 				if err != nil || string(got) != recordingHistory {
@@ -102,6 +104,10 @@ func (read recordingReader) Read(data []byte) (int, error) { return read(data) }
 func TestCLIRecordsBeforeReadingAgain(t *testing.T) {
 	for _, chapterID := range []string{"text", "keys"} {
 		t.Run(chapterID, func(t *testing.T) {
+			acquired := "text/free-answer"
+			if chapterID == "keys" {
+				acquired = "keys/ctrl-a"
+			}
 			path := filepath.Join(t.TempDir(), "progress.json")
 			if err := os.WriteFile(path, []byte(recordingHistory), 0o600); err != nil {
 				t.Fatal(err)
@@ -116,13 +122,13 @@ func TestCLIRecordsBeforeReadingAgain(t *testing.T) {
 					}
 					return copy(data, "pwd\n"), nil
 				}
-				assertRecordingScore(t, path, chapterID, 1, 1)
+				assertRecordingScore(t, path, chapterID, 1, 1, acquired)
 				return 0, interrupted
 			})
 			if _, err := runRecordingCLI(path, input, "train", chapterID); !errors.Is(err, interrupted) {
 				t.Fatalf("lost input error: %v", err)
 			}
-			assertRecordingScore(t, path, chapterID, 1, 1)
+			assertRecordingScore(t, path, chapterID, 1, 1, acquired)
 		})
 	}
 }
@@ -146,10 +152,11 @@ func TestCLIKeyRecordingDoesNotCountControls(t *testing.T) {
 			if _, err := runRecordingCLI(path, strings.NewReader(tc.input), "train", "keys"); err != nil {
 				t.Fatal(err)
 			}
-			state := assertRecordingScore(t, path, "keys", tc.attempts, tc.correct)
-			if len(state.CompletedExercises) != 1+tc.correct {
-				t.Fatalf("duplicate acquisition: %#v", state.CompletedExercises)
+			var acquired []string
+			if tc.correct > 0 {
+				acquired = []string{"keys/ctrl-a"}
 			}
+			assertRecordingScore(t, path, "keys", tc.attempts, tc.correct, acquired...)
 		})
 	}
 }
@@ -164,10 +171,8 @@ func TestRecordingKeepsV1StatsAndReset(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	state := assertRecordingScore(t, path, "text", 8, 8)
-	if len(state.CompletedExercises) != 5 {
-		t.Fatalf("repeated session duplicated acquisitions: %#v", state.CompletedExercises)
-	}
+	assertRecordingScore(t, path, "text", 8, 8,
+		"text/free-answer", "text/scenario", "text/multiple-choice", "text/simple-shell-sim")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
@@ -250,7 +255,7 @@ func TestTUIKeyIntentPersistsBeforeReturningToTUI(t *testing.T) {
 		if calls == 1 {
 			return tui.Result{RunCLITrainChapterID: "keys"}, nil
 		}
-		assertRecordingScore(t, path, "keys", 1, 1)
+		assertRecordingScore(t, path, "keys", 1, 1, "keys/ctrl-a")
 		return tui.Result{}, nil
 	})
 	defer restore()
