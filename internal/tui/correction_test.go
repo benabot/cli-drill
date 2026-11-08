@@ -9,6 +9,7 @@ import (
 
 	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/chapter"
+	"github.com/benabot/cli-drill/internal/exercise"
 	"github.com/benabot/cli-drill/internal/progress"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -59,7 +60,17 @@ func TestTUICorrectionWithEmbeddedExercises(t *testing.T) {
 				m = press(t, m, tea.KeyEnter)
 			}
 			assertScreen(t, m, screenTraining)
-			m = press(t, m, tea.KeyRunes, []rune(tc.input)...)
+			if selected.Items[0].ExerciseType == exercise.TypeMultipleChoice {
+				index := slices.Index(selected.Items[0].Choices, tc.input)
+				if index < 0 {
+					t.Fatalf("input is not a declared choice: %q", tc.input)
+				}
+				for range index {
+					m = press(t, m, tea.KeyDown)
+				}
+			} else {
+				m = press(t, m, tea.KeyRunes, []rune(tc.input)...)
+			}
 			m = press(t, m, tea.KeyEnter)
 			correct := 0
 			acquired := []string{"retired/item"}

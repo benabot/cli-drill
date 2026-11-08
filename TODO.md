@@ -6,8 +6,10 @@ corrections acceptées de `fix/progress-storage-hardening` (P1.1b).
 Migration fonctionnelle V2 partielle. P1.2 est terminée et validée : implémentation
 `e7b4170` et complément de tests `a60c819`, depuis `dev` à `1f61cb9`.
 Son intégration et sa publication sur `dev` sont réalisées à `be2bf2b`.
-P1.3 est terminée et validée sur `fix/exercise-correction` ; son intégration
-par fast-forward et sa publication sur `dev` sont autorisées. P1.4 est la prochaine étape.
+P1.3 est terminée, validée et intégrée dans `dev` à `db40d00`.
+P1.4 est terminée et validée après recette réelle dans Terminal.app sous macOS.
+P1 est clôturée ; P2 est la prochaine phase. Le commit, l'intégration par
+fast-forward dans `dev` et la publication de `origin/dev` sont autorisés.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
 la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
@@ -31,7 +33,11 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
   supprime, ne déplace, ne réécrit ni ne purge les anciennes données JSON/YAML/TOML.
   Le premier lancement et les consultations ne doivent provoquer aucune migration écrite.
 
-## P1 — Fiabilité des entraînements
+## P1 — Fiabilité des entraînements — terminée et validée
+
+Clôture validée le 8 novembre 2026 après réussite des huit tests manuels P1.4
+dans Terminal.app sous macOS, sans défaut bloquant ou important. Les compléments
+non réalisés sont conservés explicitement dans la section différée ci-dessous.
 
 - [x] Sauvegarder atomiquement la progression ; conserver les champs et résultats
   historiques, refuser l'écrasement silencieux d'un JSON invalide ou non pris en charge
@@ -47,10 +53,17 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 - [x] Ne pas créer de tentative pour l'aide, une solution affichée, la navigation
   ou un EOF vide ; tester retries, EOF après réponse et interruption
   (P1.2 terminée et validée). Validations sans texte ignorées ; compteurs v1 inchangés.
-- [ ] P1.4 : afficher les choix des QCM dans les deux interfaces ; leur correction
-  est testée indépendamment de l'affichage en P1.3.
-- [ ] P1.4 : revoir les parcours redondants Start training/Keyboard shortcuts et
-  la troncature du footer compact au redimensionnement ; conserver l'aide complète.
+- [x] P1.4 : afficher et sélectionner les choix des cinq QCM dans la TUI avec
+  flèches/j/k, Entrée, feedback et explication ; réutiliser correction P1.3 et
+  enregistrement P1.2. Tests du corpus, interruptions, sauvegarde unique et erreurs
+  réussis ; recette réelle dans Terminal.app validée.
+- [x] P1.4 : lancer directement Keyboard shortcuts lorsqu'un seul chapitre de
+  capture existe ; réutiliser le moteur dédié et conserver le navigateur sinon.
+  Start training et Browse chapters conservent leurs comportements existants.
+  Essais sous pseudo-terminal et recette réelle dans Terminal.app réussis.
+- [x] Recette Terminal.app préalable rapportée par l'utilisateur : bannière,
+  palette, navigation, aide complète, footer compact aux dimensions testées,
+  redimensionnement, thèmes, progression et capture validés. Pas de refonte de layout.
 - [x] Corriger les commandes sans effacer casse, options ou espaces significatifs ;
   garder les variantes explicites et la normalisation des raccourcis
   (P1.3 terminée et validée). Routage commun par `chapter.Item.MatchAnswer` ;
@@ -63,16 +76,16 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
   sans tentative ni écriture ; reprise après édition et tabulations de bord
   testées dans les deux interfaces, raccourcis inchangés.
 - [x] Donner priorité à la saisie des réponses et des filtres avant les raccourcis globaux (navigation P0.2).
-- [ ] Vérifier capacités, capture, restauration du terminal et retour TUI, y compris
-  en cas d'erreur ; ne jamais créditer une touche non réellement capturée.
-- [ ] Calculer les acquis du corpus actif par identifiants présents, sans purger
-  le JSON des anciens exercices. Garder `streak` hors des indicateurs actifs.
+- [x] Valider la capture réelle, les interruptions, la restauration du terminal et
+  le retour TUI dans Terminal.app sous macOS. Les compléments relatifs aux terminaux
+  indisponibles et aux cas d'erreur restent différés.
 - [x] Démarrer directement un chapitre textuel depuis Start training, sans configuration
   ni activation implicite de capture brute (P0.2).
-- [ ] Guider vers la CLI textuelle si la TUI est indisponible ; compléter les diagnostics
-  de capacités terminal sans changer les données utilisateur.
 
-## P2 — Corpus pédagogique et expérience utilisateur
+## P2 — Corpus pédagogique et expérience utilisateur — prochaine phase
+
+Phase à démarrer dans une intervention distincte ; aucun travail P2 n'est engagé
+par la finalisation de P1.
 
 - [ ] Fournir un corpus court jouable dans chaque famille : Unix & Shell Fundamentals,
   Keyboard Shortcuts, Modern CLI & macOS. Viser cinq à dix minutes par chapitre.
@@ -85,7 +98,7 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
 - [ ] Réviser la première leçon textuelle pour le corpus V2 ; garder saisie de commandes
   et vraie capture comme activités centrales, avec QCM complémentaires.
 - [x] Adapter le menu cible en réutilisant navigateur, fiche et statistiques (P0.2) ;
-  Keyboard shortcuts est une vue filtrée, pas un moteur supplémentaire.
+  P1.4 lance directement l'unique chapitre clavier, sans moteur supplémentaire.
 - [ ] Conserver l'identité graphique, le mode sans couleur et le retour à l'accueil
   après capture ; ne pas ajouter de préférences de navigation.
 - [ ] Relire et essayer les leçons après de vraies sessions avant d'élargir le corpus.
@@ -108,6 +121,19 @@ Un nouveau concept reçoit de nouveaux identifiants ; les anciens résultats
 restent stockés. L'encodage minimal des familles/contextes sera documenté dans
 la PR de corpus, sans nouvelle infrastructure de contenu.
 
+## Compléments différés après clôture de P1
+
+Ces éléments du backlog restent ouverts ; ils ne font pas partie de la livraison
+P1.4 validée et ne sont pas implémentés par sa finalisation.
+
+- [ ] Afficher les choix des QCM en CLI texte (hors du périmètre TUI de P1.4).
+- [ ] Calculer les acquis du corpus actif par identifiants présents, sans purger
+  le JSON des anciens exercices. Garder `streak` hors des indicateurs actifs.
+- [ ] Compléter les vérifications des terminaux indisponibles et des cas d'erreur
+  de capture/restauration ; ne jamais créditer une touche non réellement capturée.
+- [ ] Guider vers la CLI textuelle si la TUI est indisponible ; compléter les diagnostics
+  de capacités terminal sans changer les données utilisateur.
+
 ## Plus tard — Sous réserve d'un besoin observé
 
 - Distribution par releases et éventuellement Homebrew, après stabilisation.
@@ -126,8 +152,8 @@ P0.1 à P0.3 et P1.1, corrections de `fix/progress-storage-hardening` comprises,
 sont terminées et intégrées dans `dev`. P1.2 est terminée et validée sur
 `fix/training-recording`, avec `e7b4170` et `a60c819` ; intégration et publication
 sur `dev` réalisées à `be2bf2b`. P1.3 est terminée et validée sur
-`fix/exercise-correction` ; intégration et publication autorisées. P1.4 est
-la prochaine étape ; les autres unités restent planifiées.
+`fix/exercise-correction`, intégrée dans `dev` à `db40d00`. P1.4 est terminée et
+validée dans Terminal.app ; P1 est clôturée et P2 est la prochaine phase.
 Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
 Les unités de retrait se suivent dans l'ordre indiqué ; chaque PR doit compiler
@@ -142,7 +168,7 @@ et conserver les commandes d'entraînement encore disponibles.
 | P1.1b — `fix/progress-storage-hardening` (intégrée localement) | Refus des `null` invalides et des cibles interdites en écriture ; injection privée de `Sync`/`Close` par appel. | Revue acceptée ; tests applicatifs, permissions non root, erreurs et ordre de `Sync`/`Close`, nettoyage et cinq mutations vérifiés ; P1.1 terminée, aucun travail P1.2. |
 | P1.2 — `fix/training-recording` (terminée et validée) | Enregistrement commun par réponse via les API P1.1 ; CLI texte/clavier et TUI texte persistés ; pas de tentative vide ni de double compte sur feedback. | Revue acceptée ; identifiants exacts, vrais messages de sortie et échec suivi d'interruption vérifiés ; tests complets, vet et race réussis ; aucun travail P1.3/P1.4. |
 | P1.3 — `fix/exercise-correction` (terminée et validée) | Correction partagée des cinq types, variantes YAML conservées ; aucun changement d'affichage QCM (P1.4). | Tests de casse, espaces, syntaxe, choix, raccourcis et résultats CLI/TUI ; sept mutations détectées ; refus intentionnel de faux positifs ; base `be2bf2b`, stockage P1.1/P1.2 inchangé. |
-| P1 — `fix/terminal-training` | Vérifier les capacités, traiter les erreurs, préserver la capture dédiée et l'accès textuel sans configuration. | Terminal compatible/limité, sans couleur, restauration et retour TUI ; risque d'état terminal ; après enregistrement partagé. |
+| P1.4 — `fix/terminal-training` (terminée et validée) | QCM TUI sélectionnables ; accès direct au seul chapitre clavier via la capture existante. Aucun changement de layout, YAML, correction ou stockage. | Tests complets, vet, formatage et diff réussis ; essais sous pseudo-terminal et huit tests manuels dans Terminal.app réussis. Aucun défaut bloquant ou important ; clôture de P1 validée. |
 | P2 — `content/v2-foundations` | Réviser le corpus et ses trois familles ; fournir le premier chapitre textuel et préserver les identifiants pertinents. | Validation YAML, références officielles et essais pédagogiques ; risque de réattribution d'acquis ; après P1. |
 | P2 — `refactor/v2-navigation` (à réévaluer après corpus) | Le menu et la vue clavier sont livrés par P0.2 ; limiter les futurs ajustements aux besoins démontrés du corpus révisé. | Navigation par familles si le corpus le requiert ; ne pas refaire l'accueil ni changer l'identité graphique. |
 | P2 — `docs/readme-v2` | Décrire le comportement V2 effectivement livré. | Exemples, liens et comparaison avec le binaire ; risque de promesse prématurée ; après validation fonctionnelle V2. |
@@ -154,8 +180,9 @@ configurations. La livraison documentaire précédente n'a pas modifié Go.
 P0.1 valide le chargement intégré, P0.2 la surface utilisateur et P0.3 le retrait
 des internes hérités. P1.1, corrections P1.1b comprises, termine la fiabilisation
 du stockage dans son périmètre, sans modifier les entraînements.
-La V2 complète reste à valider ; les autres corrections P1 et la révision pédagogique restent
-à réaliser.
+P1 est terminée et validée. La V2 complète reste à valider après P2, prochaine
+phase consacrée au corpus et à l'expérience utilisateur. Les compléments différés
+restent explicitement ouverts.
 
 ## Archive V1 — Réalisations et abandons
 

@@ -1,14 +1,16 @@
 # État du projet — CLI-Drill
 
-**Constat du 8 novembre 2026 : P0.1 à P0.3, P1.1 et P1.2 terminées, intégrées dans `dev` ; P1.3 terminée et validée.**
+**Constat du 8 novembre 2026 : P1 terminée ; P1.4 validée après recette réelle dans Terminal.app sous macOS. P2 est la prochaine phase.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
 complémentaires `a60c819`, sur `fix/training-recording`, depuis `dev` à `1f61cb9`.
 Son intégration et sa publication sont réalisées dans `dev` à `be2bf2b`.
 P1.3 est terminée et validée sur `fix/exercise-correction` depuis cette base.
-La validation humaine autorise son intégration par fast-forward et sa publication
-sur `dev`. P1.4 est la prochaine étape ; aucun travail P1.4 n’est inclus.
+Son intégration et sa publication sont réalisées dans `dev` à `db40d00`.
+P1.4 part de cette base sur `fix/terminal-training`. La validation humaine du
+8 novembre 2026 autorise son commit, son intégration par fast-forward dans `dev`
+et la publication de `origin/dev`. P2 n'est pas commencée dans cette finalisation.
 
 ## Implémentation actuelle
 
@@ -50,9 +52,11 @@ Le chapitre sélectionné reste cohérent avec la liste lors des retours arrièr
 Le comportement de `train` sans identifiant reste inchangé : premier chapitre
 intégré, actuellement le chapitre de raccourcis.
 
-Keyboard shortcuts réutilise le navigateur en ne montrant que les chapitres
-contenant un exercice `key-sequence`. La sélection conserve les indices du
-corpus complet et délègue au moteur existant. Les familles pédagogiques n'ont
+Depuis P1.4, Keyboard shortcuts lance directement le moteur existant lorsqu'un
+seul chapitre contient un exercice `key-sequence` (le corpus actuel). Si plusieurs
+chapitres de capture existent, le navigateur filtré est conservé ; s'il n'y en a
+aucun, sa liste reste vide. La sélection conserve les indices du corpus complet.
+Les familles pédagogiques n'ont
 pas encore de métadonnées nouvelles ; les raccourcis seulement textuels des
 chapitres mixtes, comme Micro, ne sont pas ajoutés à cette vue de capture.
 Browse chapters restaure la liste complète.
@@ -259,6 +263,54 @@ et JSON inchangé, puis la reprise avec une seule sauvegarde et la sortie normal
 Ces essais utilisent exclusivement des progressions temporaires synthétiques ;
 ils ne constituent pas une validation de tous les terminaux physiques.
 
+### P1.4 — QCM TUI et accès direct aux raccourcis, terminée et validée
+
+Les cinq exercices `multiple-choice` intégrés affichent tous leurs choix dans
+l'écran d'entraînement existant. Le premier est sélectionné à l'ouverture ;
+le marqueur `>` reste visible sans couleur. Flèches haut/bas et j/k déplacent
+la sélection, bornée aux extrémités. Entrée soumet le libellé choisi à
+`chapter.Item.MatchAnswer`, puis `progress.RecordAnswer`, sans modifier ces
+mécanismes P1.1–P1.3. Le feedback affiche la correction et l'explication ;
+Entrée poursuit normalement. Échap revient à la fiche et Ctrl+C quitte, sans
+enregistrer le choix non soumis. La sélection repart du premier choix à chaque
+exercice ou relance. Les collages ne déplacent pas la sélection.
+
+Keyboard shortcuts évite le sélecteur et la fiche intermédiaires lorsqu'un
+seul chapitre de capture existe, en réutilisant la délégation déjà employée
+par la fiche chapitre. Start training garde le démarrage textuel existant ;
+Browse chapters conserve l'exploration et les fiches. Le moteur de capture et
+le retour automatique à l'accueil sont conservés.
+
+Tests ajoutés : chaque proposition des cinq QCM, bonne/mauvaise réponse,
+explication, navigation, bornes, feedback sans double compte, interruptions
+avant/après réponse, erreur de sauvegarde et nouvelle tentative, transitions
+vers les autres types textuels et relance. Les parcours clavier avec zéro,
+un ou plusieurs chapitres restent couverts. Toutes les progressions sont temporaires.
+`go test -count=1 ./...`, `go vet ./...`, contrôle du formatage Go et
+`git diff --check` réussissent.
+
+Essais du binaire sous pseudo-terminal à 100×35, avec et sans couleur : QCM
+correct/incorrect, flèches et j/k, explication, continuation, Ctrl+C sans tentative
+fictive, scores relus, lancement direct de la capture, Ctrl+A réellement reçu et
+Échap vers l'accueil. Les attributs terminal sont restaurés hors du bit d'état
+macOS `PENDIN` déjà documenté ci-dessous. Ces essais ne valident pas Terminal.app.
+
+La recette Terminal.app rapportée par l'utilisateur avant P1.4 a validé bannière,
+palette, navigation, aide complète, footer compact aux dimensions testées,
+redimensionnement, thèmes, progression et capture. Aucun travail de layout n'est
+engagé ici.
+
+La recette réelle des nouveaux comportements dans Terminal.app sous macOS est
+validée par l'utilisateur le 8 novembre 2026 : les huit tests manuels ont réussi,
+couvrant l'affichage des QCM, la navigation entre propositions, les bonnes et
+mauvaises réponses, l'enregistrement unique, l'interruption sans comptage,
+l'accès direct à Keyboard shortcuts, la capture des touches et la restauration
+du terminal. Aucun défaut bloquant ou important n'a été constaté. Cette validation
+clôture P1.4 et la phase P1 (stockage, enregistrement, correction et TUI).
+
+Le corpus YAML, les dépendances, le README et les mécanismes de correction et
+de stockage restent inchangés. L'affichage des choix en CLI texte reste au backlog.
+
 ## Limites encore présentes
 
 Les contenus YAML conservent des alias, fonctions et formulations personnelles
@@ -267,13 +319,11 @@ n'est pas modifié et attend son alignement après migration fonctionnelle.
 
 Défauts connus encore au backlog :
 
-- Choix des QCM non affichés dans les entraînements.
-
-- Parcours Start training/Keyboard shortcuts redondants et footer compact tronqué
-  au redimensionnement ; panneau d'aide complet inchangé, travaux P1.4 différés.
+- Choix des QCM non affichés en CLI texte ; la correction P1.4 concerne la TUI.
 - `streak` non mis à jour, `last_session` sans curseur de reprise.
-- Contrôles et diagnostics supplémentaires des terminaux indisponibles à traiter
-  en P1 ; la capture n'est pas promise pour toutes les combinaisons macOS.
+- Compléments différés après clôture de P1 : projection des acquis du corpus actif,
+  contrôles et diagnostics supplémentaires des terminaux indisponibles et erreurs.
+  La capture n'est pas promise pour toutes les combinaisons macOS.
 
 ## Vision décidée et travaux suivants
 
@@ -288,10 +338,11 @@ fonctionnel n'autorise aucune purge, réécriture ou migration automatique.
 Les vérifications techniques du terminal restent requises ; les deux moteurs
 et le fonctionnement local et hors ligne restent centraux.
 
-P1.2 est intégrée. P1.3 est terminée et validée pour intégration.
-P1.4 (affichage des QCM, parcours redondants et footer) est la prochaine étape,
-sans implémentation dans cette branche.
-Les travaux suivants porteront sur ces défauts, puis sur le corpus pédagogique.
+P1 est terminée et validée, P1.4 comprise après recette réelle dans Terminal.app.
+P2 — révision du corpus pédagogique et de l'expérience utilisateur — est la
+prochaine phase. Les compléments différés restent ouverts dans le backlog ;
+ils ne sont pas déclarés réalisés par la clôture de P1. Aucun travail P2 n'est
+engagé dans cette finalisation.
 Voir le [backlog](TODO.md).
 
 ## Validation et limites de preuve

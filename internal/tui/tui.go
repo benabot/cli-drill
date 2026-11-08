@@ -54,6 +54,7 @@ const (
 	footerChapterDetail
 	footerKeySequenceDetail
 	footerTextInput
+	footerChoiceInput
 	footerTextFeedback
 	footerTrainingSummary
 	footerTrainingSummaryRetry
@@ -148,6 +149,7 @@ type model struct {
 	progressError string
 	chapterIndex  int
 	itemIndex     int
+	choiceIndex   int
 	feedback      string
 	summary       trainingSummary
 	showHelp      bool
@@ -228,7 +230,7 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case trainingPasteMsg:
-		if m.screen != screenTraining || m.feedback != "" {
+		if m.screen != screenTraining || m.feedback != "" || m.isMultipleChoice() {
 			return m, nil
 		}
 		if msg.err != nil {
@@ -264,7 +266,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		if m.screen == screenTraining {
-			if m.feedback == "" && msg.Type == tea.KeyRunes && strings.ContainsAny(string(msg.Runes), "\r\n") {
+			if m.feedback == "" && !m.isMultipleChoice() && msg.Type == tea.KeyRunes && strings.ContainsAny(string(msg.Runes), "\r\n") {
 				m.input.Err = errors.New("Paste rejected: enter the answer on a single line.")
 				return m, nil
 			}
@@ -277,11 +279,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				return m.handleEnter()
 			case "ctrl+v":
-				if m.feedback == "" {
+				if m.feedback == "" && !m.isMultipleChoice() {
 					return m, pasteTrainingAnswer
 				}
 			}
 			if m.feedback == "" {
+				if m.isMultipleChoice() {
+					if !msg.Paste {
+						switch msg.String() {
+						case "up", "k":
+							m.choiceIndex = max(0, m.choiceIndex-1)
+						case "down", "j":
+							m.choiceIndex = max(0, min(len(m.currentItem().Choices)-1, m.choiceIndex+1))
+						}
+					}
+					return m, nil
+				}
 				var cmd tea.Cmd
 				m.input, cmd = m.input.Update(msg)
 				return m, cmd
@@ -371,6 +384,11 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 			return m, nil
 		case homeActionShortcuts:
 			m.openChapters(true)
+			if items := m.chapterList.Items(); len(items) == 1 {
+				m.chapterIndex = items[0].(listItem).index
+				m.screen = screenChapterDetail
+				return m.handleEnter()
+			}
 			return m, nil
 		case homeActionStats:
 			m.screen = screenStats
@@ -466,6 +484,7 @@ func (m model) startTraining(index int) model {
 	}
 	m.screen = screenTraining
 	m.itemIndex = 0
+	m.choiceIndex = 0
 	m.feedback = ""
 	m.summary = trainingSummary{}
 	m.showHelp = false
@@ -482,6 +501,7 @@ func (m model) answerOrAdvance() model {
 	}
 	if m.feedback != "" {
 		m.itemIndex++
+		m.choiceIndex = 0
 		m.feedback = ""
 		m.input.SetValue("")
 		if m.currentItem() == nil {
@@ -495,7 +515,12 @@ func (m model) answerOrAdvance() model {
 	}
 
 	answered := m.input.Value()
-	if m.input.Err != nil || strings.Trim(answered, " \r\n") == "" {
+	if m.isMultipleChoice() {
+		if m.choiceIndex < 0 || m.choiceIndex >= len(current.Choices) {
+			return m
+		}
+		answered = current.Choices[m.choiceIndex]
+	} else if m.input.Err != nil || strings.Trim(answered, " \r\n") == "" {
 		return m
 	}
 	correct := current.MatchAnswer(answered)
@@ -530,6 +555,11 @@ func (m model) currentItem() *chapter.Item {
 		return nil
 	}
 	return &chapter.Items[m.itemIndex]
+}
+
+func (m model) isMultipleChoice() bool {
+	current := m.currentItem()
+	return current != nil && current.ExerciseType == exercise.TypeMultipleChoice
 }
 
 func (m model) currentChapter() *chapter.Chapter {
@@ -623,7 +653,23 @@ func (m model) trainingView() string {
 	selected := m.chapters[m.chapterIndex]
 	title := styles.ScreenTitle.Render(selected.Title)
 	inputView := m.input.View()
-	if m.input.Err != nil {
+	answerLabel := "Reponse:"
+	feedback := m.feedback
+	if m.isMultipleChoice() {
+		answerLabel = "Choix:"
+		choices := make([]string, 0, len(current.Choices))
+		for i, choice := range current.Choices {
+			if i == m.choiceIndex {
+				choices = append(choices, styles.Info.Render("> "+choice))
+			} else {
+				choices = append(choices, "  "+choice)
+			}
+		}
+		inputView = strings.Join(choices, "\n")
+		if strings.HasPrefix(feedback, "Pas encore.") && current.Explanation != "" {
+			feedback += "\n" + current.Explanation
+		}
+	} else if m.input.Err != nil {
 		inputView += "\n" + styles.Warning.Render(m.input.Err.Error())
 	}
 	return fmt.Sprintf(
@@ -633,9 +679,9 @@ func (m model) trainingView() string {
 		styles.Separator.Render("────────────────────────────────────────"),
 		styles.Muted.Render("Question:"),
 		current.Prompt,
-		styles.Muted.Render("Reponse:"),
+		styles.Muted.Render(answerLabel),
 		inputView,
-		feedbackText(m.feedback, styles),
+		feedbackText(feedback, styles),
 	)
 }
 
@@ -730,6 +776,9 @@ func (m model) footerContext() footerContext {
 		if m.feedback != "" {
 			return footerTextFeedback
 		}
+		if m.isMultipleChoice() {
+			return footerChoiceInput
+		}
 		return footerTextInput
 	case screenTrainingSummary:
 		if m.summary.retryAvailable() {
@@ -755,6 +804,8 @@ func footerText(context footerContext) string {
 		return "enter start key training · esc chapters · g home · h help · q quit"
 	case footerTextInput:
 		return "enter submit · esc chapter · ctrl+c quit"
+	case footerChoiceInput:
+		return "↑/↓ j/k move · enter submit · esc chapter · ctrl+c quit"
 	case footerTextFeedback:
 		return "enter next · esc chapter · ctrl+c quit"
 	case footerTrainingSummaryRetry:

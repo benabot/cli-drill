@@ -89,7 +89,13 @@ func TestTUIRecordsEachTextSubmissionBeforeAdvancing(t *testing.T) {
 				{"pwd", "text/free-answer"}, {"wrong", ""},
 				{"pwd", "text/multiple-choice"}, {"wrong", ""},
 			} {
-				m.input.SetValue(step.answer)
+				if m.currentItem().ExerciseType == exercise.TypeMultipleChoice {
+					for range slices.Index(m.currentItem().Choices, step.answer) {
+						m = press(t, m, tea.KeyDown)
+					}
+				} else {
+					m.input.SetValue(step.answer)
+				}
 				m = press(t, m, tea.KeyEnter)
 				if step.acquired != "" {
 					correct++
@@ -274,8 +280,10 @@ func TestTUIKeyRoutesDoNotRecordNavigation(t *testing.T) {
 			path := recordingPath(t)
 			m := newModel(Options{Chapters: []chapter.Chapter{keySequenceChapter()}, ProgressPath: path})
 			m.home.Select(homeActionIndex(entry))
-			m = press(t, m, tea.KeyEnter)
-			m = press(t, m, tea.KeyEnter)
+			if entry == homeActionBrowse {
+				m = press(t, m, tea.KeyEnter)
+				m = press(t, m, tea.KeyEnter)
+			}
 			updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 			if updated.(model).result.RunCLITrainChapterID != keySequenceChapter().ID {
 				t.Fatal("key route did not delegate to the CLI engine")
@@ -293,7 +301,9 @@ func TestTUIPerfectSessionSurvivesQuitAndRestart(t *testing.T) {
 	path := recordingPath(t)
 	m := recordingModel(t, path, homeActionStartTraining)
 	for range 4 {
-		m.input.SetValue("pwd")
+		if m.currentItem().ExerciseType != exercise.TypeMultipleChoice {
+			m.input.SetValue("pwd")
+		}
 		m = press(t, m, tea.KeyEnter)
 		m = press(t, m, tea.KeyEnter)
 	}
