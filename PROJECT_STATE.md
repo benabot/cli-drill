@@ -1,10 +1,12 @@
 # État du projet — CLI-Drill
 
-**Constat du 7 novembre 2026 : P0.1 à P0.3 et P1.1 terminées, intégrées localement dans `dev`.**
+**Constat du 8 novembre 2026 : P0.1 à P0.3 et P1.1 terminées, intégrées dans `dev` ; P1.2 terminée et validée.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
-complète reste à réaliser. P1.2 est réalisée sur `fix/training-recording`,
-depuis `dev` à `1f61cb9`, en attente de validation humaine et d'intégration.
+complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
+complémentaires `a60c819`, sur `fix/training-recording`, depuis `dev` à `1f61cb9`.
+La revue et la validation finale autorisent son intégration par fast-forward
+dans `dev` et sa publication ; aucun travail P1.3/P1.4 n'est inclus.
 
 ## Implémentation actuelle
 
@@ -138,7 +140,7 @@ L'injection de `Sync` et `Close` est privée et passée par appel au helper de
 remplacement, sans état global mutable ni abstraction générale de fichiers.
 Le nettoyage ferme toujours le vrai descripteur, même après une erreur injectée.
 
-### P1.2 — Enregistrement des entraînements, réalisé à valider
+### P1.2 — Enregistrement des entraînements terminé et validé
 
 L'audit sur `1f61cb9` a reproduit trois défauts : `tui.answerOrAdvance`
 évaluait les réponses et le bilan sans mettre à jour la progression ;
@@ -211,7 +213,7 @@ fonctionnel n'autorise aucune purge, réécriture ou migration automatique.
 Les vérifications techniques du terminal restent requises ; les deux moteurs
 et le fonctionnement local et hors ligne restent centraux.
 
-P1.2 attend sa validation avant intégration. P1.3/P1.4, la correction des réponses,
+P1.2 est validée. P1.3/P1.4, la correction des réponses,
 les choix QCM, les parcours redondants et le footer restent hors de cette branche.
 Les travaux suivants porteront sur ces défauts, puis sur le corpus pédagogique.
 Voir le [backlog](TODO.md).
@@ -314,7 +316,7 @@ des tests complets, de `go vet ./...` et de `git diff --check`, puis un commit
 des corrections et un fast-forward exclusivement vers `dev`. Aucun push ni
 travail P1.2 ne fait partie de cette finalisation.
 
-### P1.2 — Validation de l'enregistrement, à valider humainement
+### P1.2 — Validation de l'enregistrement acceptée
 
 Avant modification : arbre propre, deux commits P1.1 présents, fetch de `origin/dev`
 et égalité avec `dev` à `1f61cb9`, tests complets sans cache et vet réussis.
@@ -339,6 +341,16 @@ n'est utilisé, et aucun code d'exercice n'est exécuté.
 Contrôles finaux réussis sur macOS arm64 avec Go 1.27.3 : formatage des seuls
 fichiers Go modifiés, `go test -count=1 ./...`, `go vet ./...`, `git diff --check`
 et `go test -race -count=1 ./internal/app ./internal/tui ./internal/progress`.
+
+La revue finale n'a identifié aucun défaut bloquant ou important. Les deux
+lacunes mineures de tests sont corrigées dans `a60c819` : identifiants acquis
+exacts, commande produisant réellement `tea.QuitMsg` et sauvegarde échouée suivie
+d'une interruption sans progression artificielle ni modification du JSON.
+Trois mutations passaient les anciennes assertions et échouent avec les tests
+renforcés : identifiants permutés, commande non nulle ne quittant pas et progression
+artificielle après erreur. La validation humaine finale est accordée le
+8 novembre 2026 ; les tests complets sans cache, vet, race et contrôles de diff
+et formatage ont de nouveau réussi avant le commit complémentaire.
 
 Le binaire est aussi essayé dans un pseudo-terminal macOS isolé : Start training,
 Browse chapters textuel, Browse chapters clavier, Keyboard shortcuts et retour

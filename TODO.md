@@ -1,10 +1,11 @@
 # Backlog — CLI-Drill V2
 
-**Mis à jour le 7 novembre 2026.** P0.1 à P0.3 et P1.1 terminées, intégrées
+**Mis à jour le 8 novembre 2026.** P0.1 à P0.3 et P1.1 terminées, intégrées
 localement dans `dev`. Le stockage initial (`25c344b`) est complété par les
 corrections acceptées de `fix/progress-storage-hardening` (P1.1b).
-Migration fonctionnelle V2 partielle. P1.2 est réalisée sur `fix/training-recording`
-depuis `dev` à `1f61cb9`, à valider avant commit, merge ou push.
+Migration fonctionnelle V2 partielle. P1.2 est terminée et validée : implémentation
+`e7b4170` et complément de tests `a60c819`, depuis `dev` à `1f61cb9`.
+Son intégration par fast-forward et sa publication sur `dev` sont autorisées.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
 la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
@@ -39,11 +40,11 @@ explique les abandons. Les cases cochées ne désignent que des travaux réalis�
   sans troncature et les tests d'erreurs et d'ordre des opérations `Sync`/`Close`.
 - [x] Partager la règle d'enregistrement CLI/TUI ; persister chaque réponse
   réellement soumise, sans doublon lors du feedback, d'un retour ou d'une sortie
-  (P1.2 réalisée, à valider). Sauvegarde avant feedback ; erreur visible et réponse
+  (P1.2 terminée et validée). Sauvegarde avant feedback ; erreur visible et réponse
   TUI conservée pour une nouvelle tentative de sauvegarde.
 - [x] Ne pas créer de tentative pour l'aide, une solution affichée, la navigation
   ou un EOF vide ; tester retries, EOF après réponse et interruption
-  (P1.2 réalisée, à valider). Validations sans texte ignorées ; compteurs v1 inchangés.
+  (P1.2 terminée et validée). Validations sans texte ignorées ; compteurs v1 inchangés.
 - [ ] Afficher les choix des QCM dans les deux interfaces et valider leur cohérence.
 - [ ] P1.4 : revoir les parcours redondants Start training/Keyboard shortcuts et
   la troncature du footer compact au redimensionnement ; conserver l'aide complète.
@@ -107,9 +108,9 @@ scan runtime ou capture globale macOS n'est entretenue pour le nouveau MVP.
 ## Branches atomiques proposées
 
 P0.1 à P0.3 et P1.1, corrections de `fix/progress-storage-hardening` comprises,
-sont terminées et intégrées dans `dev`. Après fetch, `dev` et `origin/dev`
-pointent sur `1f61cb9`. P1.2 est réalisée sur `fix/training-recording`, en attente
-de validation humaine avant commit, merge ou push. Les autres unités restent planifiées.
+sont terminées et intégrées dans `dev`. P1.2 est terminée et validée sur
+`fix/training-recording`, avec `e7b4170` et `a60c819` ; intégration par fast-forward
+et publication sur `dev` autorisées. Les autres unités restent planifiées.
 Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
 Les unités de retrait se suivent dans l'ordre indiqué ; chaque PR doit compiler
@@ -122,7 +123,7 @@ et conserver les commandes d'entraînement encore disponibles.
 | P0 — `refactor/remove-dotfiles-internals` (intégrée) | Six packages internes ; `chapter` sans catalogue ni génération, anciens chemins supprimés, TOML retiré ; corpus et données utilisateur préservés. | Tests sans cache, vet, aide, imports et dépendances vérifiés ; essais CLI/TUI isolés et restauration terminal réussis ; intégrée dans `dev` à `8ec5c00`. |
 | P1 — `fix/progress-storage` (intégrée localement) | Sauvegarde atomique et historique v1 ; aucun changement du comptage ou des appels CLI/TUI. | `25c344b` ; trois problèmes de revue corrigés par P1.1b, P1.1 terminée. |
 | P1.1b — `fix/progress-storage-hardening` (intégrée localement) | Refus des `null` invalides et des cibles interdites en écriture ; injection privée de `Sync`/`Close` par appel. | Revue acceptée ; tests applicatifs, permissions non root, erreurs et ordre de `Sync`/`Close`, nettoyage et cinq mutations vérifiés ; P1.1 terminée, aucun travail P1.2. |
-| P1.2 — `fix/training-recording` (réalisée, à valider) | Enregistrement commun par réponse via les API P1.1 ; CLI texte/clavier et TUI texte persistés ; pas de tentative vide ni de double compte sur feedback. | Tests de soumission, EOF, interruption, retry, erreurs, historique v1, stats/reset et redémarrage ; essais isolés en pseudo-terminal ; aucun travail P1.3/P1.4. |
+| P1.2 — `fix/training-recording` (terminée et validée) | Enregistrement commun par réponse via les API P1.1 ; CLI texte/clavier et TUI texte persistés ; pas de tentative vide ni de double compte sur feedback. | Revue acceptée ; identifiants exacts, vrais messages de sortie et échec suivi d'interruption vérifiés ; tests complets, vet et race réussis ; aucun travail P1.3/P1.4. |
 | P1 — `fix/exercise-correction` | QCM affichés et correction adaptée aux commandes et raccourcis. | Casse, espaces significatifs, variantes et choix ; risque de refus de faux positifs auparavant acceptés ; après P0. |
 | P1 — `fix/terminal-training` | Vérifier les capacités, traiter les erreurs, préserver la capture dédiée et l'accès textuel sans configuration. | Terminal compatible/limité, sans couleur, restauration et retour TUI ; risque d'état terminal ; après enregistrement partagé. |
 | P2 — `content/v2-foundations` | Réviser le corpus et ses trois familles ; fournir le premier chapitre textuel et préserver les identifiants pertinents. | Validation YAML, références officielles et essais pédagogiques ; risque de réattribution d'acquis ; après P1. |
