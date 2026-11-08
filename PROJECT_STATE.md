@@ -1,6 +1,7 @@
 # État du projet — CLI-Drill
 
-**Constat du 8 novembre 2026 : P1 terminée ; P1.4 validée après recette réelle dans Terminal.app sous macOS. P2 est la prochaine phase.**
+**Constat du 8 novembre 2026 : P1 terminée et intégrée dans `dev` à `ef9b0a5` ;
+P2.0 terminée et approuvée, aucune fonction P2 implémentée.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
@@ -8,9 +9,10 @@ complémentaires `a60c819`, sur `fix/training-recording`, depuis `dev` à `1f61c
 Son intégration et sa publication sont réalisées dans `dev` à `be2bf2b`.
 P1.3 est terminée et validée sur `fix/exercise-correction` depuis cette base.
 Son intégration et sa publication sont réalisées dans `dev` à `db40d00`.
-P1.4 part de cette base sur `fix/terminal-training`. La validation humaine du
-8 novembre 2026 autorise son commit, son intégration par fast-forward dans `dev`
-et la publication de `origin/dev`. P2 n'est pas commencée dans cette finalisation.
+P1.4 est intégrée et publiée à `ef9b0a5`, après validation humaine et recette
+réelle dans Terminal.app sous macOS. Le cadrage P2.0 décrit ci-dessous est
+approuvé le 8 novembre 2026 pour commit, intégration par fast-forward dans `dev`
+et publication de `origin/dev`. La branche documentaire est conservée.
 
 ## Implémentation actuelle
 
@@ -314,8 +316,14 @@ de stockage restent inchangés. L'affichage des choix en CLI texte reste au back
 ## Limites encore présentes
 
 Les contenus YAML conservent des alias, fonctions et formulations personnelles
-héritées ; leur révision pédagogique est une étape distincte. Le README public
+héritées et des questions sur des applications graphiques hors du périmètre P2 ;
+leur révision pédagogique est une étape distincte. Le README public
 n'est pas modifié et attend son alignement après migration fonctionnelle.
+
+À la base `ef9b0a5`, `chapter.Item` n'a pas de difficulté ni de liste de modules ;
+les chapitres n'ont pas de famille ou d'ordre d'apprentissage déclaré. Aucun
+mécanisme de préférences ou de mélange n'est présent : les moteurs parcourent
+les exercices dans l'ordre du corpus. P2.0 ne change aucun de ces comportements.
 
 Défauts connus encore au backlog :
 
@@ -331,6 +339,8 @@ Défauts connus encore au backlog :
 organise un corpus vérifié en Unix & Shell Fundamentals, Keyboard Shortcuts,
 Modern CLI & macOS, avec contexte portable/BSD/macOS/GNU/Linux/tiers explicite.
 Les sessions visent cinq à dix minutes, sans détection d'outils installés.
+Le périmètre P2 enseigne les commandes Unix, shells, raccourcis du terminal et
+outils CLI ; la famille macOS ne justifie pas de leçons sur les logiciels graphiques.
 
 La [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
 conserve intégralement les anciennes données JSON/YAML/TOML. Leur abandon
@@ -339,11 +349,37 @@ Les vérifications techniques du terminal restent requises ; les deux moteurs
 et le fonctionnement local et hors ligne restent centraux.
 
 P1 est terminée et validée, P1.4 comprise après recette réelle dans Terminal.app.
-P2 — révision du corpus pédagogique et de l'expérience utilisateur — est la
-prochaine phase. Les compléments différés restent ouverts dans le backlog ;
-ils ne sont pas déclarés réalisés par la clôture de P1. Aucun travail P2 n'est
-engagé dans cette finalisation.
-Voir le [backlog](TODO.md).
+Les compléments différés restent ouverts dans le backlog ; ils ne sont pas
+déclarés réalisés par la clôture de P1.
+
+### P2.0 — Évolution de la feuille de route, terminée et validée
+
+La demande du 8 novembre 2026 indique la validation de l'audit pédagogique des
+68 exercices. Cette mission en formalise les nouvelles décisions produit, sans
+refaire cet audit ni une revue exhaustive de P1. Les 10 YAML/68 exercices
+restent inchangés ; aucune nouvelle qualité pédagogique ou capture n'est validée.
+
+La [décision P2.0](docs/DECISIONS.md#2026-11-08--p20--evolution-pedagogique)
+complète la décision V2 : sélection manuelle des modules CLI tiers, socle Unix
+toujours disponible, difficulté Beginner/Intermediate/Advanced par exercice,
+séances mélangées avec apprentissage guidé lorsque nécessaire, et enrichissement
+progressif vers une cible indicative de 100 à 120 exercices au total.
+Le choix ne dépend pas d'une installation réelle, d'un scan ou des dotfiles.
+
+La [spécification](docs/SPEC.md) définit les métadonnées additives et leur
+compatibilité historique, les préférences minimales séparées du JSON v1, les
+filtres et l'ordre stable pendant une séance. L'[architecture](docs/ARCHITECTURE.md)
+les répartit dans les packages existants ; aucun nouveau moteur ou framework
+n'est prévu. Les identifiants pertinents et les garanties d'enregistrement,
+de correction et de stockage P1 sont maintenus.
+
+Le [backlog P2](TODO.md#p2--feuille-de-route-pedagogique) ordonne métadonnées,
+premier corpus révisé, préférences, séances, enrichissement et recette/documentation,
+avec critères d'acceptation par sous-phase. Les fonctions P2.1 à P2.6 restent
+à réaliser lors de missions distinctes. P2.0 ne modifie ni Go, ni YAML, ni
+dépendance, ni README et ne crée aucun fichier de configuration. La validation
+de finalisation autorise uniquement le commit et la publication du cadrage P2.0,
+sans commencer P2.1.
 
 ## Validation et limites de preuve
 

@@ -40,6 +40,15 @@ capture, et traiter les capacités indisponibles sans les supposer. Le premier
 entraînement cible est textuel et immédiatement accessible sans configuration.
 Conserver l'identité graphique et réutiliser les composants existants.
 
+P2 est cadrée par la [décision du 8 novembre 2026](docs/DECISIONS.md#2026-11-08--p20--evolution-pedagogique)
+et la spécification : commandes Unix, shells, raccourcis du terminal et outils CLI,
+sans leçons sur des logiciels graphiques pour leur seule présence sur macOS.
+La sélection manuelle des modules tiers, les niveaux par exercice et le mélange
+des séances sont désormais prévus, avec apprentissage guidé si nécessaire.
+Leurs préférences minimales restent distinctes de la progression JSON v1 ;
+elles n'autorisent ni réintroduction du scanner/catalogue, ni import automatique,
+ni implémentation hors d'une tâche explicitement consacrée à la sous-phase.
+
 <a id="regles-de-securite"></a>
 
 ## Règles de sécurité

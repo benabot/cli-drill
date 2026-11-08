@@ -207,3 +207,93 @@ Aucun texte historique ci-dessus n'est supprimé ni réécrit.
 La [spécification V2](SPEC.md), l'[architecture cible](ARCHITECTURE.md),
 l'[état actuel](../PROJECT_STATE.md) et le [backlog](../TODO.md) distinguent
 la décision de sa réalisation. Le README sera actualisé après migration.
+
+
+<a id="2026-11-08--p20--evolution-pedagogique"></a>
+
+## 2026-11-08 — P2.0 : évolution de la feuille de route pédagogique
+
+**Statut : décisions produit fournies après validation de l'audit pédagogique
+des 68 exercices ; cadrage documentaire approuvé le 8 novembre 2026,
+implémentation P2 non réalisée.**
+La demande du 8 novembre 2026 constitue la référence de cette validation ;
+cette mission ne refait ni l'audit pédagogique ni une revue exhaustive de P1.
+La base vérifiée est `dev` à `ef9b0a5`, avec P1 terminée et validée.
+La validation de finalisation du 8 novembre 2026 autorise le commit documentaire,
+l'intégration par fast-forward dans `dev` et la publication de `origin/dev`, en
+conservant `docs/p2-roadmap`. Elle ne vaut pas validation fonctionnelle P2 et
+n'autorise aucune implémentation P2.1.
+
+### Ce qui change par rapport à la décision du 7 novembre
+
+- Le périmètre explicite est commandes Unix, shells, raccourcis du terminal
+  et outils CLI. La famille Modern CLI & macOS ne couvre pas les logiciels
+  graphiques pour leur seule présence sur macOS ; leurs questions héritées
+  devront sortir du corpus actif. Le cas `Marked 2` reporté par P1.3 est traité
+  éditorialement, sans assouplissement global des réponses de workflow.
+- La personnalisation manuelle devient un objectif P2 : socle Unix toujours
+  disponible, modules tiers activables individuellement, même sans installation.
+  Aucun scan, lecture de dotfiles, ancien scanner ou catalogue ne revient.
+- Le corpus court est un premier lot, suivi d'une cible indicative de 100 à
+  120 exercices au total dans les trois familles. Commandes saisies, scénarios
+  autonomes et captures compatibles priment sur la répétition de noms d'outils.
+- Beginner, Intermediate et Advanced qualifient chaque exercice. Le niveau
+  d'une séance peut être choisi au lancement, notamment depuis une fiche chapitre.
+  Les YAML historiques sans difficulté restent lisibles sans conversion.
+- L'ordre aléatoire devient prévu pour chaque nouvelle séance ordinaire et
+  les révisions. L'apprentissage initial suit un ordre guidé lorsqu'il est
+  nécessaire. Filtrer avant de mélanger, conserver l'ordre pendant la séance
+  et présenter une fois chaque exercice éligible dans le parcours initial.
+  Les retries volontaires restent de nouvelles tentatives légitimes selon P1.2.
+
+Ces choix remplacent les exclusions de l'aléatoire et des préférences
+pédagogiques minimales du 7 novembre. Ils ne rétablissent ni la personnalisation
+automatique ni les autres préférences différées. Les décisions historiques
+ci-dessus sont conservées comme historique, y compris leurs anciens libellés P2 V1.
+
+### Choix de conception minimaux retenus pour le cadrage
+
+La demande fixe les objectifs ; les précisions suivantes constituent le contrat
+minimal retenu dans P2.0, sans prétendre décrire le logiciel actuel :
+
+- YAML additif : `difficulty` et `tools` sur l'exercice, `family` et
+  `learning_order` sur le chapitre. Niveau absent : Beginner en mémoire ;
+  ordre absent : guidé par prudence. Les sources révisées déclareront ces valeurs.
+  Les préconditions de portabilité restent textuelles, sans nouveau schéma complexe.
+- Par défaut, aucun module tiers activé et niveau Beginner. Le filtre de niveau
+  est exact ; un exercice multi-outils exige tous ses modules. Aucun résultat
+  n'entraîne une activation ou un changement automatique de niveau.
+- Préférences locales facultatives dans un futur `preferences.json`, distinct
+  du JSON de progression : version propre, outils activés et niveau par défaut.
+  Écriture uniquement sur enregistrement explicite, défauts en mémoire sinon,
+  erreurs visibles et aucune réparation automatique d'un fichier invalide.
+  Les chemins et cas d'erreur sont définis dans la spécification.
+- Ordre et options ponctuelles de séance en mémoire ; aucun marqueur de première
+  séance, graine persistante ou curseur. Sur un chapitre guidé, proposer Apprendre
+  par défaut et laisser choisir Réviser explicitement. Deux permutations
+  successives peuvent être identiques ; le mélange n'est pas une promesse d'alternance.
+
+### Garanties maintenues et limites
+
+Le JSON de progression reste en version 1, mêmes champs, chemins, clés et
+compteurs, avec `progress.RecordAnswer` et les protections de stockage P1.
+Ni module, ni difficulté, ni ordre n'est stocké dans la progression. Les acquis
+sont projetés sur le corpus sélectionné sans effacer les résultats historiques.
+Déplacer un exercice vers une autre famille n'autorise pas à changer sa clé
+`chapter-id/item-id`. Un nouvel apprentissage reçoit une nouvelle clé.
+Les anciens JSON, YAML et TOML ne sont ni purgés, ni déplacés, ni convertis
+par migration ; les YAML utilisateur ne sont toujours pas chargés automatiquement.
+
+Conserver les deux moteurs, les six packages, Go/Cobra/Bubble Tea, l'identité
+visuelle, le fonctionnement local hors ligne, les contrôles terminal et
+l'interdiction d'exécuter les réponses. La capture indisponible ne donne aucun
+acquis fictif. Aucun moteur adaptatif, répétition espacée, base de données,
+framework de configuration ou nouvelle dépendance spéculative n'est prévu.
+Les limites P1 de concurrence et de durabilité restent inchangées.
+
+La [spécification](SPEC.md) est la référence des contrats ; le
+[backlog](../TODO.md#p2--feuille-de-route-pedagogique) définit l'ordre des
+sous-phases et leurs critères. L'[architecture](ARCHITECTURE.md) précise leur
+répartition minimale ; l'[état courant](../PROJECT_STATE.md) distingue cadrage
+P2.0 et fonctions réellement disponibles. Aucun Go, YAML, README ou fichier
+utilisateur/configuration n'est modifié par cette mission.

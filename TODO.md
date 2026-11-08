@@ -8,8 +8,11 @@ Migration fonctionnelle V2 partielle. P1.2 est terminée et validée : implémen
 Son intégration et sa publication sur `dev` sont réalisées à `be2bf2b`.
 P1.3 est terminée, validée et intégrée dans `dev` à `db40d00`.
 P1.4 est terminée et validée après recette réelle dans Terminal.app sous macOS.
-P1 est clôturée ; P2 est la prochaine phase. Le commit, l'intégration par
-fast-forward dans `dev` et la publication de `origin/dev` sont autorisés.
+P1 est clôturée et intégrée dans `dev` à `ef9b0a5`. P2.0 est terminée et
+approuvée le 8 novembre 2026 ; aucune fonction P2 n'est implémentée. La validation
+de finalisation autorise le commit documentaire, le fast-forward vers `dev` et
+la publication de `origin/dev`, en conservant `docs/p2-roadmap`. Elle n'autorise
+aucune implémentation P2.1.
 Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
 La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
 la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
@@ -82,53 +85,167 @@ non réalisés sont conservés explicitement dans la section différée ci-desso
 - [x] Démarrer directement un chapitre textuel depuis Start training, sans configuration
   ni activation implicite de capture brute (P0.2).
 
-## P2 — Corpus pédagogique et expérience utilisateur — prochaine phase
+<a id="p2--feuille-de-route-pedagogique"></a>
 
-Phase à démarrer dans une intervention distincte ; aucun travail P2 n'est engagé
-par la finalisation de P1.
+## P2 — Feuille de route pédagogique
 
-- [ ] Fournir un corpus court jouable dans chaque famille : Unix & Shell Fundamentals,
-  Keyboard Shortcuts, Modern CLI & macOS. Viser cinq à dix minutes par chapitre.
-- [ ] Réviser chaque exercice conservé : consigne discriminante, correction,
-  explication, contexte portable/BSD/macOS/GNU/Linux/tiers vérifié et absence
-  de dépendance à une installation personnelle.
-- [ ] Décider la tolérance de casse du nom d'application `Marked 2` : la saisie
-  `marked 2` reste refusée par P1.3. Traiter ce point mineur en P2, sans rendre
-  tous les workflows insensibles à la casse.
-- [ ] Réviser la première leçon textuelle pour le corpus V2 ; garder saisie de commandes
-  et vraie capture comme activités centrales, avec QCM complémentaires.
-- [x] Adapter le menu cible en réutilisant navigateur, fiche et statistiques (P0.2) ;
-  P1.4 lance directement l'unique chapitre clavier, sans moteur supplémentaire.
-- [ ] Conserver l'identité graphique, le mode sans couleur et le retour à l'accueil
-  après capture ; ne pas ajouter de préférences de navigation.
-- [ ] Relire et essayer les leçons après de vraies sessions avant d'élargir le corpus.
-- [ ] Mettre à jour le README public seulement après la migration fonctionnelle.
+La [décision P2.0](docs/DECISIONS.md#2026-11-08--p20--evolution-pedagogique)
+complète la V2. L'audit pédagogique des 68 exercices est déclaré validé par la
+demande du 8 novembre 2026 : appliquer ses orientations, sans refaire cet audit
+ni rouvrir P1. Les contrats YAML, filtres, ordre et préférences sont définis dans
+la [spécification](docs/SPEC.md), qui fait référence pour les détails.
 
-### Évaluation du corpus existant à réaliser
+Ordre proposé : **P2.0 → P2.1 → P2.2 → P2.3 → P2.4 → P2.5 → P2.6**.
+Chaque sous-phase fonctionnelle fera l'objet d'une mission et d'une validation
+distinctes. P2.0 est validée ; les critères des sous-phases fonctionnelles
+ci-dessous restent à vérifier lors de leur réalisation.
 
-| Chapitre actuel | Orientation V2, corpus inchangé jusqu'à la révision pédagogique |
-| --- | --- |
-| `01-raccourcis-terminal` | Conserver les exercices de capture pertinents ; préciser shell, mode d'édition et limites du terminal. |
-| `02-navigation-shell` | Conserver les notions générales et outils tiers utiles ; retirer les variantes d'alias personnels. |
-| `03-alias-zsh`, `04-fonctions-zsh` | Retirer les leçons dépendant des noms et fonctions personnels ; ne pas les convertir automatiquement en questions générales. |
-| `05-outils-quotidiens`, `06-recherche-fichiers-contenu` | Conserver et vérifier les usages généraux ; distinguer outils tiers et commandes portables. |
-| `07-lecture-preview` | Garder les pratiques générales ; réévaluer les associations d'applications et fonctions personnelles. |
-| `08-micro`, `09-markdown-glow` | Évaluer comme contenus tiers secondaires ; retirer les alias et fonctions dits détectés. |
-| `10-workflows-dotfiles` | Retirer les workflows personnels ; extraire seulement les exercices généraux utiles, par exemple Git. |
+### P2.0 — Cadrage documentaire — terminée et validée
 
-Ne conserver un couple d'identifiants que si l'apprentissage reste identique.
-Un nouveau concept reçoit de nouveaux identifiants ; les anciens résultats
-restent stockés. L'encodage minimal des familles/contextes sera documenté dans
-la PR de corpus, sans nouvelle infrastructure de contenu.
+Dépendance : P1 validée, base `ef9b0a5`.
+
+- [x] Définir le périmètre terminal/CLI, les modules manuels, les trois niveaux,
+  le mélange et l'exception guidée ; conserver les décisions historiques.
+- [x] Décrire les métadonnées additives, les préférences séparées et les garanties P1.
+- [x] Ordonner les sous-phases et préciser leur acceptation.
+
+Acceptation : documents cohérents, liens locaux valides, diff limité aux références
+Markdown autorisées et `git diff --check` réussi. Aucun Go, YAML, dépendance,
+README ou fichier de configuration créé/modifié. Après validation documentaire,
+la finalisation du 8 novembre 2026 autorise commit, fast-forward et publication
+de ce seul cadrage ; aucun développement P2.1 n'est engagé.
+
+### P2.1 — Métadonnées pédagogiques rétrocompatibles
+
+Dépendance : P2.0. Ne pas encore activer les filtres sur le corpus non annoté.
+
+- [ ] Ajouter `difficulty` et `tools` à l'exercice, `family` et `learning_order`
+  au chapitre selon SPEC ; conserver les champs historiques et les deux moteurs.
+- [ ] Valider les valeurs, listes de modules et identifiants sans nouveau catalogue.
+
+Acceptation : les fixtures YAML historiques sans difficulté se chargent comme
+Beginner, sans réécriture ni changement d'identifiants ; l'ordre absent reste
+prudemment guidé. Valeurs explicites invalides, types inconnus, doublons de clés
+et incohérences de QCM sont diagnostiqués. Les tests couvrent les trois niveaux,
+les outils multiples, l'ancien format et le corpus intégré inchangé. Aucun import
+automatique des YAML utilisateur, aucune modification du JSON de progression v1.
+
+### P2.2 — Premier corpus V2 jouable et annoté
+
+Dépendance : P2.1. Appliquer l'audit validé, sans nouvelle revue exhaustive.
+
+- [ ] Fournir un premier lot court dans les trois familles, avec un chapitre
+  textuel Beginner du socle Unix utilisable sans outil tiers ni configuration.
+- [ ] Retirer du corpus actif les dépendances aux alias/fonctions personnels,
+  workflows dotfiles et questions sur les logiciels graphiques hors périmètre.
+  Le cas `Marked 2` est résolu par ce retrait, sans changer le correcteur P1.3.
+- [ ] Déclarer famille et ordre du chapitre, difficulté de chaque exercice et
+  tous les modules tiers requis ; rendre chaque consigne autonome.
+- [ ] Documenter pour chaque clé conservée, nouvelle ou retirée le maintien ou
+  changement d'apprentissage. Réorganiser les familles sans renommer les clés
+  historiques pertinentes ni transférer de faux acquis.
+- [ ] Lever le complément différé d'affichage des choix QCM en CLI texte avant
+  de déclarer ces leçons jouables dans les deux interfaces.
+
+Acceptation : chaque famille est jouable ; les chapitres visent cinq à dix minutes.
+Consignes, solutions, variantes, explications et portabilité sont vérifiées dans
+les références officielles utiles. Les scénarios fournissent leur contexte sans
+état réel ni réponse préalable ; aucune commande saisie n'est exécutée.
+Tous les exercices tiers sont annotés avant d'activer leur sélection. Premier
+lancement et consultations laissent les fixtures historiques JSON/YAML/TOML
+intactes ; les entraînements enrichissent le JSON sans perdre les résultats retirés.
+Essais pédagogiques CLI texte, TUI et capture compatibles réalisés,
+y compris choix QCM visibles et diagnostics des captures indisponibles.
+
+### P2.3 — Sélection manuelle et préférences minimales
+
+Dépendance : P2.2, pour ne pas exposer des exercices tiers non annotés.
+
+- [ ] Permettre d'activer séparément les modules tiers issus du corpus et de
+  choisir le niveau par défaut ; conserver le socle Unix toujours accessible.
+- [ ] Ajouter le stockage facultatif de préférences décrit dans SPEC, distinct
+  de la progression, avec des fonctions concrètes dans les packages existants.
+- [ ] Raccorder les choix CLI/TUI aux composants existants, sans refonte de
+  navigation ; conserver `--config` et les commandes de scan hors de l'interface.
+
+Acceptation : sans préférences, le socle Beginner démarre sans création de
+préférences et sans installation tierce. Chaque module peut être activé/désactivé
+sans scan ; un exercice multi-outils exige tous ses modules. Une modification
+enregistrée est relue après relance ; un choix ponctuel n'est pas persisté. Absence, JSON invalide,
+version inconnue, outil retiré et échec d'écriture suivent les diagnostics et
+protections de SPEC. Aucun changement d'outils/niveau ne modifie la progression
+v1 ou les anciens YAML/TOML ; `--progress` et `reset --yes` gardent leur périmètre.
+Les filtres sont disponibles pour la préparation commune de séance P2.4.
+
+### P2.4 — Séances filtrées, guidées et mélangées
+
+Dépendances : P2.1 à P2.3. Partager la préparation, conserver les moteurs existants.
+
+- [ ] Permettre de choisir Beginner, Intermediate ou Advanced au lancement de la
+  séance, y compris depuis une fiche chapitre ; filtrer par niveau exact.
+- [ ] Former une liste éligible puis mélanger une seule fois par nouvelle séance
+  ordinaire/révision ; garder l'ordre en mémoire jusqu'à la sortie.
+- [ ] Pour un chapitre guidé, proposer Apprendre en ordre éditorial et Réviser
+  en ordre aléatoire, sans marqueur persistant de première séance.
+- [ ] Adapter les décomptes et accès Start training / Keyboard shortcuts aux
+  exercices éligibles, sans refonte visuelle ; calculer les acquis actifs par
+  intersection d'identifiants, sans purger l'historique.
+
+Acceptation : pour zéro, un ou plusieurs exercices, chaque liste est une
+permutation exacte de l'ensemble éligible, sans omission ni doublon. Deux tirages
+identiques sont permis ; les tests vérifient l'invariant, pas une différence
+systématique. Aide, feedback, retour de capture, redimensionnement, erreur de
+sauvegarde puis nouvelle tentative ne changent pas l'ordre ou la clé enregistrée.
+Les filtres et préférences restent figés pendant la séance. Une sélection vide
+explique la cause sans tentative ni écriture ; le socle reste consultable.
+Apprendre conserve l'ordre filtré et Réviser remélange ; retry/révision des erreurs
+ajoutent uniquement les réponses réellement soumises selon P1.2. Les tests et
+essais couvrent CLI, TUI et capture, avec conservation des résultats v1 retirés,
+compteurs cumulés et absence de faux acquis. Le corpus source ne change pas d'ordre.
+
+### P2.5 — Enrichissement progressif vers 100 à 120 exercices
+
+Dépendance : premier lot et parcours P2.2 à P2.4 validés, pour essayer les nouveaux
+lots dans les conditions de sélection et d'ordre prévues.
+
+- [ ] Enrichir les trois familles par petits lots relus et essayés, avec les
+  trois niveaux progressivement représentés ; priorité aux commandes, scénarios
+  concrets et captures prises en charge.
+- [ ] Viser 100 à 120 exercices intégrés au total, cible indicative subordonnée
+  à la qualité ; ne pas multiplier les questions de noms de logiciels.
+
+Acceptation par lot : nouveaux identifiants pour nouveaux apprentissages,
+métadonnées complètes, variantes explicites, explications et contexte vérifiés,
+autonomie en ordre aléatoire et parcours guidé essayés. Décompte du corpus par
+famille/niveau et équilibre des formats examinés ; aucun quota de remplissage.
+Un écart à la cible est expliqué plutôt que compensé par des doublons.
+Aucune installation tierce nécessaire, aucune exécution pédagogique et aucune
+extension de schéma de progression, moteur adaptatif ou répétition espacée.
+
+### P2.6 — Recette d'ensemble et documentation du logiciel livré
+
+Dépendance : sous-phases fonctionnelles précédentes validées.
+
+- [ ] Vérifier les parcours avec/sans modules, niveaux, guidage/révision,
+  interruptions et sauvegardes, avec et sans couleur ; conserver le retour TUI.
+- [ ] Actualiser README, état du projet et aides sur le comportement réellement
+  livré, après validation fonctionnelle ; distinguer la cible indicative atteinte
+  des lots encore prévus et conserver les limites terminal documentées.
+
+Acceptation : recette macOS des parcours touchés et tests ciblés de compatibilité
+sur fixtures synthétiques réussis ; exemples et aides cohérents avec le binaire,
+liens et diff vérifiés. Les limites non testées sont nommées. Cette recette
+porte sur P2 et ses régressions possibles, pas une nouvelle revue exhaustive P1.
 
 ## Compléments différés après clôture de P1
 
 Ces éléments du backlog restent ouverts ; ils ne font pas partie de la livraison
 P1.4 validée et ne sont pas implémentés par sa finalisation.
 
-- [ ] Afficher les choix des QCM en CLI texte (hors du périmètre TUI de P1.4).
-- [ ] Calculer les acquis du corpus actif par identifiants présents, sans purger
-  le JSON des anciens exercices. Garder `streak` hors des indicateurs actifs.
+L'affichage des choix QCM en CLI texte est repris par P2.2 et la projection des
+acquis du corpus actif par P2.4 ; ces points ne sont pas déclarés réalisés ici.
+`streak` reste hors des indicateurs actifs.
+
 - [ ] Compléter les vérifications des terminaux indisponibles et des cas d'erreur
   de capture/restauration ; ne jamais créditer une touche non réellement capturée.
 - [ ] Guider vers la CLI textuelle si la TUI est indisponible ; compléter les diagnostics
@@ -137,9 +254,12 @@ P1.4 validée et ne sont pas implémentés par sa finalisation.
 ## Plus tard — Sous réserve d'un besoin observé
 
 - Distribution par releases et éventuellement Homebrew, après stabilisation.
-- Enrichissement mesuré des exercices et sujets avancés, après validation du corpus court.
-- Sessions aléatoires, préférences, import personnalisé ou reprise au curseur :
-  différés, sans tâches d'implémentation actives ni nouvelle configuration prévue.
+- Import personnalisé et reprise persistante au curseur : toujours différés.
+- Préférences au-delà des modules CLI et du niveau par défaut : différées.
+
+L'enrichissement avancé, le mélange des séances et les préférences pédagogiques
+minimales sont désormais dans P2. Moteur adaptatif et répétition espacée restent
+hors de cette phase.
 
 Aucune roadmap de moteurs Bash/Fish, d'IA, MCP, compte, synchronisation,
 scan runtime ou capture globale macOS n'est entretenue pour le nouveau MVP.
@@ -153,11 +273,13 @@ sont terminées et intégrées dans `dev`. P1.2 est terminée et validée sur
 `fix/training-recording`, avec `e7b4170` et `a60c819` ; intégration et publication
 sur `dev` réalisées à `be2bf2b`. P1.3 est terminée et validée sur
 `fix/exercise-correction`, intégrée dans `dev` à `db40d00`. P1.4 est terminée et
-validée dans Terminal.app ; P1 est clôturée et P2 est la prochaine phase.
+validée dans Terminal.app et intégrée à `ef9b0a5` ; P1 est clôturée. P2.0 cadre
+la prochaine phase fonctionnelle, sans la réaliser.
 Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
-Les unités de retrait se suivent dans l'ordre indiqué ; chaque PR doit compiler
-et conserver les commandes d'entraînement encore disponibles.
+Les sous-phases P2 suivent les dépendances ci-dessus ; chaque future PR de
+code doit compiler et conserver les commandes d'entraînement disponibles.
+Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 
 | Priorité / branche | Périmètre et acceptation | Validation, risque et dépendance |
 | --- | --- | --- |
@@ -169,9 +291,13 @@ et conserver les commandes d'entraînement encore disponibles.
 | P1.2 — `fix/training-recording` (terminée et validée) | Enregistrement commun par réponse via les API P1.1 ; CLI texte/clavier et TUI texte persistés ; pas de tentative vide ni de double compte sur feedback. | Revue acceptée ; identifiants exacts, vrais messages de sortie et échec suivi d'interruption vérifiés ; tests complets, vet et race réussis ; aucun travail P1.3/P1.4. |
 | P1.3 — `fix/exercise-correction` (terminée et validée) | Correction partagée des cinq types, variantes YAML conservées ; aucun changement d'affichage QCM (P1.4). | Tests de casse, espaces, syntaxe, choix, raccourcis et résultats CLI/TUI ; sept mutations détectées ; refus intentionnel de faux positifs ; base `be2bf2b`, stockage P1.1/P1.2 inchangé. |
 | P1.4 — `fix/terminal-training` (terminée et validée) | QCM TUI sélectionnables ; accès direct au seul chapitre clavier via la capture existante. Aucun changement de layout, YAML, correction ou stockage. | Tests complets, vet, formatage et diff réussis ; essais sous pseudo-terminal et huit tests manuels dans Terminal.app réussis. Aucun défaut bloquant ou important ; clôture de P1 validée. |
-| P2 — `content/v2-foundations` | Réviser le corpus et ses trois familles ; fournir le premier chapitre textuel et préserver les identifiants pertinents. | Validation YAML, références officielles et essais pédagogiques ; risque de réattribution d'acquis ; après P1. |
-| P2 — `refactor/v2-navigation` (à réévaluer après corpus) | Le menu et la vue clavier sont livrés par P0.2 ; limiter les futurs ajustements aux besoins démontrés du corpus révisé. | Navigation par familles si le corpus le requiert ; ne pas refaire l'accueil ni changer l'identité graphique. |
-| P2 — `docs/readme-v2` | Décrire le comportement V2 effectivement livré. | Exemples, liens et comparaison avec le binaire ; risque de promesse prématurée ; après validation fonctionnelle V2. |
+| P2.0 — `docs/p2-roadmap` (terminée et validée) | Spécification, décisions et backlog P2, documentation seulement. | Liens, cohérence, périmètre et diff ; après P1 à `ef9b0a5`. |
+| P2.1 — `refactor/pedagogical-metadata` | Métadonnées additives et défauts historiques. | Critères P2.1 ; après P2.0 ; risque de rejet des anciens YAML. |
+| P2.2 — `content/v2-foundations` | Premier corpus révisé et annoté selon l'audit validé. | Critères P2.2 ; après P2.1 ; risque de réattribution d'acquis. Le correctif CLI QCM peut être isolé sur `fix/cli-multiple-choice`. |
+| P2.3 — `refactor/learning-preferences` | Modules manuels et préférences séparées. | Critères P2.3 ; après P2.2 ; risque d'écriture implicite ou de filtre incomplet. |
+| P2.4 — `refactor/session-order` | Préparation commune, niveau, mélange, guidage et projection des acquis. | Critères P2.4 ; après P2.3 ; risque de permutation des clés ou de double compte. |
+| P2.5 — `content/v2-expansion-<lot>` | Lots vers la cible indicative de 100 à 120 exercices. | Critères P2.5 ; après P2.4 ; qualité et autonomie avant volume. |
+| P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
 
 Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
 `go vet ./...`, le contrôle de formatage et l'aide CLI concernée. Les tests
@@ -181,8 +307,8 @@ P0.1 valide le chargement intégré, P0.2 la surface utilisateur et P0.3 le retr
 des internes hérités. P1.1, corrections P1.1b comprises, termine la fiabilisation
 du stockage dans son périmètre, sans modifier les entraînements.
 P1 est terminée et validée. La V2 complète reste à valider après P2, prochaine
-phase consacrée au corpus et à l'expérience utilisateur. Les compléments différés
-restent explicitement ouverts.
+phase consacrée au corpus et à l'expérience utilisateur, cadrée par P2.0.
+Les compléments différés restent explicitement ouverts.
 
 ## Archive V1 — Réalisations et abandons
 

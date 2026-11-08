@@ -1,9 +1,8 @@
 # CLI-Drill V2 — Architecture cible
 
-**Cible décidée le 7 novembre 2026 ; réalisation partielle.**
-Les retraits P0 et le stockage P1.1 sont décrits comme intégrés dans
-l'état courant ; les étapes ultérieures gardent leurs statuts de validation.
-Cette clarification documentaire ne change aucun package Go ni dépendance.
+**Cible du 7 novembre 2026, complétée par P2.0 le 8 novembre 2026 ; réalisation partielle.**
+P0 et P1 sont terminées selon l'état courant à `ef9b0a5` ; P2 reste à implémenter.
+La mise à jour P2.0 ne change aucun package Go ni dépendance.
 L'[état courant](../PROJECT_STATE.md) décrit le code disponible ; la
 [spécification](SPEC.md) définit les comportements V2 et les garanties de données.
 
@@ -11,7 +10,11 @@ L'[état courant](../PROJECT_STATE.md) décrit le code disponible ; la
 
 ```text
 Chapitres YAML intégrés -> chargement et validation
-                                |
+                                 |
+ Préférences pédagogiques -> sélection outils / niveau
+                                 |
+                   ordre de séance en mémoire
+                                 |
                          entraînement CLI / TUI
                                 |
                     correction -> progression JSON locale
@@ -26,17 +29,40 @@ aucun dossier utilisateur ne remplace automatiquement le corpus intégré.
 
 | Package | Responsabilité cible |
 | --- | --- |
-| `internal/app` | Commandes Cobra conservées, choix des chapitres et orchestration TUI / entraînement dédié. |
-| `internal/chapter` | Modèle pédagogique, chargement du corpus intégré et validation YAML. |
+| `internal/app` | Commandes Cobra, orchestration TUI / entraînement dédié et futur chargement/enregistrement des préférences minimales. |
+| `internal/chapter` | Modèle pédagogique, chargement et validation YAML ; future sélection des exercices et préparation de leur ordre en mémoire. |
 | `internal/exercise` | Types d'exercices, correction pure et normalisation adaptée au contexte. |
 | `internal/progress` | Compteurs, compatibilité JSON et persistance sûre. |
 | `internal/tui` | Navigation, saisie, filtres, feedback et rendu Bubble Tea. |
-| `internal/xdg` | Résolution du chemin actuel de progression et respect de `XDG_DATA_HOME`. |
+| `internal/xdg` | Résolution du chemin actuel de progression et, en P2, du chemin distinct de préférences ; respect de `XDG_DATA_HOME`. |
 
 Conserver ces frontières. Aucun package de services, interface de stockage,
 registre de moteurs ou framework de session supplémentaire n'est nécessaire.
 Répartir éventuellement les gros fichiers dans leur package existant lorsque
 cela aide un changement ciblé ; ne pas engager une réorganisation générale.
+
+## Compléments minimaux P2 — non implémentés
+
+La [spécification](SPEC.md) porte le contrat des métadonnées et des préférences.
+Ajouter à terme difficulté et modules tiers sur l'exercice, famille et mode
+d'apprentissage sur le chapitre ; conserver les champs et identifiants existants.
+La liste des outils sélectionnables est une projection des métadonnées intégrées,
+sans registre d'installation, scanner, ancien catalogue ou nouveau package `config`.
+
+Préparer une copie ou une liste de références aux exercices éligibles dans
+`chapter` : modules requis, niveau exact, puis ordre guidé ou permutation.
+Partager cette préparation entre CLI, TUI et délégation clavier ; garder la
+liste en mémoire pendant la séance. Chaque référence conserve le couple
+`chapter-id/item-id` d'origine. Aucun curseur, graine ou ordre n'est ajouté au
+JSON de progression. La révision des erreurs et les retries restent distincts
+du parcours initial, avec les règles P1 d'enregistrement par soumission.
+
+Le fichier de préférences est facultatif, séparé de la progression ; `app`
+porte des fonctions concrètes de lecture/enregistrement et `xdg` son chemin.
+Pas de framework de configuration, de service de session ou d'interface de
+stockage générique. La préparation de séance ne déclenche aucune écriture.
+La correction reste dans `exercise` via `chapter.Item.MatchAnswer`, et chaque
+réponse passe par `progress.RecordAnswer` et le stockage sûr P1 inchangés.
 
 ## Séquence initiale des retraits P0 — historique
 
