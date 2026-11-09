@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/benabot/cli-drill/internal/chapter"
@@ -44,15 +45,15 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 		Long:  "Learn the terminal by doing. Practise commands and keyboard shortcuts with built-in chapters, locally and offline.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, opts)
+			if err := checkProgressOverride(runOpts); err != nil {
+				return err
+			}
 			chapters, err := loadChapters(runOpts)
 			if err != nil {
 				return err
 			}
 			for {
-				result, err := runTUIWithOptions(tui.Options{
-					Chapters:     chapters,
-					ProgressPath: progressPath(runOpts),
-				})
+				result, err := runTUIWithOptions(tuiOptions(chapters, progressPath(runOpts), xdg.PreferencesFile()))
 				if err != nil {
 					return err
 				}
@@ -75,6 +76,7 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 	root.AddCommand(newTrainCommand(&opts))
 	root.AddCommand(newStatsCommand(&opts))
 	root.AddCommand(newResetCommand(&opts))
+	root.AddCommand(newPreferencesCommand(&opts))
 
 	return root
 }
@@ -104,6 +106,9 @@ func newTrainCommand(opts *Options) *cobra.Command {
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, *opts)
+			if err := checkProgressOverride(runOpts); err != nil {
+				return err
+			}
 			chapters, err := loadChapters(runOpts)
 			if err != nil {
 				return err
@@ -139,6 +144,9 @@ func newStatsCommand(opts *Options) *cobra.Command {
 		Short: "Show local progress",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, *opts)
+			if err := checkProgressOverride(runOpts); err != nil {
+				return err
+			}
 			state, err := progress.Load(progressPath(runOpts))
 			if err != nil {
 				return err
@@ -160,6 +168,9 @@ func newResetCommand(opts *Options) *cobra.Command {
 			runOpts := commandOptions(cmd, *opts)
 			if !yes {
 				return errors.New("reset requires --yes")
+			}
+			if err := checkProgressOverride(runOpts); err != nil {
+				return err
 			}
 			if err := progress.Reset(progressPath(runOpts)); err != nil {
 				return err
@@ -658,4 +669,58 @@ func progressPath(opts Options) string {
 		return opts.ProgressPath
 	}
 	return xdg.ProgressFile()
+}
+
+// The schemas both use version 1. Do not let an explicit progress path make
+// preferences look like an empty progress file that training or reset can replace.
+func checkProgressOverride(opts Options) error {
+	if opts.ProgressPath == "" {
+		return nil
+	}
+	override := opts.ProgressPath
+	prefs := xdg.PreferencesFile()
+	a, aErr := filepath.Abs(override)
+	b, bErr := filepath.Abs(prefs)
+	conflict := aErr == nil && bErr == nil && a == b
+	if !conflict {
+		overrideInfo, overrideErr := os.Stat(override)
+		prefsInfo, prefsErr := os.Stat(prefs)
+		conflict = overrideErr == nil && prefsErr == nil && os.SameFile(overrideInfo, prefsInfo)
+	}
+	if !conflict && filepath.Base(override) == filepath.Base(prefs) {
+		// Also protect the reserved filename through a parent alias before
+		// preferences.json itself exists.
+		overrideDir, overrideErr := os.Stat(filepath.Dir(override))
+		prefsDir, prefsErr := os.Stat(filepath.Dir(prefs))
+		conflict = overrideErr == nil && prefsErr == nil && os.SameFile(overrideDir, prefsDir)
+	}
+	if conflict {
+		return errors.New("--progress cannot point to the preferences file")
+	}
+	return nil
+}
+
+func tuiOptions(chapters []chapter.Chapter, progressPath, preferencesPath string) tui.Options {
+	var loaded preferences
+	var loadErr error
+	return tui.Options{
+		Chapters:     chapters,
+		ProgressPath: progressPath,
+		LoadPreferences: func() ([]string, chapter.Difficulty, error) {
+			loaded, loadErr = loadPreferences(preferencesPath)
+			return loaded.EnabledTools, loaded.DefaultDifficulty, loadErr
+		},
+		SavePreferences: func(tools []string, level chapter.Difficulty) error {
+			if loadErr != nil {
+				return loadErr
+			}
+			updated := loaded
+			updated.EnabledTools, updated.DefaultDifficulty = tools, level
+			if err := savePreferences(preferencesPath, loaded, updated); err != nil {
+				return err
+			}
+			loaded = updated
+			return nil
+		},
+	}
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/benabot/cli-drill/internal/xdg"
 )
 
-func TestHelpExposesOnlyTrainingCommands(t *testing.T) {
+func TestHelpExposesCurrentCommands(t *testing.T) {
 	var out bytes.Buffer
 	cmd := NewRootCommand(data.Chapters())
 	cmd.SetOut(&out)
@@ -19,7 +19,7 @@ func TestHelpExposesOnlyTrainingCommands(t *testing.T) {
 	if err := cmd.Execute(); err != nil {
 		t.Fatal(err)
 	}
-	allowed := map[string]bool{"chapters": true, "train": true, "stats": true, "reset": true, "completion": true, "help": true}
+	allowed := map[string]bool{"chapters": true, "train": true, "stats": true, "reset": true, "prefs": true, "completion": true, "help": true}
 	for _, child := range cmd.Commands() {
 		if !allowed[child.Name()] {
 			t.Errorf("obsolete command is still public: %s", child.Name())
@@ -30,7 +30,7 @@ func TestHelpExposesOnlyTrainingCommands(t *testing.T) {
 			t.Errorf("obsolete help reference %q: %s", term, out.String())
 		}
 	}
-	for _, name := range []string{"chapters", "train", "stats", "reset", "--progress"} {
+	for _, name := range []string{"chapters", "train", "stats", "reset", "prefs", "--progress"} {
 		if !strings.Contains(out.String(), name) {
 			t.Errorf("missing training interface %q", name)
 		}

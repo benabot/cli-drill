@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestProgressFilePreservesExistingLocation(t *testing.T) {
+func TestDataFilesUseSeparateLocations(t *testing.T) {
 	home := t.TempDir()
 	data := t.TempDir()
 	for _, tc := range []struct {
@@ -21,6 +21,9 @@ func TestProgressFilePreservesExistingLocation(t *testing.T) {
 			t.Setenv("XDG_DATA_HOME", tc.data)
 			if got := ProgressFile(); got != tc.want {
 				t.Fatalf("ProgressFile() = %q, want existing location %q", got, tc.want)
+			}
+			if got, want := PreferencesFile(), filepath.Join(filepath.Dir(tc.want), "preferences.json"); got != want {
+				t.Fatalf("PreferencesFile() = %q, want %q", got, want)
 			}
 		})
 	}

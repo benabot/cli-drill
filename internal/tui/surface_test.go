@@ -9,9 +9,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func TestHomeOffersOnlyTrainingActions(t *testing.T) {
+func TestHomeOffersCurrentActions(t *testing.T) {
 	m := newTestModel(t, Options{})
-	want := []string{"Start training", "Browse chapters", "Keyboard shortcuts", "My progress", "Quit"}
+	want := []string{"Start training", "Browse chapters", "Keyboard shortcuts", "My progress", "Preferences", "Quit"}
 	items := m.home.Items()
 	if len(items) != len(want) {
 		t.Fatalf("home has %d actions, want %d", len(items), len(want))

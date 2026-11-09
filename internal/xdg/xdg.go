@@ -9,6 +9,10 @@ func ProgressFile() string {
 	return filepath.Join(dataDir(), "cli-drill", "progress.json")
 }
 
+func PreferencesFile() string {
+	return filepath.Join(dataDir(), "cli-drill", "preferences.json")
+}
+
 func dataDir() string {
 	if dir := os.Getenv("XDG_DATA_HOME"); dir != "" {
 		return dir

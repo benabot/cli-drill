@@ -1,7 +1,8 @@
 # État du projet — CLI-Drill
 
-**Au 9 novembre 2026, P2.2 est terminée et validée après recette manuelle dans
-Terminal.app. P2.3 est la prochaine étape.**
+**Au 9 novembre 2026, P2.3 est implémentée et validée après six tests
+manuels réussis dans Terminal.app. Son commit, son intégration dans `dev` et sa
+publication restent à effectuer ; P2.4 est la prochaine étape.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
@@ -16,9 +17,11 @@ et publication de `origin/dev`. Cette finalisation est réalisée à `91f13c6`.
 P2.1 part de cette base sur `feat/pedagogical-metadata`. La validation humaine
 du 8 novembre 2026 autorise son commit, son intégration par fast-forward dans
 `dev` et sa publication sur `origin/dev`, en conservant la branche de travail.
-P2.1 est intégrée et publiée à `ab2096c`. P2.2 part de cette base sur
-`content/v2-first-corpus`. La validation humaine du 9 novembre 2026 autorise le
-commit, le fast-forward dans `dev` et la publication sur `origin/dev`.
+P2.1 est intégrée et publiée à `ab2096c`. P2.2 est intégrée et publiée à
+`3ecdf9c`, après recette manuelle du 9 novembre 2026. P2.3 part de cette base
+sur `feat/cli-preferences`. Les six tests manuels du 9 novembre 2026 sont
+validés ; la finalisation de P2.3 (commit, fast-forward dans `dev` et push vers
+`origin/dev`) est autorisée, mais non encore réalisée. `main` reste inchangée.
 
 ## Implémentation actuelle
 
@@ -34,11 +37,12 @@ L'interface présente CLI-Drill comme un outil d'entraînement local au terminal
   libellé ou une variante acceptée, sans nouveau système de correction.
 - Corpus exclusivement intégré depuis P0.1 ; aucun chargement automatique des
   anciens YAML utilisateur, même lorsqu'ils sont invalides.
-- Commandes publiques : `chapters`, `train [chapter-id]`, `stats`, `reset --yes`,
-  avec `--progress`, l'aide et la complétion standard Cobra.
+- Commandes publiques : `chapters`, `train [chapter-id]`, `stats`, `reset --yes`
+  et `prefs`, avec `--progress`, l'aide et la complétion standard Cobra.
 - Anciennes commandes `init`, `scan`, `generate`, `directory`, `search`, `show`
   et option `--config` retirées ; elles produisent désormais une erreur.
-- Accueil TUI : Start training, Browse chapters, Keyboard shortcuts, My progress, Quit.
+- Accueil TUI : Start training, Browse chapters, Keyboard shortcuts, My progress,
+  Preferences et Quit.
 - Bannière ASCII, palette, composants de liste et de saisie et pieds de page conservés.
 - Deux moteurs d'entraînement conservés : texte dans la CLI/TUI et capture réelle
   dédiée. La TUI revient automatiquement à l'accueil après le mode de capture.
@@ -71,10 +75,10 @@ Depuis P1.4, Keyboard shortcuts lance directement le moteur existant lorsqu'un
 seul chapitre contient un exercice `key-sequence` (le corpus actuel). Si plusieurs
 chapitres de capture existent, le navigateur filtré est conservé ; s'il n'y en a
 aucun, sa liste reste vide. La sélection conserve les indices du corpus complet.
-Les familles pédagogiques n'ont
-pas encore de métadonnées nouvelles ; les raccourcis seulement textuels des
-chapitres mixtes, comme Micro, ne sont pas ajoutés à cette vue de capture.
-Browse chapters restaure la liste complète.
+À l'époque de P0.2/P1.4, les familles pédagogiques n'étaient pas encore
+annotées ; P2.1 a depuis ajouté ces métadonnées. Les raccourcis uniquement
+textuels des chapitres mixtes, comme Micro, ne sont pas ajoutés à cette vue
+de capture. Browse chapters restaure la liste complète.
 
 Les filtres reçoivent leurs lettres et le retour arrière avant les raccourcis
 globaux. Entrée applique le filtre, puis permet de choisir ; Échap annule la
@@ -337,7 +341,8 @@ n'est pas modifié et attend son alignement après migration fonctionnelle.
 Avant P2.1 (base `91f13c6`), `chapter.Item` n'avait pas de difficulté ni de liste
 de modules et les chapitres n'avaient pas de famille ou d'ordre déclaré.
 L'implémentation P2.1 validée ci-dessous expose ces métadonnées sans activer leur
-sélection : aucun filtre, préférence ou mélange n'est présent. Les moteurs
+sélection. Depuis P2.3, les préférences sont modifiables et persistantes ; leur
+application aux séances, le filtrage et le mélange attendent P2.4. Les moteurs
 parcourent toujours les exercices dans l'ordre du corpus.
 
 Défauts connus encore au backlog :
@@ -470,7 +475,9 @@ Les trois familles sont jouables : Unix/Shell 11 exercices, raccourcis 8,
 outils CLI 20. Niveaux : 34 Beginner, 4 Intermediate, 1 Advanced.
 Formats : 25 commandes simulées, 8 captures, 4 QCM, 2 raccourcis Micro textuels.
 Les outils tiers sont tous déclarés ; Git est un module de la famille Unix/Shell.
-La sélection des outils reste future, comme les préférences et le mélange.
+À la livraison de P2.2, la sélection des outils, les préférences et le mélange
+restaient futurs. P2.3 a depuis ajouté les préférences sans filtrer les séances ;
+P2.4 reste chargée des filtres et du mélange.
 Les consignes et explications comportent des retours à la ligne éditoriaux pour
 éviter leur troncature dans la TUI à 80 colonnes, sans changement du rendu Go.
 Les mini-leçons Bat et Historique/Git sont volontairement courtes ; une durée
@@ -515,8 +522,68 @@ pédagogique. Les tests automatisés vérifient aussi la conservation des résul
 historiques, y compris ceux des exercices retirés, au format JSON v1.
 
 La recette porte sur Terminal.app sous macOS. La durée d'apprentissage, Linux
-et Go 1.23 restent à valider. La prochaine étape est P2.3, consacrée à la
-sélection manuelle et aux préférences minimales.
+et Go 1.23 restent à valider.
+
+### P2.3 — Sélection manuelle et préférences minimales, terminée et validée
+
+Sur `feat/cli-preferences`, depuis `dev` à `3ecdf9c` :
+
+```sh
+cli-drill prefs                           # afficher le niveau et les modules
+cli-drill prefs --enable fd                # activer fd
+cli-drill prefs --disable fd               # désactiver fd
+cli-drill prefs --difficulty intermediate  # beginner | intermediate | advanced
+```
+
+Une seule option de modification par invocation. Une modification effective
+est enregistrée immédiatement en CLI ; une valeur identique ne réécrit rien.
+Dans la TUI, ouvrir **Preferences** depuis l'accueil (ou avec `p`). Les flèches
+ou `j`/`k` déplacent le curseur, Entrée bascule un module ou fait défiler
+les trois niveaux, `s` sauvegarde le brouillon et Échap revient à l'accueil en
+abandonnant les changements non sauvegardés. Un échec laisse le brouillon
+modifiable et affiche une erreur.
+
+Les modules sont dédupliqués et triés à partir de `Item.Tools` ; aucun outil
+n'a besoin d'être installé. Les identifiants retirés sont signalés, conservés
+dans le JSON et ignorés pour l'éligibilité. `chapter.Item.EligibleForTools`
+vérifie que tous les outils requis sont présents dans le corpus et activés ;
+les exercices sans outil sont toujours éligibles selon ce critère.
+La composition des séances reste celle de P2.2 : l'application effective
+des préférences, le niveau par séance, le mélange et les modes Apprendre/Réviser
+ainsi que la projection des acquis sont réservés à P2.4.
+
+Le [contrat JSON v1](docs/SPEC.md#préférences-pédagogiques-p2-distinctes-de-la-progression)
+est stocké dans `$XDG_DATA_HOME/cli-drill/preferences.json`, avec repli dans
+`~/.local/share/cli-drill/preferences.json`. Sans fichier, le défaut est
+`beginner` sans module actif, en mémoire uniquement. Un fichier invalide,
+illisible ou d'une version inconnue produit un diagnostic ; la consultation
+affiche les défauts et la sauvegarde est refusée. L'écriture explicite remplace
+le fichier atomiquement avec des permissions privées (`0600` sur Unix
+avec un umask standard). La relecture avant sauvegarde refuse un état différent
+depuis l'ouverture de l'écran ; le stockage reste prévu pour un seul écrivain.
+
+`--progress` ne déplace pas les préférences et ne peut viser le fichier réservé.
+`reset --yes` continue de supprimer uniquement la progression. Les tests sur
+fixtures contrôlent les octets de la progression v1 et des anciens YAML/TOML
+lors des changements de préférences. Aucun identifiant, exercice, correcteur
+ou moteur de capture n'a changé.
+
+Sur macOS arm64 / Go 1.27.3 : `go test -count=1 ./...`, `go vet ./...`,
+formatage Go et diff vérifiés. Essais du binaire sous pseudo-terminal, avec des données
+temporaires et sans couleur : consultation sans création, accès par le menu
+et `p`, brouillon annulé, sauvegarde et relecture CLI/TUI dans des processus
+distincts, conservation d'un module retiré et d'une version inconnue, erreur
+d'écriture visible, et socle accessible.
+
+Recette réelle du 9 novembre 2026 dans Terminal.app : les six essais manuels
+sont réussis, sans anomalie signalée. Ils couvrent les défauts sans création
+de fichier, l'activation CLI de `fd` et `fzf`, le niveau `intermediate`, la
+relecture après relancement, l'annulation d'un brouillon TUI par Échap, la
+sauvegarde TUI par `s`, la désactivation CLI et la navigation. Les préférences
+sont vérifiées dans un répertoire `XDG_DATA_HOME` temporaire, indépendant de
+la progression habituelle. La recette humaine clôt P2.3 sur la branche de
+travail ; la publication dans `dev` reste à effectuer. P2.4 traitera les filtres
+d'exercices par séance, les niveaux ponctuels et le mélange, sans réouvrir P2.3.
 
 ## Validation et limites de preuve
 

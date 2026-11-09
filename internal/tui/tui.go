@@ -24,6 +24,7 @@ const (
 	screenTraining
 	screenTrainingSummary
 	screenStats
+	screenPreferences
 )
 
 const (
@@ -31,6 +32,7 @@ const (
 	homeActionBrowse        = "Browse chapters"
 	homeActionShortcuts     = "Keyboard shortcuts"
 	homeActionStats         = "My progress"
+	homeActionPreferences   = "Preferences"
 	homeActionQuit          = "Quit"
 )
 
@@ -58,6 +60,8 @@ const (
 	footerTextFeedback
 	footerTrainingSummary
 	footerTrainingSummaryRetry
+	footerPreferences
+	footerHome
 )
 
 var homeActions = []listItem{
@@ -65,12 +69,15 @@ var homeActions = []listItem{
 	{title: homeActionBrowse, description: "Choose a chapter and inspect its exercises."},
 	{title: homeActionShortcuts, description: "Practise keyboard shortcuts with real key capture."},
 	{title: homeActionStats, description: "Review local training progress."},
+	{title: homeActionPreferences, description: "Choose CLI modules and a default difficulty."},
 	{title: homeActionQuit, description: "Close cli-drill."},
 }
 
 type Options struct {
-	Chapters     []chapter.Chapter
-	ProgressPath string
+	Chapters        []chapter.Chapter
+	ProgressPath    string
+	LoadPreferences func() ([]string, chapter.Difficulty, error)
+	SavePreferences func([]string, chapter.Difficulty) error
 }
 
 type Result struct {
@@ -142,6 +149,7 @@ type model struct {
 	screen        screen
 	home          list.Model
 	chapterList   list.Model
+	preferences   preferencesScreen
 	input         textinput.Model
 	chapters      []chapter.Chapter
 	progress      progress.Progress
@@ -215,6 +223,7 @@ func newModel(opts Options) model {
 		screen:        screenHome,
 		home:          home,
 		chapterList:   chapterList,
+		preferences:   newPreferencesScreen(opts, delegate),
 		input:         input,
 		chapters:      opts.Chapters,
 		progress:      localProgress,
@@ -239,6 +248,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(msg.text), Paste: true})
 	case tea.KeyMsg:
+		if m.screen == screenPreferences {
+			return m.updatePreferences(msg)
+		}
 		if m.screen == screenChapters && msg.String() != "ctrl+c" {
 			if m.chapterList.FilterState() == list.Filtering {
 				var cmd tea.Cmd
@@ -301,6 +313,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		}
+		if m.screen == screenHome && !msg.Paste && msg.String() == "p" {
+			m.openPreferences()
+			return m, nil
+		}
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
@@ -321,6 +337,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		width := max(1, msg.Width-4)
 		m.home.SetSize(width, homeListHeight(msg.Height))
 		m.chapterList.SetSize(width, max(1, msg.Height-9))
+		m.preferences.resize(width, msg.Height)
 	}
 
 	var cmd tea.Cmd
@@ -337,6 +354,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	style := lipgloss.NewStyle().Padding(1, 2)
+	if m.screen == screenPreferences {
+		return style.Render(m.preferencesView())
+	}
 	var view string
 	switch m.screen {
 	case screenHome:
@@ -392,6 +412,9 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 			return m, nil
 		case homeActionStats:
 			m.screen = screenStats
+			return m, nil
+		case homeActionPreferences:
+			m.openPreferences()
 			return m, nil
 		case homeActionQuit:
 			return m, tea.Quit
@@ -749,6 +772,9 @@ func (m model) helpView() string {
 
 func (m model) footer() string {
 	styles := newTUIStyles()
+	if m.screen == screenPreferences {
+		return styles.Footer.Render(m.preferences.footerText())
+	}
 	return styles.Footer.Render(footerText(m.footerContext()))
 }
 
@@ -762,10 +788,14 @@ func (m model) footerContext() footerContext {
 		}
 	}
 	switch m.screen {
-	case screenHome, screenChapters:
+	case screenHome:
+		return footerHome
+	case screenChapters:
 		return footerNavigation
 	case screenStats:
 		return footerReadOnly
+	case screenPreferences:
+		return footerPreferences
 	case screenChapterDetail:
 		if current := m.currentChapter(); current != nil && chapterUsesKeySequence(*current) {
 			return footerKeySequenceDetail
@@ -792,6 +822,10 @@ func (m model) footerContext() footerContext {
 
 func footerText(context footerContext) string {
 	switch context {
+	case footerHome:
+		return "enter select · j/k · p preferences · esc back · g home · h help · q quit"
+	case footerPreferences:
+		return "↑/↓ j/k · enter change · s save · esc back"
 	case footerReadOnly:
 		return "esc back · g home · h help · q quit"
 	case footerFilterInput:

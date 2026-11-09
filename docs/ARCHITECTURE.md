@@ -29,27 +29,26 @@ aucun dossier utilisateur ne remplace automatiquement le corpus intégré.
 
 | Package | Responsabilité cible |
 | --- | --- |
-| `internal/app` | Commandes Cobra, orchestration TUI / entraînement dédié et futur chargement/enregistrement des préférences minimales. |
-| `internal/chapter` | Modèle pédagogique, chargement et validation YAML ; future sélection des exercices et préparation de leur ordre en mémoire. |
+| `internal/app` | Commandes Cobra, orchestration TUI / entraînement dédié et chargement/enregistrement des préférences minimales. |
+| `internal/chapter` | Modèle pédagogique, chargement et validation YAML ; projection des modules, éligibilité par outil et future préparation de l'ordre en mémoire. |
 | `internal/exercise` | Types d'exercices, correction pure et normalisation adaptée au contexte. |
 | `internal/progress` | Compteurs, compatibilité JSON et persistance sûre. |
 | `internal/tui` | Navigation, saisie, filtres, feedback et rendu Bubble Tea. |
-| `internal/xdg` | Résolution du chemin actuel de progression et, en P2, du chemin distinct de préférences ; respect de `XDG_DATA_HOME`. |
+| `internal/xdg` | Résolution des chemins distincts de progression et de préférences ; respect de `XDG_DATA_HOME`. |
 
 Conserver ces frontières. Aucun package de services, interface de stockage,
 registre de moteurs ou framework de session supplémentaire n'est nécessaire.
 Répartir éventuellement les gros fichiers dans leur package existant lorsque
 cela aide un changement ciblé ; ne pas engager une réorganisation générale.
 
-## Compléments minimaux P2 — non implémentés
+## Compléments minimaux P2
 
 La [spécification](SPEC.md) porte le contrat des métadonnées et des préférences.
-Ajouter à terme difficulté et modules tiers sur l'exercice, famille et mode
-d'apprentissage sur le chapitre ; conserver les champs et identifiants existants.
-La liste des outils sélectionnables est une projection des métadonnées intégrées,
-sans registre d'installation, scanner, ancien catalogue ou nouveau package `config`.
+`chapter` projette les outils sélectionnables à partir des métadonnées intégrées
+et fournit le prédicat d'éligibilité, sans registre d'installation, scanner,
+ancien catalogue ou nouveau package `config`.
 
-Préparer une copie ou une liste de références aux exercices éligibles dans
+En P2.4, préparer une copie ou une liste de références aux exercices éligibles dans
 `chapter` : modules requis, niveau exact, puis ordre guidé ou permutation.
 Partager cette préparation entre CLI, TUI et délégation clavier ; garder la
 liste en mémoire pendant la séance. Chaque référence conserve le couple
@@ -88,7 +87,8 @@ des YAML utilisateur conservés.
 ## CLI, TUI et vérifications du terminal
 
 La CLI courante conserve `chapters`, `train [chapter-id]`, `stats`, `reset --yes`
-et l'option `--progress`. `init`, `scan`, `generate`, `directory`, `search`,
+et l'option `--progress`. P2.3 ajoute `prefs` pour les réglages pédagogiques.
+`init`, `scan`, `generate`, `directory`, `search`,
 `show` et `--config`, ainsi que les écrans et états associés, ont été retirés
 dans P0.2 ; voir l'état courant pour les limites et preuves.
 

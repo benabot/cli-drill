@@ -30,7 +30,7 @@ func TestHomeUsesOnlyCentralizedFooter(t *testing.T) {
 	m := newTestModel(t, Options{})
 
 	view := m.View()
-	wantFooter := footerText(footerNavigation)
+	wantFooter := footerText(footerHome)
 
 	if count := strings.Count(view, wantFooter); count != 1 {
 		t.Fatalf("centralized footer count = %d, want 1\nview:\n%s", count, view)
