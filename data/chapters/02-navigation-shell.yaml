@@ -1,51 +1,101 @@
-id: 02-navigation-shell
-title: Navigation shell
-description: S'entrainer aux outils de navigation du shell.
+id: "02-navigation-shell"
+title: "Navigation avec les outils CLI"
+description: "Outils tiers, non requis pour s’entraîner dans CLI-Drill. Chaque situation fournit ses préconditions ; aucun alias personnel n’est supposé."
+family: "modern-cli-macos"
+learning_order: "independent"
 items:
-  - id: zoxide-jump
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux rejoindre rapidement un dossier deja visite. Quel outil utilises-tu ?
+  - id: "zoxide-docs-command"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["zoxide"]
+    prompt: |-
+      Situation simulée : l’intégration Zoxide fournit la commande z et sa
+      base contient un seul dossier correspondant à docs. Rejoins ce dossier
+      en passant docs à z.
     answer:
-      primary: zoxide
-      accepted: ["z"]
-    explanation: zoxide apprend les dossiers frequents et permet d'y revenir vite.
-  - id: fzf-pick
-    type: tool
-    exercise_type: free-answer
-    prompt: Quel outil sert a choisir interactivement une entree dans une liste ?
+      primary: "z docs"
+    explanation: |-
+      z est une fonction fournie par l’intégration shell de
+      Zoxide, pas une commande Unix standard. Zoxide classe les
+      chemins enregistrés ; sans intégration ni correspondance, ce
+      saut n’est pas garanti.
+  - id: "fzf-stdin-command"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["fzf"]
+    prompt: |-
+      Situation simulée : une liste de chemins, un par ligne, est déjà
+      fournie sur l’entrée standard. Saisis la commande fzf sans option pour
+      en choisir un interactivement.
     answer:
-      primary: fzf
-    explanation: fzf filtre une liste et laisse choisir une entree.
-  - id: fd-find-dir
-    type: tool
-    exercise_type: multiple-choice
-    prompt: Quel outil moderne sert a trouver rapidement des fichiers ou dossiers ?
+      primary: "fzf"
+    explanation: |-
+      fzf lit la liste sur son entrée standard et écrit le choix
+      sur sa sortie standard. Le choix seul ne change pas de
+      répertoire et n’ouvre pas le fichier.
+  - id: "fd-find-dir"
+    type: "tool"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["fd"]
+    prompt: |-
+      Tu dois retrouver un chemin par son nom, plutôt que chercher du texte
+      dans les fichiers. Quel outil de cette liste est une alternative à
+      find ?
     choices: ["fd", "bat", "glow", "vale"]
     answer:
-      primary: fd
-    explanation: fd est une alternative simple et rapide a find.
-  - id: eza-tree
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux visualiser une arborescence lisible avec icones. Quel outil utilises-tu ?
+      primary: "fd"
+    explanation: |-
+      fd recherche des noms de fichiers et de répertoires. Par
+      défaut il ignore notamment les chemins cachés et ceux exclus
+      par les règles Git ; rg cherche plutôt dans le contenu.
+  - id: "eza-tree-command"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["eza"]
+    prompt: |-
+      Situation simulée : tu es à la racine d’un petit projet. Demande à eza
+      une vue arborescente récursive avec --tree ou son option courte, sans
+      icônes.
     answer:
-      primary: eza
-      accepted: ["ezal"]
-    explanation: eza peut lister et afficher des arbres lisibles dans le terminal.
-  - id: yazi-open
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux naviguer visuellement dans les fichiers depuis le terminal. Quel outil ou fonction ouvres-tu ?
+      primary: "eza --tree"
+      accepted: ["eza -T"]
+    explanation: |-
+      --tree affiche une arborescence. eza est un outil tiers ;
+      aucune police à icônes n’est nécessaire pour cette commande.
+      Le coût de parcours dépend de la taille du dossier.
+  - id: "yazi-command"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["yazi"]
+    prompt: |-
+      Situation simulée : tu veux lancer le gestionnaire de fichiers
+      terminal Yazi dans le dossier courant, sans wrapper shell. Saisis sa
+      commande sans option.
     answer:
-      primary: yazi
-      accepted: ["y"]
-    explanation: yazi est un gestionnaire de fichiers terminal; la fonction y est detectee.
-  - id: fd-fzf-dir
-    type: workflow
-    exercise_type: simple-shell-sim
-    prompt: Trouver des dossiers puis en choisir un avec fzf.
+      primary: "yazi"
+    explanation: |-
+      yazi ouvre une interface dans le terminal. y est un wrapper
+      facultatif qui peut ramener le shell dans le dossier choisi
+      ; il n’est ni supposé présent ni accepté ici.
+  - id: "fd-fzf-dir"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["fd", "fzf"]
+    prompt: |-
+      Situation simulée : à la racine d’un projet, utilise fd pour lister
+      les répertoires avec -t d, puis transmets la liste à fzf pour en
+      choisir un.
     answer:
-      primary: fd -t d | fzf
+      primary: "fd -t d | fzf"
       accepted: ["fd --type d | fzf"]
-    explanation: Le shell simule compare la reponse sans executer la commande.
+    explanation: |-
+      fd -t d limite les résultats aux répertoires ; | transmet
+      cette liste à fzf. Le résultat est un chemin sélectionné,
+      pas un changement de dossier. fd ignore les chemins cachés
+      et exclus par défaut.

@@ -7,15 +7,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/exercise"
 	"github.com/benabot/cli-drill/internal/progress"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func TestTUICorrectionWithEmbeddedExercises(t *testing.T) {
-	chapters, err := chapter.LoadFS(data.Chapters(), "*.yaml")
+func TestTUICorrectionWithHistoricalExercises(t *testing.T) {
+	chapters, err := chapter.LoadFS(os.DirFS("../../testdata/legacy-chapters"), "*.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,57 +1,84 @@
-id: 06-recherche-fichiers-contenu
-title: Recherche fichiers et contenu
-description: S'entrainer avec fd, rg, fzf et bat.
+id: "06-recherche-fichiers-contenu"
+title: "Rechercher et sélectionner"
+description: "Outils tiers fd, ripgrep et fzf. Recherche limitée aux fichiers textuels ordinaires du projet simulé ; les exclusions par défaut sont précisées."
+family: "modern-cli-macos"
+learning_order: "independent"
 items:
-  - id: rg-content
-    type: tool
-    exercise_type: multiple-choice
-    prompt: Quel outil sert a chercher dans le contenu des fichiers ?
+  - id: "rg-content"
+    type: "tool"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["rg"]
+    prompt: |-
+      Tu connais le texte TODO mais pas le fichier qui le contient. Quel
+      outil de cette liste recherche dans le contenu des fichiers ?
     choices: ["fd", "rg", "eza", "bat"]
     answer:
-      primary: rg
+      primary: "rg"
       accepted: ["ripgrep"]
-    explanation: rg, ou ripgrep, cherche dans le contenu des fichiers.
-  - id: fd-files
-    type: tool
-    exercise_type: free-answer
-    prompt: Quel outil sert a trouver rapidement des fichiers par nom ?
+    explanation: |-
+      rg (ripgrep) recherche un motif dans les fichiers. Sans
+      chemin explicite, il parcourt le dossier courant ; il ignore
+      par défaut les fichiers cachés, exclus et binaires.
+  - id: "fd-notes-command"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["fd"]
+    prompt: |-
+      Situation simulée : le projet contient notes.txt et notes.md. Avec fd
+      et le motif notes, recherche les chemins dont le nom correspond à ce
+      motif.
     answer:
-      primary: fd
-    explanation: fd trouve fichiers et dossiers avec une syntaxe simple.
-  - id: fzf-filter
-    type: tool
-    exercise_type: scenario
-    prompt: Tu as une longue liste de resultats et tu veux choisir interactivement.
+      primary: "fd notes"
+    explanation: |-
+      fd applique par défaut son motif au nom de chaque chemin,
+      pas à son contenu. Le motif est une expression régulière ;
+      notes ne nécessite ici aucun caractère spécial.
+  - id: "fd-fzf-md"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["fd", "fzf"]
+    prompt: |-
+      Situation simulée : les seules entrées portant l’extension md sont des
+      fichiers Markdown, sans retour à la ligne dans leurs noms. Utilise fd
+      -e md puis fzf pour choisir un chemin parmi les résultats.
     answer:
-      primary: fzf
-    explanation: fzf filtre une liste dans le terminal.
-  - id: bat-preview
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux lire rapidement un fichier trouve avec coloration syntaxique.
+      primary: "fd -e md | fzf"
+    explanation: |-
+      -e md filtre par extension, sans le point. Le pipe transmet
+      les chemins à fzf ; choisir un résultat ne le lit pas et ne
+      lance aucun éditeur.
+  - id: "rg-fzf-todo"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["rg", "fzf"]
+    prompt: |-
+      Situation simulée : les fichiers texte du projet contiennent des TODO.
+      Utilise rg TODO puis fzf pour choisir une ligne de résultat.
     answer:
-      primary: bat
-    explanation: bat rend les fichiers plus lisibles.
-  - id: fd-fzf-md
-    type: workflow
-    exercise_type: simple-shell-sim
-    prompt: Lister les fichiers Markdown puis en choisir un avec fzf.
-    answer:
-      primary: fd -e md | fzf
-    explanation: Le shell simule compare la reponse sans executer la commande.
-  - id: rg-fzf-todo
-    type: workflow
-    exercise_type: simple-shell-sim
-    prompt: Chercher TODO puis choisir une ligne avec fzf.
-    answer:
-      primary: rg TODO | fzf
+      primary: "rg TODO | fzf"
       accepted: ["rg \"TODO\" | fzf"]
-    explanation: rg produit les lignes, fzf permet de filtrer.
-  - id: rg-bat
-    type: workflow
-    exercise_type: simple-shell-sim
-    prompt: Chercher le mot cli-drill dans docs puis afficher un fichier avec bat.
+    explanation: |-
+      rg cherche le motif TODO en respectant ici la casse. fzf
+      filtre ses lignes de sortie ; celles-ci peuvent inclure
+      chemin et numéro de ligne. Ce pipeline n’ouvre aucun
+      fichier.
+  - id: "rg-fzf-docs"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["rg", "fzf"]
+    prompt: |-
+      Situation simulée : le dossier docs contient des fichiers texte.
+      Recherche cli-drill dans docs avec rg, puis sélectionne une ligne avec
+      fzf. Ne demande pas d’ouverture de fichier.
     answer:
-      primary: rg cli-drill docs | fzf
+      primary: "rg cli-drill docs | fzf"
       accepted: ["rg \"cli-drill\" docs | fzf"]
-    explanation: Ce workflow selectionne d'abord un resultat; bat peut ensuite servir a lire le fichier.
+    explanation: |-
+      docs borne la recherche. fzf sélectionne une ligne produite
+      par rg ; cette commande ne lance pas Bat et ne promet aucune
+      prévisualisation.

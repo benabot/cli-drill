@@ -1,16 +1,16 @@
 package chapter
 
 import (
+	"os"
 	"reflect"
 	"strings"
 	"testing"
 
-	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/exercise"
 )
 
-func TestLoadEmbeddedCorpus(t *testing.T) {
-	chapters, err := LoadFS(data.Chapters(), "*.yaml")
+func TestLoadHistoricalCorpus(t *testing.T) {
+	chapters, err := LoadFS(os.DirFS("../../testdata/legacy-chapters"), "*.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,59 +1,37 @@
-id: 05-outils-quotidiens
-title: Outils quotidiens
-description: Reviser les outils CLI courants.
+id: "05-outils-quotidiens"
+title: "Historique et interface Git"
+description: "Outils tiers : Atuin et Lazygit. Les historiques et dépôts décrits sont simulés ; aucun compte, synchronisation ou outil installé n’est nécessaire dans CLI-Drill."
+family: "modern-cli-macos"
+learning_order: "independent"
 items:
-  - id: atuin
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux retrouver une commande ancienne dans l'historique. Quel outil est le plus adapte ?
+  - id: "atuin-search-command"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["atuin"]
+    prompt: |-
+      Situation simulée : Atuin dispose d’un historique enregistré.
+      Recherche les commandes correspondant à git avec atuin search, en
+      limitant les résultats à cinq avec --limit.
     answer:
-      primary: atuin
-      accepted: ["Ctrl+R"]
-    explanation: Atuin enrichit la recherche d'historique du shell.
-  - id: yazi
-    type: tool
-    exercise_type: free-answer
-    prompt: Quel gestionnaire de fichiers terminal est utile pour naviguer visuellement ?
-    answer:
-      primary: yazi
-      accepted: ["y"]
-    explanation: Yazi facilite la navigation fichier dans le terminal.
-  - id: zoxide
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux sauter vers un dossier frequent sans taper tout le chemin.
-    answer:
-      primary: zoxide
-      accepted: ["z"]
-    explanation: zoxide apprend les chemins frequents.
-  - id: lazygit
-    type: tool
-    exercise_type: multiple-choice
-    prompt: Quel outil fournit une interface terminal pour Git ?
+      primary: "atuin search --limit 5 git"
+    explanation: |-
+      atuin search interroge l’historique déjà enregistré et
+      --limit borne les résultats. Ctrl+R peut ouvrir son
+      interface si l’intégration shell a redéfini ce raccourci ;
+      cela n’est pas automatique.
+  - id: "lazygit"
+    type: "tool"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["lazygit"]
+    prompt: |-
+      Dans un dépôt Git simulé, tu veux explorer les changements dans une
+      interface terminal dédiée à Git. Quel outil de cette liste convient ?
     choices: ["lazygit", "bat", "glow", "zoxide"]
     answer:
-      primary: lazygit
-      accepted: ["lg"]
-    explanation: lazygit donne une interface TUI pour Git.
-  - id: bat
-    type: tool
-    exercise_type: free-answer
-    prompt: Quel outil affiche un fichier avec coloration syntaxique ?
-    answer:
-      primary: bat
-    explanation: bat est une alternative lisible a cat.
-  - id: eza
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux remplacer ls par une sortie plus lisible avec icones.
-    answer:
-      primary: eza
-      accepted: ["ezac", "ezal"]
-    explanation: eza ameliore les listes de fichiers.
-  - id: glow
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux lire du Markdown dans le terminal.
-    answer:
-      primary: glow
-    explanation: Glow rend le Markdown directement dans le terminal.
+      primary: "lazygit"
+    explanation: |-
+      Lazygit fournit une interface terminal pour Git et s’utilise
+      dans un dépôt. lg peut être un alias personnel, mais ce nom
+      n’est pas une commande universelle et n’est pas requis.

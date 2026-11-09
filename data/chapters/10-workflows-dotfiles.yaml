@@ -1,58 +1,54 @@
-id: 10-workflows-dotfiles
-title: Workflows dotfiles
-description: Relier commandes, outils et workflows dotfiles.
+id: "10-workflows-dotfiles"
+title: "Git essentiel"
+description: "Git, outil CLI de gestion de versions, dans un dépôt simulé. L’identifiant historique du chapitre est conservé pour protéger les acquis ; aucun workflow personnel de dotfiles ne reste actif."
+family: "unix-shell"
+learning_order: "independent"
 items:
-  - id: static-scan
-    type: concept
-    exercise_type: free-answer
-    prompt: Le scan du MVP execute-t-il les alias et fonctions detectes ?
+  - id: "dotfiles-status-shell"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Situation indépendante : tu es à la racine d’un dépôt Git. Affiche son
+      état en format court avec la commande Git complète et l’option --short
+      ou sa forme courte.
     answer:
-      primary: non
-      accepted: ["no", "jamais"]
-    explanation: Le MVP fait un scan statique et n'execute aucune commande utilisateur.
-  - id: git-status-short
-    type: alias
-    exercise_type: scenario
-    prompt: Avant de toucher aux dotfiles, quel alias donne un statut Git court ?
+      primary: "git status --short"
+      accepted: ["git status -s"]
+    explanation: |-
+      git status --short résume l’état de l’index, de l’arbre de
+      travail et des fichiers non suivis. Les deux colonnes
+      décrivent l’index et l’arbre de travail ; cela ne crée aucun
+      commit.
+  - id: "git-diff-stat"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Situation indépendante : dans un dépôt Git, un fichier suivi comporte
+      des modifications non indexées. Affiche un résumé chiffré du diff avec
+      git diff et --stat.
     answer:
-      primary: cgs
-    explanation: cgs = git status --short.
-  - id: check-dotfiles
-    type: workflow
-    exercise_type: free-answer
-    prompt: Quel workflow conceptuel sert a verifier rapidement l'etat des dotfiles ?
+      primary: "git diff --stat"
+    explanation: |-
+      --stat affiche les fichiers et les volumes de lignes
+      modifiées. Sans --cached, git diff compare l’arbre de
+      travail à l’index ; il ne décrit pas les fichiers non
+      suivis.
+  - id: "git-diff-name-only"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Situation indépendante : dans un dépôt Git, des fichiers suivis ont
+      été modifiés sans être indexés. Avec git diff et --name-only, affiche
+      seulement leurs noms.
     answer:
-      primary: check-dotfiles
-      accepted: ["dotfiles check", "dotaudit"]
-    explanation: check-dotfiles represente le controle avant modification ou release.
-  - id: update-dotfiles
-    type: workflow
-    exercise_type: free-answer
-    prompt: Quel workflow conceptuel sert a rafraichir ou maintenir les dotfiles ?
-    answer:
-      primary: update-dotfiles
-      accepted: ["dotfiles update", "maj"]
-    explanation: update-dotfiles represente la maintenance reguliere des dotfiles.
-  - id: generate-tools-inventory
-    type: workflow
-    exercise_type: scenario
-    prompt: Tu veux regenerer l'inventaire des outils documentes. Quel workflow conceptuel cherches-tu ?
-    answer:
-      primary: generate-tools-inventory
-      accepted: ["tools inventory", "inventory"]
-    explanation: Ce workflow maintient la documentation des outils disponibles.
-  - id: gitleaks-before-commit
-    type: tool
-    exercise_type: scenario
-    prompt: Avant de publier, quel outil detecte aide a chercher des secrets accidentels ?
-    answer:
-      primary: gitleaks
-    explanation: gitleaks detecte des secrets potentiels dans un repo.
-  - id: dotfiles-status-shell
-    type: workflow
-    exercise_type: simple-shell-sim
-    prompt: Afficher le statut Git court des dotfiles avec la commande complete.
-    answer:
-      primary: git status --short
-      accepted: ["cgs"]
-    explanation: Le shell simule compare la saisie; aucune commande n'est executee.
+      primary: "git diff --name-only"
+    explanation: |-
+      --name-only affiche les noms des fichiers différents entre
+      l’arbre de travail et l’index dans ce cas. Les modifications
+      déjà indexées demanderaient --cached.

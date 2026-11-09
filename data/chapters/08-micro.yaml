@@ -1,52 +1,67 @@
-id: 08-micro
-title: Micro
-description: Retenir les usages essentiels de l'editeur terminal Micro.
+id: "08-micro"
+title: "Éditer dans Micro"
+description: "Module tiers Micro, bindings standard. Les raccourcis sont des réponses textuelles sur son interface terminal : ce chapitre ne capture pas et ne modifie pas de vrai fichier."
+family: "modern-cli-macos"
+learning_order: "independent"
 items:
-  - id: micro-open
-    type: tool
-    exercise_type: free-answer
-    prompt: Quel editeur terminal simple est vise par ce chapitre ?
+  - id: "micro-open-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Situation indépendante : TODO.md est un fichier texte du répertoire
+      courant. Ouvre-le avec la commande micro, sans alias personnel.
     answer:
-      primary: micro
-      accepted: ["mc"]
-    explanation: micro est ouvert directement ou via l'alias mc.
-  - id: mc-alias
-    type: alias
-    exercise_type: scenario
-    prompt: Tu veux ouvrir micro avec l'alias detecte. Quel alias utilises-tu ?
+      primary: "micro TODO.md"
+    explanation: |-
+      micro ouvre le fichier dans son interface terminal ; il ne
+      l’enregistre pas automatiquement à cette étape. mc est un
+      alias éventuel, pas un prérequis.
+  - id: "micro-save"
+    type: "shortcut"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Dans Micro avec les bindings standard, tu as modifié un fichier nommé
+      et veux l’enregistrer. Écris le raccourci clavier attendu.
     answer:
-      primary: mc
-    explanation: mc = micro.
-  - id: micro-open-file
-    type: workflow
-    exercise_type: simple-shell-sim
-    prompt: Ouvrir TODO.md avec micro.
-    answer:
-      primary: micro TODO.md
-      accepted: ["mc TODO.md"]
-    explanation: Le shell simule compare la commande attendue.
-  - id: micro-save
-    type: shortcut
-    exercise_type: free-answer
-    prompt: Dans Micro, quel raccourci courant sauvegarde le fichier ?
-    answer:
-      primary: Ctrl+S
+      primary: "Ctrl+S"
       accepted: ["control-s", "ctrl s", "^S"]
-    explanation: Ctrl+S est le raccourci de sauvegarde courant dans Micro.
-  - id: micro-search
-    type: shortcut
-    exercise_type: multiple-choice
-    prompt: Quel raccourci courant lance la recherche dans Micro ?
+    explanation: |-
+      Ctrl+S enregistre le fichier courant. Le terminal ou une
+      configuration personnalisée peut intercepter la touche ; ici
+      on rappelle le binding, sans enregistrer de fichier réel.
+  - id: "micro-search"
+    type: "shortcut"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Dans Micro avec les bindings standard, tu veux ouvrir la recherche
+      d’un mot dans le fichier courant. Quel raccourci choisis-tu ?
     choices: ["Ctrl+F", "Ctrl+L", "Ctrl+U", "Ctrl+Y"]
     answer:
-      primary: Ctrl+F
+      primary: "Ctrl+F"
       accepted: ["control-f", "ctrl f", "^F"]
-    explanation: Ctrl+F sert a rechercher dans beaucoup d'editeurs, dont Micro.
-  - id: micro-quit
-    type: shortcut
-    exercise_type: free-answer
-    prompt: Quel raccourci courant quitte Micro ?
+    explanation: |-
+      Ctrl+F ouvre l’invite de recherche. Après validation, Ctrl+N
+      et Ctrl+P passent aux occurrences depuis le tampon
+      principal.
+  - id: "micro-quit"
+    type: "shortcut"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Dans Micro avec les bindings standard, un seul fichier est ouvert et
+      toutes les modifications sont enregistrées. Écris le raccourci pour le
+      fermer et quitter.
     answer:
-      primary: Ctrl+Q
+      primary: "Ctrl+Q"
       accepted: ["control-q", "ctrl q", "^Q"]
-    explanation: Ctrl+Q quitte Micro.
+    explanation: |-
+      Ctrl+Q ferme le fichier courant et quitte Micro si c’est le
+      dernier fichier ouvert. Des modifications non enregistrées
+      peuvent provoquer une confirmation.

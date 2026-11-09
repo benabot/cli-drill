@@ -8,13 +8,12 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/chapter"
 	"gopkg.in/yaml.v3"
 )
 
-func TestCLICorrectionWithEmbeddedExercises(t *testing.T) {
-	chapters, err := chapter.LoadFS(data.Chapters(), "*.yaml")
+func TestCLICorrectionWithHistoricalExercises(t *testing.T) {
+	chapters, err := chapter.LoadFS(os.DirFS("../../testdata/legacy-chapters"), "*.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}

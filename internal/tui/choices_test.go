@@ -32,8 +32,8 @@ func embeddedChoiceChapters(t *testing.T) []chapter.Chapter {
 			}
 		}
 	}
-	if len(result) != 5 {
-		t.Fatalf("expected all five embedded QCM, got %d", len(result))
+	if len(result) != 4 {
+		t.Fatalf("expected all four embedded QCM, got %d", len(result))
 	}
 	return result
 }
@@ -67,7 +67,9 @@ func TestMultipleChoiceEveryEmbeddedOption(t *testing.T) {
 				if strings.HasPrefix(m.feedback, "Correct.") != (correct == 1) {
 					t.Fatalf("wrong feedback for %q: %s", choice, m.feedback)
 				}
-				assertContains(t, m.View(), item.Explanation)
+				for _, line := range strings.Split(item.Explanation, "\n") {
+					assertContains(t, m.View(), line)
+				}
 				if correct == 0 {
 					assertContains(t, m.View(), item.Answer.Primary)
 					if len(m.summary.Missed) != 1 || m.summary.Missed[0].Answered != choice {

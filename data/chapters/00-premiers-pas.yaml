@@ -1,0 +1,126 @@
+id: "00-premiers-pas"
+title: "Premiers pas Unix"
+description: "Commandes communes à macOS/BSD et GNU/Linux, avec un shell de type POSIX. Chaque situation est simulée et indépendante : aucune commande saisie n’est exécutée. Aucun outil tiers requis."
+family: "unix-shell"
+learning_order: "guided"
+items:
+  - id: "pwd"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Simulation : aucune commande saisie n’est exécutée. Situation
+      indépendante : tu es dans /atelier mais le prompt ne montre pas le
+      chemin. Saisis la commande sans option qui affiche le répertoire
+      courant.
+    answer:
+      primary: "pwd"
+    explanation: |-
+      pwd affiche le chemin du répertoire courant. Il ne change
+      pas de dossier ; les modes logique et physique peuvent
+      différer en présence de liens symboliques.
+  - id: "ls"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Situation indépendante : tu es dans /atelier, qui contient docs,
+      notes.txt et .cache. Liste son contenu avec ls, sans option et sans
+      demander les entrées cachées.
+    answer:
+      primary: "ls"
+    explanation: |-
+      ls liste les noms visibles du répertoire courant. Par
+      défaut, les noms commençant par un point sont omis ; la
+      présentation peut varier selon le terminal.
+  - id: "ls-hidden"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Situation indépendante : tu es dans /atelier, qui contient notes.txt
+      et .config. Avec ls et une option courte, demande toutes les entrées,
+      y compris . et .. ainsi que les fichiers cachés.
+    answer:
+      primary: "ls -a"
+    explanation: |-
+      L’option -a inclut tous les noms, y compris les entrées
+      point et double point. -A omet ces deux entrées et ne répond
+      donc pas à cette consigne.
+  - id: "cd-docs"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Situation indépendante : tu es dans /atelier et le sous-répertoire
+      docs existe. Rejoins-le avec cd et un chemin relatif.
+    answer:
+      primary: "cd docs"
+      accepted: ["cd ./docs"]
+    explanation: |-
+      cd change le répertoire courant du shell. docs est relatif à
+      /atelier : la destination est /atelier/docs. Dans cette
+      simulation, le disque reste inchangé.
+  - id: "cd-parent"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Situation indépendante : tu es dans /atelier/docs. Remonte au
+      répertoire parent avec cd et le composant .., sans écrire le chemin
+      absolu.
+    answer:
+      primary: "cd .."
+    explanation: |-
+      .. désigne le parent du répertoire courant : depuis
+      /atelier/docs, cd .. mène à /atelier. Chaque exercice
+      indique son propre point de départ.
+  - id: "cd-absolute"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Situation indépendante : tu es dans /tmp et /atelier existe. Rejoins
+      /atelier avec cd en utilisant un chemin absolu.
+    answer:
+      primary: "cd /atelier"
+    explanation: |-
+      Un chemin qui commence par / part de la racine. cd /atelier
+      désigne donc la même destination quel que soit le répertoire
+      courant.
+  - id: "mkdir-essais"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Situation indépendante : tu es dans /atelier, où essais n’existe pas
+      encore. Crée ce sous-répertoire avec mkdir, sans option.
+    answer:
+      primary: "mkdir essais"
+    explanation: |-
+      mkdir crée un répertoire. Ici le parent /atelier existe déjà
+      ; -p servirait notamment à créer des parents manquants, ce
+      que cette consigne ne demande pas.
+  - id: "cat-spaces"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Situation indépendante : le répertoire courant contient le fichier
+      texte notes de cours.txt. Affiche son contenu avec cat en protégeant
+      les espaces du nom.
+    answer:
+      primary: "cat \"notes de cours.txt\""
+      accepted: ["cat 'notes de cours.txt'", "cat notes\\ de\\ cours.txt"]
+    explanation: |-
+      Les guillemets font du nom contenant des espaces un seul
+      argument. cat envoie le contenu sur la sortie standard, sans
+      modifier le fichier.

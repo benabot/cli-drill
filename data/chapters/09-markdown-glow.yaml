@@ -1,55 +1,40 @@
-id: 09-markdown-glow
-title: Markdown et Glow
-description: Travailler avec Markdown, Glow et les checks de prose.
+id: "09-markdown-glow"
+title: "Lire du Markdown avec Glow"
+description: "Module tiers Glow : fichiers Markdown locaux simulés. Le dernier scénario combine fd, fzf et Glow sous ZSH ou un shell de type POSIX ; il est plus avancé."
+family: "modern-cli-macos"
+learning_order: "independent"
 items:
-  - id: glow-preview
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux lire du Markdown joliment dans le terminal. Quel outil utilises-tu ?
+  - id: "glow-readme"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["glow"]
+    prompt: |-
+      Situation indépendante : README.md est un Markdown du répertoire
+      courant. Affiche son rendu dans le terminal avec glow, sans option.
     answer:
-      primary: glow
-    explanation: Glow affiche le Markdown dans le terminal.
-  - id: glow-readme
-    type: workflow
-    exercise_type: simple-shell-sim
-    prompt: Afficher README.md avec glow.
+      primary: "glow README.md"
+    explanation: |-
+      glow rend le Markdown dans le terminal à partir du fichier
+      indiqué. Le fichier n’est pas modifié ; aucune application
+      graphique n’est nécessaire.
+  - id: "markdown-select-preview"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["fd", "fzf", "glow"]
+    prompt: |-
+      Situation simulée : fd -e md fournit seulement des fichiers Markdown :
+      leurs chemins ne commencent pas par un tiret et ne contiennent aucun
+      retour à la ligne, mais certains ont des espaces. fzf renvoie
+      exactement un chemin choisi non vide. En une commande, rends ce
+      fichier avec glow et une substitution de commande protégée par des
+      guillemets.
     answer:
-      primary: glow README.md
-    explanation: Le shell simule compare la reponse sans executer la commande.
-  - id: markdownlint
-    type: tool
-    exercise_type: free-answer
-    prompt: Quel outil detecte sert a verifier le style Markdown en CLI ?
-    answer:
-      primary: markdownlint-cli2
-      accepted: ["markdownlint"]
-    explanation: markdownlint-cli2 controle les regles Markdown.
-  - id: vale
-    type: tool
-    exercise_type: scenario
-    prompt: Tu veux relire la prose et le style d'un document. Quel outil detecte peux-tu utiliser ?
-    answer:
-      primary: vale
-    explanation: Vale aide a verifier la qualite redactionnelle.
-  - id: mdpreview
-    type: function
-    exercise_type: free-answer
-    prompt: Quelle fonction detectee evoque la preview Markdown ?
-    answer:
-      primary: mdpreview
-    explanation: mdpreview est une fonction ZSH detectee.
-  - id: markdown-pipeline
-    type: workflow
-    exercise_type: simple-shell-sim
-    prompt: Trouver un Markdown puis le previsualiser avec glow.
-    answer:
-      primary: glow $(fd -e md | fzf)
-      accepted: ["glow \"$(fd -e md | fzf)\""]
-    explanation: Le shell simule compare seulement la saisie attendue.
-  - id: markdown-generate-preview
-    type: workflow
-    exercise_type: scenario
-    prompt: Apres generation d'un document Markdown, quel outil terminal utilises-tu pour le relire rapidement ?
-    answer:
-      primary: glow
-    explanation: Glow est utile juste apres une generation ou modification Markdown.
+      primary: "glow \"$(fd -e md | fzf)\""
+    explanation: |-
+      $(...) récupère le chemin choisi ; les guillemets le
+      conservent comme un argument même avec des espaces.
+      Précondition : une sélection est validée ; l’annulation et
+      les noms contenant des retours à la ligne ne sont pas gérés
+      par cette commande.

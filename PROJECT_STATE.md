@@ -1,7 +1,7 @@
 # État du projet — CLI-Drill
 
-**Constat du 8 novembre 2026 : P1 terminée et intégrée dans `dev` à `ef9b0a5` ;
-P2.0 et P2.1 terminées et validées ; P2.2 est la prochaine étape.**
+**Au 9 novembre 2026, P2.2 est terminée et validée après recette manuelle dans
+Terminal.app. P2.3 est la prochaine étape.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
@@ -16,14 +16,22 @@ et publication de `origin/dev`. Cette finalisation est réalisée à `91f13c6`.
 P2.1 part de cette base sur `feat/pedagogical-metadata`. La validation humaine
 du 8 novembre 2026 autorise son commit, son intégration par fast-forward dans
 `dev` et sa publication sur `origin/dev`, en conservant la branche de travail.
-P2.2 n'est pas commencée.
+P2.1 est intégrée et publiée à `ab2096c`. P2.2 part de cette base sur
+`content/v2-first-corpus`. La validation humaine du 9 novembre 2026 autorise le
+commit, le fast-forward dans `dev` et la publication sur `origin/dev`.
 
 ## Implémentation actuelle
 
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Dix chapitres YAML intégrés, 68 exercices, contenus et identifiants inchangés.
+- Le corpus P2.2 compte neuf chapitres YAML, 39 exercices, trois familles
+  et métadonnées explicites. Le corpus intégré de référence P2.1 avait dix chapitres
+  et 68 exercices ; il reste accessible uniquement aux tests comme fixtures.
+- `00-premiers-pas` ouvre désormais le parcours par défaut CLI et TUI : huit
+  exercices Unix textuels, Beginner, guidés et sans outil tiers.
+- Les choix QCM sont désormais affichés aussi en CLI texte ; la saisie reste un
+  libellé ou une variante acceptée, sans nouveau système de correction.
 - Corpus exclusivement intégré depuis P0.1 ; aucun chargement automatique des
   anciens YAML utilisateur, même lorsqu'ils sont invalides.
 - Commandes publiques : `chapters`, `train [chapter-id]`, `stats`, `reset --yes`,
@@ -51,12 +59,13 @@ TOML, n'exposent plus d'annuaire, de scan ou de génération et ne présentent p
 les messages d'installation des dotfiles. Les diagnostics et chemins associés
 ont été retirés de l'interface, sans supprimer les fichiers utilisateur.
 
-Start training choisit le premier chapitre textuel non vide du corpus actuel,
-soit `02-navigation-shell`, et ouvre directement l'exercice. Si aucun chapitre
+Lors de P0.2, Start training choisissait le premier chapitre textuel non vide,
+soit `02-navigation-shell`, et ouvrait directement l'exercice. Si aucun chapitre
 textuel n'est disponible, il ouvre le navigateur sans forcer la capture brute.
 Le chapitre sélectionné reste cohérent avec la liste lors des retours arrière.
-Le comportement de `train` sans identifiant reste inchangé : premier chapitre
-intégré, actuellement le chapitre de raccourcis.
+`train` sans identifiant choisissait le premier chapitre intégré, alors celui
+des raccourcis. Depuis P2.2, ces deux accès ouvrent le nouveau
+premier chapitre `00-premiers-pas`, sans changer leur code de sélection.
 
 Depuis P1.4, Keyboard shortcuts lance directement le moteur existant lorsqu'un
 seul chapitre contient un exercice `key-sequence` (le corpus actuel). Si plusieurs
@@ -319,9 +328,10 @@ de stockage restent inchangés. L'affichage des choix en CLI texte reste au back
 
 ## Limites encore présentes
 
-Les contenus YAML conservent des alias, fonctions et formulations personnelles
-héritées et des questions sur des applications graphiques hors du périmètre P2 ;
-leur révision pédagogique est une étape distincte. Le README public
+Le corpus actif de P2.2 retire alias/fonctions personnels, scan/génération,
+applications graphiques et questions redondantes. Les anciennes leçons conservées
+comme fixtures ne sont jamais chargées en production. La recette manuelle valide la lisibilité et la qualité pédagogique de ce lot.
+La durée d'apprentissage reste à mesurer en usage. Le README public
 n'est pas modifié et attend son alignement après migration fonctionnelle.
 
 Avant P2.1 (base `91f13c6`), `chapter.Item` n'avait pas de difficulté ni de liste
@@ -332,7 +342,6 @@ parcourent toujours les exercices dans l'ordre du corpus.
 
 Défauts connus encore au backlog :
 
-- Choix des QCM non affichés en CLI texte ; la correction P1.4 concerne la TUI.
 - `streak` non mis à jour, `last_session` sans curseur de reprise.
 - Compléments différés après clôture de P1 : projection des acquis du corpus actif,
   contrôles et diagnostics supplémentaires des terminaux indisponibles et erreurs.
@@ -381,8 +390,8 @@ de correction et de stockage P1 sont maintenus.
 Le [backlog P2](TODO.md#p2--feuille-de-route-pedagogique) ordonne métadonnées,
 premier corpus révisé, préférences, séances, enrichissement et recette/documentation,
 avec critères d'acceptation par sous-phase. Ce cadrage P2.0 ne réalisait aucune
-des fonctions P2.1 à P2.6 ; P2.1 est depuis validée ci-dessous et P2.2 est la
-prochaine étape. P2.0 ne modifie ni Go, ni YAML, ni
+des fonctions P2.1 à P2.6. P2.1 et P2.2 sont depuis validées et décrites
+ci-dessous. P2.0 ne modifie ni Go, ni YAML, ni
 dépendance, ni README et ne crée aucun fichier de configuration. La validation
 de finalisation autorise uniquement le commit et la publication du cadrage P2.0,
 sans commencer P2.1.
@@ -428,8 +437,7 @@ Ces résultats n'établissent pas une nouvelle recette terminal physique,
 Linux ou Go 1.23. La validation humaine de P2.1 est accordée le 8 novembre 2026 ;
 la finalisation exécute de nouveau les tests complets, vet, formatage et contrôles
 de diff avant le commit, puis vérifie les tests après fast-forward.
-P2.2 — premier corpus V2 jouable et annoté — est la prochaine étape et n'est
-pas commencée.
+La validation de P2.2 figure dans la section suivante.
 
 Aucun code de `exercise`, `progress`, `tui`, de capture ou de navigation n'est
 modifié. `chapter.Item.MatchAnswer`, `progress.RecordAnswer`, le stockage JSON v1
@@ -439,6 +447,76 @@ plateforme/shell restent dans les champs textuels prévus par P2.0. Aucun filtre
 préférence utilisateur, mélange, nouveau contenu, YAML utilisateur importé ou
 fichier de configuration n'est ajouté ; ces fonctions restent dans les
 sous-phases suivantes.
+
+### P2.2 — Premier corpus V2, terminé et validé
+
+Sur `content/v2-first-corpus`, depuis `dev` à `ab2096c`, le corpus actif passe de
+68 à 39 exercices, répartis en 9 chapitres : huit nouveaux fondamentaux et
+31 situations historiques révisées, sans quota de remplissage. Les chapitres
+personnels `03-alias-zsh` et `04-fonctions-zsh` sont retirés. Le chapitre Git
+conserve son identifiant `10-workflows-dotfiles` pour ne pas casser ses acquis.
+Les [décisions éditoriales et la table complète des clés](docs/CORPUS_P2.md)
+font référence : 20 clés conservées, 48 retirées du corpus actif, 19 nouvelles.
+Aucun résultat historique n'est déplacé, supprimé ou réattribué.
+
+`00-premiers-pas` est le premier chapitre intégré : `Start training` et `train`
+sans identifiant y accèdent immédiatement, sans configuration ni mode brut.
+Ses huit commandes simulées sont `pwd`, `ls`, `ls -a`, `cd docs`, `cd ..`,
+`cd /atelier`, `mkdir essais` et la lecture d'un nom avec espaces par `cat`.
+Le premier prompt précise l'absence d'exécution ; chaque exercice fournit son
+propre contexte. Les variantes utiles sont déclarées, sans équivalence shell générale.
+
+Les trois familles sont jouables : Unix/Shell 11 exercices, raccourcis 8,
+outils CLI 20. Niveaux : 34 Beginner, 4 Intermediate, 1 Advanced.
+Formats : 25 commandes simulées, 8 captures, 4 QCM, 2 raccourcis Micro textuels.
+Les outils tiers sont tous déclarés ; Git est un module de la famille Unix/Shell.
+La sélection des outils reste future, comme les préférences et le mélange.
+Les consignes et explications comportent des retours à la ligne éditoriaux pour
+éviter leur troncature dans la TUI à 80 colonnes, sans changement du rendu Go.
+Les mini-leçons Bat et Historique/Git sont volontairement courtes ; une durée
+uniforme de cinq à dix minutes n'est pas démontrée et reste à éprouver par l'usage.
+
+Les raccourcis ciblent les bindings ZSH/ZLE Emacs de référence ; Ctrl+U reçoit
+une nouvelle clé pour kill-whole-line. La capture reconnaît une touche, sans
+exécuter son widget shell. Les wrappers et intégrations Zoxide, Yazi et Atuin
+sont explicités, sans supposer leur présence. Le remplacement de `rg-bat`
+sélectionne une ligne et ne prétend plus lancer Bat. Les références officielles
+et les limites des pipelines figurent dans le document de corpus.
+
+Le seul changement de production Go ajoute les choix YAML avant la saisie QCM
+CLI. Il conserve les réponses principales et variantes, `MatchAnswer`,
+`progress.RecordAnswer`, l'absence de tentative pour entrée/EOF vide et le
+schéma JSON v1. La TUI, la capture et le stockage ne sont pas modifiés.
+Les anciennes données utilisateur ne sont ni lues pour ces essais ni migrées.
+
+Tests ajoutés : corpus complet, métadonnées explicites, politique des clés,
+parcours par défaut CLI/TUI, soumission de toutes les réponses textuelles du
+corpus courant avec historique retiré, non-exécution des commandes, QCM CLI.
+Les tests QCM TUI couvrent toutes les propositions des quatre QCM courants.
+Les tests historiques P1/P2.1 restent exercés sur les dix fixtures identiques à
+la base, en particulier les 68 exercices sans métadonnées.
+
+Sur macOS arm64 / Go 1.27.3 : `go test -count=1 ./...`, `go vet ./...`,
+formatage Go et diff contrôlés. Les nouveaux tests du premier corpus et de
+l'affichage QCM ont d'abord échoué sur la base puis réussi après modification.
+Essais du binaire sous pseudo-terminal à 80 colonnes, sans couleur : parcours
+Unix 8/8 avec nom de fichier contenant des espaces, QCM TUI incorrect puis
+correct après relance, choix visibles et explication, Ctrl+A réellement capturé,
+Échap vers l'accueil puis sortie normale. Les fichiers JSON synthétiques sont
+relus pour les scores et identifiants exacts. La troncature initiale des longues
+consignes a été constatée, puis corrigée par les retours à la ligne éditoriaux.
+
+Le 9 novembre 2026, l'utilisateur a validé huit essais manuels dans Terminal.app
+sans défaut bloquant. La recette couvre le premier lancement du chapitre Unix,
+les huit exercices fondamentaux, la correction des commandes, les QCM en CLI,
+la capture, les outils modernes dont `z docs`, la persistance après Ctrl+C et
+la relecture dans un nouveau processus, ainsi que la lisibilité et la qualité
+pédagogique. Les tests automatisés vérifient aussi la conservation des résultats
+historiques, y compris ceux des exercices retirés, au format JSON v1.
+
+La recette porte sur Terminal.app sous macOS. La durée d'apprentissage, Linux
+et Go 1.23 restent à valider. La prochaine étape est P2.3, consacrée à la
+sélection manuelle et aux préférences minimales.
 
 ## Validation et limites de preuve
 

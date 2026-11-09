@@ -215,7 +215,13 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 			_, _ = fmt.Fprintf(opts.Out, "Chapitre: %s\n", selected.Title)
 			textHeaderPrinted = true
 		}
-		_, _ = fmt.Fprintf(opts.Out, "\n%d/%d %s\n> ", i+1, len(selected.Items), item.Prompt)
+		_, _ = fmt.Fprintf(opts.Out, "\n%d/%d %s\n", i+1, len(selected.Items), item.Prompt)
+		if item.ExerciseType == exercise.TypeMultipleChoice {
+			for _, choice := range item.Choices {
+				_, _ = fmt.Fprintf(opts.Out, "  - %s\n", choice)
+			}
+		}
+		_, _ = fmt.Fprint(opts.Out, "> ")
 		input, aborted, err := readTrainingInput(opts, reader, item.ExerciseType)
 		if err != nil && !errors.Is(err, io.EOF) {
 			return err

@@ -2,12 +2,12 @@ package chapter
 
 import (
 	"io/fs"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
 	"testing/fstest"
 
-	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/exercise"
 	"gopkg.in/yaml.v3"
 )
@@ -142,18 +142,19 @@ func TestLoadRejectsInvalidStructure(t *testing.T) {
 	}
 }
 
-func TestEmbeddedMetadataPreservesHistoricalCorpus(t *testing.T) {
-	chapters, err := LoadFS(data.Chapters(), "*.yaml")
+func TestMetadataPreservesHistoricalCorpus(t *testing.T) {
+	source := os.DirFS("../../testdata/legacy-chapters")
+	chapters, err := LoadFS(source, "*.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
-	paths, err := fs.Glob(data.Chapters(), "*.yaml")
+	paths, err := fs.Glob(source, "*.yaml")
 	if err != nil || len(paths) != 10 || len(chapters) != 10 {
 		t.Fatalf("embedded chapter count changed: %d (%v)", len(chapters), err)
 	}
 	total := 0
 	for i, path := range paths {
-		raw, err := fs.ReadFile(data.Chapters(), path)
+		raw, err := fs.ReadFile(source, path)
 		if err != nil {
 			t.Fatal(err)
 		}
