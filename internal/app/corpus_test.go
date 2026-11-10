@@ -18,31 +18,11 @@ import (
 
 func TestDefaultTrainingUsesUnixFoundationsWithoutExecutingAnswers(t *testing.T) {
 	isolateChapterHome(t)
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	dir := t.TempDir()
-	if err := os.Chdir(dir); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() {
-		if err := os.Chdir(cwd); err != nil {
-			t.Fatal(err)
-		}
-	})
+	dir := useTemporaryTrainingDirectory(t)
 	path := filepath.Join(dir, "progress.json")
-	var output bytes.Buffer
-	cmd := NewRootCommand(data.Chapters())
-	cmd.SetIn(strings.NewReader("pwd\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nmkdir essais\ncat 'notes de cours.txt'\n"))
-	cmd.SetOut(&output)
-	cmd.SetErr(&output)
-	cmd.SetArgs([]string{"--progress", path, "train"})
-	if err := cmd.Execute(); err != nil {
-		t.Fatalf("train: %v\n%s", err, output.String())
-	}
-	if !strings.Contains(output.String(), "Premiers pas Unix") || strings.Count(output.String(), "Correct.") != 8 {
-		t.Fatalf("default training failed: %s", output.String())
+	output, err := runSessionCLI(path, "pwd\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nmkdir essais\ncat 'notes de cours.txt'\n", "train")
+	if err != nil || !strings.Contains(output, "Premiers pas Unix") || strings.Count(output, "Correct.") != 8 {
+		t.Fatalf("default training failed: %v\n%s", err, output)
 	}
 	state, err := progress.Load(path)
 	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 8, Correct: 8}) || len(state.CompletedExercises) != 8 {
@@ -59,6 +39,74 @@ func TestDefaultTrainingUsesUnixFoundationsWithoutExecutingAnswers(t *testing.T)
 	if got, err := os.Getwd(); err != nil || got != physicalDir {
 		t.Fatalf("answer changed directory: %s (%v)", got, err)
 	}
+}
+
+func TestUnixStreamsRecordWithoutRunningRedirections(t *testing.T) {
+	isolateChapterHome(t)
+	dir := useTemporaryTrainingDirectory(t)
+	path := filepath.Join(dir, "progress.json")
+	writeAppTestFileContent(t, path, recordingHistory)
+	prefs := writeAppTestFileContent(t, xdg.PreferencesFile(), `{"version":1,"enabled_tools":[],"default_difficulty":"beginner"}`)
+	inventory := writeAppTestFileContent(t, "inventaire.txt", "inventaire précédent\n")
+	journal := writeAppTestFileContent(t, "journal.txt", "entrée précédente\n")
+	writeAppTestFileContent(t, "note.txt", "nouvelle entrée\n")
+	writeAppTestFileContent(t, filepath.Join("docs", "fichier.txt"), "documentation\n")
+
+	output, err := runSessionCLI(path, "ls docs > inventaire.txt\ncat note.txt > journal.txt\n", "train", "11-flux-shell", "--mode", "learn")
+	if err != nil || !strings.Contains(output, "Bilan de la séance\nBonnes réponses : 1/2") {
+		t.Fatalf("stream training: %v\n%s", err, output)
+	}
+	state := assertRecordingScore(t, path, "11-flux-shell", 2, 1, "11-flux-shell/redirect-output")
+	if state.Version != 1 {
+		t.Fatalf("unexpected progress version: %d", state.Version)
+	}
+	assertPreferencesBytes(t, xdg.PreferencesFile(), prefs)
+	assertPreferencesBytes(t, "inventaire.txt", inventory)
+	assertPreferencesBytes(t, "journal.txt", journal)
+}
+
+func TestTextTrainingPlainOutputSeparatesQuestionAndFeedback(t *testing.T) {
+	isolateChapterHome(t)
+	t.Setenv("CLICOLOR_FORCE", "1")
+	path := filepath.Join(t.TempDir(), "progress.json")
+	args := []string{"train", "11-flux-shell", "--difficulty", "advanced"}
+	const solution = "ls docs absent > bilan.log 2>&1"
+	question, err := runSessionCLI(path, "", args...)
+	if err != nil || !strings.Contains(question, "Exercice 1/1\n\nListe le dossier docs") ||
+		!strings.HasSuffix(question, "\n\nRéponse\n> ") || strings.Contains(question, solution) ||
+		strings.Contains(question, "Explication") || strings.Contains(question, "\x1b") {
+		t.Fatalf("unexpected unanswered exercise: %v\n%s", err, question)
+	}
+	for _, tc := range []struct{ answer, feedback, score string }{
+		{solution, "Correct.\n\nExplication", "Bonnes réponses : 1/1"},
+		{"ls docs absent 2>&1 > bilan.log", "Réponse incorrecte.\nRéponse attendue : " + solution + "\n\nExplication", "Bonnes réponses : 0/1"},
+	} {
+		output, err := runSessionCLI(path, tc.answer+"\n", args...)
+		if err != nil || !strings.HasPrefix(output, question+"\n"+tc.feedback+"\n") ||
+			!strings.Contains(output, "Le shell redirige d’abord") ||
+			!strings.HasSuffix(output, "Bilan de la séance\n"+tc.score+"\n") ||
+			strings.Contains(output, "\x1b") {
+			t.Fatalf("unexpected feedback: %v\n%s", err, output)
+		}
+	}
+}
+
+func useTemporaryTrainingDirectory(t *testing.T) string {
+	t.Helper()
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.Chdir(cwd); err != nil {
+			t.Fatal(err)
+		}
+	})
+	return dir
 }
 
 func TestCurrentTextCorpusPreservesRetiredProgress(t *testing.T) {

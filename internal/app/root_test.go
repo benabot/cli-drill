@@ -72,7 +72,7 @@ items:
 	if strings.Count(got, "Correct.") != 3 {
 		t.Fatalf("expected three control shortcut answers to be correct, got:\n%s", got)
 	}
-	if !strings.Contains(got, "Pas encore. Reponse attendue: Ctrl+L") {
+	if !strings.Contains(got, "Réponse incorrecte.\nRéponse attendue : Ctrl+L") {
 		t.Fatalf("expected bare L to be rejected, got:\n%s", got)
 	}
 }

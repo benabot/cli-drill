@@ -10,9 +10,8 @@ items:
     difficulty: "beginner"
     tools: ["zoxide"]
     prompt: |-
-      Situation simulée : l’intégration Zoxide fournit la commande z et sa
-      base contient un seul dossier correspondant à docs. Rejoins ce dossier
-      en passant docs à z.
+      L’intégration shell standard de Zoxide est active. Rejoins le seul
+      dossier qui correspond à la recherche docs.
     answer:
       primary: "z docs"
     explanation: |-
@@ -26,9 +25,8 @@ items:
     difficulty: "beginner"
     tools: ["fzf"]
     prompt: |-
-      Situation simulée : une liste de chemins, un par ligne, est déjà
-      fournie sur l’entrée standard. Saisis la commande fzf sans option pour
-      en choisir un interactivement.
+      Une liste de chemins arrive sur l’entrée standard, un par ligne.
+      Choisis-en un avec le sélecteur interactif à recherche floue.
     answer:
       primary: "fzf"
     explanation: |-
@@ -57,9 +55,8 @@ items:
     difficulty: "beginner"
     tools: ["eza"]
     prompt: |-
-      Situation simulée : tu es à la racine d’un petit projet. Demande à eza
-      une vue arborescente récursive avec --tree ou son option courte, sans
-      icônes.
+      Depuis la racine du projet, affiche une vue en arbre avec l’outil
+      tiers de listage. Garde l’affichage par défaut, sans icônes.
     answer:
       primary: "eza --tree"
       accepted: ["eza -T"]
@@ -73,24 +70,22 @@ items:
     difficulty: "beginner"
     tools: ["yazi"]
     prompt: |-
-      Situation simulée : tu veux lancer le gestionnaire de fichiers
-      terminal Yazi dans le dossier courant, sans wrapper shell. Saisis sa
-      commande sans option.
+      Lance le gestionnaire de fichiers à trois panneaux écrit en Rust
+      dans le dossier courant, sans passer par une fonction du shell.
     answer:
       primary: "yazi"
     explanation: |-
-      yazi ouvre une interface dans le terminal. y est un wrapper
-      facultatif qui peut ramener le shell dans le dossier choisi
-      ; il n’est ni supposé présent ni accepté ici.
+      yazi ouvre son interface dans le terminal. La fonction
+      facultative y peut changer le dossier du shell à la sortie.
   - id: "fd-fzf-dir"
     type: "workflow"
     exercise_type: "simple-shell-sim"
     difficulty: "intermediate"
     tools: ["fd", "fzf"]
     prompt: |-
-      Situation simulée : à la racine d’un projet, utilise fd pour lister
-      les répertoires avec -t d, puis transmets la liste à fzf pour en
-      choisir un.
+      Depuis la racine du projet, cherche uniquement les répertoires
+      visibles et non ignorés, puis choisis un chemin interactivement
+      dans le même pipeline avec les outils tiers du chapitre.
     answer:
       primary: "fd -t d | fzf"
       accepted: ["fd --type d | fzf"]

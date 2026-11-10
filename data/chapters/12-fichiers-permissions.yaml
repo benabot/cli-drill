@@ -1,0 +1,91 @@
+id: "12-fichiers-permissions"
+title: "Fichiers et permissions"
+description: "Opérations courantes sur les fichiers et leurs droits d’accès."
+family: "unix-shell"
+learning_order: "independent"
+items:
+  - id: "copy-spaced-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Copie « rapport final.txt » dans archives/, qui existe et ne
+      contient pas encore ce fichier. Garde le même nom.
+    answer:
+      primary: 'cp "rapport final.txt" archives/'
+      accepted: ["cp 'rapport final.txt' archives/", 'cp rapport\ final.txt archives/', 'cp "rapport final.txt" archives']
+    explanation: |-
+      cp conserve le fichier source. Les guillemets ou la barre
+      oblique inverse protègent l’espace dans son nom. Le dossier
+      de destination reçoit une copie sous le même nom.
+  - id: "rename-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Renomme brouillon.txt en rapport.txt dans le répertoire courant.
+      Le nouveau nom est libre.
+    answer:
+      primary: "mv brouillon.txt rapport.txt"
+    explanation: |-
+      mv remplace le nom de la source par celui de la destination
+      dans ce dossier. Si la destination existait déjà, elle
+      pourrait être écrasée ou traitée comme un dossier cible.
+  - id: "remove-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Supprime uniquement le fichier temporaire essai.tmp
+      dans le répertoire courant.
+    answer:
+      primary: "rm essai.tmp"
+      accepted: ["rm ./essai.tmp"]
+    explanation: |-
+      rm retire l’entrée désignée sans passer par la corbeille.
+      En indiquant le nom exact, tu évites de viser d’autres
+      fichiers avec un motif comme *.
+  - id: "remove-empty-directory"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Supprime le dossier essais seulement s’il est vide.
+    answer:
+      primary: "rmdir essais"
+      accepted: ["rmdir essais/"]
+    explanation: |-
+      rmdir refuse un dossier non vide, même s’il ne contient que
+      des fichiers cachés. Il ne parcourt pas son contenu.
+  - id: "list-permissions"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Affiche la fiche détaillée de rapport.txt avec ses permissions,
+      son propriétaire et son groupe.
+    answer:
+      primary: "ls -l rapport.txt"
+    explanation: |-
+      Le format long de ls indique le type puis les droits rwx du
+      propriétaire, du groupe et des autres. Les colonnes qui
+      suivent incluent le propriétaire et le groupe du fichier.
+  - id: "owner-execute"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Tu possèdes le script lancer.sh. Ajoute le droit d’exécution
+      pour son propriétaire sans modifier les autres droits.
+    answer:
+      primary: "chmod u+x lancer.sh"
+    explanation: |-
+      u désigne le propriétaire du fichier et +x ajoute son droit
+      d’exécution. Un mode numérique imposerait un ensemble de
+      droits, alors qu’ici les autres bits doivent être conservés.

@@ -45,7 +45,7 @@ func TestSelectedPedagogicalMetadataDoesNotChangeCorrectionOrProgress(t *testing
 			}
 			return output.String()
 		}
-		if got := run("", "chapters"); got != "embedded\tMetadata lesson\t1 exercises\n" {
+		if got := run("", "chapters"); got != "embedded\tMetadata lesson\t1 exercise\n" {
 			t.Fatalf("metadata changed chapter listing: %q", got)
 		}
 		untouched, err := os.ReadFile(path)
@@ -83,7 +83,7 @@ func TestSelectedPedagogicalMetadataDoesNotChangeCorrectionOrProgress(t *testing
 	if !reflect.DeepEqual(outputs[:2], outputs[2:]) || !reflect.DeepEqual(states[0], states[1]) {
 		t.Fatalf("metadata changed training or progress: %q / %#v", outputs, states)
 	}
-	if strings.Contains(outputs[0], "> Correct.") || !strings.Contains(outputs[1], "> Correct.") {
+	if strings.Contains(outputs[0], "\nCorrect.\n") || !strings.Contains(outputs[1], "\nCorrect.\n") {
 		t.Fatalf("command case correction changed: %q", outputs)
 	}
 	if entries, err := os.ReadDir(legacyConfigRoot(t)); err == nil && len(entries) != 0 {

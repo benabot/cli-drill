@@ -29,7 +29,7 @@ func TestCLISessionDifficultyAndModules(t *testing.T) {
 		{"level missing", []string{"train", "00-premiers-pas"}, "No exercises at intermediate difficulty", true},
 		{"invalid difficulty", []string{"train", "--difficulty", "expert"}, "choose beginner, intermediate or advanced", true},
 		{"explicit empty difficulty", []string{"train", "--difficulty="}, "invalid difficulty", true},
-		{"no text at default override", []string{"train", "--difficulty", "advanced"}, "No eligible text exercises", true},
+		{"advanced Unix without modules", []string{"train", "--difficulty", "advanced"}, "Chapitre : Flux du shell", false},
 		{"mode on independent chapter", []string{"train", "02-navigation-shell", "--mode", "learn"}, "only available for guided chapters", true},
 		{"unknown mode", []string{"train", "00-premiers-pas", "--mode", "other"}, "choose learn or review", true},
 		{"learn", []string{"train", "00-premiers-pas", "--difficulty", "beginner", "--mode", "learn"}, "1/8", false},
@@ -56,7 +56,7 @@ func TestCLIStatsProjectsActiveAcquiredWithoutWritingHistory(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "progress.json")
 	historical := writeAppTestFileContent(t, path, `{"version":1,"completed_exercises":["02-navigation-shell/fd-fzf-dir","02-navigation-shell/retired","00-premiers-pas/pwd"],"chapter_scores":{"02-navigation-shell":{"attempts":7,"correct":3},"retired":{"attempts":2,"correct":1}},"last_session":null,"streak":4}`)
 	output, err := runSessionCLI(path, "", "stats")
-	for _, want := range []string{"Active acquired (intermediate, enabled CLI modules): 1/2", "Historical totals (all sessions)", "Completed exercises: 3", "Chapters with attempts: 2", "Streak: 4"} {
+	for _, want := range []string{"Active acquired (intermediate, enabled CLI modules): 1/10", "Historical totals (all sessions)", "Completed exercises: 3", "Chapters with attempts: 2", "Streak: 4"} {
 		if err != nil || !strings.Contains(output, want) {
 			t.Fatalf("stats = %q (%v), want %q", output, err, want)
 		}

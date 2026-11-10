@@ -10,9 +10,8 @@ items:
     difficulty: "beginner"
     tools: ["git"]
     prompt: |-
-      Situation indépendante : tu es à la racine d’un dépôt Git. Affiche son
-      état en format court avec la commande Git complète et l’option --short
-      ou sa forme courte.
+      À la racine d’un dépôt Git, affiche l’état de l’index et du
+      répertoire de travail dans le format court à deux colonnes.
     answer:
       primary: "git status --short"
       accepted: ["git status -s"]
@@ -27,9 +26,8 @@ items:
     difficulty: "beginner"
     tools: ["git"]
     prompt: |-
-      Situation indépendante : dans un dépôt Git, un fichier suivi comporte
-      des modifications non indexées. Affiche un résumé chiffré du diff avec
-      git diff et --stat.
+      Dans un dépôt Git, résume les modifications non indexées avec
+      un graphique compact des ajouts et suppressions par fichier.
     answer:
       primary: "git diff --stat"
     explanation: |-
@@ -43,9 +41,8 @@ items:
     difficulty: "beginner"
     tools: ["git"]
     prompt: |-
-      Situation indépendante : dans un dépôt Git, des fichiers suivis ont
-      été modifiés sans être indexés. Avec git diff et --name-only, affiche
-      seulement leurs noms.
+      Dans un dépôt Git, affiche uniquement les noms des fichiers
+      suivis qui ont des modifications non indexées.
     answer:
       primary: "git diff --name-only"
     explanation: |-

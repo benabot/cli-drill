@@ -297,3 +297,10 @@ sous-phases et leurs critères. L'[architecture](ARCHITECTURE.md) précise leur
 répartition minimale ; l'[état courant](../PROJECT_STATE.md) distingue cadrage
 P2.0 et fonctions réellement disponibles. Aucun Go, YAML, README ou fichier
 utilisateur/configuration n'est modifié par cette mission.
+
+## 2026-11-10 — P3, choix de langue français/anglais
+
+Le choix de langue rejoint le [backlog P3](../TODO.md#p3--internationalisation-fren)
+après P2.6. Les libellés traduits se rattachent aux mêmes exercices et les clés
+restent indépendantes de la langue. P3 décidera de la stratégie de localisation,
+du défaut et de l'évolution des préférences.

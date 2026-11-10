@@ -14,6 +14,7 @@ import (
 	"github.com/benabot/cli-drill/internal/exercise"
 	"github.com/benabot/cli-drill/internal/progress"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 func embeddedChoiceChapters(t *testing.T) []chapter.Chapter {
@@ -46,6 +47,8 @@ func TestMultipleChoiceEveryEmbeddedOption(t *testing.T) {
 			t.Run(ch.ID+"/"+item.ID+"/"+choice, func(t *testing.T) {
 				path := filepath.Join(t.TempDir(), "progress.json")
 				m := startTestTraining(t, newModel(choiceTestOptions(ch, path)))
+				resized, _ := m.Update(tea.WindowSizeMsg{Width: 80, Height: 24})
+				m = resized.(model)
 				for _, option := range item.Choices {
 					assertContains(t, m.View(), option)
 				}
@@ -59,6 +62,9 @@ func TestMultipleChoiceEveryEmbeddedOption(t *testing.T) {
 					t.Fatalf("navigation wrote progress: %v", err)
 				}
 				m = press(t, m, tea.KeyEnter)
+				if width, height := lipgloss.Size(m.View()); width > 80 || height > 24 {
+					t.Fatalf("choice feedback exceeds the terminal: %dx%d", width, height)
+				}
 				correct := 0
 				// The primary answer is declared among choices in every existing QCM.
 				if choice == item.Answer.Primary {
@@ -160,8 +166,8 @@ func TestMultipleChoiceTransitionsResetSelectionAndPreserveText(t *testing.T) {
 	m = press(t, m, tea.KeyEnter)
 	m = press(t, m, tea.KeyEnter)
 	for range 3 {
-		assertContains(t, m.View(), "Reponse:")
-		assertNotContains(t, m.View(), "Choix:")
+		assertContains(t, m.View(), "Réponse")
+		assertNotContains(t, m.View(), "Choix")
 		m = press(t, m, tea.KeyRunes, []rune("pwd")...)
 		m = press(t, m, tea.KeyEnter)
 		if !strings.HasPrefix(m.feedback, "Correct.") {

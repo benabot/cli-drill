@@ -10,10 +10,7 @@ items:
     difficulty: "beginner"
     tools: []
     prompt: |-
-      Simulation : aucune commande saisie n’est exécutée. Situation
-      indépendante : tu es dans /atelier mais le prompt ne montre pas le
-      chemin. Saisis la commande sans option qui affiche le répertoire
-      courant.
+      Affiche le chemin du répertoire courant sans changer de dossier.
     answer:
       primary: "pwd"
     explanation: |-
@@ -26,9 +23,8 @@ items:
     difficulty: "beginner"
     tools: []
     prompt: |-
-      Situation indépendante : tu es dans /atelier, qui contient docs,
-      notes.txt et .cache. Liste son contenu avec ls, sans option et sans
-      demander les entrées cachées.
+      Liste les noms visibles du répertoire courant, sans les entrées
+      cachées.
     answer:
       primary: "ls"
     explanation: |-
@@ -41,9 +37,8 @@ items:
     difficulty: "beginner"
     tools: []
     prompt: |-
-      Situation indépendante : tu es dans /atelier, qui contient notes.txt
-      et .config. Avec ls et une option courte, demande toutes les entrées,
-      y compris . et .. ainsi que les fichiers cachés.
+      Liste tous les noms du répertoire courant, y compris les fichiers
+      cachés et les entrées . et ..
     answer:
       primary: "ls -a"
     explanation: |-
@@ -56,38 +51,34 @@ items:
     difficulty: "beginner"
     tools: []
     prompt: |-
-      Situation indépendante : tu es dans /atelier et le sous-répertoire
-      docs existe. Rejoins-le avec cd et un chemin relatif.
+      Depuis /atelier, rejoins son sous-répertoire docs par un chemin
+      relatif.
     answer:
       primary: "cd docs"
       accepted: ["cd ./docs"]
     explanation: |-
-      cd change le répertoire courant du shell. docs est relatif à
-      /atelier : la destination est /atelier/docs. Dans cette
-      simulation, le disque reste inchangé.
+      cd change le répertoire courant du shell. Le chemin
+      relatif docs mène ici à /atelier/docs.
   - id: "cd-parent"
     type: "workflow"
     exercise_type: "simple-shell-sim"
     difficulty: "beginner"
     tools: []
     prompt: |-
-      Situation indépendante : tu es dans /atelier/docs. Remonte au
-      répertoire parent avec cd et le composant .., sans écrire le chemin
-      absolu.
+      Depuis /atelier/docs, remonte au répertoire parent sans écrire
+      son nom ni son chemin absolu.
     answer:
       primary: "cd .."
     explanation: |-
-      .. désigne le parent du répertoire courant : depuis
-      /atelier/docs, cd .. mène à /atelier. Chaque exercice
-      indique son propre point de départ.
+      .. désigne le parent du répertoire courant. Depuis
+      /atelier/docs, cd .. mène à /atelier.
   - id: "cd-absolute"
     type: "workflow"
     exercise_type: "simple-shell-sim"
     difficulty: "beginner"
     tools: []
     prompt: |-
-      Situation indépendante : tu es dans /tmp et /atelier existe. Rejoins
-      /atelier avec cd en utilisant un chemin absolu.
+      Depuis /tmp, rejoins le répertoire /atelier par son chemin absolu.
     answer:
       primary: "cd /atelier"
     explanation: |-
@@ -100,23 +91,20 @@ items:
     difficulty: "beginner"
     tools: []
     prompt: |-
-      Situation indépendante : tu es dans /atelier, où essais n’existe pas
-      encore. Crée ce sous-répertoire avec mkdir, sans option.
+      Crée le sous-répertoire essais dans le répertoire courant.
     answer:
       primary: "mkdir essais"
     explanation: |-
-      mkdir crée un répertoire. Ici le parent /atelier existe déjà
-      ; -p servirait notamment à créer des parents manquants, ce
-      que cette consigne ne demande pas.
+      mkdir crée le sous-répertoire. L’option -p permet aussi
+      de créer les répertoires parents manquants.
   - id: "cat-spaces"
     type: "workflow"
     exercise_type: "simple-shell-sim"
     difficulty: "beginner"
     tools: []
     prompt: |-
-      Situation indépendante : le répertoire courant contient le fichier
-      texte notes de cours.txt. Affiche son contenu avec cat en protégeant
-      les espaces du nom.
+      Affiche tout le contenu de « notes de cours.txt » sur la sortie
+      standard, en une seule commande.
     answer:
       primary: "cat \"notes de cours.txt\""
       accepted: ["cat 'notes de cours.txt'", "cat notes\\ de\\ cours.txt"]

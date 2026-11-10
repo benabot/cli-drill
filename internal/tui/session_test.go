@@ -129,7 +129,7 @@ func TestTUIEmptySelectionAndHistoricalAcquired(t *testing.T) {
 	m = press(t, m, tea.KeyEnter)
 	assertScreen(t, m, screenChapters)
 	assertContains(t, m.View(), "No eligible text exercises")
-	assertContains(t, m.View(), "0/2 eligible")
+	assertContains(t, m.View(), "Exercices éligibles : 0/2")
 	m = press(t, m, tea.KeyEnter)
 	assertContains(t, m.View(), "with the enabled CLI modules")
 	assertContains(t, m.View(), "Historical chapter score: 5/9 correct")

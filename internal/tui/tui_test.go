@@ -5,9 +5,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/exercise"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 func TestHomeBannerAndTrainingTagline(t *testing.T) {
@@ -47,30 +49,71 @@ func TestHomeBannerFallsBackWhenTerminalIsNarrow(t *testing.T) {
 	assertNotContains(t, banner, "____ _     ___")
 }
 
-func TestChaptersShowDescriptionMetadataAndCentralizedFooter(t *testing.T) {
+func TestChaptersKeepDescriptionInDetailAndShowCompactMetadata(t *testing.T) {
 	first := textChapter()
 	second := textChapter()
 	second.ID = "02-navigation-shell"
 	second.Title = "Navigation shell"
-	second.Description = "Move between directories."
+	second.Description = "Move between directories and inspect files from the terminal. The full description belongs on the chapter detail screen."
 	m := newTestModel(t, Options{Chapters: []chapter.Chapter{first, second}})
+	resized, _ := m.Update(tea.WindowSizeMsg{Width: 80, Height: 24})
+	m = resized.(model)
 	m.home.Select(homeActionIndex("Browse chapters"))
 	m = press(t, m, tea.KeyEnter)
 
 	view := m.View()
 	wantFooter := footerText(footerNavigation)
 
-	assertContains(t, view, "01-raccourcis-terminal · 1 exercise · Memoriser les raccourcis de navigation.")
-	assertContains(t, view, "02-navigation-shell · 1 exercise · Move between directories.")
+	assertContains(t, view, "│ Raccourcis terminal")
+	assertContains(t, view, "Exercices éligibles : 1/1 · 01-raccourcis-terminal")
+	assertNotContains(t, view, "Memoriser les raccourcis")
+	assertContains(t, view, "Exercices éligibles : 1/1 · 02-navigation-shell")
+	assertNotContains(t, view, "Move between directories")
+	assertContains(t, m.chapterList.Items()[1].FilterValue(), second.Description)
+	if width, height := lipgloss.Size(view); width > 80 || height > 24 {
+		t.Fatalf("chapter list exceeds the terminal: %dx%d", width, height)
+	}
 	if count := strings.Count(view, wantFooter); count != 1 {
 		t.Fatalf("centralized footer count = %d, want 1\nview:\n%s", count, view)
 	}
 	assertNotContains(t, view, "↑/k up")
 
 	m = press(t, m, tea.KeyRunes, 'j')
+	assertContains(t, m.View(), "│ Navigation shell")
+	assertNotContains(t, m.View(), "│ Raccourcis terminal")
 	m = press(t, m, tea.KeyEnter)
 	assertScreen(t, m, screenChapterDetail)
 	assertContains(t, m.View(), "Navigation shell")
+	assertContains(t, strings.Join(strings.Fields(m.View()), " "), second.Description)
+}
+
+func TestCompactChapterListPagesThroughEmbeddedCorpusAt80Columns(t *testing.T) {
+	chapters, err := chapter.LoadFS(data.Chapters(), "*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := newTestModel(t, Options{Chapters: chapters})
+	updated, _ := m.Update(tea.WindowSizeMsg{Width: 80, Height: 24})
+	m = updated.(model)
+	m.home.Select(homeActionIndex(homeActionBrowse))
+	m = press(t, m, tea.KeyEnter)
+	firstPage := m.chapterList.Paginator.Page
+	for i, ch := range chapters {
+		view := m.View()
+		assertContains(t, view, "│ "+ch.Title)
+		assertContains(t, view, " · "+ch.ID)
+		if width, height := lipgloss.Size(view); width > 80 || height > 24 {
+			t.Fatalf("%s exceeds the terminal: %dx%d", ch.ID, width, height)
+		}
+		if i+1 < len(chapters) {
+			m = press(t, m, tea.KeyRunes, 'j')
+		}
+	}
+	if m.chapterList.Paginator.Page == firstPage {
+		t.Fatal("chapter navigation did not reach a second page")
+	}
+	m = press(t, m, tea.KeyRunes, 'k')
+	assertContains(t, m.View(), "│ "+chapters[len(chapters)-2].Title)
 }
 
 func TestNavigationHomeChaptersDetailBackHome(t *testing.T) {
@@ -101,7 +144,7 @@ func TestChapterDetailStartsTraining(t *testing.T) {
 	m = press(t, m, tea.KeyEnter)
 
 	assertScreen(t, m, screenTraining)
-	assertContains(t, m.View(), "Question:")
+	assertContains(t, m.View(), "Question")
 	assertContains(t, m.View(), "Aller au debut de ligne")
 }
 
@@ -170,7 +213,7 @@ func TestChapterDetailStillStartsBubbleTrainingForTextChapter(t *testing.T) {
 	m = press(t, m, tea.KeyEnter)
 
 	assertScreen(t, m, screenTraining)
-	assertContains(t, m.View(), "Question:")
+	assertContains(t, m.View(), "Question")
 	assertContains(t, m.View(), "Aller au debut de ligne")
 }
 
@@ -253,17 +296,23 @@ func TestTrainingTextInputCtrlCQuits(t *testing.T) {
 
 func TestTrainingSummaryShowsMissedAnswersAndOffersRetry(t *testing.T) {
 	m := newTrainingModel(t)
+	assertNotContains(t, m.View(), "Ctrl+A")
+	assertNotContains(t, m.View(), "Explication")
 	m.input.SetValue("Ctrl+L")
 	m = press(t, m, tea.KeyEnter)
+	assertContains(t, m.View(), "Réponse incorrecte.")
+	assertContains(t, m.View(), "Réponse attendue : Ctrl+A")
+	assertContains(t, m.View(), "Explication")
+	assertContains(t, m.View(), "Ctrl+A place le curseur au debut.")
 	m = press(t, m, tea.KeyEnter)
 
 	assertScreen(t, m, screenTrainingSummary)
 	view := m.View()
-	assertContains(t, view, "Score: 0/1 correct")
-	assertContains(t, view, "Missed:")
+	assertContains(t, view, "Bonnes réponses : 0/1")
+	assertContains(t, view, "À revoir")
 	assertContains(t, view, "Aller au debut de ligne")
-	assertContains(t, view, "Expected: Ctrl+A")
-	assertContains(t, view, "Answered: Ctrl+L")
+	assertContains(t, view, "Réponse attendue : Ctrl+A")
+	assertContains(t, view, "Ta réponse : Ctrl+L")
 	assertContains(t, view, "enter retry · esc chapter · g home · q quit")
 
 	m = press(t, m, tea.KeyEnter)
@@ -278,7 +327,7 @@ func TestTrainingReturnsHomeWithoutMissedAnswers(t *testing.T) {
 
 	assertScreen(t, m, screenHome)
 	view := m.View()
-	assertNotContains(t, view, "Missed:")
+	assertNotContains(t, view, "À revoir")
 	assertNotContains(t, view, "enter retry")
 }
 

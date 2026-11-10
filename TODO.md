@@ -1,7 +1,7 @@
 # Backlog — CLI-Drill V2
 
-**Mis à jour le 10 novembre 2026.** P0.1 à P0.3 et P1.1 à P2.4 terminées, intégrées
-localement dans `dev`. Le stockage initial (`25c344b`) est complété par les
+**Mis à jour le 10 novembre 2026.** P0.1 à P0.3 et P1.1 à P2.4 sont terminées.
+P2.5 est en cours. Le stockage initial (`25c344b`) est complété par les
 corrections acceptées de `fix/progress-storage-hardening` (P1.1b).
 Migration fonctionnelle V2 partielle. P1.2 est terminée et validée : implémentation
 `e7b4170` et complément de tests `a60c819`, depuis `dev` à `1f61cb9`.
@@ -16,7 +16,8 @@ dans `dev` et publication de `origin/dev`, en conservant la branche de travail.
 P2.1 est intégrée et publiée à `ab2096c`. P2.2 est intégrée et publiée à
 `3ecdf9c` après huit essais manuels dans Terminal.app le 9 novembre 2026.
 P2.3 est intégrée et publiée à `1e0c396` après six essais manuels le même jour.
-P2.4 est validé va être intégré et publié
+P2.4 est intégrée et publiée sur `origin/dev` à `f096eec` après huit tests
+manuels réussis dans Terminal.app.
 
 ## P0 — Simplification du périmètre
 
@@ -95,10 +96,9 @@ demande du 8 novembre 2026 : appliquer ses orientations, sans refaire cet audit
 ni rouvrir P1. Les contrats YAML, filtres, ordre et préférences sont définis dans
 la [spécification](docs/SPEC.md), qui fait référence pour les détails.
 
-Ordre proposé : **P2.0 → P2.1 → P2.2 → P2.3 → P2.4 → P2.5 → P2.6**.
-Chaque sous-phase fonctionnelle fera l'objet d'une mission et d'une validation
-distinctes. P2.0 est validée ; les critères des sous-phases fonctionnelles
-ci-dessous restent à vérifier lors de leur réalisation.
+Ordre de réalisation **P2.0 → P2.1 → P2.2 → P2.3 → P2.4 → P2.5 → P2.6**.
+Chaque sous-phase fonctionnelle fait l'objet d'une mission et d'une validation
+distinctes.
 
 ### P2.0 — Cadrage documentaire — terminée et validée
 
@@ -145,8 +145,8 @@ Dépendance : P2.1. Appliquer l'audit validé, sans nouvelle revue exhaustive.
 
 **Recette humaine validée le 9 novembre 2026 dans Terminal.app.** Les huit
 essais ont réussi, dont le parcours Unix, les QCM CLI, la capture et la relecture
-de la progression après interruption. Le corpus compte 39 exercices dans neuf
-chapitres. Les tests sur fixtures confirment la conservation des résultats
+de la progression après interruption. Le corpus P2.2 comptait 39 exercices
+dans neuf chapitres. Les tests sur fixtures confirment la conservation des résultats
 historiques JSON v1. La durée des mini-leçons reste à confirmer par l'usage.
 [Corpus et identifiants](docs/CORPUS_P2.md) · [Détail des validations](PROJECT_STATE.md)
 
@@ -201,10 +201,11 @@ de séance P2.4 ; aucun filtre n'est appliqué aux séances dans P2.3.
   (défauts sans fichier, activation CLI, persistance, annulation et sauvegarde
   TUI, désactivation/navigation), sans anomalie signalée.
 
-### P2.4 — Séances filtrées, guidées et mélangées
+### P2.4 — Séances filtrées, guidées et mélangées — terminée
 
-Implémentée sur `refactor/session-order` depuis `1e0c396`. Voir le
-[fonctionnement livré et les limites](PROJECT_STATE.md#p24--séances-filtrées-guidées-et-mélangées).
+Implémentée sur `refactor/session-order` depuis `1e0c396`, puis intégrée et
+publiée sur `origin/dev` à `f096eec`. Voir le [fonctionnement livré et les
+limites](PROJECT_STATE.md#p24--séances-filtrées-guidées-et-mélangées).
 
 - [x] Permettre de choisir Beginner, Intermediate ou Advanced au lancement de la
   séance, y compris depuis une fiche chapitre ; filtrer par niveau exact.
@@ -216,7 +217,7 @@ Implémentée sur `refactor/session-order` depuis `1e0c396`. Voir le
   exercices éligibles, sans refonte visuelle ; calculer les acquis actifs par
   intersection d'identifiants, sans purger l'historique.
 
-- [x] Recetter dans Terminal.app et obtenir la validation humaine.
+- [x] Valider les huit tests manuels dans Terminal.app.
 
 Acceptation : pour zéro, un ou plusieurs exercices, chaque liste est une
 permutation exacte de l'ensemble éligible, sans omission ni doublon. Deux tirages
@@ -230,10 +231,14 @@ ajoutent uniquement les réponses réellement soumises selon P1.2. Les tests et
 essais couvrent CLI, TUI et capture, avec conservation des résultats v1 retirés,
 compteurs cumulés et absence de faux acquis. Le corpus source ne change pas d'ordre.
 
-### P2.5 — Enrichissement progressif vers 100 à 120 exercices
+### P2.5 — Enrichissement progressif vers 100 à 120 exercices — en cours
 
-Dépendance : premier lot et parcours P2.2 à P2.4 validés, pour essayer les nouveaux
-lots dans les conditions de sélection et d'ordre prévues.
+Les parcours P2.2 à P2.4 sont validés. Le [lot 1 Unix/Shell](docs/CORPUS_P25_LOT1.md)
+ajoute 18 exercices dans trois chapitres et relit les 39 exercices existants.
+Le premier lot est terminé et validé après la recette finale dans Ghostty
+sur macOS le 10 novembre 2026 : T01 à T08 sont réussis, dont T07. Les 57
+exercices sont acceptés et le lot est prêt pour commit sur sa branche.
+Son intégration et sa publication restent à réaliser.
 
 - [ ] Enrichir les trois familles par petits lots relus et essayés, avec les
   trois niveaux progressivement représentés ; priorité aux commandes, scénarios
@@ -264,6 +269,22 @@ sur fixtures synthétiques réussis ; exemples et aides cohérents avec le binai
 liens et diff vérifiés. Les limites non testées sont nommées. Cette recette
 porte sur P2 et ses régressions possibles, pas une nouvelle revue exhaustive P1.
 
+## P3 — Internationalisation FR/EN
+
+Phase future après P2.6. Permettre à l'utilisateur de choisir et de conserver
+sa langue entre le français et l'anglais. Le français est le défaut envisagé,
+à confirmer en P3.
+
+- [ ] Localiser les menus CLI et TUI, les consignes et explications, le feedback,
+  les diagnostics, l'aide et les textes de navigation.
+- [ ] Persister le choix de langue en préservant la compatibilité des préférences
+  existantes. Décider en P3 de la stratégie de localisation et du format de stockage.
+- [ ] Garder les clés `chapter-id/item-id` indépendantes de la langue et préserver
+  les acquis et scores historiques lors de tout changement de langue, sans
+  suppression ni réattribution de résultat.
+- [ ] Vérifier l'équivalence pédagogique des deux versions. Les commandes et
+  raccourcis gardent leur signification et aucune traduction ne facilite la réponse.
+
 ## Compléments différés après clôture de P1
 
 Ces éléments du backlog restent ouverts ; ils ne font pas partie de la livraison
@@ -281,7 +302,8 @@ des acquis du corpus actif. `streak` reste hors des indicateurs actifs.
 
 - Distribution par releases et éventuellement Homebrew, après stabilisation.
 - Import personnalisé et reprise persistante au curseur : toujours différés.
-- Préférences au-delà des modules CLI et du niveau par défaut : différées.
+- Préférences au-delà des modules CLI, du niveau par défaut et du choix de langue
+  prévu en P3 : différées.
 
 L'enrichissement avancé, le mélange des séances et les préférences pédagogiques
 minimales sont désormais dans P2. Moteur adaptatif et répétition espacée restent
@@ -300,8 +322,7 @@ sont terminées et intégrées dans `dev`. P1.2 est terminée et validée sur
 sur `dev` réalisées à `be2bf2b`. P1.3 est terminée et validée sur
 `fix/exercise-correction`, intégrée dans `dev` à `db40d00`. P1.4 est terminée et
 validée dans Terminal.app et intégrée à `ef9b0a5` ; P1 est clôturée. P2.0 cadre
-la feuille de route pédagogique. P2.1 à P2.3 sont intégrées. P2.4 attend sa
-recette sur la branche de travail.
+la feuille de route pédagogique. P2.1 à P2.4 sont intégrées et publiées.
 Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
 Les sous-phases P2 suivent les dépendances ci-dessus ; chaque future PR de
@@ -322,9 +343,11 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.1 — `feat/pedagogical-metadata` (terminée et validée) | Métadonnées additives, défauts historiques et validation approuvés. | Base `91f13c6` ; tests réussis, corpus inchangé ; finalisation par commit, fast-forward et publication autorisée. |
 | P2.2 — `content/v2-first-corpus` (terminée et validée) | Premier corpus révisé et annoté avec 39 exercices et choix QCM visibles en CLI. | Base `ab2096c`. Huit essais manuels réussis dans Terminal.app le 9 novembre 2026. |
 | P2.3 — `feat/cli-preferences` (intégrée et publiée) | Modules manuels et préférences séparées. | Six essais Terminal.app réussis le 9 novembre 2026. Publiée sur `dev` à `1e0c396`. |
-| P2.4 — `refactor/session-order` (recette validé) | Préparation commune, niveau, mélange, guidage et projection des acquis. | Tests automatisés et essais sous pseudo-terminal sur la base `1e0c396`. Recette Terminal.app et validation humaine OK. |
-| P2.5 — `content/v2-expansion-<lot>` | Lots vers la cible indicative de 100 à 120 exercices. | Critères P2.5 ; après P2.4 ; qualité et autonomie avant volume. |
+| P2.4 — `refactor/session-order` (terminée) | Préparation commune, niveau, mélange, guidage et projection des acquis. | Huit essais Terminal.app validés. Intégrée et publiée sur `origin/dev` à `f096eec`. |
+| P2.5, lot 1 — `content/v2-expansion-unix-01` (terminé et validé) | Trois chapitres Unix/Shell et révision éditoriale du corpus existant. | Base `f096eec`. T01 à T08 validés dans Ghostty. Prêt pour commit ; intégration et publication à réaliser. [Détails](docs/CORPUS_P25_LOT1.md). |
+| P2.5, lots suivants — `content/v2-expansion-<lot>` | Enrichissement vers la cible indicative de 100 à 120 exercices. | Critères P2.5 et validation par lot. |
 | P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
+| P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
 
 Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
 `go vet ./...`, le contrôle de formatage et l'aide CLI concernée. Les tests
@@ -333,8 +356,8 @@ configurations. La livraison documentaire précédente n'a pas modifié Go.
 P0.1 valide le chargement intégré, P0.2 la surface utilisateur et P0.3 le retrait
 des internes hérités. P1.1, corrections P1.1b comprises, termine la fiabilisation
 du stockage dans son périmètre, sans modifier les entraînements.
-P1 est terminée et validée. La V2 complète reste à valider après P2, prochaine
-phase consacrée au corpus et à l'expérience utilisateur, cadrée par P2.0.
+P1 est terminée et validée. La recette P2.6 reste à faire après l'enrichissement
+du corpus en P2.5.
 Les compléments différés restent explicitement ouverts.
 
 ## Archive V1 — Réalisations et abandons

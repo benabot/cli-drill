@@ -35,7 +35,7 @@ func TestStartTrainingSkipsEmptyAndKeyCaptureChapters(t *testing.T) {
 	if m.currentChapter().ID != "text" || m.currentItem() == nil {
 		t.Fatal("Start training did not choose the immediately usable text chapter")
 	}
-	assertContains(t, m.View(), "Question:")
+	assertContains(t, m.View(), "Question")
 }
 
 func TestKeyboardShortcutsReuseBrowserAndOriginalChapterIndices(t *testing.T) {

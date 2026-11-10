@@ -14,16 +14,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestFirstV2Corpus(t *testing.T) {
+func TestV2Corpus(t *testing.T) {
 	chapters, err := LoadFS(data.Chapters(), "*.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(chapters) != 9 || chapters[0].ID != "00-premiers-pas" {
-		t.Fatalf("first V2 corpus unavailable: %d chapters, first %s", len(chapters), chapters[0].ID)
+	if len(chapters) != 12 {
+		t.Fatalf("want 12 chapters, got %d", len(chapters))
 	}
 	first := chapters[0]
-	if first.Family != FamilyUnixShell || first.LearningOrder != LearningOrderGuided || len(first.Items) != 8 {
+	if first.ID != "00-premiers-pas" || first.Family != FamilyUnixShell || first.LearningOrder != LearningOrderGuided || len(first.Items) != 8 {
 		t.Fatalf("unexpected first chapter: %#v", first)
 	}
 	answers := []string{"pwd", "ls", "ls -a", "cd docs", "cd ..", "cd /atelier", "mkdir essais", `cat "notes de cours.txt"`}
@@ -69,7 +69,7 @@ func TestFirstV2Corpus(t *testing.T) {
 			total++
 		}
 	}
-	if total != 39 || !reflect.DeepEqual(families, map[Family]int{FamilyUnixShell: 11, FamilyKeyboardShortcuts: 8, FamilyModernCLIMacOS: 20}) {
+	if total != 57 || !reflect.DeepEqual(families, map[Family]int{FamilyUnixShell: 29, FamilyKeyboardShortcuts: 8, FamilyModernCLIMacOS: 20}) {
 		t.Fatalf("unexpected corpus: %d / %v", total, families)
 	}
 }
@@ -141,7 +141,7 @@ func TestV2HistoricalKeyPolicy(t *testing.T) {
 	}
 	sort.Strings(preserved)
 	sort.Strings(want)
-	if !reflect.DeepEqual(preserved, want) || fresh != 19 || len(old)-len(preserved) != 48 {
+	if !reflect.DeepEqual(preserved, want) || fresh != 37 || len(old)-len(preserved) != 48 {
 		t.Fatalf("key policy changed: kept=%v fresh=%d retired=%d", preserved, fresh, len(old)-len(preserved))
 	}
 }

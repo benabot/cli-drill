@@ -1,0 +1,96 @@
+id: "11-flux-shell"
+title: "Flux du shell"
+description: "Entrée, sortie et diagnostics dans un shell de type POSIX."
+family: "unix-shell"
+learning_order: "guided"
+items:
+  - id: "redirect-output"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Liste le contenu visible de docs et écris le résultat dans
+      inventaire.txt, en remplaçant son ancien contenu.
+    answer:
+      primary: "ls docs > inventaire.txt"
+      accepted: ["ls docs >inventaire.txt"]
+    explanation: |-
+      > dirige la sortie standard vers un fichier. Le shell vide
+      le fichier existant avant même de lancer ls.
+  - id: "append-output"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Ajoute le texte de note.txt à la fin de journal.txt
+      sans effacer les entrées déjà présentes.
+    answer:
+      primary: "cat note.txt >> journal.txt"
+      accepted: ["cat note.txt >>journal.txt"]
+    explanation: |-
+      cat écrit le contenu sur la sortie standard. >> ajoute ces
+      octets à la fin du journal, sans insérer de saut de ligne.
+  - id: "redirect-input"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Compte les lignes de messages.txt en le lisant sur l’entrée
+      standard pour afficher le total seul, sans nom de fichier.
+    answer:
+      primary: "wc -l < messages.txt"
+      accepted: ["wc -l <messages.txt"]
+    explanation: |-
+      < ouvre le fichier sur l’entrée standard. wc -l compte les
+      sauts de ligne et omet le nom du fichier lu de cette façon.
+  - id: "count-matching-lines"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans serveur.log, filtre les lignes contenant ERROR en majuscules,
+      puis compte ces lignes avec un pipeline.
+    answer:
+      primary: "grep ERROR serveur.log | wc -l"
+      accepted:
+        - "grep 'ERROR' serveur.log | wc -l"
+        - 'grep "ERROR" serveur.log | wc -l'
+    explanation: |-
+      grep émet chaque ligne retenue une seule fois. Le pipe
+      l’envoie à wc -l, qui compte les lignes et non les
+      occurrences du motif.
+  - id: "redirect-errors"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Liste l’entrée rapport.txt, qui peut manquer. Laisse le résultat
+      à l’écran et écris uniquement les diagnostics dans erreurs.log.
+    answer:
+      primary: "ls rapport.txt 2> erreurs.log"
+      accepted: ["ls rapport.txt 2>erreurs.log"]
+    explanation: |-
+      2> ouvre le fichier pour la sortie d’erreur. La sortie
+      standard garde sa destination et le code d’échec est
+      conservé. Le fichier peut être vide si tout se passe bien.
+  - id: "merge-output-errors"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Liste le dossier docs et le chemin absent, qui n’existe pas.
+      Avec une syntaxe POSIX, recueille résultat et diagnostic dans
+      bilan.log en n’ouvrant ce fichier qu’une fois.
+    answer:
+      primary: "ls docs absent > bilan.log 2>&1"
+      accepted: ["ls docs absent 1> bilan.log 2>&1", "ls docs absent >bilan.log 2>&1"]
+    explanation: |-
+      Le shell redirige d’abord la sortie standard (1) vers le
+      fichier. 2>&1 donne ensuite la même destination à la sortie
+      d’erreur (2). Dans l’autre ordre, l’erreur reste à l’écran.

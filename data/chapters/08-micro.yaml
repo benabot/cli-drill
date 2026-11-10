@@ -1,6 +1,6 @@
 id: "08-micro"
-title: "Éditer dans Micro"
-description: "Module tiers Micro, bindings standard. Les raccourcis sont des réponses textuelles sur son interface terminal : ce chapitre ne capture pas et ne modifie pas de vrai fichier."
+title: "Éditer du texte dans le terminal"
+description: "Éditeur à barre de commandes accessible par Ctrl+E."
 family: "modern-cli-macos"
 learning_order: "independent"
 items:
@@ -10,8 +10,8 @@ items:
     difficulty: "beginner"
     tools: ["micro"]
     prompt: |-
-      Situation indépendante : TODO.md est un fichier texte du répertoire
-      courant. Ouvre-le avec la commande micro, sans alias personnel.
+      Ouvre TODO.md dans l’éditeur du chapitre en lançant directement
+      son exécutable.
     answer:
       primary: "micro TODO.md"
     explanation: |-

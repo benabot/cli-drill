@@ -2,7 +2,7 @@
 
 Corpus préparé sur `content/v2-first-corpus` depuis `ab2096c` et validé le
 9 novembre 2026 après recette manuelle dans Terminal.app.
-[Détail de la validation](../PROJECT_STATE.md)
+[Détail de la validation](../PROJECT_STATE.md) · [Enrichissement P2.5, lot 1](CORPUS_P25_LOT1.md)
 
 Le corpus actif passe de 10 chapitres / 68 exercices à 9 chapitres / 39 exercices :
 31 situations issues du corpus historique sont révisées et huit exercices Unix
@@ -31,8 +31,8 @@ mélange n’est activé par P2.2.
 | `09-markdown-glow` — Lire du Markdown avec Glow | `modern-cli-macos` | 2 | `independent` |
 | `10-workflows-dotfiles` — Git essentiel | `unix-shell` | 3 | `independent` |
 
-L’ordre `guided` ou `independent` est une intention éditoriale : le moteur
-parcourt encore toujours le YAML dans l’ordre. Le mélange est prévu en P2.4.
+À la livraison de P2.2, l’ordre `guided` ou `independent` exprimait une
+intention éditoriale. Le moteur parcourait le YAML dans l’ordre.
 Les consignes sont repliées à 70 caractères et les explications à 60, pour
 préserver la lisibilité à 80 colonnes avec les préfixes du rendu existant.
 Les durées de cinq à dix minutes restent un objectif à confirmer par l’usage ;

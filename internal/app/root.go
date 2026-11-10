@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"text/tabwriter"
 
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/exercise"
@@ -93,8 +94,28 @@ func newChaptersCommand(opts *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			for _, chapter := range chapters {
-				_, _ = fmt.Fprintf(runOpts.Out, "%s\t%s\t%d exercises\n", chapter.ID, chapter.Title, len(chapter.Items))
+			out := runOpts.Out
+			unit := "exercise"
+			var table *tabwriter.Writer
+			if writerIsTerminal(out) {
+				table = tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
+				out = table
+				unit = "exercice"
+				if _, err := fmt.Fprintln(out, "Identifiant\tChapitre\tTotal"); err != nil {
+					return err
+				}
+			}
+			for _, ch := range chapters {
+				label := unit
+				if len(ch.Items) != 1 {
+					label += "s"
+				}
+				if _, err := fmt.Fprintf(out, "%s\t%s\t%d %s\n", ch.ID, ch.Title, len(ch.Items), label); err != nil {
+					return err
+				}
+			}
+			if table != nil {
+				return table.Flush()
 			}
 			return nil
 		},
@@ -247,6 +268,7 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 		return err
 	}
 	reader := bufio.NewReader(opts.In)
+	textView := newTextTrainingView(opts.Out)
 
 	textHeaderPrinted := false
 	textScore := progress.ChapterScore{}
@@ -279,22 +301,16 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 		}
 
 		if !textHeaderPrinted {
-			_, _ = fmt.Fprintf(opts.Out, "Chapitre: %s\n", selected.Title)
+			textView.chapterTitle(selected.Title)
 			textHeaderPrinted = true
 		}
-		_, _ = fmt.Fprintf(opts.Out, "\n%d/%d %s\n", i+1, len(selected.Items), item.Prompt)
-		if item.ExerciseType == exercise.TypeMultipleChoice {
-			for _, choice := range item.Choices {
-				_, _ = fmt.Fprintf(opts.Out, "  - %s\n", choice)
-			}
-		}
-		_, _ = fmt.Fprint(opts.Out, "> ")
+		textView.question(item, i+1, len(selected.Items))
 		input, aborted, err := readTrainingInput(opts, reader, item.ExerciseType)
 		if err != nil && !errors.Is(err, io.EOF) {
 			return err
 		}
 		if aborted {
-			_, _ = fmt.Fprintln(opts.Out, "Session interrompue.")
+			_, _ = fmt.Fprintln(opts.Out, "\nSession interrompue.")
 			break
 		}
 		if strings.Trim(input, " \r\n") == "" {
@@ -310,20 +326,15 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 		textScore.Attempts++
 		if correct {
 			textScore.Correct++
-			_, _ = fmt.Fprintln(opts.Out, "Correct.")
-		} else {
-			_, _ = fmt.Fprintf(opts.Out, "Pas encore. Reponse attendue: %s\n", item.Answer.Primary)
 		}
-		if item.Explanation != "" {
-			_, _ = fmt.Fprintln(opts.Out, item.Explanation)
-		}
+		textView.feedback(item, correct)
 		if errors.Is(err, io.EOF) {
 			break
 		}
 		i++
 	}
 	if textScore.Attempts > 0 {
-		_, _ = fmt.Fprintf(opts.Out, "\nSession text score: %d/%d correct\n", textScore.Correct, textScore.Attempts)
+		textView.summary(textScore)
 	}
 	if keyStats.Total > 0 && !keyQuit {
 		if err := runKeySequenceReview(opts, reader, selected, keyStats); err != nil && !errors.Is(err, io.EOF) {
@@ -477,13 +488,11 @@ type keySequenceStyle struct {
 }
 
 func keySequenceStyleFor(opts Options) keySequenceStyle {
-	if !writerIsTerminal(opts.Out) {
-		return keySequenceStyle{}
-	}
-	if os.Getenv("NO_COLOR") != "" || os.Getenv("TERM") == "dumb" {
-		return keySequenceStyle{}
-	}
-	return keySequenceStyle{Color: true}
+	return keySequenceStyle{Color: terminalStylesAllowed(opts.Out)}
+}
+
+func terminalStylesAllowed(out io.Writer) bool {
+	return writerIsTerminal(out) && os.Getenv("NO_COLOR") == "" && os.Getenv("TERM") != "dumb"
 }
 
 func (s keySequenceStyle) commandBar(commands ...string) string {

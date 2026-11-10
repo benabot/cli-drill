@@ -1,0 +1,94 @@
+id: "13-processus-environnement"
+title: "Processus et environnement"
+description: "Processus par PID et portée des variables du shell."
+family: "unix-shell"
+learning_order: "independent"
+items:
+  - id: "show-environment-variable"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      LANG est exportée. Affiche uniquement sa valeur avec l’outil
+      de consultation de l’environnement.
+    answer:
+      primary: "printenv LANG"
+    explanation: |-
+      Avec un nom, printenv affiche la valeur de cette variable
+      exportée. Sans nom, il affiche tout l’environnement.
+      Cet outil est commun à BSD et GNU, hors norme POSIX.
+  - id: "set-shell-variable"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      ATELIER_MODE n’existe pas. Donne-lui la valeur test dans le shell
+      courant, sans la transmettre aux programmes qu’il lance.
+    answer:
+      primary: "ATELIER_MODE=test"
+      accepted: ["ATELIER_MODE='test'", 'ATELIER_MODE="test"']
+    explanation: |-
+      Une affectation seule crée cette variable dans le shell.
+      Il ne doit pas y avoir d’espace autour de =. Une variable
+      nouvellement créée est normalement non exportée.
+  - id: "inspect-pid"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Affiche un instantané du seul processus dont le PID est 4242,
+      avec les colonnes par défaut.
+    answer:
+      primary: "ps -p 4242"
+    explanation: |-
+      -p sélectionne le processus par son identifiant numérique.
+      ps affiche un instantané. Un processus terminé disparaît
+      de la liste et son PID peut être réutilisé plus tard.
+  - id: "request-termination"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Le PID 4242 désigne un processus à toi. Envoie-lui explicitement
+      le signal qui demande un arrêt propre, sans le forcer.
+    answer:
+      primary: "kill -s TERM 4242"
+      accepted: ["kill -TERM 4242"]
+    explanation: |-
+      TERM demande l’arrêt et laisse le processus traiter le
+      signal s’il a prévu un nettoyage. Il peut l’ignorer.
+      Vérifie le PID avant de signaler un processus réel.
+  - id: "export-variable"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Donne la valeur test à ATELIER_MODE et rends-la accessible
+      à tous les futurs programmes lancés depuis ce shell.
+    answer:
+      primary: "export ATELIER_MODE=test"
+      accepted: ["export ATELIER_MODE='test'", 'export ATELIER_MODE="test"']
+    explanation: |-
+      export affecte la valeur et marque la variable pour qu’elle
+      soit transmise aux nouveaux processus enfants. Ceux qui
+      tournent déjà gardent leur propre environnement.
+  - id: "one-command-environment"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Trie les lignes de noms.txt avec LC_ALL à C pour ce seul appel.
+      Laisse la locale du shell et des appels suivants intacte.
+    answer:
+      primary: "LC_ALL=C sort noms.txt"
+      accepted: ["env LC_ALL=C sort noms.txt"]
+    explanation: |-
+      Devant une commande externe, l’affectation s’applique à
+      cette exécution. env peut aussi définir la variable pour
+      ce seul lancement. LC_ALL=C impose l’ordre de la locale C.

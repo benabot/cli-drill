@@ -2,16 +2,76 @@ package app
 
 import (
 	"bytes"
+	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"testing/fstest"
 
+	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/progress"
 	"github.com/benabot/cli-drill/internal/tui"
 	"github.com/benabot/cli-drill/internal/xdg"
+	"github.com/charmbracelet/lipgloss"
 )
+
+func TestChaptersAlignTerminalColumnsAndPreserveRedirectedFields(t *testing.T) {
+	restore := stubTerminalDetector(func(fd uintptr) bool { return fd == 42 })
+	defer restore()
+	var redirected bytes.Buffer
+	terminal := &fdBuffer{fd: 42}
+	for _, out := range []io.Writer{&redirected, terminal} {
+		cmd := NewRootCommand(data.Chapters())
+		cmd.SetOut(out)
+		cmd.SetArgs([]string{"chapters"})
+		if err := cmd.Execute(); err != nil {
+			t.Fatal(err)
+		}
+	}
+	redirectedRows := strings.Split(strings.TrimSuffix(redirected.String(), "\n"), "\n")
+	if len(redirectedRows) != 12 || !strings.Contains(redirected.String(), "07-lecture-preview\tLire un fichier texte\t1 exercise\n") ||
+		strings.Contains(redirected.String(), "\x1b") {
+		t.Fatalf("redirected listing lost its plain TSV fields:\n%s", redirected.String())
+	}
+	for _, row := range redirectedRows {
+		fields := strings.Split(row, "\t")
+		if len(fields) != 3 || fields[0] == "" || fields[1] == "" {
+			t.Fatalf("want three tab-separated fields: %q", row)
+		}
+		count, label, _ := strings.Cut(fields[2], " ")
+		n, err := strconv.Atoi(count)
+		if err != nil || (n == 1 && label != "exercise") || (n != 1 && label != "exercises") {
+			t.Fatalf("incorrect exercise count: %q", row)
+		}
+	}
+	terminalRows := strings.Split(strings.TrimSuffix(terminal.String(), "\n"), "\n")
+	if len(terminalRows) != len(redirectedRows)+1 || !strings.HasPrefix(terminalRows[0], "Identifiant  ") ||
+		!strings.HasSuffix(terminalRows[0], "Total") {
+		t.Fatalf("missing terminal column headings:\n%s", terminal.String())
+	}
+	titleColumn, countColumn := -1, -1
+	for _, row := range terminalRows {
+		id, rest, ok := strings.Cut(row, "  ")
+		if !ok || id == "" || strings.ContainsAny(row, "\t\x1b") || lipgloss.Width(row) > 80 {
+			t.Fatalf("unreadable terminal row: %q", row)
+		}
+		titleStart := len(row) - len(strings.TrimLeft(rest, " "))
+		countStart := strings.LastIndex(row, "  ") + 2
+		titleWidth := lipgloss.Width(row[:titleStart])
+		countWidth := lipgloss.Width(row[:countStart])
+		if titleColumn < 0 {
+			titleColumn, countColumn = titleWidth, countWidth
+		}
+		if titleWidth != titleColumn || countWidth != countColumn {
+			t.Fatalf("misaligned columns: %q", row)
+		}
+	}
+	if !strings.Contains(terminal.String(), "1 exercice\n") || !strings.Contains(terminal.String(), "6 exercices\n") {
+		t.Fatalf("wrong terminal plurals:\n%s", terminal.String())
+	}
+}
 
 func TestChapterCommandsIgnoreUserYAML(t *testing.T) {
 	for _, userYAML := range []struct {
@@ -67,11 +127,11 @@ func TestChapterCommandsIgnoreUserYAML(t *testing.T) {
 				if err := cmd.Execute(); err != nil {
 					t.Fatalf("Execute: %v\n%s", err, output.String())
 				}
-				if action == "chapters" && output.String() != "embedded\tEmbedded lesson\t1 exercises\n" {
+				if action == "chapters" && output.String() != "embedded\tEmbedded lesson\t1 exercise\n" {
 					t.Fatalf("unexpected chapter list: %s", output.String())
 				}
 				if strings.HasPrefix(action, "train") {
-					if !strings.Contains(output.String(), "Chapitre: Embedded lesson") ||
+					if !strings.Contains(output.String(), "Chapitre : Embedded lesson") ||
 						!strings.Contains(output.String(), "Correct.") {
 						t.Fatalf("training did not use the embedded answer: %s", output.String())
 					}

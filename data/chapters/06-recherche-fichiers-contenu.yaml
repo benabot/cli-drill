@@ -26,9 +26,8 @@ items:
     difficulty: "beginner"
     tools: ["fd"]
     prompt: |-
-      Situation simulée : le projet contient notes.txt et notes.md. Avec fd
-      et le motif notes, recherche les chemins dont le nom correspond à ce
-      motif.
+      Recherche dans le projet les chemins dont le nom contient notes
+      avec l’outil tiers de recherche par nom.
     answer:
       primary: "fd notes"
     explanation: |-
@@ -41,9 +40,9 @@ items:
     difficulty: "intermediate"
     tools: ["fd", "fzf"]
     prompt: |-
-      Situation simulée : les seules entrées portant l’extension md sont des
-      fichiers Markdown, sans retour à la ligne dans leurs noms. Utilise fd
-      -e md puis fzf pour choisir un chemin parmi les résultats.
+      Les seules entrées .md du projet sont des fichiers, sans saut de
+      ligne dans leurs noms. Filtre les chemins par extension, puis
+      choisis-en un interactivement dans le même pipeline.
     answer:
       primary: "fd -e md | fzf"
     explanation: |-
@@ -56,8 +55,8 @@ items:
     difficulty: "intermediate"
     tools: ["rg", "fzf"]
     prompt: |-
-      Situation simulée : les fichiers texte du projet contiennent des TODO.
-      Utilise rg TODO puis fzf pour choisir une ligne de résultat.
+      Trouve les lignes du projet contenant TODO en majuscules, puis
+      sélectionne une ligne interactivement dans le même pipeline.
     answer:
       primary: "rg TODO | fzf"
       accepted: ["rg \"TODO\" | fzf"]
@@ -72,13 +71,11 @@ items:
     difficulty: "intermediate"
     tools: ["rg", "fzf"]
     prompt: |-
-      Situation simulée : le dossier docs contient des fichiers texte.
-      Recherche cli-drill dans docs avec rg, puis sélectionne une ligne avec
-      fzf. Ne demande pas d’ouverture de fichier.
+      Cherche cli-drill dans les fichiers texte de docs et sélectionne
+      une ligne interactivement dans le même pipeline.
     answer:
       primary: "rg cli-drill docs | fzf"
       accepted: ["rg \"cli-drill\" docs | fzf"]
     explanation: |-
-      docs borne la recherche. fzf sélectionne une ligne produite
-      par rg ; cette commande ne lance pas Bat et ne promet aucune
-      prévisualisation.
+      docs borne la recherche de rg à ce dossier. fzf affiche la
+      ligne sélectionnée, avec le chemin fourni par la recherche.

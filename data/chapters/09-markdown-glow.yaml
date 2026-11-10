@@ -1,6 +1,6 @@
 id: "09-markdown-glow"
-title: "Lire du Markdown avec Glow"
-description: "Module tiers Glow : fichiers Markdown locaux simulés. Le dernier scénario combine fd, fzf et Glow sous ZSH ou un shell de type POSIX ; il est plus avancé."
+title: "Lire du Markdown dans le terminal"
+description: "Rendu de fichiers locaux sous ZSH ou un shell de type POSIX."
 family: "modern-cli-macos"
 learning_order: "independent"
 items:
@@ -10,8 +10,8 @@ items:
     difficulty: "beginner"
     tools: ["glow"]
     prompt: |-
-      Situation indépendante : README.md est un Markdown du répertoire
-      courant. Affiche son rendu dans le terminal avec glow, sans option.
+      Affiche README.md comme un document Markdown mis en forme dans
+      le terminal, avec l’outil de rendu dédié et sans option.
     answer:
       primary: "glow README.md"
     explanation: |-
@@ -24,17 +24,13 @@ items:
     difficulty: "advanced"
     tools: ["fd", "fzf", "glow"]
     prompt: |-
-      Situation simulée : fd -e md fournit seulement des fichiers Markdown :
-      leurs chemins ne commencent pas par un tiret et ne contiennent aucun
-      retour à la ligne, mais certains ont des espaces. fzf renvoie
-      exactement un chemin choisi non vide. En une commande, rends ce
-      fichier avec glow et une substitution de commande protégée par des
-      guillemets.
+      Les seules entrées .md du projet sont des fichiers. Trouve-les,
+      choisis-en un interactivement et affiche son rendu Markdown en
+      une commande. Le choix est confirmé. Les chemins peuvent contenir
+      des espaces, sans tiret initial ni saut de ligne.
     answer:
       primary: "glow \"$(fd -e md | fzf)\""
     explanation: |-
-      $(...) récupère le chemin choisi ; les guillemets le
-      conservent comme un argument même avec des espaces.
-      Précondition : une sélection est validée ; l’annulation et
-      les noms contenant des retours à la ligne ne sont pas gérés
-      par cette commande.
+      Le pipeline fournit un chemin choisi. $(...) le récupère
+      et les guillemets en font un seul argument de glow,
+      même avec des espaces. L’annulation n’est pas gérée.

@@ -98,7 +98,7 @@ func TestCLIChoicesKeepCorrectionAndV1Recording(t *testing.T) {
 					t.Fatal(err)
 				}
 				correctFeedback += strings.Count(output.String(), "Correct.")
-				wrongFeedback += strings.Count(output.String(), "Pas encore. Reponse attendue: rg")
+				wrongFeedback += strings.Count(output.String(), "Réponse incorrecte.\nRéponse attendue : rg")
 			}
 			if correctFeedback != tc.correct || wrongFeedback != tc.attempts-tc.correct {
 				t.Fatalf("feedback: got %d correct/%d wrong, want %d/%d", correctFeedback, wrongFeedback, tc.correct, tc.attempts-tc.correct)

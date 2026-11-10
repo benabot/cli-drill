@@ -1,8 +1,7 @@
 # État du projet — CLI-Drill
 
-**Au 20 novembre 2026, P2.3 est publiée sur `dev` à `1e0c396`. P2.4 est
-implémentée sur `refactor/session-order`,  recette dans
-Terminal.app et de validation humaine validées.**
+**Au 10 novembre 2026, P2.4 est terminée et publiée sur `origin/dev` à
+`f096eec` après huit tests manuels réussis dans Terminal.app. P2.5 est en cours.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
@@ -27,9 +26,9 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Le corpus P2.2 compte neuf chapitres YAML, 39 exercices, trois familles
-  et métadonnées explicites. Le corpus intégré de référence P2.1 avait dix chapitres
-  et 68 exercices ; il reste accessible uniquement aux tests comme fixtures.
+- Le checkout du lot 1 P2.5 compte 57 exercices dans douze chapitres YAML.
+  Le [rapport du lot](docs/CORPUS_P25_LOT1.md) recense les ajouts et la relecture.
+  Les dix chapitres du corpus de référence P2.1 restent des fixtures de test.
 - Le démarrage direct CLI et TUI choisit le premier chapitre textuel éligible.
   Avec les préférences initiales, `00-premiers-pas` propose huit exercices Unix
   textuels, Beginner et guidés.
@@ -467,8 +466,9 @@ Aucun résultat historique n'est déplacé, supprimé ou réattribué.
 sans identifiant y accèdent immédiatement, sans configuration ni mode brut.
 Ses huit commandes simulées sont `pwd`, `ls`, `ls -a`, `cd docs`, `cd ..`,
 `cd /atelier`, `mkdir essais` et la lecture d'un nom avec espaces par `cat`.
-Le premier prompt précise l'absence d'exécution ; chaque exercice fournit son
-propre contexte. Les variantes utiles sont déclarées, sans équivalence shell générale.
+À la livraison de P2.2, le premier prompt précisait l'absence d'exécution.
+Chaque exercice fournit son propre contexte. Les variantes utiles sont
+déclarées, sans équivalence shell générale.
 
 Les trois familles sont jouables : Unix/Shell 11 exercices, raccourcis 8,
 outils CLI 20. Niveaux : 34 Beginner, 4 Intermediate, 1 Advanced.
@@ -584,8 +584,9 @@ la progression habituelle. Après cette recette, P2.3 est publiée sur `dev`
 
 ### P2.4 — Séances filtrées, guidées et mélangées
 
-Implémentation locale sur `refactor/session-order`, base `dev` et `origin/dev`
-à `1e0c396`. Recette humaine dans Terminal.app validée.
+Implémentée sur `refactor/session-order` depuis `1e0c396`, puis intégrée dans
+`dev` et publiée sur `origin/dev` à `f096eec` après huit tests manuels réussis
+dans Terminal.app.
 
 `chapter.SessionFilter` applique d'abord les modules requis, tous activés
 manuellement, puis le niveau exact. Il fournit les décomptes et prépare la copie
@@ -630,10 +631,20 @@ historique. Des essais macOS arm64 sous pseudo-terminal ont exercé le socle
 guidé, une séance indépendante avec `fd` et `fzf`, les niveaux Intermediate et
 Advanced, une sélection vide, les choix TUI, la capture avec et sans couleur,
 la restauration du terminal et la relecture de données JSON v1 synthétiques.
-La recette dans Terminal.app doit encore vérifier la lisibilité et les touches
-effectivement transmises. Linux et le minimum Go 1.23 restent à valider.
+Linux et la version minimale Go 1.23 restent à valider.
 Un échec de sauvegarde en CLI ou en capture arrête la séance. La TUI textuelle
 conserve la réponse pour une nouvelle validation.
+
+### P2.5 — Fondamentaux Unix/Shell, lot 1 validé
+
+Sur `content/v2-expansion-unix-01`, depuis `f096eec`, trois chapitres ajoutent
+18 commandes simulées sans module tiers. Les 39 exercices existants ont été
+relus avec conservation de leurs clés et réponses. Le corpus totalise 57
+exercices. La recette humaine finale sous Ghostty a validé T01 à T08 le
+10 novembre 2026, y compris T07. Le lot est prêt pour commit sur sa branche ;
+son intégration et sa publication restent à réaliser. Le [rapport du lot](docs/CORPUS_P25_LOT1.md)
+détaille les compétences et les validations. La cible indicative de 100 à
+120 exercices reste ouverte.
 
 ## Validation et limites de preuve
 

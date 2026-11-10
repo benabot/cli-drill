@@ -10,8 +10,9 @@ La [décision V2](DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retra
 explique le changement de direction ; le [backlog](../TODO.md) organise sa réalisation.
 La [décision P2](DECISIONS.md#2026-11-08--p20--evolution-pedagogique)
 remplace les exclusions de l'aléatoire et des préférences pédagogiques minimales.
-P1 est validée sur la base `dev` à `ef9b0a5` ; les comportements P2 décrits
-ci-dessous restent à implémenter. P2.0 est exclusivement documentaire.
+P2.0 a cadré la feuille de route. P2.4 est publiée à `f096eec` et P2.5 est en
+cours. Le choix de langue français/anglais est prévu en [P3](../TODO.md#p3--internationalisation-fren)
+et relève d'une phase distincte de P2.
 
 ## 1. Vision et public
 

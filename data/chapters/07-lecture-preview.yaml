@@ -1,6 +1,6 @@
 id: "07-lecture-preview"
-title: "Lire un fichier avec Bat"
-description: "Module tiers Bat : lire un fichier texte local simulé. Bat peut utiliser un pager selon la sortie et sa configuration ; aucun programme tiers n’est lancé par CLI-Drill."
+title: "Lire un fichier texte"
+description: "Lecture avec coloration syntaxique dans le terminal."
 family: "modern-cli-macos"
 learning_order: "independent"
 items:
@@ -10,8 +10,8 @@ items:
     difficulty: "beginner"
     tools: ["bat"]
     prompt: |-
-      Situation indépendante : README.md est un fichier texte du répertoire
-      courant. Affiche-le avec bat, sans option.
+      Affiche le contenu de README.md avec l’alternative à cat qui
+      propose la coloration syntaxique, sans option.
     answer:
       primary: "bat README.md"
     explanation: |-

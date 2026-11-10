@@ -37,6 +37,7 @@ const (
 )
 
 const homeTagline = "Learn the terminal by doing."
+const incorrectAnswer = "Réponse incorrecte."
 
 var homeASCIIBanner = []string{
 	"   ____ _     ___               _      _ _ _",
@@ -97,14 +98,21 @@ func pasteTrainingAnswer() tea.Msg {
 }
 
 type listItem struct {
-	title       string
-	description string
-	index       int
+	title             string
+	description       string
+	searchDescription string
+	index             int
 }
 
 func (i listItem) Title() string       { return i.title }
 func (i listItem) Description() string { return i.description }
-func (i listItem) FilterValue() string { return i.title + " " + i.description }
+func (i listItem) FilterValue() string {
+	text := i.title + " " + i.description
+	if i.searchDescription != "" {
+		text += "\n" + i.searchDescription
+	}
+	return text
+}
 
 type trainingMiss struct {
 	Prompt   string
@@ -128,6 +136,7 @@ type tuiStyleSet struct {
 	Subtitle    lipgloss.Style
 	Muted       lipgloss.Style
 	Info        lipgloss.Style
+	Success     lipgloss.Style
 	Warning     lipgloss.Style
 	Footer      lipgloss.Style
 	Separator   lipgloss.Style
@@ -140,6 +149,7 @@ func newTUIStyles() tuiStyleSet {
 		Subtitle:    lipgloss.NewStyle().Foreground(lipgloss.Color("252")),
 		Muted:       lipgloss.NewStyle().Foreground(lipgloss.Color("244")),
 		Info:        lipgloss.NewStyle().Foreground(lipgloss.Color("111")),
+		Success:     lipgloss.NewStyle().Bold(true).Foreground(lipgloss.AdaptiveColor{Light: "28", Dark: "78"}),
 		Warning:     lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("214")),
 		Footer:      lipgloss.NewStyle().Foreground(lipgloss.Color("246")),
 		Separator:   lipgloss.NewStyle().Foreground(lipgloss.Color("240")),
@@ -209,14 +219,24 @@ func newModel(opts Options) model {
 	home.SetShowHelp(false)
 	home.Styles.Title = styles.ScreenTitle
 
-	chapterList := list.New(nil, delegate, 80, 20)
+	chapterDelegate := delegate
+	chapterDelegate.SetHeight(2)
+	accent := lipgloss.AdaptiveColor{Light: "90", Dark: "213"}
+	secondary := lipgloss.AdaptiveColor{Light: "240", Dark: "249"}
+	chapterDelegate.Styles.NormalTitle = chapterDelegate.Styles.NormalTitle.
+		Foreground(lipgloss.AdaptiveColor{Light: "235", Dark: "252"})
+	chapterDelegate.Styles.NormalDesc = chapterDelegate.Styles.NormalDesc.Foreground(secondary)
+	chapterDelegate.Styles.SelectedTitle = chapterDelegate.Styles.SelectedTitle.
+		Bold(true).Foreground(accent).BorderForeground(accent)
+	chapterDelegate.Styles.SelectedDesc = chapterDelegate.Styles.SelectedDesc.
+		Foreground(secondary).BorderForeground(accent)
+	chapterList := list.New(nil, chapterDelegate, 80, 20)
 	chapterList.Title = "Chapters"
+	chapterList.SetShowTitle(false)
 	chapterList.SetShowStatusBar(false)
 	chapterList.SetShowHelp(false)
-	chapterList.Styles.Title = styles.ScreenTitle
 
 	input := textinput.New()
-	input.Placeholder = "Votre reponse"
 	input.Focus()
 
 	localProgress, progressErr := loadProgress(opts.ProgressPath)
@@ -344,6 +364,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		width := max(1, msg.Width-4)
 		m.home.SetSize(width, homeListHeight(msg.Height))
 		m.chapterList.SetSize(width, max(1, msg.Height-9))
+		m.input.Width = max(1, width-lipgloss.Width(m.input.Prompt)-1)
 		m.preferences.resize(width, msg.Height)
 	}
 
@@ -469,9 +490,10 @@ func (m *model) openChapters(shortcutsOnly bool) {
 			continue
 		}
 		items = append(items, listItem{
-			title:       current.Title,
-			description: chapterListDescription(current, count),
-			index:       i,
+			title:             current.Title,
+			description:       fmt.Sprintf("Exercices éligibles : %d/%d · %s", count, len(current.Items), current.ID),
+			searchDescription: current.Description,
+			index:             i,
 		})
 	}
 	m.chapterList.ResetFilter()
@@ -551,14 +573,14 @@ func (m model) answerOrAdvance() model {
 	m.summary.Total++
 	if correct {
 		m.summary.Correct++
-		m.feedback = "Correct. " + current.Explanation
+		m.feedback = "Correct."
 	} else {
 		m.summary.Missed = append(m.summary.Missed, trainingMiss{
 			Prompt:   current.Prompt,
 			Expected: current.Answer.Primary,
 			Answered: answered,
 		})
-		m.feedback = "Pas encore. Reponse attendue: " + current.Answer.Primary
+		m.feedback = incorrectAnswer
 	}
 	return m
 }
@@ -619,16 +641,20 @@ func homeListHeight(windowHeight int) int {
 
 func (m model) chaptersView() string {
 	styles := newTUIStyles()
+	title := "Chapitres"
+	if m.chapterList.Title == homeActionShortcuts {
+		title = "Raccourcis clavier"
+	}
 	if m.browserNotice != "" {
 		return strings.Join([]string{
-			styles.ScreenTitle.Render(m.chapterList.Title),
+			styles.ScreenTitle.Render(title),
 			styles.Warning.Render(m.browserNotice),
 			m.chapterList.View(),
 		}, "\n\n")
 	}
 	return strings.Join([]string{
-		styles.ScreenTitle.Render(m.chapterList.Title),
-		styles.Subtitle.Render(fmt.Sprintf("Choose a chapter to inspect · Default difficulty: %s", m.filter.Difficulty)),
+		styles.ScreenTitle.Render(title),
+		styles.Subtitle.Render(fmt.Sprintf("Niveau par défaut : %s", m.filter.Difficulty)),
 		styles.Separator.Render("────────────────────────────────────────"),
 		"",
 		m.chapterList.View(),
@@ -647,7 +673,7 @@ func (m model) chapterDetailView() string {
 	acquired := chapter.AcquiredCount(current.ID, eligible, m.progress.CompletedExercises)
 	lines := []string{
 		styles.ScreenTitle.Render(current.Title),
-		styles.Subtitle.Render(current.Description),
+		styles.Subtitle.Width(m.chapterList.Width()).Render(current.Description),
 		styles.Separator.Render("────────────────────────────────────────"),
 		"",
 		"Chapter: " + current.ID,
@@ -693,67 +719,79 @@ func (m model) trainingView() string {
 		return "Aucun exercice disponible."
 	}
 	selected := m.session
-	title := styles.ScreenTitle.Render(selected.Title)
 	inputView := m.input.View()
-	answerLabel := "Reponse:"
-	feedback := m.feedback
+	answerLabel := "Réponse"
 	if m.isMultipleChoice() {
-		answerLabel = "Choix:"
-		choices := make([]string, 0, len(current.Choices))
-		for i, choice := range current.Choices {
-			if i == m.choiceIndex {
-				choices = append(choices, styles.Info.Render("> "+choice))
-			} else {
-				choices = append(choices, "  "+choice)
+		if m.feedback != "" {
+			inputView = "> " + current.Choices[m.choiceIndex]
+		} else {
+			answerLabel = "Choix"
+			choices := make([]string, 0, len(current.Choices))
+			for i, choice := range current.Choices {
+				if i == m.choiceIndex {
+					choices = append(choices, styles.Info.Render("> "+choice))
+				} else {
+					choices = append(choices, "  "+choice)
+				}
 			}
-		}
-		inputView = strings.Join(choices, "\n")
-		if strings.HasPrefix(feedback, "Pas encore.") && current.Explanation != "" {
-			feedback += "\n" + current.Explanation
+			inputView = strings.Join(choices, "\n")
 		}
 	} else if m.input.Err != nil {
 		inputView += "\n" + styles.Warning.Render(m.input.Err.Error())
 	}
-	return fmt.Sprintf(
-		"%s\n%s\n%s\n\n%s\n%s\n\n%s\n%s\n\n%s",
-		title,
-		styles.Muted.Render(fmt.Sprintf("Progression: %d/%d", m.itemIndex+1, len(selected.Items))),
+	lines := []string{
+		styles.ScreenTitle.Render(selected.Title),
+		styles.Muted.Render(fmt.Sprintf("Exercice %d/%d", m.itemIndex+1, len(selected.Items))),
 		styles.Separator.Render("────────────────────────────────────────"),
-		styles.Muted.Render("Question:"),
+		"",
+		styles.Muted.Render("Question"),
 		current.Prompt,
+		"",
 		styles.Muted.Render(answerLabel),
 		inputView,
-		feedbackText(feedback, styles),
-	)
+	}
+	if m.feedback == "" {
+		return strings.Join(lines, "\n")
+	}
+	lines = append(lines, "")
+	if m.feedback == incorrectAnswer {
+		lines = append(lines, styles.Warning.Render(m.feedback), "Réponse attendue : "+current.Answer.Primary)
+	} else {
+		lines = append(lines, styles.Success.Render(m.feedback))
+	}
+	if current.Explanation != "" {
+		lines = append(lines, styles.Muted.Render("Explication"), current.Explanation)
+	}
+	return strings.Join(lines, "\n")
 }
 
 func (m model) trainingSummaryView() string {
 	styles := newTUIStyles()
-	title := "Training"
+	title := "Entraînement"
 	if current := m.currentChapter(); current != nil {
 		title = current.Title
 	}
 	lines := []string{
-		styles.ScreenTitle.Render("Chapter complete"),
+		styles.ScreenTitle.Render("Bilan de la séance"),
 		styles.Subtitle.Render(title),
 		styles.Separator.Render("────────────────────────────────────────"),
 		"",
-		fmt.Sprintf("Score: %d/%d correct", m.summary.Correct, m.summary.Total),
+		fmt.Sprintf("Bonnes réponses : %d/%d", m.summary.Correct, m.summary.Total),
 	}
 	if len(m.summary.Missed) == 0 {
 		return strings.Join(lines, "\n")
 	}
 
-	lines = append(lines, "", styles.Warning.Render("Missed:"))
+	lines = append(lines, "", styles.Warning.Render("À revoir"))
 	for i, missed := range m.summary.Missed {
 		if i == 3 {
-			lines = append(lines, fmt.Sprintf("And %d more.", len(m.summary.Missed)-i))
+			lines = append(lines, fmt.Sprintf("Autres réponses à revoir : %d", len(m.summary.Missed)-i))
 			break
 		}
 		lines = append(lines,
 			missed.Prompt,
-			styles.Muted.Render("Expected: "+missed.Expected),
-			styles.Muted.Render("Answered: "+valueOrFallback(missed.Answered, "(empty)")),
+			styles.Muted.Render("Réponse attendue : "+missed.Expected),
+			styles.Muted.Render("Ta réponse : "+valueOrFallback(missed.Answered, "(vide)")),
 		)
 	}
 	return strings.Join(lines, "\n")
@@ -871,19 +909,6 @@ func footerText(context footerContext) string {
 	}
 }
 
-func feedbackText(value string, styles tuiStyleSet) string {
-	if value == "" {
-		return ""
-	}
-	if strings.HasPrefix(value, "Correct.") {
-		return styles.Info.Render(value)
-	}
-	if strings.HasPrefix(value, "Pas encore.") {
-		return styles.Warning.Render(value)
-	}
-	return value
-}
-
 func loadProgress(path string) (progress.Progress, string) {
 	if path == "" {
 		return progress.Default(), ""
@@ -900,23 +925,4 @@ func valueOrFallback(value, fallback string) string {
 		return fallback
 	}
 	return value
-}
-
-func chapterListDescription(chapter chapter.Chapter, eligible int) string {
-	count := exerciseCountLabel(len(chapter.Items))
-	if eligible != len(chapter.Items) || eligible == 0 {
-		count = fmt.Sprintf("%d/%d eligible", eligible, len(chapter.Items))
-	}
-	metadata := chapter.ID + " · " + count
-	if chapter.Description == "" {
-		return metadata
-	}
-	return metadata + " · " + chapter.Description
-}
-
-func exerciseCountLabel(count int) string {
-	if count == 1 {
-		return "1 exercise"
-	}
-	return fmt.Sprintf("%d exercises", count)
 }

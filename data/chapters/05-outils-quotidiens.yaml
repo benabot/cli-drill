@@ -1,6 +1,6 @@
 id: "05-outils-quotidiens"
 title: "Historique et interface Git"
-description: "Outils tiers : Atuin et Lazygit. Les historiques et dépôts décrits sont simulés ; aucun compte, synchronisation ou outil installé n’est nécessaire dans CLI-Drill."
+description: "Historique du shell et exploration d’un dépôt Git simulé."
 family: "modern-cli-macos"
 learning_order: "independent"
 items:
@@ -10,9 +10,8 @@ items:
     difficulty: "beginner"
     tools: ["atuin"]
     prompt: |-
-      Situation simulée : Atuin dispose d’un historique enregistré.
-      Recherche les commandes correspondant à git avec atuin search, en
-      limitant les résultats à cinq avec --limit.
+      Atuin a déjà indexé l’historique du shell. Cherche les commandes
+      correspondant à git et limite la liste à cinq résultats.
     answer:
       primary: "atuin search --limit 5 git"
     explanation: |-
