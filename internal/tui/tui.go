@@ -74,14 +74,15 @@ var homeActions = []listItem{
 }
 
 type Options struct {
-	Chapters        []chapter.Chapter
-	ProgressPath    string
-	LoadPreferences func() ([]string, chapter.Difficulty, error)
-	SavePreferences func([]string, chapter.Difficulty) error
+	Chapters           []chapter.Chapter
+	ProgressPath       string
+	LoadPreferences    func() ([]string, chapter.Difficulty, error)
+	SavePreferences    func([]string, chapter.Difficulty) error
+	CaptureUnavailable string
 }
 
 type Result struct {
-	RunCLITrainChapterID string
+	CaptureChapter chapter.Chapter
 }
 
 // Keep the clipboard's raw text until it passes the same checks as terminal paste.
@@ -146,22 +147,30 @@ func newTUIStyles() tuiStyleSet {
 }
 
 type model struct {
-	screen        screen
-	home          list.Model
-	chapterList   list.Model
-	preferences   preferencesScreen
-	input         textinput.Model
-	chapters      []chapter.Chapter
-	progress      progress.Progress
-	progressPath  string
-	progressError string
-	chapterIndex  int
-	itemIndex     int
-	choiceIndex   int
-	feedback      string
-	summary       trainingSummary
-	showHelp      bool
-	result        Result
+	screen             screen
+	home               list.Model
+	chapterList        list.Model
+	preferences        preferencesScreen
+	input              textinput.Model
+	chapters           []chapter.Chapter
+	progress           progress.Progress
+	progressPath       string
+	progressError      string
+	chapterIndex       int
+	itemIndex          int
+	choiceIndex        int
+	feedback           string
+	summary            trainingSummary
+	showHelp           bool
+	result             Result
+	filter             chapter.SessionFilter
+	preferencesError   error
+	detailDifficulty   chapter.Difficulty
+	detailMode         chapter.SessionMode
+	detailScope        chapter.ExerciseScope
+	browserNotice      string
+	captureUnavailable string
+	session            chapter.Chapter
 }
 
 func RunWithOptions(opts Options) (Result, error) {
@@ -200,15 +209,7 @@ func newModel(opts Options) model {
 	home.SetShowHelp(false)
 	home.Styles.Title = styles.ScreenTitle
 
-	chapterItems := make([]list.Item, 0, len(opts.Chapters))
-	for i, chapter := range opts.Chapters {
-		chapterItems = append(chapterItems, listItem{
-			title:       chapter.Title,
-			description: chapterListDescription(chapter),
-			index:       i,
-		})
-	}
-	chapterList := list.New(chapterItems, delegate, 80, 20)
+	chapterList := list.New(nil, delegate, 80, 20)
 	chapterList.Title = "Chapters"
 	chapterList.SetShowStatusBar(false)
 	chapterList.SetShowHelp(false)
@@ -219,16 +220,19 @@ func newModel(opts Options) model {
 	input.Focus()
 
 	localProgress, progressErr := loadProgress(opts.ProgressPath)
+	preferences := newPreferencesScreen(opts, delegate)
 	return model{
-		screen:        screenHome,
-		home:          home,
-		chapterList:   chapterList,
-		preferences:   newPreferencesScreen(opts, delegate),
-		input:         input,
-		chapters:      opts.Chapters,
-		progress:      localProgress,
-		progressPath:  opts.ProgressPath,
-		progressError: progressErr,
+		screen:             screenHome,
+		home:               home,
+		chapterList:        chapterList,
+		preferences:        preferences,
+		input:              input,
+		chapters:           opts.Chapters,
+		progress:           localProgress,
+		progressPath:       opts.ProgressPath,
+		progressError:      progressErr,
+		filter:             chapter.SessionFilter{AvailableTools: preferences.available, Difficulty: chapter.DifficultyBeginner},
+		captureUnavailable: opts.CaptureUnavailable,
 	}
 }
 
@@ -317,6 +321,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.openPreferences()
 			return m, nil
 		}
+		if m.screen == screenChapterDetail && !msg.Paste && m.changeSessionChoice(msg.String()) {
+			return m, nil
+		}
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
@@ -378,6 +385,9 @@ func (m model) View() string {
 	if m.progressError != "" {
 		view += "\n\n" + newTUIStyles().Warning.Render(m.progressError)
 	}
+	if m.preferencesError != nil {
+		view += "\n\n" + newTUIStyles().Warning.Render(fmt.Sprintf("Preferences unavailable. Using defaults. %v", m.preferencesError))
+	}
 	view += "\n\n" + m.footer()
 	return style.Render(view)
 }
@@ -392,25 +402,26 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 		switch selected.title {
 		case homeActionStartTraining:
 			m.openChapters(false)
-			for i, current := range m.chapters {
-				if len(current.Items) > 0 && !chapterUsesKeySequence(current) {
-					m.chapterList.Select(i)
-					return m.startTraining(i), nil
-				}
+			i := m.filter.FirstTextChapter(m.chapters)
+			if i < 0 {
+				m.browserNotice = fmt.Sprintf("No eligible text exercises at %s difficulty.\nCheck enabled CLI modules or open a chapter to choose another level.", m.filter.Difficulty)
+				return m, nil
 			}
-			return m, nil
+			m.chapterList.Select(i)
+			m.openDetail(i, chapter.TextExercises)
+			return m.launchSession()
 		case homeActionBrowse:
 			m.openChapters(false)
 			return m, nil
 		case homeActionShortcuts:
 			m.openChapters(true)
 			if items := m.chapterList.Items(); len(items) == 1 {
-				m.chapterIndex = items[0].(listItem).index
-				m.screen = screenChapterDetail
-				return m.handleEnter()
+				m.openDetail(items[0].(listItem).index, chapter.KeyExercises)
+				return m.launchSession()
 			}
 			return m, nil
 		case homeActionStats:
+			m.refreshSessionFilter()
 			m.screen = screenStats
 			return m, nil
 		case homeActionPreferences:
@@ -424,34 +435,42 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 		if !ok {
 			return m, nil
 		}
-		m.chapterIndex = selected.index
-		m.screen = screenChapterDetail
+		scope := chapter.AllExercises
+		if m.chapterList.Title == homeActionShortcuts {
+			scope = chapter.KeyExercises
+		}
+		m.openDetail(selected.index, scope)
 		return m, nil
 	case screenChapterDetail:
-		if current := m.currentChapter(); current != nil && chapterUsesKeySequence(*current) {
-			m.result.RunCLITrainChapterID = current.ID
-			return m, tea.Quit
-		}
-		return m.startTraining(m.chapterIndex), nil
+		m.refreshSessionFilter()
+		return m.launchSession()
 	case screenTraining:
 		return m.answerOrAdvance(), nil
 	case screenTrainingSummary:
 		if m.summary.retryAvailable() {
-			return m.startTraining(m.chapterIndex), nil
+			m.resetTextTraining()
+			return m, nil
 		}
 	}
 	return m, nil
 }
 
 func (m *model) openChapters(shortcutsOnly bool) {
+	m.refreshSessionFilter()
+	m.browserNotice = ""
+	scope := chapter.AllExercises
+	if shortcutsOnly {
+		scope = chapter.KeyExercises
+	}
 	items := make([]list.Item, 0, len(m.chapters))
 	for i, current := range m.chapters {
-		if shortcutsOnly && !chapterUsesKeySequence(current) {
+		count := len(m.filter.EligibleItems(current, scope))
+		if shortcutsOnly && count == 0 {
 			continue
 		}
 		items = append(items, listItem{
 			title:       current.Title,
-			description: chapterListDescription(current),
+			description: chapterListDescription(current, count),
 			index:       i,
 		})
 	}
@@ -461,6 +480,9 @@ func (m *model) openChapters(shortcutsOnly bool) {
 	m.chapterList.Title = "Chapters"
 	if shortcutsOnly {
 		m.chapterList.Title = homeActionShortcuts
+		if len(items) == 0 {
+			m.browserNotice = fmt.Sprintf("No eligible keyboard shortcuts at %s difficulty.\nCheck enabled CLI modules or choose another level via Browse chapters.", m.filter.Difficulty)
+		}
 	}
 	m.screen = screenChapters
 	m.feedback = ""
@@ -472,12 +494,11 @@ func (m *model) back() {
 	case screenHome:
 		return
 	case screenChapterDetail:
+		m.clearSession()
 		m.screen = screenChapters
-	case screenTraining:
-		m.screen = screenChapterDetail
-		m.feedback = ""
-		m.input.SetValue("")
-	case screenTrainingSummary:
+	case screenTraining, screenTrainingSummary:
+		m.clearSession()
+		m.refreshSessionFilter()
 		m.screen = screenChapterDetail
 	default:
 		m.screen = screenHome
@@ -485,35 +506,8 @@ func (m *model) back() {
 }
 
 func (m *model) goHome() {
+	m.clearSession()
 	m.screen = screenHome
-	m.feedback = ""
-	m.input.SetValue("")
-}
-
-func (m model) startTraining(index int) model {
-	if len(m.chapters) == 0 {
-		m.screen = screenStats
-		return m
-	}
-	if index < 0 || index >= len(m.chapters) {
-		index = 0
-	}
-	m.chapterIndex = index
-	if chapterUsesKeySequence(m.chapters[index]) {
-		m.screen = screenChapterDetail
-		m.feedback = ""
-		m.input.SetValue("")
-		return m
-	}
-	m.screen = screenTraining
-	m.itemIndex = 0
-	m.choiceIndex = 0
-	m.feedback = ""
-	m.summary = trainingSummary{}
-	m.showHelp = false
-	m.input.SetValue("")
-	m.input.Focus()
-	return m
 }
 
 func (m model) answerOrAdvance() model {
@@ -547,7 +541,7 @@ func (m model) answerOrAdvance() model {
 		return m
 	}
 	correct := current.MatchAnswer(answered)
-	recorded, err := progress.RecordAnswer(m.progressPath, m.chapters[m.chapterIndex].ID, current.ID, correct)
+	recorded, err := progress.RecordAnswer(m.progressPath, m.session.ID, current.ID, correct)
 	if err != nil {
 		m.progressError = "Progress could not be saved: " + err.Error()
 		return m
@@ -570,14 +564,10 @@ func (m model) answerOrAdvance() model {
 }
 
 func (m model) currentItem() *chapter.Item {
-	if m.chapterIndex < 0 || m.chapterIndex >= len(m.chapters) {
+	if m.itemIndex < 0 || m.itemIndex >= len(m.session.Items) {
 		return nil
 	}
-	chapter := m.chapters[m.chapterIndex]
-	if m.itemIndex < 0 || m.itemIndex >= len(chapter.Items) {
-		return nil
-	}
-	return &chapter.Items[m.itemIndex]
+	return &m.session.Items[m.itemIndex]
 }
 
 func (m model) isMultipleChoice() bool {
@@ -629,9 +619,16 @@ func homeListHeight(windowHeight int) int {
 
 func (m model) chaptersView() string {
 	styles := newTUIStyles()
+	if m.browserNotice != "" {
+		return strings.Join([]string{
+			styles.ScreenTitle.Render(m.chapterList.Title),
+			styles.Warning.Render(m.browserNotice),
+			m.chapterList.View(),
+		}, "\n\n")
+	}
 	return strings.Join([]string{
 		styles.ScreenTitle.Render(m.chapterList.Title),
-		styles.Subtitle.Render("Choose a chapter to inspect before training."),
+		styles.Subtitle.Render(fmt.Sprintf("Choose a chapter to inspect · Default difficulty: %s", m.filter.Difficulty)),
 		styles.Separator.Render("────────────────────────────────────────"),
 		"",
 		m.chapterList.View(),
@@ -645,23 +642,45 @@ func (m model) chapterDetailView() string {
 		return "No chapter selected."
 	}
 	score := m.progress.ChapterScores[current.ID]
+	filter := m.detailFilter()
+	eligible := filter.EligibleItems(*current, m.detailScope)
+	acquired := chapter.AcquiredCount(current.ID, eligible, m.progress.CompletedExercises)
 	lines := []string{
 		styles.ScreenTitle.Render(current.Title),
 		styles.Subtitle.Render(current.Description),
 		styles.Separator.Render("────────────────────────────────────────"),
 		"",
 		"Chapter: " + current.ID,
-		fmt.Sprintf("Exercises: %d", len(current.Items)),
-		fmt.Sprintf("Progress: %d/%d completed", m.completedCount(current.ID), len(current.Items)),
-		fmt.Sprintf("Score: %d/%d correct", score.Correct, score.Attempts),
+		fmt.Sprintf("Exercises: %d in corpus", len(current.Items)),
+		fmt.Sprintf("Session difficulty: %s · d change", filter.Difficulty),
+		sessionLevelCounts(*current, m.detailScope, filter),
+		fmt.Sprintf("Active acquired: %d/%d eligible", acquired, len(eligible)),
+		fmt.Sprintf("Historical chapter score: %d/%d correct", score.Correct, score.Attempts),
 		"",
 	}
-	if chapterUsesKeySequence(*current) {
+	if current.Guided() {
+		mode := "Learn (editorial order)"
+		if m.detailMode == chapter.ModeReview {
+			mode = "Review (shuffled)"
+		}
+		lines = append(lines, "Mode: "+mode+" · m change")
+	} else {
+		lines = append(lines, "Order: shuffled")
+	}
+	prepared := *current
+	prepared.Items = eligible
+	switch {
+	case len(eligible) == 0:
+		lines = append(lines, styles.Warning.Render(filter.EmptyReason(*current, m.detailScope)))
+	case prepared.HasKeyExercises():
 		lines = append(lines,
 			styles.Info.Render("Ce chapitre entraîne les vrais raccourcis clavier."),
 			"cli-drill ouvre un mode dédié pour capturer les touches.",
 		)
-	} else {
+		if m.captureUnavailable != "" {
+			lines = append(lines, styles.Warning.Render(m.captureUnavailable))
+		}
+	default:
 		lines = append(lines, "Press enter to start this chapter.")
 	}
 	return strings.Join(lines, "\n")
@@ -673,7 +692,7 @@ func (m model) trainingView() string {
 	if current == nil {
 		return "Aucun exercice disponible."
 	}
-	selected := m.chapters[m.chapterIndex]
+	selected := m.session
 	title := styles.ScreenTitle.Render(selected.Title)
 	inputView := m.input.View()
 	answerLabel := "Reponse:"
@@ -742,18 +761,13 @@ func (m model) trainingSummaryView() string {
 
 func (m model) statsView() string {
 	styles := newTUIStyles()
-	total := 0
-	completed := 0
-	for _, chapter := range m.chapters {
-		total += len(chapter.Items)
-		completed += m.completedCount(chapter.ID)
-	}
+	acquired, total := m.filter.ActiveCounts(m.chapters, m.progress.CompletedExercises)
 	lines := []string{
 		styles.ScreenTitle.Render("My progress"),
 		styles.Separator.Render("────────────────────────────────────────"),
-		fmt.Sprintf("Chapters: %d", len(m.chapters)),
-		fmt.Sprintf("Exercises available: %d", total),
-		fmt.Sprintf("Completed locally: %d/%d", completed, total),
+		fmt.Sprintf("Active acquired (%s, enabled CLI modules): %d/%d", m.filter.Difficulty, acquired, total),
+		fmt.Sprintf("Historical acquired: %d", len(m.progress.CompletedExercises)),
+		fmt.Sprintf("Chapters with historical scores: %d", len(m.progress.ChapterScores)),
 	}
 	return strings.Join(lines, "\n")
 }
@@ -797,11 +811,17 @@ func (m model) footerContext() footerContext {
 	case screenPreferences:
 		return footerPreferences
 	case screenChapterDetail:
-		if current := m.currentChapter(); current != nil && chapterUsesKeySequence(*current) {
-			return footerKeySequenceDetail
-		} else {
-			return footerChapterDetail
+		if current := m.currentChapter(); current != nil {
+			selected := *current
+			selected.Items = m.detailFilter().EligibleItems(selected, m.detailScope)
+			if len(selected.Items) == 0 || (selected.HasKeyExercises() && m.captureUnavailable != "") {
+				return footerReadOnly
+			}
+			if selected.HasKeyExercises() {
+				return footerKeySequenceDetail
+			}
 		}
+		return footerChapterDetail
 	case screenTraining:
 		if m.feedback != "" {
 			return footerTextFeedback
@@ -851,26 +871,6 @@ func footerText(context footerContext) string {
 	}
 }
 
-func (m model) completedCount(chapterID string) int {
-	prefix := chapterID + "/"
-	count := 0
-	for _, completed := range m.progress.CompletedExercises {
-		if strings.HasPrefix(completed, prefix) {
-			count++
-		}
-	}
-	return count
-}
-
-func chapterUsesKeySequence(chapter chapter.Chapter) bool {
-	for _, item := range chapter.Items {
-		if item.ExerciseType == exercise.TypeKeySequence {
-			return true
-		}
-	}
-	return false
-}
-
 func feedbackText(value string, styles tuiStyleSet) string {
 	if value == "" {
 		return ""
@@ -902,8 +902,12 @@ func valueOrFallback(value, fallback string) string {
 	return value
 }
 
-func chapterListDescription(chapter chapter.Chapter) string {
-	metadata := fmt.Sprintf("%s · %s", chapter.ID, exerciseCountLabel(len(chapter.Items)))
+func chapterListDescription(chapter chapter.Chapter, eligible int) string {
+	count := exerciseCountLabel(len(chapter.Items))
+	if eligible != len(chapter.Items) || eligible == 0 {
+		count = fmt.Sprintf("%d/%d eligible", eligible, len(chapter.Items))
+	}
+	metadata := chapter.ID + " · " + count
 	if chapter.Description == "" {
 		return metadata
 	}

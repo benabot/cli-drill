@@ -115,7 +115,7 @@ func TestTUIRejectsMultilinePasteBeforeSanitizing(t *testing.T) {
 			ch := recordingChapter()
 			ch.Items = ch.Items[3:]
 			ch.Items[0].Answer.Primary = "fd -t d | fzf"
-			m := newModel(Options{Chapters: []chapter.Chapter{ch}, ProgressPath: path}).startTraining(0)
+			m := startTestTraining(t, newModel(Options{Chapters: []chapter.Chapter{ch}, ProgressPath: path}))
 			m.input.SetValue("fd -t d | fzf")
 			var message tea.Msg = tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(tc.text), Paste: true}
 			if tc.clipboard {

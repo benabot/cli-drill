@@ -90,14 +90,7 @@ func (p *preferencesScreen) changeSelected() {
 	index := p.list.Index()
 	switch {
 	case index == 0:
-		switch p.difficulty {
-		case chapter.DifficultyBeginner:
-			p.difficulty = chapter.DifficultyIntermediate
-		case chapter.DifficultyIntermediate:
-			p.difficulty = chapter.DifficultyAdvanced
-		default:
-			p.difficulty = chapter.DifficultyBeginner
-		}
+		p.difficulty = nextDifficulty(p.difficulty)
 	case index <= len(p.available):
 		tool := p.available[index-1]
 		if i := slices.Index(p.enabled, tool); i >= 0 {

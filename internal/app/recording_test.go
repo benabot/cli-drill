@@ -12,6 +12,7 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/progress"
 	"github.com/benabot/cli-drill/internal/tui"
 )
@@ -102,6 +103,7 @@ type recordingReader func([]byte) (int, error)
 func (read recordingReader) Read(data []byte) (int, error) { return read(data) }
 
 func TestCLIRecordsBeforeReadingAgain(t *testing.T) {
+	allowSimulatedCapture(t)
 	for _, chapterID := range []string{"text", "keys"} {
 		t.Run(chapterID, func(t *testing.T) {
 			acquired := "text/free-answer"
@@ -134,6 +136,7 @@ func TestCLIRecordsBeforeReadingAgain(t *testing.T) {
 }
 
 func TestCLIKeyRecordingDoesNotCountControls(t *testing.T) {
+	allowSimulatedCapture(t)
 	for _, tc := range []struct {
 		name, input       string
 		attempts, correct int
@@ -182,7 +185,7 @@ func TestRecordingKeepsV1StatsAndReset(t *testing.T) {
 		t.Fatalf("v1 schema changed: %s (%v)", data, err)
 	}
 	stats, err := runRecordingCLI(path, strings.NewReader(""), "stats")
-	if err != nil || stats != "Completed exercises: 5\nChapters with attempts: 2\nStreak: 4\n" {
+	if err != nil || stats != "Active acquired (beginner, enabled CLI modules): 4/5\nHistorical totals (all sessions)\nCompleted exercises: 5\nChapters with attempts: 2\nStreak: 4\n" {
 		t.Fatalf("stats: %q (%v)", stats, err)
 	}
 	if _, err := runRecordingCLI(path, strings.NewReader(""), "reset"); err == nil {
@@ -200,6 +203,7 @@ func TestRecordingKeepsV1StatsAndReset(t *testing.T) {
 }
 
 func TestCLIPropagatesSaveFailure(t *testing.T) {
+	allowSimulatedCapture(t)
 	for _, tc := range []struct{ chapter, input string }{{"text", "pwd\n"}, {"keys", "\x01"}} {
 		t.Run(tc.chapter, func(t *testing.T) {
 			dir := t.TempDir()
@@ -225,6 +229,7 @@ func TestCLIPropagatesSaveFailure(t *testing.T) {
 }
 
 func TestCLIAbandonDoesNotCreateProgress(t *testing.T) {
+	allowSimulatedCapture(t)
 	for _, tc := range []struct{ chapter, input string }{
 		{"text", ""}, {"text", "\n \n"}, {"text", "\x1b"}, {"text", "\x03"},
 		{"keys", ""}, {"keys", "h\n\x1b"},
@@ -242,6 +247,7 @@ func TestCLIAbandonDoesNotCreateProgress(t *testing.T) {
 }
 
 func TestTUIKeyIntentPersistsBeforeReturningToTUI(t *testing.T) {
+	allowSimulatedCapture(t)
 	path := filepath.Join(t.TempDir(), "progress.json")
 	if err := os.WriteFile(path, []byte(recordingHistory), 0o600); err != nil {
 		t.Fatal(err)
@@ -253,7 +259,9 @@ func TestTUIKeyIntentPersistsBeforeReturningToTUI(t *testing.T) {
 			t.Fatalf("TUI progress path changed: %s", opts.ProgressPath)
 		}
 		if calls == 1 {
-			return tui.Result{RunCLITrainChapterID: "keys"}, nil
+			selected, _ := findChapter(opts.Chapters, "keys")
+			filter := chapter.SessionFilter{Difficulty: chapter.DifficultyBeginner}
+			return tui.Result{CaptureChapter: filter.Prepare(selected, chapter.KeyExercises, "", nil)}, nil
 		}
 		assertRecordingScore(t, path, "keys", 1, 1, "keys/ctrl-a")
 		return tui.Result{}, nil

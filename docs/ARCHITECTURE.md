@@ -1,8 +1,7 @@
 # CLI-Drill V2 — Architecture cible
 
 **Cible du 7 novembre 2026, complétée par P2.0 le 8 novembre 2026 ; réalisation partielle.**
-P0 et P1 sont terminées selon l'état courant à `ef9b0a5` ; P2 reste à implémenter.
-La mise à jour P2.0 ne change aucun package Go ni dépendance.
+P0 et P1 sont terminées. P2 est en cours de réalisation.
 L'[état courant](../PROJECT_STATE.md) décrit le code disponible ; la
 [spécification](SPEC.md) définit les comportements V2 et les garanties de données.
 
@@ -30,10 +29,10 @@ aucun dossier utilisateur ne remplace automatiquement le corpus intégré.
 | Package | Responsabilité cible |
 | --- | --- |
 | `internal/app` | Commandes Cobra, orchestration TUI / entraînement dédié et chargement/enregistrement des préférences minimales. |
-| `internal/chapter` | Modèle pédagogique, chargement et validation YAML ; projection des modules, éligibilité par outil et future préparation de l'ordre en mémoire. |
+| `internal/chapter` | Modèle pédagogique, chargement et validation YAML, projection des modules et des acquis actifs, filtrage et ordre des séances en mémoire. |
 | `internal/exercise` | Types d'exercices, correction pure et normalisation adaptée au contexte. |
 | `internal/progress` | Compteurs, compatibilité JSON et persistance sûre. |
-| `internal/tui` | Navigation, saisie, filtres, feedback et rendu Bubble Tea. |
+| `internal/tui` | Navigation, choix de séance, saisie, feedback et rendu Bubble Tea. |
 | `internal/xdg` | Résolution des chemins distincts de progression et de préférences ; respect de `XDG_DATA_HOME`. |
 
 Conserver ces frontières. Aucun package de services, interface de stockage,
@@ -48,12 +47,12 @@ La [spécification](SPEC.md) porte le contrat des métadonnées et des préfére
 et fournit le prédicat d'éligibilité, sans registre d'installation, scanner,
 ancien catalogue ou nouveau package `config`.
 
-En P2.4, préparer une copie ou une liste de références aux exercices éligibles dans
-`chapter` : modules requis, niveau exact, puis ordre guidé ou permutation.
-Partager cette préparation entre CLI, TUI et délégation clavier ; garder la
-liste en mémoire pendant la séance. Chaque référence conserve le couple
-`chapter-id/item-id` d'origine. Aucun curseur, graine ou ordre n'est ajouté au
-JSON de progression. La révision des erreurs et les retries restent distincts
+En P2.4, `chapter.SessionFilter` fournit les exercices éligibles pour les
+décomptes et prépare une copie du chapitre au lancement. Les moteurs reçoivent
+cette copie avec sa liste filtrée et son ordre fixé. Pour la capture, la TUI
+transmet le chapitre préparé dans son résultat et `app` l'utilise directement.
+Les éléments conservent leurs clés `chapter-id/item-id`. L'ordre et le curseur
+restent en mémoire. La révision des erreurs et les retries restent distincts
 du parcours initial, avec les règles P1 d'enregistrement par soumission.
 
 Le fichier de préférences est facultatif, séparé de la progression ; `app`

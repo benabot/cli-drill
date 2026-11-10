@@ -156,8 +156,8 @@ func TestChapterDetailKeySequenceEnterReturnsCLITrainIntent(t *testing.T) {
 	if cmd == nil {
 		t.Fatal("expected Enter on key-sequence detail to quit TUI")
 	}
-	if next.result.RunCLITrainChapterID != "01-raccourcis-terminal" {
-		t.Fatalf("RunCLITrainChapterID = %q, want 01-raccourcis-terminal", next.result.RunCLITrainChapterID)
+	if next.result.CaptureChapter.ID != "01-raccourcis-terminal" {
+		t.Fatalf("CaptureChapter.ID = %q, want 01-raccourcis-terminal", next.result.CaptureChapter.ID)
 	}
 }
 
@@ -430,4 +430,12 @@ func homeActionIndex(title string) int {
 		}
 	}
 	return 0
+}
+
+func startTestTraining(t *testing.T, m model) model {
+	t.Helper()
+	m.home.Select(homeActionIndex(homeActionStartTraining))
+	m = press(t, m, tea.KeyEnter)
+	assertScreen(t, m, screenTraining)
+	return m
 }

@@ -2,16 +2,18 @@ package app
 
 import (
 	"bytes"
+	"encoding/json"
+	"io"
 	"os"
 	"path/filepath"
-	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/chapter"
-	"github.com/benabot/cli-drill/internal/exercise"
 	"github.com/benabot/cli-drill/internal/progress"
+	"github.com/benabot/cli-drill/internal/xdg"
 )
 
 func TestDefaultTrainingUsesUnixFoundationsWithoutExecutingAnswers(t *testing.T) {
@@ -65,34 +67,63 @@ func TestCurrentTextCorpusPreservesRetiredProgress(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	prefs := defaultPreferences()
+	prefs.EnabledTools = chapter.AvailableTools(chapters)
+	dataJSON, err := json.Marshal(prefs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeAppTestFileContent(t, xdg.PreferencesFile(), string(dataJSON))
 	for _, ch := range chapters {
-		if ch.Items[0].ExerciseType == exercise.TypeKeySequence {
+		if ch.HasKeyExercises() {
 			continue
 		}
 		t.Run(ch.ID, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "progress.json")
-			historical := `{"version":1,"completed_exercises":["03-alias-zsh/cgs","07-lecture-preview/marked2-preview","01-raccourcis-terminal/ctrl-u"],"chapter_scores":{"03-alias-zsh":{"attempts":9,"correct":4}},"last_session":null,"streak":4}`
-			if err := os.WriteFile(path, []byte(historical), 0600); err != nil {
-				t.Fatal(err)
-			}
-			var input strings.Builder
+			const historical = `{"version":1,"completed_exercises":["03-alias-zsh/cgs","07-lecture-preview/marked2-preview","01-raccourcis-terminal/ctrl-u"],"chapter_scores":{"03-alias-zsh":{"attempts":9,"correct":4}},"last_session":null,"streak":4}`
+			writeAppTestFileContent(t, path, historical)
 			want := []string{"03-alias-zsh/cgs", "07-lecture-preview/marked2-preview", "01-raccourcis-terminal/ctrl-u"}
-			for _, item := range ch.Items {
-				input.WriteString(item.Answer.Primary + "\n")
-				want = append(want, ch.ID+"/"+item.ID)
-			}
-			var output bytes.Buffer
-			cmd := NewRootCommand(data.Chapters())
-			cmd.SetIn(strings.NewReader(input.String()))
-			cmd.SetOut(&output)
-			cmd.SetErr(&output)
-			cmd.SetArgs([]string{"--progress", path, "train", ch.ID})
-			if err := cmd.Execute(); err != nil {
-				t.Fatal(err)
+			for _, level := range []chapter.Difficulty{chapter.DifficultyBeginner, chapter.DifficultyIntermediate, chapter.DifficultyAdvanced} {
+				var items []chapter.Item
+				for _, item := range ch.Items {
+					if item.Difficulty == level {
+						items = append(items, item)
+						want = append(want, ch.ID+"/"+item.ID)
+					}
+				}
+				if len(items) == 0 {
+					continue
+				}
+				var output bytes.Buffer
+				lastRead := 0
+				cmd := NewRootCommand(data.Chapters())
+				cmd.SetIn(recordingReader(func(buffer []byte) (int, error) {
+					rendered := output.String()[lastRead:]
+					lastRead = output.Len()
+					for _, item := range items {
+						if strings.Contains(rendered, item.Prompt) {
+							return copy(buffer, item.Answer.Primary+"\n"), nil
+						}
+					}
+					t.Errorf("unexpected prompt at %s: %s", level, rendered)
+					return 0, io.EOF
+				}))
+				cmd.SetOut(&output)
+				cmd.SetErr(&output)
+				cmd.SetArgs([]string{"--progress", path, "train", ch.ID, "--difficulty", string(level)})
+				if err := cmd.Execute(); err != nil {
+					t.Fatal(err)
+				}
 			}
 			state, err := progress.Load(path)
-			if err != nil || !reflect.DeepEqual(state.CompletedExercises, want) || state.ChapterScores[ch.ID] != (progress.ChapterScore{Attempts: len(ch.Items), Correct: len(ch.Items)}) || state.ChapterScores["03-alias-zsh"] != (progress.ChapterScore{Attempts: 9, Correct: 4}) || state.Version != 1 || state.Streak != 4 {
-				t.Fatalf("current corpus lost history: %#v (%v)\n%s", state, err, output.String())
+			if err != nil {
+				t.Fatal(err)
+			}
+			slices.Sort(want)
+			got := slices.Clone(state.CompletedExercises)
+			slices.Sort(got)
+			if !slices.Equal(got, want) || state.ChapterScores[ch.ID] != (progress.ChapterScore{Attempts: len(ch.Items), Correct: len(ch.Items)}) || state.ChapterScores["03-alias-zsh"] != (progress.ChapterScore{Attempts: 9, Correct: 4}) || state.Version != 1 || state.Streak != 4 {
+				t.Fatalf("current corpus lost history: %#v (want acquired %v)", state, want)
 			}
 		})
 	}

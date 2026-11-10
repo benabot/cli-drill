@@ -41,7 +41,7 @@ func TestStartTrainingUsesV2FoundationsAndKeepsDirectCapture(t *testing.T) {
 	m.home.Select(homeActionIndex(homeActionShortcuts))
 	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	m = updated.(model)
-	if m.result.RunCLITrainChapterID != "01-raccourcis-terminal" {
+	if m.result.CaptureChapter.ID != "01-raccourcis-terminal" {
 		t.Fatalf("capture delegation lost: %#v", m.result)
 	}
 	assertQuitCommand(t, cmd)

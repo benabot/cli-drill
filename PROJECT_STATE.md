@@ -1,8 +1,8 @@
 # État du projet — CLI-Drill
 
-**Au 9 novembre 2026, P2.3 est implémentée et validée après six tests
-manuels réussis dans Terminal.app. Son commit, son intégration dans `dev` et sa
-publication restent à effectuer ; P2.4 est la prochaine étape.**
+**Au 20 novembre 2026, P2.3 est publiée sur `dev` à `1e0c396`. P2.4 est
+implémentée sur `refactor/session-order`,  recette dans
+Terminal.app et de validation humaine validées.**
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
@@ -19,9 +19,8 @@ du 8 novembre 2026 autorise son commit, son intégration par fast-forward dans
 `dev` et sa publication sur `origin/dev`, en conservant la branche de travail.
 P2.1 est intégrée et publiée à `ab2096c`. P2.2 est intégrée et publiée à
 `3ecdf9c`, après recette manuelle du 9 novembre 2026. P2.3 part de cette base
-sur `feat/cli-preferences`. Les six tests manuels du 9 novembre 2026 sont
-validés ; la finalisation de P2.3 (commit, fast-forward dans `dev` et push vers
-`origin/dev`) est autorisée, mais non encore réalisée. `main` reste inchangée.
+sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
+2026, elle est intégrée et publiée sur `dev` à `1e0c396`.
 
 ## Implémentation actuelle
 
@@ -31,14 +30,16 @@ L'interface présente CLI-Drill comme un outil d'entraînement local au terminal
 - Le corpus P2.2 compte neuf chapitres YAML, 39 exercices, trois familles
   et métadonnées explicites. Le corpus intégré de référence P2.1 avait dix chapitres
   et 68 exercices ; il reste accessible uniquement aux tests comme fixtures.
-- `00-premiers-pas` ouvre désormais le parcours par défaut CLI et TUI : huit
-  exercices Unix textuels, Beginner, guidés et sans outil tiers.
+- Le démarrage direct CLI et TUI choisit le premier chapitre textuel éligible.
+  Avec les préférences initiales, `00-premiers-pas` propose huit exercices Unix
+  textuels, Beginner et guidés.
 - Les choix QCM sont désormais affichés aussi en CLI texte ; la saisie reste un
   libellé ou une variante acceptée, sans nouveau système de correction.
 - Corpus exclusivement intégré depuis P0.1 ; aucun chargement automatique des
   anciens YAML utilisateur, même lorsqu'ils sont invalides.
-- Commandes publiques : `chapters`, `train [chapter-id]`, `stats`, `reset --yes`
+- Commandes publiques `chapters`, `train [chapter-id]`, `stats`, `reset --yes`
   et `prefs`, avec `--progress`, l'aide et la complétion standard Cobra.
+  `train` accepte les choix ponctuels `--difficulty` et `--mode`.
 - Anciennes commandes `init`, `scan`, `generate`, `directory`, `search`, `show`
   et option `--config` retirées ; elles produisent désormais une erreur.
 - Accueil TUI : Start training, Browse chapters, Keyboard shortcuts, My progress,
@@ -340,17 +341,15 @@ n'est pas modifié et attend son alignement après migration fonctionnelle.
 
 Avant P2.1 (base `91f13c6`), `chapter.Item` n'avait pas de difficulté ni de liste
 de modules et les chapitres n'avaient pas de famille ou d'ordre déclaré.
-L'implémentation P2.1 validée ci-dessous expose ces métadonnées sans activer leur
-sélection. Depuis P2.3, les préférences sont modifiables et persistantes ; leur
-application aux séances, le filtrage et le mélange attendent P2.4. Les moteurs
-parcourent toujours les exercices dans l'ordre du corpus.
+P2.1 ajoute ces métadonnées, P2.3 enregistre les préférences et P2.4 utilise
+les deux pour préparer les séances.
 
 Défauts connus encore au backlog :
 
 - `streak` non mis à jour, `last_session` sans curseur de reprise.
-- Compléments différés après clôture de P1 : projection des acquis du corpus actif,
-  contrôles et diagnostics supplémentaires des terminaux indisponibles et erreurs.
-  La capture n'est pas promise pour toutes les combinaisons macOS.
+- Les diagnostics et les contrôles de capacités du terminal gardent des cas
+  différés au backlog. La capture dépend des touches transmises par l'émulateur
+  et le système.
 
 ## Vision décidée et travaux suivants
 
@@ -476,8 +475,8 @@ outils CLI 20. Niveaux : 34 Beginner, 4 Intermediate, 1 Advanced.
 Formats : 25 commandes simulées, 8 captures, 4 QCM, 2 raccourcis Micro textuels.
 Les outils tiers sont tous déclarés ; Git est un module de la famille Unix/Shell.
 À la livraison de P2.2, la sélection des outils, les préférences et le mélange
-restaient futurs. P2.3 a depuis ajouté les préférences sans filtrer les séances ;
-P2.4 reste chargée des filtres et du mélange.
+restaient futurs. P2.3 ajoute les préférences, puis P2.4 filtre et ordonne les
+séances.
 Les consignes et explications comportent des retours à la ligne éditoriaux pour
 éviter leur troncature dans la TUI à 80 colonnes, sans changement du rendu Go.
 Les mini-leçons Bat et Historique/Git sont volontairement courtes ; une durée
@@ -548,9 +547,8 @@ n'a besoin d'être installé. Les identifiants retirés sont signalés, conserv�
 dans le JSON et ignorés pour l'éligibilité. `chapter.Item.EligibleForTools`
 vérifie que tous les outils requis sont présents dans le corpus et activés ;
 les exercices sans outil sont toujours éligibles selon ce critère.
-La composition des séances reste celle de P2.2 : l'application effective
-des préférences, le niveau par séance, le mélange et les modes Apprendre/Réviser
-ainsi que la projection des acquis sont réservés à P2.4.
+P2.3 conserve la composition des séances de P2.2. P2.4 applique les
+préférences aux séances et aux acquis affichés.
 
 Le [contrat JSON v1](docs/SPEC.md#préférences-pédagogiques-p2-distinctes-de-la-progression)
 est stocké dans `$XDG_DATA_HOME/cli-drill/preferences.json`, avec repli dans
@@ -581,9 +579,61 @@ de fichier, l'activation CLI de `fd` et `fzf`, le niveau `intermediate`, la
 relecture après relancement, l'annulation d'un brouillon TUI par Échap, la
 sauvegarde TUI par `s`, la désactivation CLI et la navigation. Les préférences
 sont vérifiées dans un répertoire `XDG_DATA_HOME` temporaire, indépendant de
-la progression habituelle. La recette humaine clôt P2.3 sur la branche de
-travail ; la publication dans `dev` reste à effectuer. P2.4 traitera les filtres
-d'exercices par séance, les niveaux ponctuels et le mélange, sans réouvrir P2.3.
+la progression habituelle. Après cette recette, P2.3 est publiée sur `dev`
+à `1e0c396`.
+
+### P2.4 — Séances filtrées, guidées et mélangées
+
+Implémentation locale sur `refactor/session-order`, base `dev` et `origin/dev`
+à `1e0c396`. Recette humaine dans Terminal.app validée.
+
+`chapter.SessionFilter` applique d'abord les modules requis, tous activés
+manuellement, puis le niveau exact. Il fournit les décomptes et prépare la copie
+du chapitre consommée par les moteurs existants. Apprendre suit l'ordre éditorial
+des exercices éligibles. Réviser et les séances indépendantes mélangent la copie
+une fois au lancement. La TUI remet cette copie au moteur de capture. L'ordre
+reste stable pendant la séance, y compris en cas de feedback, d'aide, de
+redimensionnement ou de nouvelle validation après un échec de sauvegarde en TUI.
+Le retry de la TUI réutilise la liste. La révision des erreurs en capture reste
+une passe séparée.
+
+```sh
+cli-drill train
+cli-drill train 00-premiers-pas --mode review
+cli-drill train 02-navigation-shell --difficulty intermediate
+```
+
+Le niveau par défaut vient de `preferences.json` avec repli sur Beginner.
+`--difficulty beginner|intermediate|advanced` remplace ce choix pour la séance.
+Les chapitres guidés acceptent `--mode learn|review` et démarrent en Apprendre
+par défaut. Dans la TUI, **Browse chapters** ouvre la fiche. `d` change le niveau,
+`m` bascule le mode pour un chapitre guidé et Entrée lance la sélection éligible.
+La fiche indique les effectifs par niveau et la cause d'une sélection vide.
+Les choix ponctuels disparaissent à la sortie de la séance.
+
+**Start training** et `train` sans identifiant cherchent le premier chapitre
+textuel éligible. **Keyboard shortcuts** lance directement la capture pour un
+seul chapitre éligible, ouvre le navigateur pour plusieurs et indique la raison
+si la sélection est vide. Une capture exige une entrée et une sortie TTY. Après
+une sortie normale de capture, l'accueil TUI reprend. Une sélection vide
+n'enregistre ni réponse, ni préférence. Le socle reste consultable via
+**Browse chapters**.
+
+`stats`, **My progress** et les fiches séparent les acquis actifs des compteurs
+historiques. La projection joint les clés du corpus éligible et les clés acquises.
+Le score historique de la fiche cumule toutes les tentatives du chapitre.
+Les réponses de séance conservent leurs clés `chapter-id/item-id` et enrichissent
+le JSON v1 avec `progress.RecordAnswer`.
+
+Les tests automatisés couvrent filtres, permutation, lancement, stabilité et
+historique. Des essais macOS arm64 sous pseudo-terminal ont exercé le socle
+guidé, une séance indépendante avec `fd` et `fzf`, les niveaux Intermediate et
+Advanced, une sélection vide, les choix TUI, la capture avec et sans couleur,
+la restauration du terminal et la relecture de données JSON v1 synthétiques.
+La recette dans Terminal.app doit encore vérifier la lisibilité et les touches
+effectivement transmises. Linux et le minimum Go 1.23 restent à valider.
+Un échec de sauvegarde en CLI ou en capture arrête la séance. La TUI textuelle
+conserve la réponse pour une nouvelle validation.
 
 ## Validation et limites de preuve
 

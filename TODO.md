@@ -1,6 +1,6 @@
 # Backlog — CLI-Drill V2
 
-**Mis à jour le 9 novembre 2026.** P0.1 à P0.3 et P1.1 terminées, intégrées
+**Mis à jour le 10 novembre 2026.** P0.1 à P0.3 et P1.1 à P2.4 terminées, intégrées
 localement dans `dev`. Le stockage initial (`25c344b`) est complété par les
 corrections acceptées de `fix/progress-storage-hardening` (P1.1b).
 Migration fonctionnelle V2 partielle. P1.2 est terminée et validée : implémentation
@@ -15,13 +15,8 @@ base `91f13c6`. La finalisation autorise commit, intégration par fast-forward
 dans `dev` et publication de `origin/dev`, en conservant la branche de travail.
 P2.1 est intégrée et publiée à `ab2096c`. P2.2 est intégrée et publiée à
 `3ecdf9c` après huit essais manuels dans Terminal.app le 9 novembre 2026.
-P2.3 est implémentée et validée après six essais manuels réussis le même jour
-sur `feat/cli-preferences` ; commit, fast-forward et push restent à effectuer.
-P2.4 est la prochaine étape.
-Le code actuel reste décrit dans [PROJECT_STATE.md](PROJECT_STATE.md).
-La [spécification](docs/SPEC.md) fixe le périmètre et les critères d'acceptation ;
-la [décision V2](docs/DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
-explique les abandons. Les cases cochées ne désignent que des travaux réalisés.
+P2.3 est intégrée et publiée à `1e0c396` après six essais manuels le même jour.
+P2.4 est validé va être intégré et publié
 
 ## P0 — Simplification du périmètre
 
@@ -182,7 +177,7 @@ y compris choix QCM visibles et diagnostics des captures indisponibles.
 
 Dépendance : P2.2, pour ne pas exposer des exercices tiers non annotés.
 Implémentation sur `feat/cli-preferences` depuis `3ecdf9c`, validée le
-9 novembre 2026 dans Terminal.app ; intégration et publication encore à faire.
+9 novembre 2026 dans Terminal.app et publiée sur `dev` à `1e0c396`.
 Voir les [commandes et le parcours TUI](PROJECT_STATE.md#p23--sélection-manuelle-et-préférences-minimales-terminée-et-validée).
 
 - [x] Permettre d'activer séparément les modules tiers issus du corpus et de
@@ -204,22 +199,24 @@ de séance P2.4 ; aucun filtre n'est appliqué aux séances dans P2.3.
 
 - [x] Recette humaine du 9 novembre 2026 : six tests Terminal.app réussis
   (défauts sans fichier, activation CLI, persistance, annulation et sauvegarde
-  TUI, désactivation/navigation), sans anomalie. P2.3 est validée ; les
-  opérations Git de finalisation ne sont pas encore effectuées.
+  TUI, désactivation/navigation), sans anomalie signalée.
 
 ### P2.4 — Séances filtrées, guidées et mélangées
 
-Dépendances : P2.1 à P2.3. Partager la préparation, conserver les moteurs existants.
+Implémentée sur `refactor/session-order` depuis `1e0c396`. Voir le
+[fonctionnement livré et les limites](PROJECT_STATE.md#p24--séances-filtrées-guidées-et-mélangées).
 
-- [ ] Permettre de choisir Beginner, Intermediate ou Advanced au lancement de la
+- [x] Permettre de choisir Beginner, Intermediate ou Advanced au lancement de la
   séance, y compris depuis une fiche chapitre ; filtrer par niveau exact.
-- [ ] Former une liste éligible puis mélanger une seule fois par nouvelle séance
+- [x] Former une liste éligible puis mélanger une seule fois par nouvelle séance
   ordinaire/révision ; garder l'ordre en mémoire jusqu'à la sortie.
-- [ ] Pour un chapitre guidé, proposer Apprendre en ordre éditorial et Réviser
+- [x] Pour un chapitre guidé, proposer Apprendre en ordre éditorial et Réviser
   en ordre aléatoire, sans marqueur persistant de première séance.
-- [ ] Adapter les décomptes et accès Start training / Keyboard shortcuts aux
+- [x] Adapter les décomptes et accès Start training / Keyboard shortcuts aux
   exercices éligibles, sans refonte visuelle ; calculer les acquis actifs par
   intersection d'identifiants, sans purger l'historique.
+
+- [x] Recetter dans Terminal.app et obtenir la validation humaine.
 
 Acceptation : pour zéro, un ou plusieurs exercices, chaque liste est une
 permutation exacte de l'ensemble éligible, sans omission ni doublon. Deux tirages
@@ -272,9 +269,8 @@ porte sur P2 et ses régressions possibles, pas une nouvelle revue exhaustive P1
 Ces éléments du backlog restent ouverts ; ils ne font pas partie de la livraison
 P1.4 validée et ne sont pas implémentés par sa finalisation.
 
-P2.2 valide l'affichage des choix QCM en CLI texte. La projection des acquis
-du corpus actif reste prévue en P2.4.
-`streak` reste hors des indicateurs actifs.
+P2.2 valide l'affichage des choix QCM en CLI texte. P2.4 implémente la projection
+des acquis du corpus actif. `streak` reste hors des indicateurs actifs.
 
 - [ ] Compléter les vérifications des terminaux indisponibles et des cas d'erreur
   de capture/restauration ; ne jamais créditer une touche non réellement capturée.
@@ -304,8 +300,8 @@ sont terminées et intégrées dans `dev`. P1.2 est terminée et validée sur
 sur `dev` réalisées à `be2bf2b`. P1.3 est terminée et validée sur
 `fix/exercise-correction`, intégrée dans `dev` à `db40d00`. P1.4 est terminée et
 validée dans Terminal.app et intégrée à `ef9b0a5` ; P1 est clôturée. P2.0 cadre
-la feuille de route pédagogique. P2.1 et P2.2 sont intégrées ; P2.3 est validée
-sur sa branche et attend sa finalisation Git. P2.4 sera la prochaine intervention.
+la feuille de route pédagogique. P2.1 à P2.3 sont intégrées. P2.4 attend sa
+recette sur la branche de travail.
 Chaque nouvelle branche partira de `dev` à jour,
 portera un objectif cohérent et une PR vers `dev`, jamais directement `main`.
 Les sous-phases P2 suivent les dépendances ci-dessus ; chaque future PR de
@@ -325,8 +321,8 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.0 — `docs/p2-roadmap` (terminée et validée) | Spécification, décisions et backlog P2, documentation seulement. | Liens, cohérence, périmètre et diff ; après P1 à `ef9b0a5`. |
 | P2.1 — `feat/pedagogical-metadata` (terminée et validée) | Métadonnées additives, défauts historiques et validation approuvés. | Base `91f13c6` ; tests réussis, corpus inchangé ; finalisation par commit, fast-forward et publication autorisée. |
 | P2.2 — `content/v2-first-corpus` (terminée et validée) | Premier corpus révisé et annoté avec 39 exercices et choix QCM visibles en CLI. | Base `ab2096c`. Huit essais manuels réussis dans Terminal.app le 9 novembre 2026. |
-| P2.3 — `feat/cli-preferences` (terminée et validée, non intégrée) | Modules manuels et préférences séparées. | Six tests Terminal.app réussis le 9 novembre 2026 ; commit, fast-forward et push à effectuer ; filtres de séance réservés à P2.4. |
-| P2.4 — `refactor/session-order` | Préparation commune, niveau, mélange, guidage et projection des acquis. | Critères P2.4 ; après P2.3 ; risque de permutation des clés ou de double compte. |
+| P2.3 — `feat/cli-preferences` (intégrée et publiée) | Modules manuels et préférences séparées. | Six essais Terminal.app réussis le 9 novembre 2026. Publiée sur `dev` à `1e0c396`. |
+| P2.4 — `refactor/session-order` (recette validé) | Préparation commune, niveau, mélange, guidage et projection des acquis. | Tests automatisés et essais sous pseudo-terminal sur la base `1e0c396`. Recette Terminal.app et validation humaine OK. |
 | P2.5 — `content/v2-expansion-<lot>` | Lots vers la cible indicative de 100 à 120 exercices. | Critères P2.5 ; après P2.4 ; qualité et autonomie avant volume. |
 | P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
 

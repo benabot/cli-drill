@@ -56,7 +56,7 @@ func TestKeyboardShortcutsReuseBrowserAndOriginalChapterIndices(t *testing.T) {
 		t.Fatalf("filtered list lost the source chapter index: %s", m.currentChapter().ID)
 	}
 	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
-	if updated.(model).result.RunCLITrainChapterID != "keys-two" || cmd == nil {
+	if updated.(model).result.CaptureChapter.ID != "keys-two" || cmd == nil {
 		t.Fatal("keyboard chapter did not delegate to the existing capture engine")
 	}
 	m = press(t, m, tea.KeyEsc)

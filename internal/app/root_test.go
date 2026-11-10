@@ -10,6 +10,7 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/tui"
 )
 
@@ -77,6 +78,7 @@ items:
 }
 
 func TestTrainKeySequenceMatchesOneControlBytePerExercise(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -128,11 +130,13 @@ items:
 }
 
 func TestRootRunsCLITrainingAndReturnsToTUIWhenTUIRequestsKeySequenceChapter(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
 		"shortcuts.yaml": &fstest.MapFile{Data: []byte(`id: shortcuts
 title: Shortcuts
+learning_order: independent
 items:
   - id: ctrl-a
     type: shortcut
@@ -140,21 +144,40 @@ items:
     prompt: Press Ctrl+A.
     answer:
       primary: Ctrl+A
+  - id: advanced
+    type: shortcut
+    exercise_type: key-sequence
+    difficulty: advanced
+    prompt: Hidden advanced prompt.
+    answer:
+      primary: Ctrl+U
+  - id: ctrl-e
+    type: shortcut
+    exercise_type: key-sequence
+    prompt: Press Ctrl+E.
+    answer:
+      primary: Ctrl+E
 `)},
 	}
 	calls := 0
 	restore := stubTUIRunner(func(opts tui.Options) (tui.Result, error) {
 		calls++
 		if calls == 1 {
-			return tui.Result{RunCLITrainChapterID: "shortcuts"}, nil
+			filter := chapter.SessionFilter{Difficulty: chapter.DifficultyBeginner}
+			prepared := filter.Prepare(opts.Chapters[0], chapter.KeyExercises, "", func(n int, swap func(int, int)) {
+				swap(0, n-1)
+			})
+			return tui.Result{CaptureChapter: prepared}, nil
 		}
+		assertRecordingScore(t, progressPath, "shortcuts", 2, 2, "shortcuts/ctrl-e", "shortcuts/ctrl-a")
 		return tui.Result{}, nil
 	})
 	defer restore()
 
 	var out bytes.Buffer
 	cmd := NewRootCommand(chapters)
-	cmd.SetIn(strings.NewReader("\x01\n"))
+	writeAppTestFileContent(t, progressPath, recordingHistory)
+	cmd.SetIn(strings.NewReader("\x05\n\x01\n"))
 	cmd.SetOut(&out)
 	cmd.SetErr(&out)
 	cmd.SetArgs([]string{"--progress", progressPath})
@@ -164,7 +187,7 @@ items:
 	}
 
 	got := out.String()
-	if !strings.Contains(got, "Recu: Ctrl+A") || !strings.Contains(got, "Correct.") {
+	if !strings.Contains(got, "Recu: Ctrl+A") || strings.Count(got, "Correct.") != 2 || strings.Contains(got, "Hidden advanced prompt.") {
 		t.Fatalf("expected TUI intent to run CLI key-sequence training, got:\n%s", got)
 	}
 	if calls != 2 {
@@ -455,6 +478,7 @@ func TestRenderKeySequenceSummary(t *testing.T) {
 }
 
 func TestTrainKeySequenceSupportsRetryCommand(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -494,6 +518,7 @@ items:
 }
 
 func TestTrainKeySequenceShowsHelpWithHBeforeAnswer(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -533,6 +558,7 @@ items:
 }
 
 func TestTrainKeySequenceHelpToggleHidesHelp(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -572,6 +598,7 @@ items:
 }
 
 func TestTrainKeySequenceHelpEnterIsIgnored(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -614,6 +641,7 @@ items:
 }
 
 func TestTrainKeySequenceHelpDoesNotRecordHAsAnswer(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -650,6 +678,7 @@ items:
 }
 
 func TestTrainKeySequenceHelpStateResetsBetweenQuestions(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -700,6 +729,7 @@ items:
 }
 
 func TestTrainKeySequenceDoesNotRetryAfterCorrectAnswer(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -736,6 +766,7 @@ items:
 }
 
 func TestTrainKeySequenceDoesNotShowSolutionAfterCorrectAnswer(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -769,6 +800,7 @@ items:
 }
 
 func TestTrainKeySequenceSolutionCommandShowsExpectedAnswer(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -806,6 +838,7 @@ items:
 }
 
 func TestTrainKeySequenceReviewsMissedExercises(t *testing.T) {
+	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	progressPath := filepath.Join(t.TempDir(), "progress.json")
 	chapters := fstest.MapFS{
@@ -851,6 +884,7 @@ items:
 }
 
 func TestTrainKeySequenceExitsCleanlyOnEscapeAndCtrlC(t *testing.T) {
+	allowSimulatedCapture(t)
 	tests := []struct {
 		name  string
 		input string
@@ -941,4 +975,12 @@ func stubTUIRunner(fn func(tui.Options) (tui.Result, error)) func() {
 
 func stripANSI(value string) string {
 	return regexp.MustCompile(`\x1b\[[0-9;]*m`).ReplaceAllString(value, "")
+}
+
+// Unit tests simulate incoming key bytes; the binary requires an attached terminal.
+func allowSimulatedCapture(t *testing.T) {
+	t.Helper()
+	original := canCaptureKeys
+	canCaptureKeys = func(Options) bool { return true }
+	t.Cleanup(func() { canCaptureKeys = original })
 }

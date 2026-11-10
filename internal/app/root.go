@@ -30,6 +30,8 @@ var (
 	isTerminalFD           = term.IsTerminal
 	readRawKeyFromTerminal = readRawKey
 	runTUIWithOptions      = tui.RunWithOptions
+	canCaptureKeys         = terminalCanCaptureKeys
+	errCaptureUnavailable  = errors.New("Keyboard capture requires a terminal for input and output. Choose a text chapter to continue.")
 )
 
 func NewRootCommand(defaultFS fs.FS) *cobra.Command {
@@ -53,18 +55,18 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 				return err
 			}
 			for {
-				result, err := runTUIWithOptions(tuiOptions(chapters, progressPath(runOpts), xdg.PreferencesFile()))
+				ui := tuiOptions(chapters, progressPath(runOpts), xdg.PreferencesFile())
+				if !canCaptureKeys(runOpts) {
+					ui.CaptureUnavailable = errCaptureUnavailable.Error()
+				}
+				result, err := runTUIWithOptions(ui)
 				if err != nil {
 					return err
 				}
-				if result.RunCLITrainChapterID == "" {
+				if result.CaptureChapter.ID == "" {
 					return nil
 				}
-				selected, ok := findChapter(chapters, result.RunCLITrainChapterID)
-				if !ok {
-					return fmt.Errorf("chapter not found: %s", result.RunCLITrainChapterID)
-				}
-				if err := runTraining(runOpts, selected); err != nil {
+				if err := runTraining(runOpts, result.CaptureChapter); err != nil {
 					return err
 				}
 			}
@@ -100,9 +102,11 @@ func newChaptersCommand(opts *Options) *cobra.Command {
 }
 
 func newTrainCommand(opts *Options) *cobra.Command {
-	return &cobra.Command{
+	var level, mode string
+	cmd := &cobra.Command{
 		Use:   "train [chapter-id]",
 		Short: "Train from a chapter in the terminal",
+		Long:  "Train from a built-in chapter. Without an ID, start the first eligible text chapter. Guided chapters default to learn (editorial order). Review and independent sessions shuffle the eligible exercises.",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, *opts)
@@ -113,19 +117,59 @@ func newTrainCommand(opts *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if len(chapters) == 0 {
-				return errors.New("no chapters available")
+			difficulty := chapter.Difficulty(level)
+			if cmd.Flags().Changed("difficulty") && !validDefaultDifficulty(difficulty) {
+				return fmt.Errorf("invalid difficulty %q; choose beginner, intermediate or advanced", level)
 			}
-			selected := chapters[0]
+			sessionMode := chapter.SessionMode(mode)
+			if cmd.Flags().Changed("mode") && sessionMode != chapter.ModeLearn && sessionMode != chapter.ModeReview {
+				return fmt.Errorf("invalid mode %q; choose learn or review", mode)
+			}
+			filter := cliSessionFilter(cmd, chapters)
+			if difficulty != "" {
+				filter.Difficulty = difficulty
+			}
+
+			var selected chapter.Chapter
+			scope := chapter.AllExercises
 			if len(args) == 1 {
 				var ok bool
 				selected, ok = findChapter(chapters, args[0])
 				if !ok {
 					return fmt.Errorf("chapter not found: %s", args[0])
 				}
+			} else {
+				index := filter.FirstTextChapter(chapters)
+				if index < 0 {
+					return fmt.Errorf("No eligible text exercises at %s difficulty with the enabled CLI modules. Try --difficulty or check cli-drill prefs.", filter.Difficulty)
+				}
+				selected = chapters[index]
+				scope = chapter.TextExercises
 			}
-			return runTraining(runOpts, selected)
+			if sessionMode != "" && !selected.Guided() {
+				return fmt.Errorf("--mode is only available for guided chapters. %s uses shuffled order", selected.ID)
+			}
+			prepared := filter.Prepare(selected, scope, sessionMode, nil)
+			if len(prepared.Items) == 0 {
+				return fmt.Errorf("%s: %s Try --difficulty or check cli-drill prefs.", selected.ID, filter.EmptyReason(selected, scope))
+			}
+			return runTraining(runOpts, prepared)
 		},
+	}
+	cmd.Flags().StringVar(&level, "difficulty", "", "session difficulty (beginner, intermediate, advanced), defaults to preferences")
+	cmd.Flags().StringVar(&mode, "mode", "", "guided chapters only: learn (default) or review")
+	return cmd
+}
+
+func cliSessionFilter(cmd *cobra.Command, chapters []chapter.Chapter) chapter.SessionFilter {
+	prefs, err := loadPreferences(xdg.PreferencesFile())
+	if err != nil {
+		_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "Preferences unavailable. Using defaults. %v\n", err)
+	}
+	return chapter.SessionFilter{
+		AvailableTools: chapter.AvailableTools(chapters),
+		EnabledTools:   prefs.EnabledTools,
+		Difficulty:     prefs.DefaultDifficulty,
 	}
 }
 
@@ -151,6 +195,14 @@ func newStatsCommand(opts *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			chapters, err := loadChapters(runOpts)
+			if err != nil {
+				return err
+			}
+			filter := cliSessionFilter(cmd, chapters)
+			acquired, total := filter.ActiveCounts(chapters, state.CompletedExercises)
+			_, _ = fmt.Fprintf(runOpts.Out, "Active acquired (%s, enabled CLI modules): %d/%d\n", filter.Difficulty, acquired, total)
+			_, _ = fmt.Fprintln(runOpts.Out, "Historical totals (all sessions)")
 			_, _ = fmt.Fprintf(runOpts.Out, "Completed exercises: %d\n", len(state.CompletedExercises))
 			_, _ = fmt.Fprintf(runOpts.Out, "Chapters with attempts: %d\n", len(state.ChapterScores))
 			_, _ = fmt.Fprintf(runOpts.Out, "Streak: %d\n", state.Streak)
@@ -187,6 +239,9 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 	if len(selected.Items) == 0 {
 		return fmt.Errorf("chapter %s has no exercises", selected.ID)
 	}
+	if selected.HasKeyExercises() && !canCaptureKeys(opts) {
+		return errCaptureUnavailable
+	}
 
 	if _, err := progress.Load(progressPath(opts)); err != nil {
 		return err
@@ -194,6 +249,7 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 	reader := bufio.NewReader(opts.In)
 
 	textHeaderPrinted := false
+	textScore := progress.ChapterScore{}
 	keyStats := keySequenceStats{}
 	keyQuit := false
 	for i := 0; i < len(selected.Items); {
@@ -251,7 +307,9 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 		if _, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct); err != nil {
 			return err
 		}
+		textScore.Attempts++
 		if correct {
+			textScore.Correct++
 			_, _ = fmt.Fprintln(opts.Out, "Correct.")
 		} else {
 			_, _ = fmt.Fprintf(opts.Out, "Pas encore. Reponse attendue: %s\n", item.Answer.Primary)
@@ -263,6 +321,9 @@ func runTraining(opts Options, selected chapter.Chapter) error {
 			break
 		}
 		i++
+	}
+	if textScore.Attempts > 0 {
+		_, _ = fmt.Fprintf(opts.Out, "\nSession text score: %d/%d correct\n", textScore.Correct, textScore.Attempts)
 	}
 	if keyStats.Total > 0 && !keyQuit {
 		if err := runKeySequenceReview(opts, reader, selected, keyStats); err != nil && !errors.Is(err, io.EOF) {
@@ -644,6 +705,11 @@ type fdProvider interface {
 func writerIsTerminal(w io.Writer) bool {
 	fd, ok := writerFD(w)
 	return ok && isTerminalFD(fd)
+}
+
+func terminalCanCaptureKeys(opts Options) bool {
+	input, ok := opts.In.(*os.File)
+	return ok && isTerminalFD(input.Fd()) && writerIsTerminal(opts.Out)
 }
 
 func writerFD(w io.Writer) (uintptr, bool) {

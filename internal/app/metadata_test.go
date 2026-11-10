@@ -11,9 +11,10 @@ import (
 	"testing/fstest"
 
 	"github.com/benabot/cli-drill/internal/progress"
+	"github.com/benabot/cli-drill/internal/xdg"
 )
 
-func TestPedagogicalMetadataDoesNotChangeCLITrainingOrProgress(t *testing.T) {
+func TestSelectedPedagogicalMetadataDoesNotChangeCorrectionOrProgress(t *testing.T) {
 	isolateChapterHome(t)
 	legacy := embeddedTestChapter("Metadata lesson", "pwd")
 	annotated := strings.Replace(legacy, "title: Metadata lesson\n", "title: Metadata lesson\nfamily: modern-cli-macos\nlearning_order: independent\n", 1)
@@ -22,6 +23,11 @@ func TestPedagogicalMetadataDoesNotChangeCLITrainingOrProgress(t *testing.T) {
 	var outputs []string
 	var states []progress.Progress
 	for _, lesson := range []string{legacy, annotated} {
+		args := []string{"train", "embedded"}
+		if lesson == annotated {
+			writeAppTestFileContent(t, xdg.PreferencesFile(), `{"version":1,"enabled_tools":["not-installed-example"]}`)
+			args = append(args, "--difficulty", "advanced")
+		}
 		path := filepath.Join(t.TempDir(), "progress.json")
 		if err := os.WriteFile(path, []byte(initial), 0o600); err != nil {
 			t.Fatal(err)
@@ -46,7 +52,7 @@ func TestPedagogicalMetadataDoesNotChangeCLITrainingOrProgress(t *testing.T) {
 		if err != nil || string(untouched) != initial {
 			t.Fatalf("loading metadata wrote progress: %q (%v)", untouched, err)
 		}
-		outputs = append(outputs, run("PWD\n", "train", "embedded"), run("pwd\n", "train", "embedded"))
+		outputs = append(outputs, run("PWD\n", args...), run("pwd\n", args...))
 		saved, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatal(err)

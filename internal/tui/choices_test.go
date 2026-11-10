@@ -45,7 +45,7 @@ func TestMultipleChoiceEveryEmbeddedOption(t *testing.T) {
 		for index, choice := range item.Choices {
 			t.Run(ch.ID+"/"+item.ID+"/"+choice, func(t *testing.T) {
 				path := filepath.Join(t.TempDir(), "progress.json")
-				m := newModel(Options{Chapters: []chapter.Chapter{ch}, ProgressPath: path}).startTraining(0)
+				m := startTestTraining(t, newModel(choiceTestOptions(ch, path)))
 				for _, option := range item.Choices {
 					assertContains(t, m.View(), option)
 				}
@@ -95,7 +95,7 @@ func TestMultipleChoiceEveryEmbeddedOption(t *testing.T) {
 				if !slices.Equal(state.CompletedExercises, want) {
 					t.Fatalf("wrong acquired IDs: %q", state.CompletedExercises)
 				}
-				restarted := newModel(Options{Chapters: []chapter.Chapter{ch}, ProgressPath: path})
+				restarted := newModel(choiceTestOptions(ch, path))
 				if restarted.progress.ChapterScores[ch.ID] != state.ChapterScores[ch.ID] {
 					t.Fatal("restart lost result")
 				}
@@ -109,7 +109,7 @@ func TestMultipleChoiceNavigationAndInterruptions(t *testing.T) {
 	for _, exit := range []tea.KeyType{tea.KeyEsc, tea.KeyCtrlC} {
 		t.Run(exit.String(), func(t *testing.T) {
 			path := recordingPath(t)
-			m := newModel(Options{Chapters: []chapter.Chapter{ch}, ProgressPath: path}).startTraining(0)
+			m := startTestTraining(t, newModel(choiceTestOptions(ch, path)))
 			m = press(t, m, tea.KeyUp) // Clamp at the first option.
 			assertContains(t, m.View(), "> fd")
 			m = press(t, m, tea.KeyRunes, 'j')
@@ -152,7 +152,7 @@ func TestMultipleChoiceTransitionsResetSelectionAndPreserveText(t *testing.T) {
 	ch := recordingChapter()
 	ch.Items = []chapter.Item{ch.Items[2], ch.Items[2], ch.Items[3], ch.Items[0], ch.Items[1]}
 	ch.Items[1].ID = "second-choice"
-	m := newTestModel(t, Options{Chapters: []chapter.Chapter{ch}}).startTraining(0)
+	m := startTestTraining(t, newTestModel(t, Options{Chapters: []chapter.Chapter{ch}}))
 	m = press(t, m, tea.KeyDown)
 	m = press(t, m, tea.KeyEnter)
 	m = press(t, m, tea.KeyEnter)
@@ -181,7 +181,7 @@ func TestKeyboardShortcutsDirectCaptureWithSingleChapter(t *testing.T) {
 	m.home.Select(homeActionIndex(homeActionShortcuts))
 	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	m = updated.(model)
-	if m.result.RunCLITrainChapterID != keySequenceChapter().ID || m.chapterIndex != 1 {
+	if m.result.CaptureChapter.ID != keySequenceChapter().ID || m.chapterIndex != 1 {
 		t.Fatalf("did not launch the single capture chapter directly: %#v", m.result)
 	}
 	assertQuitCommand(t, cmd)
@@ -197,7 +197,7 @@ func TestKeyboardShortcutsNoCaptureChapterDoesNotLaunch(t *testing.T) {
 	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	m = updated.(model)
 	assertScreen(t, m, screenChapters)
-	if m.result.RunCLITrainChapterID != "" || cmd != nil || len(m.chapterList.Items()) != 0 {
+	if m.result.CaptureChapter.ID != "" || cmd != nil || len(m.chapterList.Items()) != 0 {
 		t.Fatal("empty shortcut browser launched training")
 	}
 }
@@ -208,7 +208,7 @@ func TestMultipleChoiceFeedbackInterruptionDoesNotRecordAgain(t *testing.T) {
 		for _, wrong := range []bool{false, true} {
 			t.Run(exit.String()+"/wrong="+fmt.Sprint(wrong), func(t *testing.T) {
 				path := filepath.Join(t.TempDir(), "progress.json")
-				m := newModel(Options{Chapters: []chapter.Chapter{ch}, ProgressPath: path}).startTraining(0)
+				m := startTestTraining(t, newModel(choiceTestOptions(ch, path)))
 				if wrong {
 					m = press(t, m, tea.KeyDown)
 				}
@@ -243,7 +243,7 @@ func TestMultipleChoiceSaveFailureRetainsSelectionForRetry(t *testing.T) {
 	if err := os.Symlink(target, path); err != nil {
 		t.Fatal(err)
 	}
-	m := newModel(Options{Chapters: []chapter.Chapter{ch}, ProgressPath: path}).startTraining(0)
+	m := startTestTraining(t, newModel(choiceTestOptions(ch, path)))
 	m = press(t, m, tea.KeyDown)
 	for range 2 {
 		m = press(t, m, tea.KeyEnter)
@@ -270,4 +270,15 @@ func TestMultipleChoiceSaveFailureRetainsSelectionForRetry(t *testing.T) {
 	assertScreen(t, m, screenTraining)
 	assertContains(t, m.View(), "> pwd")
 	assertSavedRecording(t, path, 1, 0)
+}
+
+func choiceTestOptions(ch chapter.Chapter, path string) Options {
+	chapters := []chapter.Chapter{ch}
+	return Options{
+		Chapters:     chapters,
+		ProgressPath: path,
+		LoadPreferences: func() ([]string, chapter.Difficulty, error) {
+			return chapter.AvailableTools(chapters), chapter.DifficultyBeginner, nil
+		},
+	}
 }

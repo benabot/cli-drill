@@ -13,6 +13,7 @@ import (
 )
 
 func TestCLICorrectionWithHistoricalExercises(t *testing.T) {
+	allowSimulatedCapture(t)
 	chapters, err := chapter.LoadFS(os.DirFS("../../testdata/legacy-chapters"), "*.yaml")
 	if err != nil {
 		t.Fatal(err)

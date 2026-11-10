@@ -285,7 +285,7 @@ func TestTUIKeyRoutesDoNotRecordNavigation(t *testing.T) {
 				m = press(t, m, tea.KeyEnter)
 			}
 			updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
-			if updated.(model).result.RunCLITrainChapterID != keySequenceChapter().ID {
+			if updated.(model).result.CaptureChapter.ID != keySequenceChapter().ID {
 				t.Fatal("key route did not delegate to the CLI engine")
 			}
 			assertQuitCommand(t, cmd)
