@@ -7,7 +7,8 @@ le niveau exact et les modules choisis déterminent toujours l'éligibilité.
 
 Le point de départ est `dev` à `4320650`, après publication du
 [lot 2](CORPUS_P25_LOT2.md). Le bilan inclut la [vague 1](CORPUS_P25_WAVE1.md),
-implémentée et testée sur sa branche locale depuis `d945059`.
+publiée sur `dev` à `f97718a`, et la [vague 2](CORPUS_P25_WAVE2.md),
+implémentée et testée sur sa branche locale depuis cette base.
 Le relevé porte sur les YAML intégrés de
 [`data/chapters`](../data/chapters/), sans compter les fixtures. Les identifiants
 03 et 04 ont été retirés. Les garder réservés et conserver les identifiants
@@ -32,12 +33,12 @@ séparément par chapitre et par niveau.
 | `08-micro` | 5 | 1 | 0 | 6 | 5 | 9 | 10 |
 | `09-markdown-glow` | 1 | 2 | 1 | 4 | 9 | 8 | 9 |
 | `10-workflows-dotfiles` | 3 | 0 | 0 | 3 | 7 | 10 | 10 |
-| `11-flux-shell` | 2 | 3 | 1 | 6 | 8 | 7 | 9 |
+| `11-flux-shell` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
 | `12-fichiers-permissions` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
-| `13-processus-environnement` | 2 | 4 | 0 | 6 | 8 | 6 | 10 |
-| **Total** | **51** | **46** | **24** | **121** | **69** | **74** | **96** |
+| `13-processus-environnement` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
+| **Total** | **67** | **59** | **43** | **169** | **53** | **61** | **77** |
 
-Il manque au minimum **239 exercices**. La matrice réserve une compétence
+Il manque au minimum **191 exercices**. La matrice réserve une compétence
 distincte par exercice à concevoir. Si un sujet se révèle redondant, invérifiable
 ou incompatible avec le moteur, trouver un autre objectif utile ou laisser le
 manque ouvert. Une variante de commande ou un nom de fichier différent ne
@@ -180,9 +181,11 @@ de `12`, les flux de `11`.
 
 ### `11-flux-shell` — Flux et composition
 
-**Couverture actuelle.** B : écrire puis ajouter en fin de fichier. I : compter sur stdin, filtrer et compter, rediriger stderr. A : ordre de fusion des descripteurs.
+**Couverture avant la vague 2.** B : écrire puis ajouter en fin de fichier. I : compter sur stdin, filtrer et compter, rediriger stderr. A : ordre de fusion des descripteurs.
 
-**Suite proposée.** Couvrir les flux et la composition portable. `07` traite la présentation d’un texte ; `13` les processus et l’environnement.
+**Vague 2 implémentée.** Les 24 compétences ci-dessous sont jouables et
+[reliées aux exercices et aux sources](CORPUS_P25_WAVE2.md#11-flux-shell).
+`07` traite la présentation d’un texte ; `13` les processus et l’environnement.
 
 | Niveau | Compétences à ajouter | Références |
 | --- | --- | --- |
@@ -206,9 +209,12 @@ Les contextes potentiellement destructifs restent fictifs et circonscrits.
 
 ### `13-processus-environnement` — Processus et environnement
 
-**Couverture actuelle.** B : consulter une variable et affecter une valeur shell. I : examiner un PID, demander l’arrêt par TERM, exporter, modifier l’environnement d’une seule commande.
+**Couverture avant la vague 2.** B : consulter une variable et affecter une valeur shell. I : examiner un PID, demander l’arrêt par TERM, exporter, modifier l’environnement d’une seule commande.
 
-**Suite proposée.** Étendre à la portée, à l’observation et au contrôle des jobs. Les processus et résultats sont fournis ou simulés ; aucune opération sur les processus de la machine.
+**Vague 2 implémentée.** Les 24 compétences ci-dessous sont jouables et
+[reliées aux exercices et aux sources](CORPUS_P25_WAVE2.md#13-processus-environnement).
+Les processus et résultats sont fournis ou simulés ; le logiciel ne lance
+aucune opération demandée sur les processus de la machine.
 
 | Niveau | Compétences à ajouter | Références |
 | --- | --- | --- |
@@ -285,8 +291,8 @@ d'exercices à livrer d'un coup.
 
 | Ordre | Vague | Chapitres | Écart | Dépendance ou preuve spécifique |
 | --- | --- | --- | ---: | --- |
-| 1 | Repères, fichiers et droits | `00`, `12` | 46 | [Implémentée et testée localement](CORPUS_P25_WAVE1.md) ; chemins, guillemets, droits et liens vérifiés. |
-| 2 | Flux, processus et environnement | `11`, `13` | 48 | Partir des repères de la vague 1 ; vérifier descripteurs, jobs et portabilité avant les cas Advanced. |
+| 1 | Repères, fichiers et droits | `00`, `12` | 46 | [Implémentée et testée](CORPUS_P25_WAVE1.md), publiée sur `dev` à `f97718a`. |
+| 2 | Flux, processus et environnement | `11`, `13` | 48 | [Implémentée et testée localement](CORPUS_P25_WAVE2.md) ; flux, descripteurs, statuts, jobs et portabilité vérifiés. |
 | 3 | Édition de la ligne de commande | `01` | 22 | Vérifier les touches en Ghostty et, avant les diagnostics, les parcours dédiés et mixtes. |
 | 4 | Navigation, recherche et sélection | `02`, `06` | 39 | S'appuyer sur les chemins et les flux ; vérifier les modules combinés, l'annulation et les chemins atypiques. |
 | 5 | Lecture, édition et aperçu | `07`, `08`, `09` | 76 | Commencer par l'inspection et l'édition locales ; vérifier ensuite les compositions et les diagnostics de rendu. |

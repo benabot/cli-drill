@@ -72,7 +72,7 @@ func TestTextTrainingPlainOutputSeparatesQuestionAndFeedback(t *testing.T) {
 	args := []string{"train", "11-flux-shell", "--difficulty", "advanced"}
 	const solution = "ls docs absent > bilan.log 2>&1"
 	question, err := runSessionCLI(path, "", args...)
-	if err != nil || !strings.Contains(question, "Exercice 1/1\n\nListe le dossier docs") ||
+	if err != nil || !strings.Contains(question, "Exercice 1/10\n\nListe le dossier docs") ||
 		!strings.HasSuffix(question, "\n\nRéponse\n> ") || strings.Contains(question, solution) ||
 		strings.Contains(question, "Explication") || strings.Contains(question, "\x1b") {
 		t.Fatalf("unexpected unanswered exercise: %v\n%s", err, question)
@@ -81,7 +81,8 @@ func TestTextTrainingPlainOutputSeparatesQuestionAndFeedback(t *testing.T) {
 		{solution, "Correct.\n\nExplication", "Bonnes réponses : 1/1"},
 		{"ls docs absent 2>&1 > bilan.log", "Réponse incorrecte.\nRéponse attendue : " + solution + "\n\nExplication", "Bonnes réponses : 0/1"},
 	} {
-		output, err := runSessionCLI(path, tc.answer+"\n", args...)
+		// EOF after the answer stops the run before the next question.
+		output, err := runSessionCLI(path, tc.answer, args...)
 		if err != nil || !strings.HasPrefix(output, question+"\n"+tc.feedback+"\n") ||
 			!strings.Contains(output, "Le shell redirige d’abord") ||
 			!strings.HasSuffix(output, "Bilan de la séance\n"+tc.score+"\n") ||

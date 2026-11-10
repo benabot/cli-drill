@@ -94,3 +94,427 @@ items:
       Le shell redirige d’abord la sortie standard (1) vers le
       fichier. 2>&1 donne ensuite la même destination à la sortie
       d’erreur (2). Dans l’autre ordre, l’erreur reste à l’écran.
+  - id: "stdin-report"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Affiche tout le texte d’accueil.txt. Fais lire le fichier
+      sur l’entrée standard à la commande de lecture, sans lui
+      passer le nom comme argument.
+    answer:
+      primary: "cat < accueil.txt"
+      accepted:
+        - "cat <accueil.txt"
+        - "cat 0< accueil.txt"
+        - "cat 0<accueil.txt"
+    explanation: |-
+      Le shell ouvre le fichier sur le descripteur 0. Sans
+      opérande, cat copie ce qu’il lit sur son entrée standard.
+  - id: "preview-first-lines"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Affiche seulement les trois premières lignes de consignes.txt,
+      qui en contient douze.
+    answer:
+      primary: "head -n 3 consignes.txt"
+      accepted:
+        - "head -n3 consignes.txt"
+        - "head -n 3 < consignes.txt"
+        - "head -n 3 <consignes.txt"
+    explanation: |-
+      head affiche le début du fichier. Avec -n, on choisit
+      le nombre de lignes au lieu du nombre par défaut.
+  - id: "preview-last-lines"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Affiche seulement les deux dernières lignes de journal.txt,
+      qui en contient douze.
+    answer:
+      primary: "tail -n 2 journal.txt"
+      accepted:
+        - "tail -n2 journal.txt"
+        - "tail -n 2 < journal.txt"
+        - "tail -n 2 <journal.txt"
+    explanation: |-
+      tail -n 2 prend deux lignes à partir de la fin. Un signe +
+      changerait le sens : le nombre serait un rang depuis le
+      début.
+  - id: "count-file-words"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Affiche le nombre de mots d’annonce.txt avec le nom du
+      fichier, sans afficher les autres comptages.
+    answer:
+      primary: "wc -w annonce.txt"
+    explanation: |-
+      L’option -w compte les mots délimités par des blancs.
+      Avec le fichier en argument, son nom accompagne le total.
+  - id: "pipe-produced-words"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      La commande fictive emet écrit du texte sur la sortie
+      standard. Relie cette sortie à un compteur de mots, sans
+      créer de fichier intermédiaire.
+    answer:
+      primary: "emet | wc -w"
+    explanation: |-
+      Le tube raccorde la sortie d’emet à l’entrée standard de wc.
+      Un point-virgule enchaîne deux commandes sans les relier.
+  - id: "sort-full-lines"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Avec la locale C déjà active, affiche les lignes de
+      villes.txt par ordre croissant, sans modifier le fichier.
+    answer:
+      primary: "sort villes.txt"
+      accepted:
+        - "sort < villes.txt"
+        - "sort <villes.txt"
+    explanation: |-
+      sort compare les lignes entières par défaut et écrit le
+      résultat sur la sortie standard. -r inverserait l’ordre.
+  - id: "dedupe-adjacent-lines"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans passages.txt, certains badges se répètent sur des lignes
+      consécutives. Affiche un exemplaire par série identique, sans
+      changer l’ordre et en gardant les lignes isolées.
+    answer:
+      primary: "uniq passages.txt"
+      accepted:
+        - "uniq < passages.txt"
+        - "uniq <passages.txt"
+    explanation: |-
+      uniq réduit chaque série de lignes identiques consécutives
+      à une ligne. Des répétitions séparées restent distinctes.
+  - id: "tee-new-copy"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      La commande fictive emet écrit un bulletin. Affiche-le en
+      entier et conserve en même temps une copie dans copie.txt,
+      qui n’existe pas encore.
+    answer:
+      primary: "emet | tee copie.txt"
+      accepted:
+        - "emet | tee ./copie.txt"
+    explanation: |-
+      tee lit le flux une seule fois et le recopie à la fois
+      sur la sortie standard et dans le fichier demandé.
+  - id: "sort-dedupe-scattered"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      En locale C, couleurs.txt contient une couleur par ligne,
+      avec des répétitions parfois éloignées. Affiche chaque ligne
+      distincte une seule fois, dans l’ordre du tri.
+    answer:
+      primary: "sort couleurs.txt | uniq"
+      accepted:
+        - "sort -u couleurs.txt"
+        - "sort -u < couleurs.txt"
+        - "sort -u <couleurs.txt"
+    explanation: |-
+      Le tri rapproche les répétitions, puis uniq les réduit.
+      En locale C, sort -u fait directement les deux opérations.
+  - id: "count-sorted-runs"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans choix.txt, les lignes identiques sont déjà regroupées.
+      Affiche chaque ligne distincte précédée de son nombre
+      d’occurrences, y compris lorsqu’elle n’apparaît qu’une fois.
+    answer:
+      primary: "uniq -c choix.txt"
+      accepted:
+        - "uniq -c < choix.txt"
+        - "uniq -c <choix.txt"
+    explanation: |-
+      -c préfixe chaque série par sa taille. -d ne donne pas
+      les comptes et écarte les lignes isolées.
+  - id: "sort-numeric-field"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      En locale C, scores.txt contient des lignes nom:score, sans
+      en-tête. Affiche les lignes par score croissant ; les scores
+      sont des entiers distincts, par exemple 2 et 10.
+    answer:
+      primary: "sort -t : -k 2,2n scores.txt"
+      accepted:
+        - "sort -t: -k2,2n scores.txt"
+        - "sort -t : -k2,2n scores.txt"
+        - "sort -t : -k 2,2 -n scores.txt"
+        - "sort -n -t : -k 2,2 scores.txt"
+    explanation: |-
+      -t définit le séparateur. La clé 2,2 se limite au deuxième
+      champ et n compare sa valeur numérique : 2 précède 10.
+  - id: "cut-delimited-field"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Chaque ligne de tarifs.txt est de la forme code:prix:devise.
+      Affiche uniquement le prix de chaque ligne, dans l’ordre
+      du fichier.
+    answer:
+      primary: "cut -d ':' -f 2 tarifs.txt"
+      accepted:
+        - "cut -d \":\" -f 2 tarifs.txt"
+        - "cut -d : -f 2 tarifs.txt"
+        - "cut -d: -f2 tarifs.txt"
+        - "cut -d: -f 2 tarifs.txt"
+    explanation: |-
+      -d fixe le séparateur à deux-points ; -f sélectionne le
+      champ demandé. Sans -d, le séparateur par défaut est le tab.
+  - id: "tee-append-copy"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      La commande fictive mesurer produit un relevé sur sa sortie
+      standard. Affiche-le en entier et ajoute-le à mesures.log
+      sans effacer l’historique.
+    answer:
+      primary: "mesurer | tee -a mesures.log"
+      accepted:
+        - "mesurer | tee -a ./mesures.log"
+    explanation: |-
+      Avec -a, tee ouvre le fichier en mode ajout et duplique
+      le flux vers l’écran et la fin du fichier.
+  - id: "split-output-diagnostics"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      La commande fictive controle écrit le relevé sur stdout et
+      les diagnostics sur stderr. Lance-la une seule fois : chaque
+      flux doit remplacer le contenu de son propre fichier,
+      releve.log pour le relevé, incidents.log pour les diagnostics.
+    answer:
+      primary: "controle > releve.log 2> incidents.log"
+      accepted:
+        - "controle >releve.log 2>incidents.log"
+        - "controle 1> releve.log 2> incidents.log"
+        - "controle 2> incidents.log > releve.log"
+        - "controle 2>incidents.log >releve.log"
+    explanation: |-
+      Le descripteur 1 reçoit le fichier de relevé ; le 2 reçoit
+      celui des incidents. Les deux ouvertures sont indépendantes.
+  - id: "heredoc-literal-start"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Un document incorporé doit transmettre le bloc sans expansion
+      ni retrait des tabulations initiales. Écris l’opérateur de
+      redirection et son mot d’ouverture. La ligne de fermeture est
+      FIN.
+    answer:
+      primary: "<<'FIN'"
+      accepted:
+        - "<<\"FIN\""
+        - "<<\\FIN"
+        - "<< 'FIN'"
+        - "<< \"FIN\""
+        - "<< \\FIN"
+    explanation: |-
+      Protéger une partie du mot d’ouverture désactive les
+      expansions dans le bloc. Après retrait des guillemets,
+      la ligne de fermeture reste FIN.
+  - id: "pipefail-rightmost-failure"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Avec pipefail actif dans Bash (PIPE_FAIL dans Zsh), trois
+      maillons renvoient, de gauche à droite, 3, 7 et 0. Quel
+      maillon fixe le statut global ? Donne son rang, de 1 à 3.
+    answer:
+      primary: "2"
+    explanation: |-
+      Le statut global vaut 7 : c’est celui du dernier maillon
+      non nul de gauche à droite, pas du dernier maillon tout
+      court ni de celui qui a fini en dernier.
+  - id: "bash-pipeline-status-vector"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, un pipeline vient de rendre un statut global 0,
+      mais tu soupçonnes un échec au début. Sans lancer de commande
+      intermédiaire, affiche ses statuts individuels dans l’ordre,
+      un par ligne, à partir du tableau conservé par le shell.
+    answer:
+      primary: "printf '%s\\n' \"${PIPESTATUS[@]}\""
+      accepted:
+        - "printf \"%s\\n\" \"${PIPESTATUS[@]}\""
+    explanation: |-
+      PIPESTATUS contient un statut par maillon ; "$?" ne donne
+      que le statut global. La commande doit lire ce tableau avant
+      qu’un autre appel ne le remplace. Zsh utilise pipestatus.
+  - id: "nul-delimited-sort"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Avec GNU Coreutils et la locale C, noms.bin contient des
+      noms séparés et terminés par des octets NUL. Certains noms
+      contiennent un saut de ligne. Envoie les noms triés sur stdout
+      en conservant chaque nom et ses séparateurs NUL.
+    answer:
+      primary: "sort -z noms.bin"
+      accepted:
+        - "sort --zero-terminated noms.bin"
+        - "sort -z < noms.bin"
+        - "sort -z <noms.bin"
+        - "sort --zero-terminated < noms.bin"
+    explanation: |-
+      -z prend NUL comme fin d’enregistrement. Le tri déplace
+      les noms entiers et préserve leurs sauts de ligne internes.
+      Sans cette option, ils seraient découpés aux sauts de ligne.
+  - id: "sort-before-replacement"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Trie notes.txt en une ligne de shell. Écris d’abord le
+      résultat dans tri.tmp, nom libre du même dossier, puis
+      remplace l’original uniquement si le tri réussit.
+    answer:
+      primary: "sort notes.txt > tri.tmp && mv tri.tmp notes.txt"
+      accepted:
+        - "sort notes.txt >tri.tmp && mv tri.tmp notes.txt"
+        - "sort < notes.txt > tri.tmp && mv tri.tmp notes.txt"
+    explanation: |-
+      Rediriger vers l’entrée la viderait avant le tri. Le nom
+      tampon préserve l’entrée pendant la lecture ; && réserve
+      le remplacement au cas où le tri a réussi.
+  - id: "exec-persistent-stdout"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, tu gardes le shell courant. En une commande,
+      redirige sa sortie standard vers trace.log, un nom libre,
+      de façon que les commandes suivantes écrivent aussi dedans.
+    answer:
+      primary: "exec > trace.log"
+      accepted:
+        - "exec >trace.log"
+        - "exec 1> trace.log"
+        - "exec 1>trace.log"
+    explanation: |-
+      exec sans programme applique la redirection au shell
+      courant. La redirection de true, par exemple, ne dure
+      que le temps de cette commande.
+  - id: "redirect-brace-group"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Les commandes fictives preparer et publier forment un pipeline
+      sur stdout, dans cet ordre. Laisse le résultat à l’écran et
+      redirige les diagnostics des deux maillons vers cycle.log,
+      nom libre. Ouvre le fichier une fois dans le shell courant.
+    answer:
+      primary: "{ preparer | publier; } 2> cycle.log"
+      accepted:
+        - "{ preparer | publier; } 2>cycle.log"
+        - "{ preparer|publier; } 2> cycle.log"
+    explanation: |-
+      La redirection du groupe s’applique aux deux maillons.
+      Attachée seulement à publier, elle laisse les diagnostics
+      de preparer sur la sortie d’erreur d’origine.
+  - id: "heredoc-expanded-body"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, secteur vaut nord. Quelle ligne ce document
+      incorporé transmet-il à la commande de lecture ?
+
+      cat <<FIN
+      \$secteur -> $secteur
+      FIN
+    answer:
+      primary: "$secteur -> nord"
+    explanation: |-
+      Le délimiteur non protégé permet l’expansion de paramètres.
+      La barre oblique inverse protège le premier dollar ;
+      le second introduit le paramètre qui devient nord.
+  - id: "sort-locale-precedence"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Deux tris lisent le même fichier avec LC_COLLATE réglée sur
+      une locale française disponible. Dans le premier, LC_ALL=C
+      est exportée ; dans le second, LC_ALL est absente. Quelle
+      règle explique que l’ordre puisse différer ?
+    choices:
+      - "LC_COLLATE prend toujours le dessus."
+      - "LC_ALL prend le dessus sur LC_COLLATE."
+      - "Le tri n’utilise jamais la locale."
+    answer:
+      primary: "LC_ALL prend le dessus sur LC_COLLATE."
+    explanation: |-
+      Une valeur non vide de LC_ALL fixe toutes les catégories.
+      Le premier tri utilise C ; le second peut prendre la règle
+      de classement donnée par LC_COLLATE.
+  - id: "newline-vs-record-count"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Un fichier contient A, un saut de ligne, B, un saut de ligne,
+      puis C sans saut final. Un lecteur accepte ce dernier segment
+      comme enregistrement. Donne, séparés par un espace, le total
+      de lignes selon wc puis le total d’enregistrements du lecteur.
+    answer:
+      primary: "2 3"
+    explanation: |-
+      wc compte les sauts de ligne : il y en a deux. Le lecteur
+      compte aussi le dernier segment non terminé : trois
+      enregistrements au total.

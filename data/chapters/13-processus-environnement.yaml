@@ -92,3 +92,404 @@ items:
       Devant une commande externe, l’affectation s’applique à
       cette exécution. env peut aussi définir la variable pour
       ce seul lancement. LC_ALL=C impose l’ordre de la locale C.
+  - id: "ps-terminal-processes"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Sur macOS, l’entrée standard est le terminal de ta session.
+      Affiche la liste des processus attachés à ce terminal, avec
+      les colonnes habituelles.
+    answer:
+      primary: "ps -T"
+    explanation: |-
+      Sur macOS, -T sélectionne les processus associés au terminal
+      de l’entrée standard. -A élargirait à toute la machine.
+  - id: "read-process-id"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Quel est le PID du processus rendu dans ce relevé ?
+
+      PID   PPID  COMMAND
+      3082  3079  rendu
+    answer:
+      primary: "3082"
+    explanation: |-
+      PID identifie le processus affiché. PPID est l’identifiant
+      de son parent, ici 3079.
+  - id: "list-exported-environment"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Affiche l’ensemble de l’environnement exporté sous la forme
+      NOM=valeur, sans changer les variables ni lancer de commande
+      avec cet environnement.
+    answer:
+      primary: "env"
+      accepted:
+        - "printenv"
+    explanation: |-
+      Sans autre opérande, env affiche l’environnement reçu.
+      Il n’inclut pas les variables internes non exportées.
+  - id: "unset-shell-variable"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Bash, ATELIER_CACHE est une variable modifiable.
+      Retire-la du shell courant : elle doit devenir absente,
+      pas seulement vide.
+    answer:
+      primary: "unset ATELIER_CACHE"
+      accepted:
+        - "unset -v ATELIER_CACHE"
+    explanation: |-
+      unset retire la variable. L’affecter à une chaîne vide
+      laisserait son nom défini.
+  - id: "list-shell-jobs"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans un Bash interactif, affiche les tâches que ce shell
+      gère, au format habituel, avec leurs états.
+    answer:
+      primary: "jobs"
+    explanation: |-
+      jobs montre les travaux gérés par ce shell, avec leurs
+      numéros et leurs états. Ce n’est pas un inventaire général
+      des processus.
+  - id: "launch-background-job"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans un shell interactif, lance la commande fictive
+      « rendu apercu » en arrière-plan pour récupérer l’invite
+      sans attendre la fin de la commande.
+    answer:
+      primary: "rendu apercu &"
+      accepted:
+        - "rendu apercu&"
+    explanation: |-
+      L’opérateur & lance la commande de façon asynchrone.
+      Le shell rend l’invite sans attendre sa fin.
+  - id: "foreground-known-job"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Bash avec contrôle des jobs, le job numéro 2 tourne
+      en arrière-plan. Ramène précisément ce job au premier plan.
+    answer:
+      primary: "fg %2"
+    explanation: |-
+      fg place le job au premier plan. %2 est un numéro de job
+      connu du shell, pas un PID.
+  - id: "empty-exported-variable"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans la liste de l’environnement exporté, une ligne vaut
+      « FILTRE= ». Quel est l’état de FILTRE ?
+    choices:
+      - "Absente de l’environnement."
+      - "Définie et non exportée."
+      - "Définie et vide."
+    answer:
+      primary: "Définie et vide."
+    explanation: |-
+      Le signe = sépare le nom de sa valeur. Ici la variable est
+      présente et exportée, avec une valeur de longueur zéro.
+  - id: "ps-pid-parent-columns"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Affiche uniquement le PID et le PID parent, dans cet ordre
+      avec les en-têtes usuels, pour le processus 5810 seul.
+    answer:
+      primary: "ps -p 5810 -o pid,ppid"
+      accepted:
+        - "ps -o pid,ppid -p 5810"
+        - "ps -p 5810 -o pid -o ppid"
+        - "ps -o pid -o ppid -p 5810"
+        - "ps -p 5810 -o \"pid,ppid\""
+    explanation: |-
+      -p sélectionne le processus. Les champs demandés avec -o
+      fixent les colonnes et leur ordre : pid, puis ppid.
+  - id: "last-background-pid"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash, une commande simple vient d’être lancée en
+      arrière-plan. Affiche seulement son PID à partir du
+      paramètre spécial, avant tout autre lancement en arrière-plan.
+    answer:
+      primary: "printf '%s\\n' \"$!\""
+      accepted:
+        - "printf \"%s\\n\" \"$!\""
+        - "echo \"$!\""
+        - "echo $!"
+    explanation: |-
+      $! désigne le PID du dernier lancement en arrière-plan.
+      $$ désigne le PID du shell appelant dans ce contexte.
+  - id: "wait-specific-child"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Deux commandes sont en arrière-plan dans ce shell. Leurs
+      PID sont 5814 et 5816. Attends seulement la fin de 5814.
+    answer:
+      primary: "wait 5814"
+    explanation: |-
+      Avec le PID, wait attend cet enfant du shell. Sans
+      argument, il attend l’ensemble des travaux en arrière-plan.
+  - id: "resume-suspended-in-background"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec contrôle des jobs, le job 4 est suspendu.
+      Reprends son exécution sans le ramener au premier plan.
+    answer:
+      primary: "bg %4"
+    explanation: |-
+      bg reprend le job indiqué en arrière-plan. Avec fg, il
+      repartirait au premier plan.
+  - id: "wait-child-exit-status"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Le shell attend un seul de ses enfants identifié par PID.
+      Cet enfant se termine de lui-même, sans signal. La commande
+      d’attente renvoie 7. Que représente ce 7 ?
+    choices:
+      - "Le numéro du signal reçu par l’enfant."
+      - "Le code de sortie de l’enfant."
+      - "Le rang de l’enfant parmi les jobs."
+    answer:
+      primary: "Le code de sortie de l’enfant."
+    explanation: |-
+      Pour cet enfant terminé normalement, wait renvoie son code
+      de sortie. Il ne donne ni son PID ni un numéro de signal.
+  - id: "launch-with-clean-environment"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Lance /atelier/bin/analyse avec un environnement de départ
+      qui ne contient que LC_ALL=C et MODE=essai. Ne modifie pas
+      l’environnement du shell courant.
+    answer:
+      primary: "env -i LC_ALL=C MODE=essai /atelier/bin/analyse"
+      accepted:
+        - "env -i MODE=essai LC_ALL=C /atelier/bin/analyse"
+    explanation: |-
+      -i part d’un environnement vide, puis env ajoute les deux
+      valeurs fournies. Le chemin absolu évite toute recherche
+      dans PATH pour lancer le programme.
+  - id: "identify-job-process-group"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, le job 3 est un pipeline. Relevé PID / PGID :
+      4101 / 4101 ; 4102 / 4101.
+      Sans utiliser la table des jobs, quelle cible permet de
+      signaler les deux maillons ensemble ?
+    choices:
+      - "Le PID 4102."
+      - "Le PID 4101."
+      - "Le groupe de processus 4101."
+    answer:
+      primary: "Le groupe de processus 4101."
+    explanation: |-
+      Les deux maillons partagent le groupe 4101. Viser un PID
+      seul ne signale qu’un processus ; 3 est un numéro propre
+      à la table des jobs du shell.
+  - id: "signal-service-cleanup"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Le service au PID 5174 ignore le signal d’arrêt
+      ordinaire. Sa documentation réserve le premier signal
+      utilisateur au vidage de la file, au retrait du verrou puis
+      à l’arrêt. Envoie ce signal.
+    answer:
+      primary: "kill -s USR1 5174"
+      accepted:
+        - "kill -USR1 5174"
+    explanation: |-
+      Ce service intercepte USR1 pour sa procédure de nettoyage.
+      C’est son propre contrat. KILL ne peut pas être intercepté
+      et ne permet pas au service de terminer ce travail.
+  - id: "background-terminal-read-stop"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash interactif avec contrôle des jobs, un job non
+      orphelin tente de lire son terminal en arrière-plan. Les
+      signaux gardent leur action par défaut et ne sont pas
+      bloqués. Quel signal suspend ce job ?
+    answer:
+      primary: "SIGTTIN"
+      accepted:
+        - "TTIN"
+    explanation: |-
+      Le pilote du terminal envoie SIGTTIN au groupe en
+      arrière-plan qui tente de lire. Le job est suspendu ;
+      il n’est pas terminé.
+  - id: "path-change-clears-cache"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, lire lançait /atelier/bin/lire, dont le chemin
+      était en cache. Aucun alias ni fonction ne porte ce nom,
+      et ce fichier est le seul exécutable lire. Après avoir
+      remplacé PATH par /usr/bin:/bin, pourquoi lire échoue-t-il ?
+    choices:
+      - "Bash réutilise toujours le chemin mémorisé."
+      - "Bash a vidé son cache et le dossier a quitté PATH."
+      - "Changer PATH retire le droit d’exécution au fichier."
+    answer:
+      primary: "Bash a vidé son cache et le dossier a quitté PATH."
+    explanation: |-
+      Affecter PATH vide la table des chemins mémorisés. La
+      nouvelle recherche ne passe plus par /atelier/bin, même
+      si le fichier y est toujours présent et exécutable.
+  - id: "export-after-child-launch"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Le shell exporte MODE=avant et lance A. Il exporte ensuite
+      MODE=apres et lance B. Les deux enfants consultent MODE
+      après le lancement de B, sans modifier leur environnement.
+      Quelles valeurs lisent-ils, A puis B, séparées par un espace ?
+    answer:
+      primary: "avant apres"
+    explanation: |-
+      Chaque enfant reçoit les valeurs exportées au lancement.
+      L’export ultérieur change l’environnement transmis à B,
+      pas celui qu’A a déjà reçu.
+  - id: "subshell-variable-isolation"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, COULEUR vaut bleu. Le shell lance un groupe entre
+      parenthèses qui la change en vert et l’exporte. Pourquoi
+      COULEUR vaut-elle encore bleu dans le shell appelant ?
+    choices:
+      - "Le groupe modifie une copie de la variable."
+      - "L’export propage la valeur du groupe au parent."
+      - "Le changement échoue parce que la variable existait."
+    answer:
+      primary: "Le groupe modifie une copie de la variable."
+    explanation: |-
+      Les parenthèses exécutent le groupe dans un sous-shell.
+      L’export y concerne ses propres futurs enfants ; il ne
+      remonte pas vers le shell appelant.
+  - id: "load-script-current-shell"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, le script lisible et exécutable profil.sh se trouve
+      dans le répertoire courant. Charge-le pour garder dans ton
+      shell la variable que le script définit.
+    answer:
+      primary: ". ./profil.sh"
+      accepted:
+        - "source ./profil.sh"
+    explanation: |-
+      Le point et source exécutent le fichier dans le shell
+      courant. Un lancement séparé ne peut pas y laisser les
+      variables que le script définit.
+  - id: "cwd-with-empty-environment"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Le shell se trouve dans /atelier, puis entre dans sorties.
+      Sans lien symbolique, il lance /bin/pwd en mode physique avec
+      un environnement totalement vide, sans PWD. Quel chemin la
+      commande affiche-t-elle ?
+    answer:
+      primary: "/atelier/sorties"
+    explanation: |-
+      Le processus conserve le répertoire courant comme attribut
+      système, indépendamment des variables. Le mode physique
+      de pwd peut donc afficher /atelier/sorties sans PWD.
+  - id: "read-zombie-process-state"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sur macOS, un relevé indique l’état Z pour un enfant dont
+      le PID est toujours présent. Que peut encore faire son
+      processus parent au sujet de cet enfant ?
+    choices:
+      - "Le reprendre au premier plan."
+      - "Récupérer son statut de fin."
+      - "Le réveiller avec un signal de continuation."
+    answer:
+      primary: "Récupérer son statut de fin."
+    explanation: |-
+      Un zombie a terminé : il ne peut plus s’exécuter. Le
+      parent peut encore récupérer son statut de fin ; jusque-là,
+      le système conserve son entrée.
+  - id: "trap-scope-subshell"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, le shell parent installe un gestionnaire pour
+      USR1, puis lance un groupe entre parenthèses. Le groupe
+      n’installe aucun gestionnaire ; USR1 n’était ni ignoré ni
+      bloqué. Seul le sous-shell reçoit USR1. Quel est l’effet ?
+    choices:
+      - "Le sous-shell exécute le gestionnaire du parent."
+      - "Le sous-shell s’arrête sans lancer le gestionnaire."
+      - "Le sous-shell ignore le signal."
+    answer:
+      primary: "Le sous-shell s’arrête sans lancer le gestionnaire."
+    explanation: |-
+      Dans le sous-shell, le signal piégé par le parent retrouve
+      son action héritée au démarrage de Bash. Ici l’action par
+      défaut de USR1 est l’arrêt, sans exécuter le gestionnaire.

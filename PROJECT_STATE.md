@@ -1,7 +1,8 @@
 # État du projet — CLI-Drill
 
-**Au 10 novembre 2026, les lots 1 et 2 de P2.5 sont publiés sur `dev`.
-P2.5 reste en cours.** P2.4 est publiée à `f096eec` après huit tests manuels
+**Au 10 novembre 2026, les lots 1 et 2 et la vague 1 de P2.5 sont publiés sur
+`dev`. La vague 2 est implémentée et testée localement. P2.5 reste en cours.**
+P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
@@ -27,18 +28,19 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Sur la branche locale `content/p25-wave1-paths-files`, la
-  [vague 1 de P2.5](docs/CORPUS_P25_WAVE1.md) porte le corpus à 121 exercices
-  dans 12 chapitres : 51 Beginner, 46 Intermediate et 24 Advanced.
-  Les chapitres `00` et `12` comptent chacun 10 exercices par niveau.
-- Le corpus publié sur `dev` à `4320650` compte 75 exercices dans 12 chapitres
-  YAML : 44 Beginner, 27 Intermediate et 4 Advanced.
+- Sur la branche locale `content/p25-wave2-flows-processes`, la
+  [vague 2 de P2.5](docs/CORPUS_P25_WAVE2.md) porte le corpus à 169 exercices
+  dans 12 chapitres : 67 Beginner, 59 Intermediate et 43 Advanced. Les
+  chapitres `00`, `11`, `12` et `13` ont chacun 10 exercices par niveau.
+- La base publiée sur `dev` à `f97718a` comprend la
+  [vague 1](docs/CORPUS_P25_WAVE1.md) et compte 121 exercices : 51 Beginner,
+  46 Intermediate et 24 Advanced. Le corpus comptait 75 exercices à `4320650`.
   Les rapports des [lots 1](docs/CORPUS_P25_LOT1.md) et
   [2](docs/CORPUS_P25_LOT2.md) recensent les ajouts et validations.
   Les dix chapitres du corpus de référence P2.1 restent des fixtures de test.
 - Le démarrage direct CLI et TUI choisit le premier chapitre textuel éligible.
-  Avec les préférences initiales, `00-premiers-pas` propose huit exercices Unix
-  textuels, Beginner et guidés dans le corpus publié ; dix sur la branche locale.
+  Avec les préférences initiales, `00-premiers-pas` propose dix exercices Unix
+  textuels, Beginner et guidés, sur `dev` et sur la branche locale.
 - Les choix QCM sont désormais affichés aussi en CLI texte ; la saisie reste un
   libellé ou une variante acceptée, sans nouveau système de correction.
 - Corpus exclusivement intégré depuis P0.1 ; aucun chargement automatique des
@@ -663,21 +665,30 @@ publié sur `dev` à `4320650`.
 
 La [stratégie d'enrichissement](docs/CURRICULUM.md) porte la cible à au moins
 10 exercices de chacun des trois niveaux par chapitre, soit 360 au minimum
-pour les 12 chapitres actuels. À la base publiée, il manque au moins 285
-exercices.
+pour les 12 chapitres actuels. Après les deux premiers lots, il manquait au
+moins 285 exercices.
 
-### P2.5 — Repères, fichiers et droits, vague 1 implémentée et testée
+### P2.5 — Repères, fichiers et droits, vague 1 publiée
 
 Depuis `d945059`, la branche locale `content/p25-wave1-paths-files` ajoute
 46 exercices sans module tiers : 22 dans `00-premiers-pas` (Learn guidé,
 Review mélangé) et 24 dans `12-fichiers-permissions` (mélangé). Les 75
 exercices historiques et leurs clés sont conservés. Le
 [rapport de vague](docs/CORPUS_P25_WAVE1.md) documente la couverture, les
-références, les tests et les essais isolés. Cinq vagues restent à traiter.
+références, les tests et les essais isolés. La vague 1 est publiée sur `dev`
+à `f97718a`.
 
-Les modifications sont locales et non indexées. La recette humaine d’ensemble
-reste prévue en P2.6 dans Ghostty ; l’intégration et la publication de la vague
-1 ne sont pas autorisées.
+### P2.5 — Flux, processus et environnement, vague 2 implémentée et testée
+
+Depuis `f97718a`, la branche locale `content/p25-wave2-flows-processes` ajoute
+24 exercices dans `11-flux-shell` (Learn guidé, Review mélangé) et 24 dans
+`13-processus-environnement` (mélangé), sans module tiers. Les 121 exercices
+de la base publiée restent identiques. Le
+[rapport de vague](docs/CORPUS_P25_WAVE2.md) relie les 48 ajouts au référentiel
+et détaille les tests. Quatre vagues restent à traiter.
+
+Les modifications de la vague 2 sont locales et non indexées. La recette
+humaine d’ensemble reste prévue dans Ghostty en P2.6.
 
 ## Validation et limites de preuve
 

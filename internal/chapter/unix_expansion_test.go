@@ -25,9 +25,9 @@ func TestUnixExpansionSessions(t *testing.T) {
 			{"cdpath-priority", "cd-symlink-parent", "glob-quoted-prefix", "glob-no-match-shells", "glob-leading-dot", "builtin-shadowed", "subshell-directory", "relative-from-peer", "dash-leading-name", "case-sensitive-volume"},
 		}},
 		{"11-flux-shell", LearningOrderGuided, [3][]string{
-			{"redirect-output", "append-output"},
-			{"redirect-input", "count-matching-lines", "redirect-errors"},
-			{"merge-output-errors"},
+			{"redirect-output", "append-output", "stdin-report", "preview-first-lines", "preview-last-lines", "count-file-words", "pipe-produced-words", "sort-full-lines", "dedupe-adjacent-lines", "tee-new-copy"},
+			{"redirect-input", "count-matching-lines", "redirect-errors", "sort-dedupe-scattered", "count-sorted-runs", "sort-numeric-field", "cut-delimited-field", "tee-append-copy", "split-output-diagnostics", "heredoc-literal-start"},
+			{"merge-output-errors", "pipefail-rightmost-failure", "bash-pipeline-status-vector", "nul-delimited-sort", "sort-before-replacement", "exec-persistent-stdout", "redirect-brace-group", "heredoc-expanded-body", "sort-locale-precedence", "newline-vs-record-count"},
 		}},
 		{"12-fichiers-permissions", LearningOrderIndependent, [3][]string{
 			{"copy-spaced-path", "rename-file", "remove-file", "remove-empty-directory", "list-permissions", "touch-new-file", "copy-backup-name", "read-owner-column", "chmod-group-no-write", "recognize-link-entry"},
@@ -35,9 +35,9 @@ func TestUnixExpansionSessions(t *testing.T) {
 			{"remove-symlink-only", "umask-file-and-directory", "unlink-vs-write", "sticky-shared-directory", "setgid-inherit-group", "move-relative-symlink", "hardlink-after-replace", "chmod-conditional-search", "copy-exact-destination-gnu", "stat-mode-macos"},
 		}},
 		{"13-processus-environnement", LearningOrderIndependent, [3][]string{
-			{"show-environment-variable", "set-shell-variable"},
-			{"inspect-pid", "request-termination", "export-variable", "one-command-environment"},
-			nil,
+			{"show-environment-variable", "set-shell-variable", "ps-terminal-processes", "read-process-id", "list-exported-environment", "unset-shell-variable", "list-shell-jobs", "launch-background-job", "foreground-known-job", "empty-exported-variable"},
+			{"inspect-pid", "request-termination", "export-variable", "one-command-environment", "ps-pid-parent-columns", "last-background-pid", "wait-specific-child", "resume-suspended-in-background", "wait-child-exit-status", "launch-with-clean-environment"},
+			{"identify-job-process-group", "signal-service-cleanup", "background-terminal-read-stop", "path-change-clears-cache", "export-after-child-launch", "subshell-variable-isolation", "load-script-current-shell", "cwd-with-empty-environment", "read-zombie-process-state", "trap-scope-subshell"},
 		}},
 	} {
 		t.Run(lesson.id, func(t *testing.T) {
