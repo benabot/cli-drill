@@ -131,13 +131,14 @@ aucun annuaire d'installation, scanner ou ancien catalogue n'est réintroduit.
   aux questions répétitives demandant uniquement le nom d'un logiciel.
 
 Ces familles organisent les contenus ; elles ne justifient pas trois moteurs.
-P2 commence par un corpus court jouable dans chaque famille, puis vise une
-première cible **indicative de 100 à 120 exercices de qualité** dans le corpus
-intégré total, répartis progressivement entre les trois familles. Il ne s'agit
-ni de 100 exercices supplémentaires, ni d'un quota par séance ou par famille.
-La sélection personnelle peut en rendre moins visibles. La qualité et les essais
-des lots priment sur le nombre ; aucune duplication de questions pour atteindre
-la cible. Les trois niveaux sont introduits progressivement, sans quota artificiel.
+P2.5 enrichit le corpus par lots. La cible est **d'au moins 30 exercices par
+chapitre, dont au moins 10 Beginner, 10 Intermediate et 10 Advanced**. Elle
+correspond à au moins 360 exercices pour les 12 chapitres actuels. Ce seuil
+s'applique au corpus intégré ; la difficulté choisie et les modules activés
+peuvent réduire le nombre d'exercices proposés dans une séance.
+Le [référentiel pédagogique](CURRICULUM.md) décrit les compétences et l'ordre
+des lots. La qualité prime : tout manque reste ouvert plutôt que d'ajouter
+un doublon ou de surclasser artificiellement une question.
 
 ### Difficulté de l'exercice
 
@@ -438,8 +439,9 @@ des validations acquises par la présente modification documentaire.
     lorsque nécessaire ; retries et feedback respectent les compteurs P1.
 13. Préférences séparées, facultatives, créées seulement sur enregistrement
     explicite ; erreurs visibles, aucune modification du JSON v1 par ces réglages.
-14. Enrichissement par lots essayés vers 100 à 120 exercices au total, sans
-    sacrifier l'autonomie, la qualité, les trois familles ou les limites de capture.
+14. Au moins 10 Beginner, 10 Intermediate et 10 Advanced par chapitre,
+    introduits par lots essayés. Préserver l'autonomie, la diversité des
+    compétences, les trois familles et les limites de capture.
 
 Voir l'[architecture cible](ARCHITECTURE.md) pour les frontières techniques et
 le [backlog](../TODO.md) pour les branches atomiques proposées.

@@ -1,7 +1,8 @@
 # État du projet — CLI-Drill
 
-**Au 10 novembre 2026, P2.4 est terminée et publiée sur `origin/dev` à
-`f096eec` après huit tests manuels réussis dans Terminal.app. P2.5 est en cours.**
+**Au 10 novembre 2026, les lots 1 et 2 de P2.5 sont publiés sur `dev`.
+P2.5 reste en cours.** P2.4 est publiée à `f096eec` après huit tests manuels
+réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
 `fix/progress-storage-hardening`, acceptées après revue. La migration V2
 complète reste à réaliser. P1.2 comprend l'implémentation `e7b4170` et les tests
@@ -26,7 +27,8 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Le corpus du lot 2 validé de P2.5 compte 75 exercices dans 12 chapitres YAML.
+- Le corpus publié sur `dev` à `4320650` compte 75 exercices dans 12 chapitres
+  YAML : 44 Beginner, 27 Intermediate et 4 Advanced.
   Les rapports des [lots 1](docs/CORPUS_P25_LOT1.md) et
   [2](docs/CORPUS_P25_LOT2.md) recensent les ajouts et validations.
   Les dix chapitres du corpus de référence P2.1 restent des fixtures de test.
@@ -381,7 +383,8 @@ La [décision P2.0](docs/DECISIONS.md#2026-11-08--p20--evolution-pedagogique)
 complète la décision V2 : sélection manuelle des modules CLI tiers, socle Unix
 toujours disponible, difficulté Beginner/Intermediate/Advanced par exercice,
 séances mélangées avec apprentissage guidé lorsque nécessaire, et enrichissement
-progressif vers une cible indicative de 100 à 120 exercices au total.
+progressif. Sa cible initiale de 100 à 120 exercices est remplacée par le
+[nouvel objectif de P2.5](docs/CURRICULUM.md).
 Le choix ne dépend pas d'une installation réelle, d'un scan ou des dotfiles.
 
 La [spécification](docs/SPEC.md) définit les métadonnées additives et leur
@@ -645,15 +648,20 @@ exercices. La recette humaine finale sous Ghostty a validé T01 à T08 le
 10 novembre 2026, y compris T07. Le lot est intégré et publié sur `dev` à
 `b809151`. Le [rapport du lot](docs/CORPUS_P25_LOT1.md) détaille ses validations.
 
-### P2.5 — Outils CLI modernes, lot 2 validé
+### P2.5 — Outils CLI modernes, lot 2 validé et publié
 
 Sur `content/v2-expansion-cli-02`, depuis `b809151`, 18 exercices enrichissent
 six chapitres existants. Le corpus atteint 75 exercices dans 12 chapitres.
 La recette humaine finale sous Ghostty sur macOS a validé les parcours
-fonctionnels et la présentation le 10 novembre 2026. Le lot est prêt
-pour commit sur sa branche. L'intégration et la publication restent à faire.
-La cible indicative de 100 à 120 exercices reste ouverte.
+fonctionnels et la présentation le 10 novembre 2026. Le lot est intégré et
+publié sur `dev` à `4320650`.
 [Rapport du lot](docs/CORPUS_P25_LOT2.md)
+
+La [stratégie d'enrichissement](docs/CURRICULUM.md) porte la cible à au moins
+10 exercices de chacun des trois niveaux par chapitre, soit 360 au minimum
+pour les 12 chapitres actuels. À la base publiée, il manque au moins 285
+exercices. La matrice décrit le travail à venir ; elle n'ajoute aucun contenu
+jouable.
 
 ## Validation et limites de preuve
 

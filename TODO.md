@@ -231,7 +231,7 @@ ajoutent uniquement les réponses réellement soumises selon P1.2. Les tests et
 essais couvrent CLI, TUI et capture, avec conservation des résultats v1 retirés,
 compteurs cumulés et absence de faux acquis. Le corpus source ne change pas d'ordre.
 
-### P2.5 — Enrichissement progressif vers 100 à 120 exercices — en cours
+### P2.5 — Enrichissement par chapitre et par niveau — en cours
 
 Les parcours P2.2 à P2.4 sont validés. Le [lot 1 Unix/Shell](docs/CORPUS_P25_LOT1.md)
 ajoute 18 exercices dans trois chapitres et relit les 39 exercices existants.
@@ -240,20 +240,21 @@ sur macOS le 10 novembre 2026 : T01 à T08 sont réussis, dont T07. Les 57
 exercices sont acceptés. Le lot 1 est intégré et publié sur `dev` à `b809151`.
 Le lot 2 ajoute 18 exercices, soit 75 au total. Il est terminé et validé
 après la recette finale sous Ghostty sur macOS le 10 novembre 2026.
-Il est prêt pour commit sur `content/v2-expansion-cli-02`.
+Il est intégré et publié sur `dev` à `4320650`.
 [Rapport du lot](docs/CORPUS_P25_LOT2.md)
 
-- [ ] Enrichir les trois familles par petits lots relus et essayés, avec les
-  trois niveaux progressivement représentés ; priorité aux commandes, scénarios
-  concrets et captures prises en charge.
-- [ ] Viser 100 à 120 exercices intégrés au total, cible indicative subordonnée
-  à la qualité ; ne pas multiplier les questions de noms de logiciels.
+- [ ] Atteindre au moins 10 Beginner, 10 Intermediate et 10 Advanced par
+  chapitre, soit au moins 360 exercices pour les 12 chapitres actuels.
+- [ ] Suivre la [matrice pédagogique et le découpage en lots](docs/CURRICULUM.md) :
+  couvrir les compétences manquantes, résoudre les recouvrements et préciser les
+  extensions de périmètre avant d'écrire les exercices concernés.
 
 Acceptation par lot : nouveaux identifiants pour nouveaux apprentissages,
 métadonnées complètes, variantes explicites, explications et contexte vérifiés,
 autonomie en ordre aléatoire et parcours guidé essayés. Décompte du corpus par
-famille/niveau et équilibre des formats examinés ; aucun quota de remplissage.
-Un écart à la cible est expliqué plutôt que compensé par des doublons.
+chapitre et par niveau, équilibre des formats et progression examinés.
+Une lacune est documentée et reste ouverte si la seule solution est un doublon
+ou une difficulté artificielle.
 Aucune installation tierce nécessaire, aucune exécution pédagogique et aucune
 extension de schéma de progression, moteur adaptatif ou répétition espacée.
 
@@ -348,8 +349,8 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.3 — `feat/cli-preferences` (intégrée et publiée) | Modules manuels et préférences séparées. | Six essais Terminal.app réussis le 9 novembre 2026. Publiée sur `dev` à `1e0c396`. |
 | P2.4 — `refactor/session-order` (terminée) | Préparation commune, niveau, mélange, guidage et projection des acquis. | Huit essais Terminal.app validés. Intégrée et publiée sur `origin/dev` à `f096eec`. |
 | P2.5, lot 1 — `content/v2-expansion-unix-01` (intégré et publié) | Trois chapitres Unix/Shell et révision éditoriale du corpus existant. | T01 à T08 validés dans Ghostty. Publié sur `dev` à `b809151`. [Détails](docs/CORPUS_P25_LOT1.md). |
-| P2.5, lot 2 — `content/v2-expansion-cli-02` (terminé et validé) | Outils CLI modernes, 18 exercices dans six chapitres. | Recette fonctionnelle et UX réussie sous Ghostty le 10 novembre 2026. Prêt pour commit. Intégration et publication à faire. [Détails](docs/CORPUS_P25_LOT2.md) |
-| P2.5, lots suivants — `content/v2-expansion-<lot>` | Enrichissement vers la cible indicative de 100 à 120 exercices. | Critères P2.5 et validation par lot. |
+| P2.5, lot 2 — `content/v2-expansion-cli-02` (intégré et publié) | Outils CLI modernes, 18 exercices dans six chapitres. | Recette fonctionnelle et UX réussie sous Ghostty le 10 novembre 2026. Publié sur `dev` à `4320650`. [Détails](docs/CORPUS_P25_LOT2.md). |
+| P2.5, lots suivants — `content/v2-expansion-<lot>` | Au moins 30 exercices par chapitre, dont 10 par niveau. | [Matrice et lots](docs/CURRICULUM.md) ; validation par lot. |
 | P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
 | P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
 
