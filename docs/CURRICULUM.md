@@ -6,13 +6,15 @@ seuil remplace la cible globale de 100 à 120. Il ne s'applique pas à une séan
 le niveau exact et les modules choisis déterminent toujours l'éligibilité.
 
 Le point de départ est `dev` à `4320650`, après publication du
-[lot 2](CORPUS_P25_LOT2.md). Le relevé porte sur les YAML intégrés de
+[lot 2](CORPUS_P25_LOT2.md). Le bilan inclut la [vague 1](CORPUS_P25_WAVE1.md),
+implémentée et testée sur sa branche locale depuis `d945059`.
+Le relevé porte sur les YAML intégrés de
 [`data/chapters`](../data/chapters/), sans compter les fixtures. Les identifiants
 03 et 04 ont été retirés. Les garder réservés et conserver les identifiants
 existants évite de réattribuer des acquis à d'autres apprentissages. L'[état du projet](../PROJECT_STATE.md)
 décrit le contenu livré ; le [backlog](../TODO.md#p25--enrichissement-par-chapitre-et-par-niveau--en-cours)
-suit les travaux restants. Les compétences ci-dessous sont des propositions,
-pas des exercices déjà écrits, testés ou publiés.
+suit les travaux restants. La matrice conserve les compétences prévues
+initialement ; seules les sections marquées comme implémentées ont été réalisées.
 
 ## Bilan par chapitre
 
@@ -21,7 +23,7 @@ séparément par chapitre et par niveau.
 
 | Chapitre | B | I | A | Total | B à ajouter | I à ajouter | A à ajouter |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `00-premiers-pas` | 8 | 0 | 0 | 8 | 2 | 10 | 10 |
+| `00-premiers-pas` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
 | `01-raccourcis-terminal` | 8 | 0 | 0 | 8 | 2 | 10 | 10 |
 | `02-navigation-shell` | 5 | 4 | 0 | 9 | 5 | 6 | 10 |
 | `05-outils-quotidiens` | 2 | 1 | 0 | 3 | 8 | 9 | 10 |
@@ -31,11 +33,11 @@ séparément par chapitre et par niveau.
 | `09-markdown-glow` | 1 | 2 | 1 | 4 | 9 | 8 | 9 |
 | `10-workflows-dotfiles` | 3 | 0 | 0 | 3 | 7 | 10 | 10 |
 | `11-flux-shell` | 2 | 3 | 1 | 6 | 8 | 7 | 9 |
-| `12-fichiers-permissions` | 5 | 1 | 0 | 6 | 5 | 9 | 10 |
+| `12-fichiers-permissions` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
 | `13-processus-environnement` | 2 | 4 | 0 | 6 | 8 | 6 | 10 |
-| **Total** | **44** | **27** | **4** | **75** | **76** | **93** | **116** |
+| **Total** | **51** | **46** | **24** | **121** | **69** | **74** | **96** |
 
-Il manque au minimum **285 exercices**. La matrice réserve une compétence
+Il manque au minimum **239 exercices**. La matrice réserve une compétence
 distincte par exercice à concevoir. Si un sujet se révèle redondant, invérifiable
 ou incompatible avec le moteur, trouver un autre objectif utile ou laisser le
 manque ouvert. Une variante de commande ou un nom de fichier différent ne
@@ -66,9 +68,13 @@ changent ni les identifiants, ni les familles, ni l'ordre actuel.
 
 ### `00-premiers-pas` — Premiers pas
 
-**Couverture actuelle.** B : dossier courant, liste visible ou avec entrées cachées, déplacements relatif, parent et absolu, création simple, lecture d’un chemin avec espaces.
+**Couverture avant la vague 1.** B : dossier courant, liste visible ou avec entrées cachées, déplacements relatif, parent et absolu, création simple, lecture d’un chemin avec espaces.
 
-**Suite proposée.** Étendre aux repères et à l’interprétation d’une ligne de commande. Réserver les mutations, liens et droits à `12`, les flux à `11`.
+**Vague 1 implémentée.** Les 22 compétences ci-dessous sont jouables et
+[reliées aux exercices et aux sources](CORPUS_P25_WAVE1.md#00-premiers-pas).
+Le chapitre se concentre sur les repères et l’interprétation d’une ligne de
+commande. Les opérations sur les fichiers, les liens et les droits relèvent
+de `12`, les flux de `11`.
 
 | Niveau | Compétences à ajouter | Références |
 | --- | --- | --- |
@@ -186,9 +192,11 @@ changent ni les identifiants, ni les familles, ni l'ordre actuel.
 
 ### `12-fichiers-permissions` — Fichiers et permissions
 
-**Couverture actuelle.** B : copie avec espaces, renommage, suppression simple, retrait d’un dossier vide, lecture des droits. I : rendre exécutable pour le propriétaire.
+**Couverture avant la vague 1.** B : copie avec espaces, renommage, suppression simple, retrait d’un dossier vide, lecture des droits. I : rendre exécutable pour le propriétaire.
 
-**Suite proposée.** Couvrir la manipulation sûre de fichiers, les liens et les droits. Les contextes potentiellement destructifs restent fictifs et circonscrits.
+**Vague 1 implémentée.** Les 24 compétences ci-dessous sont jouables et
+[reliées aux exercices et aux sources](CORPUS_P25_WAVE1.md#12-fichiers-permissions).
+Les contextes potentiellement destructifs restent fictifs et circonscrits.
 
 | Niveau | Compétences à ajouter | Références |
 | --- | --- | --- |
@@ -277,7 +285,7 @@ d'exercices à livrer d'un coup.
 
 | Ordre | Vague | Chapitres | Écart | Dépendance ou preuve spécifique |
 | --- | --- | --- | ---: | --- |
-| 1 | Repères, fichiers et droits | `00`, `12` | 46 | Stabiliser chemins et guillemets ; expliciter les différences de droits et de liens. |
+| 1 | Repères, fichiers et droits | `00`, `12` | 46 | [Implémentée et testée localement](CORPUS_P25_WAVE1.md) ; chemins, guillemets, droits et liens vérifiés. |
 | 2 | Flux, processus et environnement | `11`, `13` | 48 | Partir des repères de la vague 1 ; vérifier descripteurs, jobs et portabilité avant les cas Advanced. |
 | 3 | Édition de la ligne de commande | `01` | 22 | Vérifier les touches en Ghostty et, avant les diagnostics, les parcours dédiés et mixtes. |
 | 4 | Navigation, recherche et sélection | `02`, `06` | 39 | S'appuyer sur les chemins et les flux ; vérifier les modules combinés, l'annulation et les chemins atypiques. |

@@ -20,12 +20,12 @@ func TestDefaultTrainingUsesUnixFoundationsWithoutExecutingAnswers(t *testing.T)
 	isolateChapterHome(t)
 	dir := useTemporaryTrainingDirectory(t)
 	path := filepath.Join(dir, "progress.json")
-	output, err := runSessionCLI(path, "pwd\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nmkdir essais\ncat 'notes de cours.txt'\n", "train")
-	if err != nil || !strings.Contains(output, "Premiers pas Unix") || strings.Count(output, "Correct.") != 8 {
+	output, err := runSessionCLI(path, "pwd\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nmkdir essais\ncat 'notes de cours.txt'\ncd ~\nman ls\n", "train")
+	if err != nil || !strings.Contains(output, "Premiers pas Unix") || strings.Count(output, "Correct.") != 10 {
 		t.Fatalf("default training failed: %v\n%s", err, output)
 	}
 	state, err := progress.Load(path)
-	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 8, Correct: 8}) || len(state.CompletedExercises) != 8 {
+	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 10, Correct: 10}) || len(state.CompletedExercises) != 10 {
 		t.Fatalf("first training progress: %#v (%v)", state, err)
 	}
 	entries, err := os.ReadDir(dir)

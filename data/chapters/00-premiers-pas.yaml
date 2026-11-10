@@ -112,3 +112,396 @@ items:
       Les guillemets font du nom contenant des espaces un seul
       argument. cat envoie le contenu sur la sortie standard, sans
       modifier le fichier.
+  - id: "cd-home"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Bash, rejoins ton répertoire personnel sans écrire son
+      chemin absolu. Aucun sous-dossier ne s’appelle ~.
+    answer:
+      primary: "cd ~"
+      accepted:
+        - "cd"
+        - "cd \"$HOME\""
+    explanation: |-
+      Sans argument, cd utilise HOME. Un tilde seul, non protégé,
+      est développé par le shell en chemin du répertoire personnel
+      avant l’appel à cd.
+  - id: "man-ls"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Sur macOS, ouvre la page du manuel local consacrée à la
+      commande externe qui liste les entrées d’un répertoire.
+    answer:
+      primary: "man ls"
+      accepted:
+        - "man 1 ls"
+    explanation: |-
+      Le manuel local s’ouvre avec man. La section 1 contient
+      les commandes utilisateur, dont ls.
+  - id: "cd-previous"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash, tu viens de passer de /atelier/essais à /tmp.
+      Reviens au dossier que tu viens de quitter sans écrire son
+      chemin. L’affichage du chemin n’est pas demandé.
+    answer:
+      primary: "cd -"
+      accepted:
+        - "cd \"$OLDPWD\""
+    explanation: |-
+      Le tiret seul désigne OLDPWD, le dernier répertoire quitté.
+      Dans Bash, ce raccourci affiche aussi la destination. Deux
+      points désigneraient le parent de /tmp.
+  - id: "ls-other-directory"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Depuis /tmp, liste les noms visibles dans /atelier/livraisons
+      sans changer de répertoire.
+    answer:
+      primary: "ls /atelier/livraisons"
+      accepted:
+        - "ls /atelier/livraisons/"
+    explanation: |-
+      Le dossier à lister peut être un argument de ls. Ici, son
+      chemin absolu fonctionne même si tu te trouves ailleurs.
+  - id: "mkdir-parents"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Crée le dossier livraisons/juin/brut en une commande. Aucun
+      des trois répertoires n’existe encore.
+    answer:
+      primary: "mkdir -p livraisons/juin/brut"
+      accepted:
+        - "mkdir -p ./livraisons/juin/brut"
+        - "mkdir -p livraisons/juin/brut/"
+    explanation: |-
+      L’option -p crée les répertoires parents manquants avant
+      de créer le dernier.
+  - id: "cat-hidden-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Sans quitter /tmp, affiche sur la sortie standard le contenu
+      du fichier caché /atelier/.etat sans lister le répertoire.
+    answer:
+      primary: "cat /atelier/.etat"
+      accepted:
+        - "cat '/atelier/.etat'"
+        - "cat \"/atelier/.etat\""
+    explanation: |-
+      Le point fait partie du nom. Une liste ordinaire peut
+      omettre cette entrée, mais cat l’ouvre si son chemin exact
+      est donné.
+  - id: "ls-directory-entry"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Le dossier sorties existe. Liste le nom de son entrée seule,
+      avec la commande de listage et sans afficher son contenu.
+    answer:
+      primary: "ls -d sorties"
+      accepted:
+        - "ls -d ./sorties"
+    explanation: |-
+      Avec -d, ls traite le dossier comme une entrée à afficher.
+      Sans cette option, il énumère son contenu.
+  - id: "glob-print-names"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash, le glob est actif et aucun nom n’est ignoré :
+      scan-a.png, scan-b.png et brouillon.png sont présents.
+      Fais sélectionner au shell tous les noms
+      visibles qui commencent par scan- et finissent par .png, puis
+      imprime un nom par ligne sans lire ni lister les fichiers.
+    answer:
+      primary: "printf '%s\\n' scan-*.png"
+      accepted:
+        - "printf \"%s\\n\" scan-*.png"
+    explanation: |-
+      Bash remplace le motif non protégé par les noms
+      correspondants. printf écrit ensuite chaque argument suivi
+      d’un saut de ligne, sans ouvrir de fichier.
+  - id: "glob-bracket-list"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash, le glob est actif et plan-1.svg à plan-5.svg
+      existent, sans filtre sur les correspondances.
+      Écris un seul motif de nom, sans accolades, qui sélectionne
+      les plans numérotés 1, 3 et 5, en excluant 2 et 4.
+    answer:
+      primary: "plan-[135].svg"
+      accepted:
+        - "plan-[153].svg"
+        - "plan-[315].svg"
+        - "plan-[351].svg"
+        - "plan-[513].svg"
+        - "plan-[531].svg"
+    explanation: |-
+      Entre crochets, la liste 135 correspond à un seul caractère
+      parmi ces trois. Un intervalle de 1 à 5 inclurait aussi 2 et
+      4.
+  - id: "quote-literal-question"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash, le glob est actif. Affiche sur la sortie standard
+      le contenu de « lot?.csv » seulement. Le point d’interrogation
+      fait partie du nom ; un autre fichier s’appelle lot1.csv.
+    answer:
+      primary: "cat 'lot?.csv'"
+      accepted:
+        - "cat \"lot?.csv\""
+        - "cat lot\\?.csv"
+    explanation: |-
+      Les guillemets ou une barre oblique inverse protègent le
+      point d’interrogation. Sans protection, il correspond à un
+      caractère quelconque et le motif désigne les deux fichiers.
+  - id: "literal-tilde-directory"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash, le dossier courant contient un sous-dossier dont
+      le nom est le caractère ~. Affiche son journal.txt, distinct
+      de celui de ton répertoire personnel.
+    answer:
+      primary: "cat '~/journal.txt'"
+      accepted:
+        - "cat \"~/journal.txt\""
+        - "cat \\~/journal.txt"
+        - "cat ./~/journal.txt"
+    explanation: |-
+      Un tilde initial non protégé est développé en chemin vers
+      le dossier personnel. Les guillemets le rendent littéral ;
+      le préfixe ./ le place ailleurs qu’en début de mot.
+  - id: "command-origin"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash, le nom archiver peut désigner une fonction ou
+      un exécutable du PATH. Demande au shell ce qu’il lancerait,
+      sans exécuter archiver.
+    answer:
+      primary: "command -v archiver"
+      accepted:
+        - "command -V archiver"
+        - "type archiver"
+    explanation: |-
+      command -v, command -V et type interrogent la résolution
+      de Bash. Un outil qui cherche seulement dans le PATH peut
+      ignorer la fonction du shell.
+  - id: "cdpath-priority"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, tu es dans /atelier et CDPATH vaut /partage:.
+      Ces deux dossiers contiennent chacun un sous-dossier images
+      accessible. Quel chemin absolu atteins-tu avec « cd images » ?
+    answer:
+      primary: "/partage/images"
+    explanation: |-
+      Bash essaie les entrées de CDPATH dans leur ordre. Il trouve
+      images sous /partage avant d’essayer le point, qui désigne
+      ici le répertoire courant.
+  - id: "cd-symlink-parent"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, depuis /atelier avec CDPATH absent, le lien
+      raccourci pointe vers /srv/projet. Aucun autre composant
+      n’est un lien et tous les dossiers sont accessibles.
+      Lors d’un déplacement vers raccourci/.., quels chemins
+      absolus atteins-tu en mode logique puis physique ? Sépare-les
+      par un espace.
+    answer:
+      primary: "/atelier /srv"
+    explanation: |-
+      En mode physique (cd -P), Bash suit le lien avant de traiter
+      le parent : /srv/projet mène à /srv. En mode logique (cd
+      -L), il traite raccourci/.. comme un retour à /atelier.
+  - id: "glob-quoted-prefix"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, le glob est actif et lot vaut « série* A ». Avec
+      cette variable, imprime un nom par ligne pour les fichiers
+      dont le nom commence par cette valeur littérale suivie de « - »
+      et finit par .csv. Les noms « série* A-1.csv » et
+      « série9 A-1.csv » existent.
+    answer:
+      primary: "printf '%s\\n' \"$lot\"-*.csv"
+      accepted:
+        - "printf '%s\\n' \"${lot}\"-*.csv"
+        - "printf \"%s\\n\" \"$lot\"-*.csv"
+        - "printf \"%s\\n\" \"${lot}\"-*.csv"
+    explanation: |-
+      Les guillemets protègent l’espace et l’astérisque de la
+      valeur. L’autre astérisque reste hors des guillemets : Bash
+      le développe et ne retient ici que série* A-1.csv.
+  - id: "glob-no-match-shells"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Aucun nom ne correspond à *.bak. On passe ce motif non protégé
+      à une commande, avec le glob actif : dans Bash, nullglob et
+      failglob sont désactivés ; dans Zsh natif, NOMATCH est actif et
+      NULL_GLOB désactivé. Que se passe-t-il avant l’appel ?
+    choices:
+      - "Bash et Zsh transmettent le motif."
+      - "Bash transmet le motif ; Zsh refuse la ligne."
+      - "Bash retire le motif ; Zsh transmet le motif."
+    answer:
+      primary: "Bash transmet le motif ; Zsh refuse la ligne."
+    explanation: |-
+      Bash transmet le motif intact. Zsh signale l’absence de
+      correspondance et ne lance pas la commande. Il s’agit d’un
+      comportement du shell, indépendant de la commande.
+  - id: "glob-leading-dot"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, seuls menu.json et .menu.json sont présents.
+      Le glob est actif, dotglob est désactivé et GLOBIGNORE est
+      absent. Quel nom est transmis par le motif *.json non protégé ?
+    answer:
+      primary: "menu.json"
+    explanation: |-
+      Sans dotglob, l’astérisque ne reconnaît pas le point
+      initial. Pour sélectionner .menu.json, un motif peut
+      commencer par un point explicite, par exemple .*.json.
+  - id: "builtin-shadowed"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, une fonction masque la commande intégrée printf ;
+      /usr/bin/printf existe aussi et aucun alias n’est défini.
+      Affiche « prêt » puis un saut de ligne avec la commande
+      intégrée, sans modifier la fonction.
+    answer:
+      primary: "builtin printf '%s\\n' prêt"
+      accepted:
+        - "command printf '%s\\n' prêt"
+        - "builtin printf \"%s\\n\" prêt"
+        - "command printf \"%s\\n\" prêt"
+    explanation: |-
+      builtin vise directement la commande intégrée. command
+      ignore la fonction ; dans ce contexte Bash trouve ensuite
+      la commande intégrée avant de chercher dans le PATH.
+  - id: "subshell-directory"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash, depuis /atelier avec CDPATH absent, affiche le
+      répertoire courant après être entré dans exports, s’il est
+      accessible. Utilise un groupe de commandes : le shell appelant
+      doit rester dans /atelier même si l’opération réussit.
+    answer:
+      primary: "(cd exports && pwd)"
+      accepted:
+        - "( cd exports && pwd )"
+        - "(cd ./exports && pwd)"
+        - "( cd ./exports && pwd )"
+    explanation: |-
+      Le groupe entre parenthèses s’exécute dans un sous-shell.
+      Le changement de dossier y reste local. Grâce à &&, pwd
+      n’est appelé que si le déplacement réussit.
+  - id: "relative-from-peer"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Le chemin plans/est/coupe.svg est relatif à /atelier. Tu es
+      maintenant dans /atelier/rendus/mai, sans lien symbolique dans
+      ces chemins. Écris le plus court chemin relatif vers le même
+      fichier depuis ce dossier.
+    answer:
+      primary: "../../plans/est/coupe.svg"
+    explanation: |-
+      Il faut remonter de mai à rendus, puis à atelier, avant de
+      descendre dans plans/est. Le point de départ détermine le
+      sens d’un chemin relatif.
+  - id: "dash-leading-name"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sur macOS, affiche le contenu du fichier « -notes.txt » du
+      répertoire courant sur la sortie standard, sans le renommer.
+    answer:
+      primary: "cat -- -notes.txt"
+      accepted:
+        - "cat ./-notes.txt"
+        - "cat -- '-notes.txt'"
+        - "cat -- \"-notes.txt\""
+    explanation: |-
+      Le séparateur -- met fin aux options de cat. Le préfixe ./
+      évite aussi un tiret initial. Les guillemets seuls ne
+      changent pas le premier caractère de l’argument reçu par
+      cat.
+  - id: "case-sensitive-volume"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sur deux volumes APFS, le seul fichier d’un dossier s’appelle
+      Budget.txt. L’un est sensible à la casse, l’autre non. Aucun
+      motif n’est utilisé : sur quel volume le listage du chemin
+      exact demandé sous la forme budget.txt trouve-t-il le fichier ?
+    choices:
+      - "Sur les deux volumes."
+      - "Seulement sur le volume sensible à la casse."
+      - "Seulement sur le volume insensible à la casse."
+    answer:
+      primary: "Seulement sur le volume insensible à la casse."
+    explanation: |-
+      Le nom enregistré reste Budget.txt sur les deux volumes.
+      Seule la comparaison du nom demandé change : une recherche
+      insensible à la casse trouve aussi Budget.txt via
+      budget.txt.

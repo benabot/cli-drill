@@ -27,6 +27,10 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
+- Sur la branche locale `content/p25-wave1-paths-files`, la
+  [vague 1 de P2.5](docs/CORPUS_P25_WAVE1.md) porte le corpus à 121 exercices
+  dans 12 chapitres : 51 Beginner, 46 Intermediate et 24 Advanced.
+  Les chapitres `00` et `12` comptent chacun 10 exercices par niveau.
 - Le corpus publié sur `dev` à `4320650` compte 75 exercices dans 12 chapitres
   YAML : 44 Beginner, 27 Intermediate et 4 Advanced.
   Les rapports des [lots 1](docs/CORPUS_P25_LOT1.md) et
@@ -34,7 +38,7 @@ L'interface présente CLI-Drill comme un outil d'entraînement local au terminal
   Les dix chapitres du corpus de référence P2.1 restent des fixtures de test.
 - Le démarrage direct CLI et TUI choisit le premier chapitre textuel éligible.
   Avec les préférences initiales, `00-premiers-pas` propose huit exercices Unix
-  textuels, Beginner et guidés.
+  textuels, Beginner et guidés dans le corpus publié ; dix sur la branche locale.
 - Les choix QCM sont désormais affichés aussi en CLI texte ; la saisie reste un
   libellé ou une variante acceptée, sans nouveau système de correction.
 - Corpus exclusivement intégré depuis P0.1 ; aucun chargement automatique des
@@ -660,8 +664,20 @@ publié sur `dev` à `4320650`.
 La [stratégie d'enrichissement](docs/CURRICULUM.md) porte la cible à au moins
 10 exercices de chacun des trois niveaux par chapitre, soit 360 au minimum
 pour les 12 chapitres actuels. À la base publiée, il manque au moins 285
-exercices. La matrice décrit le travail à venir ; elle n'ajoute aucun contenu
-jouable.
+exercices.
+
+### P2.5 — Repères, fichiers et droits, vague 1 implémentée et testée
+
+Depuis `d945059`, la branche locale `content/p25-wave1-paths-files` ajoute
+46 exercices sans module tiers : 22 dans `00-premiers-pas` (Learn guidé,
+Review mélangé) et 24 dans `12-fichiers-permissions` (mélangé). Les 75
+exercices historiques et leurs clés sont conservés. Le
+[rapport de vague](docs/CORPUS_P25_WAVE1.md) documente la couverture, les
+références, les tests et les essais isolés. Cinq vagues restent à traiter.
+
+Les modifications sont locales et non indexées. La recette humaine d’ensemble
+reste prévue en P2.6 dans Ghostty ; l’intégration et la publication de la vague
+1 ne sont pas autorisées.
 
 ## Validation et limites de preuve
 

@@ -24,7 +24,8 @@ func TestStartTrainingUsesV2FoundationsAndKeepsDirectCapture(t *testing.T) {
 	if m.chapters[m.chapterIndex].ID != "00-premiers-pas" {
 		t.Fatal("Start training did not select Unix foundations")
 	}
-	for _, item := range chapters[0].Items {
+	filter := chapter.SessionFilter{Difficulty: chapter.DifficultyBeginner}
+	for _, item := range filter.EligibleItems(chapters[0], chapter.TextExercises) {
 		for _, line := range strings.Split(item.Prompt, "\n") {
 			assertContains(t, m.View(), line)
 		}
@@ -35,7 +36,7 @@ func TestStartTrainingUsesV2FoundationsAndKeepsDirectCapture(t *testing.T) {
 	}
 	assertScreen(t, m, screenHome)
 	state, err := progress.Load(path)
-	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 8, Correct: 8}) {
+	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 10, Correct: 10}) {
 		t.Fatalf("TUI progress: %#v (%v)", state, err)
 	}
 	m.home.Select(homeActionIndex(homeActionShortcuts))

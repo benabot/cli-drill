@@ -89,3 +89,429 @@ items:
       u désigne le propriétaire du fichier et +x ajoute son droit
       d’exécution. Un mode numérique imposerait un ensemble de
       droits, alors qu’ici les autres bits doivent être conservés.
+  - id: "touch-new-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans le dossier courant, crée le fichier vide accueil.txt,
+      qui n’existe pas encore, avec l’utilitaire qui sert à régler
+      les dates des fichiers.
+    answer:
+      primary: "touch accueil.txt"
+      accepted:
+        - "touch ./accueil.txt"
+    explanation: |-
+      Sans l’option -c, touch crée le fichier s’il manque.
+      Sur un fichier existant, touch ajuste des dates et ne vide
+      pas le contenu.
+  - id: "copy-backup-name"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Garde devis.txt en place et fais-en une copie nommée devis.bak
+      au même endroit. Le nom devis.bak est libre.
+    answer:
+      primary: "cp devis.txt devis.bak"
+      accepted:
+        - "cp ./devis.txt ./devis.bak"
+    explanation: |-
+      Avec deux noms de fichier, cp crée la copie sous le second.
+      Un déplacement ferait disparaître le nom devis.txt.
+  - id: "read-owner-column"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Quel compte possède le fichier de cette liste détaillée ?
+
+      -rw-r-----  1 nora studio  126  Jun 14 09:15 idee.txt
+    answer:
+      primary: "nora"
+    explanation: |-
+      Après le mode et le nombre de liens vient le compte
+      propriétaire, nora. La colonne suivante, studio, est le
+      groupe.
+  - id: "chmod-group-no-write"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Tu possèdes maquette.txt, un fichier ordinaire du groupe
+      design en mode 0664, dans un dossier traversable. Sans ACL
+      ni bit spécial, retire l’écriture au groupe seulement.
+    answer:
+      primary: "chmod g-w maquette.txt"
+      accepted:
+        - "chmod g-w ./maquette.txt"
+    explanation: |-
+      Le mode symbolique g-w enlève le bit d’écriture de la
+      classe groupe. Il laisse intacts les autres bits, y compris
+      l’écriture du propriétaire.
+  - id: "recognize-link-entry"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Quel nom d’entrée désigne le lien symbolique dans cette liste ?
+
+      -rw-r--r--  1 lina doc  82  Jun 14 09:15 edition.txt
+      lrwxr-xr-x  1 lina doc  11  Jun 14 09:16 edition -> edition.txt
+    answer:
+      primary: "edition"
+    explanation: |-
+      Le premier caractère l indique un lien symbolique ; la
+      flèche montre sa cible. Le tiret initial indique un fichier
+      ordinaire.
+  - id: "copy-directory-tree"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Le dossier modeles contient des sous-dossiers et fichiers
+      ordinaires, sans liens. Crée à côté une copie complète de
+      cette arborescence sous le nom livraison, encore libre.
+    answer:
+      primary: "cp -R modeles livraison"
+      accepted:
+        - "cp -R ./modeles ./livraison"
+    explanation: |-
+      -R copie le dossier avec tous ses descendants. Sans cette
+      option, cp ne copie pas une arborescence.
+  - id: "copy-confirm-overwrite"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Copie index.txt dans depot, où un fichier ordinaire de même
+      nom existe déjà. La copie doit te demander confirmation
+      avant de le remplacer.
+    answer:
+      primary: "cp -i index.txt depot/index.txt"
+      accepted:
+        - "cp -i index.txt depot/"
+        - "cp -i index.txt depot"
+    explanation: |-
+      -i demande confirmation avant de remplacer le fichier.
+      Une option qui interdit tout écrasement ne te laisse pas
+      décider au moment de la copie.
+  - id: "move-many-sources"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Déplace rouge.txt et bleu.txt dans le dossier collecte, qui
+      existe et ne contient pas ces noms. Laisse vert.txt en place
+      et fais le déplacement en une commande.
+    answer:
+      primary: "mv rouge.txt bleu.txt collecte/"
+      accepted:
+        - "mv bleu.txt rouge.txt collecte/"
+        - "mv rouge.txt bleu.txt collecte"
+        - "mv bleu.txt rouge.txt collecte"
+    explanation: |-
+      Avec plusieurs sources, le dernier argument de mv doit être
+      un répertoire. Les deux noms explicites laissent vert.txt
+      hors de l’opération.
+  - id: "copy-preserve-times"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Sur macOS, copie ton fichier ordinaire source.txt au même
+      endroit sous le nom libre copie.txt. Préserve sur la copie
+      les dates d’accès et de modification de la source.
+    answer:
+      primary: "cp -p source.txt copie.txt"
+      accepted:
+        - "cp -p ./source.txt ./copie.txt"
+    explanation: |-
+      L’option -p demande notamment de préserver les dates d’accès
+      et de modification. Une copie ordinaire ne garantit pas ces
+      dates sur le nouveau fichier.
+  - id: "link-relative-target"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Depuis /atelier, crée le lien symbolique vues/fiche, nom
+      libre, vers /atelier/source/fiche.txt. Les deux dossiers
+      existent et ne sont pas des liens. Stocke le plus court
+      chemin relatif.
+    answer:
+      primary: "ln -s ../source/fiche.txt vues/fiche"
+      accepted:
+        - "ln -s ../source/fiche.txt ./vues/fiche"
+    explanation: |-
+      ln -s stocke le texte de la cible tel quel. Lors de l’accès,
+      ce chemin part de /atelier/vues, le dossier qui contient le
+      lien, et non du répertoire où la commande a été saisie.
+  - id: "readlink-stored-target"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Sur macOS, raccourci est un lien symbolique. Affiche seulement
+      le chemin stocké dans ce lien, sans le convertir en chemin
+      absolu ni vérifier que la cible existe.
+    answer:
+      primary: "readlink raccourci"
+      accepted:
+        - "readlink ./raccourci"
+    explanation: |-
+      readlink sans option lit la chaîne stockée dans le lien.
+      Elle peut être relative ou désigner un fichier absent.
+  - id: "chmod-two-classes"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Tu possèdes bilan.txt, fichier ordinaire du groupe équipe en
+      mode 0622, sans ACL ni bit spécial, dans un dossier traversable.
+      Ajoute la lecture au groupe et retire l’écriture aux autres
+      par deux changements ciblés en une commande.
+    answer:
+      primary: "chmod g+r,o-w bilan.txt"
+      accepted:
+        - "chmod o-w,g+r bilan.txt"
+    explanation: |-
+      Les clauses séparées par une virgule visent des classes
+      distinctes. Le groupe garde son droit d’écriture ; les
+      autres perdent uniquement le leur.
+  - id: "interpret-octal-mode"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Un fichier ordinaire est en mode 0651, sans ACL ni bit spécial.
+      Écris ses neuf caractères de permissions, sans le caractère
+      de type.
+    answer:
+      primary: "rw-r-x--x"
+    explanation: |-
+      6 donne lecture et écriture, 5 lecture et exécution,
+      et 1 exécution seule. L’ordre est propriétaire, groupe,
+      puis autres.
+  - id: "missing-directory-search"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Nina appartient à doc. Le dossier /atelier/coffre (Lina:doc)
+      est en 0740, et note.txt dedans (Lina:doc) en 0640. Nina peut
+      traverser les autres parents ; ni ACL ni bit spécial. Quel
+      droit lui manque sur coffre pour lire note.txt par son chemin ?
+    answer:
+      primary: "Exécution"
+      accepted:
+        - "x"
+        - "traversée"
+        - "execution"
+        - "exécution"
+    explanation: |-
+      Pour traverser un répertoire, il faut son droit d’exécution.
+      La lecture du dossier permet d’énumérer ses noms, mais ne
+      suffit pas pour atteindre le fichier qui s’y trouve.
+  - id: "remove-symlink-only"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans un dossier dont tu es propriétaire (toi:doc, 0700), acces
+      est un lien vers le fichier ordinaire fiche.txt (toi:doc, 0644)
+      du même dossier, sans restriction supplémentaire. Si tu
+      supprimes acces sans barre oblique finale, que reste-t-il ?
+    choices:
+      - "Les deux noms disparaissent."
+      - "Seul fiche.txt disparaît."
+      - "Seul acces disparaît."
+    answer:
+      primary: "Seul acces disparaît."
+    explanation: |-
+      La suppression vise l’entrée du lien symbolique. Le fichier
+      fiche.txt reste accessible par son propre nom, car ce chemin
+      n’a pas été supprimé.
+  - id: "umask-file-and-directory"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sous Linux, un programme demande 0666 pour un fichier ordinaire
+      et 0777 pour un dossier neuf. Le masque vaut 0027, le parent
+      n’a ni ACL par défaut ni bit spécial. Donne les deux modes
+      obtenus, fichier puis dossier, trois chiffres séparés par un
+      espace.
+    answer:
+      primary: "640 750"
+    explanation: |-
+      Le masque retire des bits : mode demandé ET complément du
+      masque. On obtient 0640 pour le fichier et 0750 pour le
+      dossier. Ce n’est pas une soustraction octale.
+  - id: "unlink-vs-write"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sous Linux, tu possèdes depot (toi:doc, 0700) et peux
+      traverser ses parents. Tu n’es ni root ni membre de qa ;
+      essai.txt (Lina:qa, 0444) est un fichier ordinaire de depot.
+      Sans ACL, bit spécial ni autre restriction, lesquels de ces
+      actes sont permis : écrire en place ou supprimer le nom ?
+    choices:
+      - "Les deux gestes."
+      - "Modifier le contenu seulement."
+      - "Supprimer le nom seulement."
+      - "Aucun des deux gestes."
+    answer:
+      primary: "Supprimer le nom seulement."
+    explanation: |-
+      Écrire en place nécessite l’écriture sur le fichier.
+      Supprimer son nom nécessite l’écriture et la traversée du
+      parent. Ici, seul le second geste est autorisé.
+  - id: "sticky-shared-directory"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sous Linux, tu n’es pas root. Dans /echange (root:doc, 1777),
+      mon.txt t’appartient et autre.txt appartient à Lina ; les deux
+      sont des fichiers ordinaires du groupe doc, en 0666. Sans ACL
+      ni autre restriction, quels fichiers peux-tu supprimer ?
+    choices:
+      - "Les deux fichiers."
+      - "Mon fichier seulement."
+      - "Aucun des deux fichiers."
+    answer:
+      primary: "Mon fichier seulement."
+    explanation: |-
+      Dans un dossier avec sticky bit, les droits du parent ne
+      suffisent pas. Sans privilège, seuls le propriétaire du
+      fichier ou celui du dossier peuvent supprimer l’entrée.
+  - id: "setgid-inherit-group"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sous Linux, Nora a pour groupe principal bleu et appartient
+      à atelier. Dans /projet (Lina:atelier, 2775), elle crée un
+      fichier ordinaire. Il n’y a ni ACL ni restriction supplémentaire.
+      Quel groupe possédera le nouveau fichier ?
+    answer:
+      primary: "atelier"
+    explanation: |-
+      Sous Linux, le bit setgid du répertoire fait hériter son
+      groupe aux nouvelles entrées. Le groupe du fichier est donc
+      atelier, même si le groupe principal de Nora est bleu.
+  - id: "move-relative-symlink"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Le lien /atelier/vues/plan stocke ../source/plan.txt. Tu
+      déplaces le lien lui-même vers /atelier/archives/vues/plan,
+      nom libre sur le même volume. Les dossiers existent et ne sont
+      pas des liens. Quel chemin absolu ce lien tente-t-il d’ouvrir ?
+    answer:
+      primary: "/atelier/archives/source/plan.txt"
+    explanation: |-
+      Déplacer le lien ne réécrit pas le chemin stocké. Celui-ci
+      part maintenant de /atelier/archives/vues. Il remonte vers
+      archives avant de chercher source/plan.txt.
+  - id: "hardlink-after-replace"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      rapport et temoin sont deux liens physiques du même fichier
+      ordinaire. vue est un lien symbolique vers rapport. Un fichier
+      neuf au contenu différent remplace rapport par renommage sur
+      le même volume. Quels noms donnent encore l’ancien contenu ?
+    choices:
+      - "temoin et vue."
+      - "vue seulement."
+      - "temoin seulement."
+      - "Aucun des deux."
+    answer:
+      primary: "temoin seulement."
+    explanation: |-
+      temoin désigne toujours l’inode d’origine. vue suit le nom
+      rapport, qui désigne maintenant le nouvel inode. Un
+      renommage de remplacement n’écrit pas dans l’ancien fichier.
+  - id: "chmod-conditional-search"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Tu possèdes toute l’arborescence depot, groupe doc, sans lien,
+      ACL ni bit spécial. Les dossiers sont en 0700, les documents
+      en 0640 et les scripts en 0740. En une commande récursive,
+      donne au groupe la traversée des dossiers et l’exécution des
+      seuls fichiers déjà exécutables, sans toucher aux autres bits.
+    answer:
+      primary: "chmod -R g+X depot"
+      accepted:
+        - "chmod -R g+X ./depot"
+    explanation: |-
+      X ajoute le droit aux dossiers et aux fichiers qui ont déjà
+      un bit d’exécution. Un x minuscule l’ajouterait aussi aux
+      documents.
+  - id: "copy-exact-destination-gnu"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sous GNU/Linux, plan.txt est un fichier ordinaire et cible
+      est un dossier accessible, sans plan.txt dedans. Écris une
+      commande de copie qui traite cible comme le nom exact du
+      fichier à écrire et échoue si c’est un dossier.
+    answer:
+      primary: "cp -T plan.txt cible"
+      accepted:
+        - "cp --no-target-directory plan.txt cible"
+    explanation: |-
+      Avec -T, GNU cp ne traite pas le dernier opérande comme
+      un dossier de destination. Un fichier ordinaire ne peut
+      pas écraser un dossier : aucun fichier n’y est créé.
+  - id: "stat-mode-macos"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Tu portes un contrôle de GNU/Linux vers macOS. Avec l’outil
+      natif d’inspection des métadonnées, affiche uniquement le
+      mode octal du fichier ordinaire fiche.txt, sans le type ni
+      le nom, sur une ligne.
+    answer:
+      primary: "stat -f %OLp fiche.txt"
+      accepted:
+        - "stat -f '%OLp' fiche.txt"
+        - "stat -f \"%OLp\" fiche.txt"
+    explanation: |-
+      Sur macOS, -f choisit le format ; %OLp affiche en octal la
+      partie permissions du mode. GNU stat demande le format avec
+      -c et utilise %a pour les droits en octal.

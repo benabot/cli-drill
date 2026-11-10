@@ -243,8 +243,14 @@ après la recette finale sous Ghostty sur macOS le 10 novembre 2026.
 Il est intégré et publié sur `dev` à `4320650`.
 [Rapport du lot](docs/CORPUS_P25_LOT2.md)
 
+- [x] Vague 1 « Repères, fichiers et droits » implémentée et testée
+  localement : 46 ajouts dans `00` et `12`, 10 exercices par niveau et par
+  chapitre, 121 au total. [Rapport de vague](docs/CORPUS_P25_WAVE1.md).
+  La recette humaine d'ensemble reste en P2.6 ; intégration et publication
+  non autorisées.
 - [ ] Atteindre au moins 10 Beginner, 10 Intermediate et 10 Advanced par
-  chapitre, soit au moins 360 exercices pour les 12 chapitres actuels.
+  chapitre, soit au moins 360 exercices pour les 12 chapitres actuels. Il
+  reste cinq vagues et au moins 239 exercices.
 - [ ] Suivre la [matrice pédagogique et le découpage en lots](docs/CURRICULUM.md) :
   couvrir les compétences manquantes, résoudre les recouvrements et préciser les
   extensions de périmètre avant d'écrire les exercices concernés.
@@ -350,7 +356,8 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.4 — `refactor/session-order` (terminée) | Préparation commune, niveau, mélange, guidage et projection des acquis. | Huit essais Terminal.app validés. Intégrée et publiée sur `origin/dev` à `f096eec`. |
 | P2.5, lot 1 — `content/v2-expansion-unix-01` (intégré et publié) | Trois chapitres Unix/Shell et révision éditoriale du corpus existant. | T01 à T08 validés dans Ghostty. Publié sur `dev` à `b809151`. [Détails](docs/CORPUS_P25_LOT1.md). |
 | P2.5, lot 2 — `content/v2-expansion-cli-02` (intégré et publié) | Outils CLI modernes, 18 exercices dans six chapitres. | Recette fonctionnelle et UX réussie sous Ghostty le 10 novembre 2026. Publié sur `dev` à `4320650`. [Détails](docs/CORPUS_P25_LOT2.md). |
-| P2.5, lots suivants — `content/v2-expansion-<lot>` | Au moins 30 exercices par chapitre, dont 10 par niveau. | [Matrice et lots](docs/CURRICULUM.md) ; validation par lot. |
+| P2.5, vague 1 — `content/p25-wave1-paths-files` (implémentée et testée localement) | 46 exercices sur les repères, les fichiers et les droits ; 30 dans chacun des chapitres `00` et `12`. | Base `d945059` ; [contrôles et limites](docs/CORPUS_P25_WAVE1.md). |
+| P2.5, vagues 2 à 6 — branches à définir | Au moins 30 exercices par chapitre, dont 10 par niveau. | [Matrice et lots](docs/CURRICULUM.md) ; validation par lot. |
 | P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
 | P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
 

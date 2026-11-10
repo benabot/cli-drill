@@ -33,10 +33,21 @@ func embeddedChoiceChapters(t *testing.T) []chapter.Chapter {
 			}
 		}
 	}
-	if len(result) != 4 {
-		t.Fatalf("expected all four embedded QCM, got %d", len(result))
+	if len(result) == 0 {
+		t.Fatal("embedded corpus contains no multiple-choice exercises")
 	}
 	return result
+}
+
+func embeddedChoiceChapter(t *testing.T, chapterID, itemID string) chapter.Chapter {
+	t.Helper()
+	for _, ch := range embeddedChoiceChapters(t) {
+		if ch.ID == chapterID && ch.Items[0].ID == itemID {
+			return ch
+		}
+	}
+	t.Fatalf("missing embedded QCM: %s/%s", chapterID, itemID)
+	return chapter.Chapter{}
 }
 
 // Missing choices, ignored movement or a wrong label passed to correction must fail here.
@@ -111,7 +122,7 @@ func TestMultipleChoiceEveryEmbeddedOption(t *testing.T) {
 }
 
 func TestMultipleChoiceNavigationAndInterruptions(t *testing.T) {
-	ch := embeddedChoiceChapters(t)[0]
+	ch := embeddedChoiceChapter(t, "02-navigation-shell", "fd-find-dir")
 	for _, exit := range []tea.KeyType{tea.KeyEsc, tea.KeyCtrlC} {
 		t.Run(exit.String(), func(t *testing.T) {
 			path := recordingPath(t)
@@ -209,7 +220,7 @@ func TestKeyboardShortcutsNoCaptureChapterDoesNotLaunch(t *testing.T) {
 }
 
 func TestMultipleChoiceFeedbackInterruptionDoesNotRecordAgain(t *testing.T) {
-	ch := embeddedChoiceChapters(t)[0]
+	ch := embeddedChoiceChapter(t, "02-navigation-shell", "fd-find-dir")
 	for _, exit := range []tea.KeyType{tea.KeyEsc, tea.KeyCtrlC} {
 		for _, wrong := range []bool{false, true} {
 			t.Run(exit.String()+"/wrong="+fmt.Sprint(wrong), func(t *testing.T) {
@@ -284,7 +295,7 @@ func choiceTestOptions(ch chapter.Chapter, path string) Options {
 		Chapters:     chapters,
 		ProgressPath: path,
 		LoadPreferences: func() ([]string, chapter.Difficulty, error) {
-			return chapter.AvailableTools(chapters), chapter.DifficultyBeginner, nil
+			return chapter.AvailableTools(chapters), ch.Items[0].Difficulty, nil
 		},
 	}
 }
