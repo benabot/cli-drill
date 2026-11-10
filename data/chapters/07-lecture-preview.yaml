@@ -19,3 +19,46 @@ items:
       utiliser un pager. La casse de README.md fait partie du nom
       fourni ; bat readme.md désignerait potentiellement un autre
       fichier.
+  - id: "bat-number-lines"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["bat"]
+    prompt: |-
+      Affiche README.md avec bat en ne gardant que les numéros
+      de ligne comme décoration.
+    answer:
+      primary: "bat -n README.md"
+      accepted: ["bat --number README.md", "bat --style=numbers README.md"]
+    explanation: |-
+      -n sélectionne le style numbers, sans les autres
+      décorations. Le pager peut dépendre de la configuration.
+  - id: "bat-line-range"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["bat"]
+    prompt: |-
+      Avec bat, affiche seulement les lignes 10 à 20 incluses
+      de notes.txt.
+    answer:
+      primary: "bat -r 10:20 notes.txt"
+      accepted: ["bat --line-range 10:20 notes.txt"]
+    explanation: |-
+      La plage 10:20 comprend ses deux bornes. Elle limite les
+      lignes affichées sans modifier le fichier.
+  - id: "bat-json-stdin"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["bat"]
+    prompt: |-
+      Un flux JSON arrive sur l’entrée standard. Avec bat, impose
+      cette syntaxe et la couleur même en sortie redirigée, sans pager.
+    answer:
+      primary: "bat --color=always --paging=never -l json"
+      accepted: ["bat --color=always -P -l json", "bat --color=always --paging=never --language json"]
+    explanation: |-
+      -l impose la syntaxe, --paging=never évite le pager et
+      --color=always émet des codes ANSI même en redirection.
+      Le programme destinataire doit savoir les interpréter.

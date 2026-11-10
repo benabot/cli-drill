@@ -34,3 +34,17 @@ items:
       Lazygit fournit une interface terminal pour Git et s’utilise
       dans un dépôt. lg peut être un alias personnel, mais ce nom
       n’est pas une commande universelle et n’est pas requis.
+  - id: "atuin-failed-search"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["atuin"]
+    prompt: |-
+      Dans l’historique Atuin, cherche git parmi les commandes
+      terminées avec le code de sortie 1.
+    answer:
+      primary: "atuin search --exit 1 git"
+      accepted: ["atuin search -e 1 git"]
+    explanation: |-
+      --exit filtre selon le code enregistré par Atuin.
+      La recherche ne relance aucune commande historique.

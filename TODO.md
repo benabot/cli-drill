@@ -237,8 +237,11 @@ Les parcours P2.2 à P2.4 sont validés. Le [lot 1 Unix/Shell](docs/CORPUS_P25_L
 ajoute 18 exercices dans trois chapitres et relit les 39 exercices existants.
 Le premier lot est terminé et validé après la recette finale dans Ghostty
 sur macOS le 10 novembre 2026 : T01 à T08 sont réussis, dont T07. Les 57
-exercices sont acceptés et le lot est prêt pour commit sur sa branche.
-Son intégration et sa publication restent à réaliser.
+exercices sont acceptés. Le lot 1 est intégré et publié sur `dev` à `b809151`.
+Le lot 2 ajoute 18 exercices, soit 75 au total. Il est terminé et validé
+après la recette finale sous Ghostty sur macOS le 10 novembre 2026.
+Il est prêt pour commit sur `content/v2-expansion-cli-02`.
+[Rapport du lot](docs/CORPUS_P25_LOT2.md)
 
 - [ ] Enrichir les trois familles par petits lots relus et essayés, avec les
   trois niveaux progressivement représentés ; priorité aux commandes, scénarios
@@ -344,7 +347,8 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.2 — `content/v2-first-corpus` (terminée et validée) | Premier corpus révisé et annoté avec 39 exercices et choix QCM visibles en CLI. | Base `ab2096c`. Huit essais manuels réussis dans Terminal.app le 9 novembre 2026. |
 | P2.3 — `feat/cli-preferences` (intégrée et publiée) | Modules manuels et préférences séparées. | Six essais Terminal.app réussis le 9 novembre 2026. Publiée sur `dev` à `1e0c396`. |
 | P2.4 — `refactor/session-order` (terminée) | Préparation commune, niveau, mélange, guidage et projection des acquis. | Huit essais Terminal.app validés. Intégrée et publiée sur `origin/dev` à `f096eec`. |
-| P2.5, lot 1 — `content/v2-expansion-unix-01` (terminé et validé) | Trois chapitres Unix/Shell et révision éditoriale du corpus existant. | Base `f096eec`. T01 à T08 validés dans Ghostty. Prêt pour commit ; intégration et publication à réaliser. [Détails](docs/CORPUS_P25_LOT1.md). |
+| P2.5, lot 1 — `content/v2-expansion-unix-01` (intégré et publié) | Trois chapitres Unix/Shell et révision éditoriale du corpus existant. | T01 à T08 validés dans Ghostty. Publié sur `dev` à `b809151`. [Détails](docs/CORPUS_P25_LOT1.md). |
+| P2.5, lot 2 — `content/v2-expansion-cli-02` (terminé et validé) | Outils CLI modernes, 18 exercices dans six chapitres. | Recette fonctionnelle et UX réussie sous Ghostty le 10 novembre 2026. Prêt pour commit. Intégration et publication à faire. [Détails](docs/CORPUS_P25_LOT2.md) |
 | P2.5, lots suivants — `content/v2-expansion-<lot>` | Enrichissement vers la cible indicative de 100 à 120 exercices. | Critères P2.5 et validation par lot. |
 | P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
 | P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |

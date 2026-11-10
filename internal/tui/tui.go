@@ -665,51 +665,48 @@ func (m model) chapterDetailView() string {
 	styles := newTUIStyles()
 	current := m.currentChapter()
 	if current == nil {
-		return "No chapter selected."
+		return "Aucun chapitre sélectionné."
 	}
 	score := m.progress.ChapterScores[current.ID]
 	filter := m.detailFilter()
 	eligible := filter.EligibleItems(*current, m.detailScope)
 	acquired := chapter.AcquiredCount(current.ID, eligible, m.progress.CompletedExercises)
+	heading := styles.Info.Bold(true)
+	order := "Ordre aléatoire"
+	if current.Guided() {
+		order = "Mode : Apprendre (ordre du chapitre) · m Changer"
+		if m.detailMode == chapter.ModeReview {
+			order = "Mode : Réviser (ordre aléatoire) · m Changer"
+		}
+	}
 	lines := []string{
 		styles.ScreenTitle.Render(current.Title),
-		styles.Subtitle.Width(m.chapterList.Width()).Render(current.Description),
-		styles.Separator.Render("────────────────────────────────────────"),
+		styles.Subtitle.Render(current.Description),
 		"",
-		"Chapter: " + current.ID,
-		fmt.Sprintf("Exercises: %d in corpus", len(current.Items)),
-		fmt.Sprintf("Session difficulty: %s · d change", filter.Difficulty),
-		sessionLevelCounts(*current, m.detailScope, filter),
-		fmt.Sprintf("Active acquired: %d/%d eligible", acquired, len(eligible)),
-		fmt.Sprintf("Historical chapter score: %d/%d correct", score.Correct, score.Attempts),
+		heading.Render("Chapitre") + fmt.Sprintf(" · Exercices au total : %d", len(current.Items)),
 		"",
-	}
-	if current.Guided() {
-		mode := "Learn (editorial order)"
-		if m.detailMode == chapter.ModeReview {
-			mode = "Review (shuffled)"
-		}
-		lines = append(lines, "Mode: "+mode+" · m change")
-	} else {
-		lines = append(lines, "Order: shuffled")
+		heading.Render("Ma séance"),
+		"Niveau : " + sessionLevelLabel(filter.Difficulty) + " · d Changer",
+		order,
+		fmt.Sprintf("Exercices éligibles : %d", len(eligible)),
+		styles.Muted.Render(sessionLevelCounts(*current, m.detailScope, filter)),
+		"",
+		heading.Render("Ma progression"),
+		eligibleAcquiredLabel(acquired, len(eligible)),
+		fmt.Sprintf("Score historique : %d/%d (bonnes réponses / tentatives)", score.Correct, score.Attempts),
 	}
 	prepared := *current
 	prepared.Items = eligible
 	switch {
 	case len(eligible) == 0:
-		lines = append(lines, styles.Warning.Render(filter.EmptyReason(*current, m.detailScope)))
+		lines = append(lines, "", styles.Warning.Render("Aucun exercice éligible à ce niveau avec les modules actifs."))
 	case prepared.HasKeyExercises():
-		lines = append(lines,
-			styles.Info.Render("Ce chapitre entraîne les vrais raccourcis clavier."),
-			"cli-drill ouvre un mode dédié pour capturer les touches.",
-		)
+		lines = append(lines, styles.Info.Render("Capture réelle des raccourcis dans un mode dédié."))
 		if m.captureUnavailable != "" {
 			lines = append(lines, styles.Warning.Render(m.captureUnavailable))
 		}
-	default:
-		lines = append(lines, "Press enter to start this chapter.")
 	}
-	return strings.Join(lines, "\n")
+	return lipgloss.NewStyle().Width(m.chapterList.Width()).Render(strings.Join(lines, "\n"))
 }
 
 func (m model) trainingView() string {
@@ -800,14 +797,45 @@ func (m model) trainingSummaryView() string {
 func (m model) statsView() string {
 	styles := newTUIStyles()
 	acquired, total := m.filter.ActiveCounts(m.chapters, m.progress.CompletedExercises)
-	lines := []string{
-		styles.ScreenTitle.Render("My progress"),
-		styles.Separator.Render("────────────────────────────────────────"),
-		fmt.Sprintf("Active acquired (%s, enabled CLI modules): %d/%d", m.filter.Difficulty, acquired, total),
-		fmt.Sprintf("Historical acquired: %d", len(m.progress.CompletedExercises)),
-		fmt.Sprintf("Chapters with historical scores: %d", len(m.progress.ChapterScores)),
+	practiced := 0
+	for _, score := range m.progress.ChapterScores {
+		if score.Attempts > 0 {
+			practiced++
+		}
 	}
-	return strings.Join(lines, "\n")
+	heading := styles.Info.Bold(true)
+	lines := []string{
+		styles.ScreenTitle.Render("Ma progression"),
+		"",
+		heading.Render("Progression actuelle"),
+		"Niveau : " + sessionLevelLabel(m.filter.Difficulty),
+		eligibleAcquiredLabel(acquired, total),
+	}
+	if total > 0 {
+		const barWidth = 12
+		filled := acquired * barWidth / total
+		if acquired > 0 {
+			filled = max(1, filled)
+		}
+		lines = append(lines, styles.Muted.Render("["+strings.Repeat("#", filled)+strings.Repeat("-", barWidth-filled)+"]"))
+	}
+	lines = append(lines,
+		styles.Muted.Render("Selon le niveau et les modules activés"),
+		"",
+		heading.Render("Historique global"),
+		fmt.Sprintf("Exercices acquis au total : %d", len(m.progress.CompletedExercises)),
+		fmt.Sprintf("Chapitres pratiqués : %d", practiced),
+		styles.Muted.Render("Les acquis restent dans l’historique après désactivation d’un module."),
+	)
+	return lipgloss.NewStyle().Width(m.chapterList.Width()).Render(strings.Join(lines, "\n"))
+}
+
+func eligibleAcquiredLabel(acquired, total int) string {
+	unit := "exercices éligibles"
+	if total == 1 {
+		unit = "exercice éligible"
+	}
+	return fmt.Sprintf("Acquis : %d sur %d %s", acquired, total, unit)
 }
 
 func (m model) helpView() string {
@@ -827,7 +855,11 @@ func (m model) footer() string {
 	if m.screen == screenPreferences {
 		return styles.Footer.Render(m.preferences.footerText())
 	}
-	return styles.Footer.Render(footerText(m.footerContext()))
+	footer := styles.Footer
+	if m.screen == screenStats || m.screen == screenChapterDetail {
+		footer = footer.Width(m.chapterList.Width())
+	}
+	return footer.Render(footerText(m.footerContext()))
 }
 
 func (m model) footerContext() footerContext {
@@ -885,15 +917,15 @@ func footerText(context footerContext) string {
 	case footerPreferences:
 		return "↑/↓ j/k · enter change · s save · esc back"
 	case footerReadOnly:
-		return "esc back · g home · h help · q quit"
+		return "Échap Retour · g Accueil · h Aide · q Quitter"
 	case footerFilterInput:
 		return "type to filter · enter apply · esc cancel · ctrl+c quit"
 	case footerFilteredList:
 		return "enter select · j/k move · esc clear filter · g home · h help · q quit"
 	case footerChapterDetail:
-		return "enter start training · esc chapters · g home · h help · q quit"
+		return "Entrée Démarrer · Échap Chapitres · g Accueil · h Aide · q Quitter"
 	case footerKeySequenceDetail:
-		return "enter start key training · esc chapters · g home · h help · q quit"
+		return "Entrée Capturer · Échap Chapitres · g Accueil · h Aide · q Quitter"
 	case footerTextInput:
 		return "enter submit · esc chapter · ctrl+c quit"
 	case footerChoiceInput:

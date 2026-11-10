@@ -106,12 +106,29 @@ func (m *model) clearSession() {
 }
 
 func sessionLevelCounts(c chapter.Chapter, scope chapter.ExerciseScope, filter chapter.SessionFilter) string {
+	selected := filter.Difficulty
 	var counts []string
 	for _, level := range []chapter.Difficulty{chapter.DifficultyBeginner, chapter.DifficultyIntermediate, chapter.DifficultyAdvanced} {
+		if level == selected {
+			continue
+		}
 		filter.Difficulty = level
-		counts = append(counts, fmt.Sprintf("%s (%d)", level, len(filter.EligibleItems(c, scope))))
+		counts = append(counts, fmt.Sprintf("%s %d", sessionLevelLabel(level), len(filter.EligibleItems(c, scope))))
 	}
-	return "Eligible by level: " + strings.Join(counts, " · ")
+	return "Autres niveaux · " + strings.Join(counts, " · ")
+}
+
+func sessionLevelLabel(level chapter.Difficulty) string {
+	switch level {
+	case chapter.DifficultyBeginner:
+		return "Débutant"
+	case chapter.DifficultyIntermediate:
+		return "Intermédiaire"
+	case chapter.DifficultyAdvanced:
+		return "Avancé"
+	default:
+		return string(level)
+	}
 }
 
 func nextDifficulty(level chapter.Difficulty) chapter.Difficulty {

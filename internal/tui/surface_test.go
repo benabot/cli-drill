@@ -102,7 +102,7 @@ func TestMyProgressHasNoDirectoryCounter(t *testing.T) {
 	m.home.Select(homeActionIndex("My progress"))
 	m = press(t, m, tea.KeyEnter)
 	assertScreen(t, m, screenStats)
-	assertContains(t, m.View(), "My progress")
+	assertContains(t, m.View(), "Ma progression")
 	assertNotContains(t, m.View(), "Directory")
 	assertNotContains(t, m.View(), "enter select")
 	assertNotContains(t, m.View(), "j/k move")

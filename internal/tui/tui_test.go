@@ -126,7 +126,7 @@ func TestNavigationHomeChaptersDetailBackHome(t *testing.T) {
 	m = press(t, m, tea.KeyEnter)
 	assertScreen(t, m, screenChapterDetail)
 	assertContains(t, m.View(), "Raccourcis terminal")
-	assertContains(t, m.View(), "Exercises: 1")
+	assertContains(t, m.View(), "Exercices au total : 1")
 
 	m = press(t, m, tea.KeyEsc)
 	assertScreen(t, m, screenChapters)
@@ -157,8 +157,7 @@ func TestChapterDetailShowsCLIOnlyGuidanceForKeySequence(t *testing.T) {
 	view := m.View()
 
 	assertScreen(t, m, screenChapterDetail)
-	assertContains(t, view, "Ce chapitre entraîne les vrais raccourcis clavier.")
-	assertContains(t, view, "cli-drill ouvre un mode dédié pour capturer les touches.")
+	assertContains(t, view, "Capture réelle des raccourcis dans un mode dédié.")
 	assertNotContains(t, strings.ToLower(view), "run cli-drill again")
 }
 
@@ -168,7 +167,7 @@ func TestChapterDetailKeySequenceFooterOffersRunInCLI(t *testing.T) {
 	m = press(t, m, tea.KeyEnter)
 	m = press(t, m, tea.KeyEnter)
 
-	assertContains(t, m.View(), "enter start key training · esc chapters · g home · h help · q quit")
+	assertContains(t, m.View(), "Entrée Capturer · Échap Chapitres · g Accueil · h Aide · q Quitter")
 }
 
 func TestChapterDetailDoesNotStartBubbleTrainingForKeySequence(t *testing.T) {
@@ -367,9 +366,9 @@ func TestFooterHintsAreContextual(t *testing.T) {
 	m = press(t, m, tea.KeyEnter)
 	m = press(t, m, tea.KeyEnter)
 
-	assertContains(t, m.View(), "enter start training")
-	assertContains(t, m.View(), "esc chapters")
-	assertContains(t, m.View(), "g home")
+	assertContains(t, m.View(), "Entrée Démarrer")
+	assertContains(t, m.View(), "Échap Chapitres")
+	assertContains(t, m.View(), "g Accueil")
 }
 
 func TestBackAndQuitKeys(t *testing.T) {

@@ -31,7 +31,7 @@ func TestChaptersAlignTerminalColumnsAndPreserveRedirectedFields(t *testing.T) {
 		}
 	}
 	redirectedRows := strings.Split(strings.TrimSuffix(redirected.String(), "\n"), "\n")
-	if len(redirectedRows) != 12 || !strings.Contains(redirected.String(), "07-lecture-preview\tLire un fichier texte\t1 exercise\n") ||
+	if len(redirectedRows) != 12 || !strings.Contains(redirected.String(), "07-lecture-preview\tLire un fichier texte\t4 exercises\n") ||
 		strings.Contains(redirected.String(), "\x1b") {
 		t.Fatalf("redirected listing lost its plain TSV fields:\n%s", redirected.String())
 	}
@@ -68,8 +68,16 @@ func TestChaptersAlignTerminalColumnsAndPreserveRedirectedFields(t *testing.T) {
 			t.Fatalf("misaligned columns: %q", row)
 		}
 	}
-	if !strings.Contains(terminal.String(), "1 exercice\n") || !strings.Contains(terminal.String(), "6 exercices\n") {
+	if !strings.Contains(terminal.String(), "4 exercices\n") || !strings.Contains(terminal.String(), "6 exercices\n") {
 		t.Fatalf("wrong terminal plurals:\n%s", terminal.String())
+	}
+
+	single := &fdBuffer{fd: 42}
+	cmd := NewRootCommand(fstest.MapFS{"single.yaml": {Data: []byte(embeddedTestChapter("One", "pwd"))}})
+	cmd.SetOut(single)
+	cmd.SetArgs([]string{"chapters"})
+	if err := cmd.Execute(); err != nil || !strings.Contains(single.String(), "1 exercice\n") {
+		t.Fatalf("terminal singular: %v\n%s", err, single.String())
 	}
 }
 

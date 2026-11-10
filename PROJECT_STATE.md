@@ -26,8 +26,9 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Le checkout du lot 1 P2.5 compte 57 exercices dans douze chapitres YAML.
-  Le [rapport du lot](docs/CORPUS_P25_LOT1.md) recense les ajouts et la relecture.
+- Le corpus du lot 2 validé de P2.5 compte 75 exercices dans 12 chapitres YAML.
+  Les rapports des [lots 1](docs/CORPUS_P25_LOT1.md) et
+  [2](docs/CORPUS_P25_LOT2.md) recensent les ajouts et validations.
   Les dix chapitres du corpus de référence P2.1 restent des fixtures de test.
 - Le démarrage direct CLI et TUI choisit le premier chapitre textuel éligible.
   Avec les préférences initiales, `00-premiers-pas` propose huit exercices Unix
@@ -641,10 +642,18 @@ Sur `content/v2-expansion-unix-01`, depuis `f096eec`, trois chapitres ajoutent
 18 commandes simulées sans module tiers. Les 39 exercices existants ont été
 relus avec conservation de leurs clés et réponses. Le corpus totalise 57
 exercices. La recette humaine finale sous Ghostty a validé T01 à T08 le
-10 novembre 2026, y compris T07. Le lot est prêt pour commit sur sa branche ;
-son intégration et sa publication restent à réaliser. Le [rapport du lot](docs/CORPUS_P25_LOT1.md)
-détaille les compétences et les validations. La cible indicative de 100 à
-120 exercices reste ouverte.
+10 novembre 2026, y compris T07. Le lot est intégré et publié sur `dev` à
+`b809151`. Le [rapport du lot](docs/CORPUS_P25_LOT1.md) détaille ses validations.
+
+### P2.5 — Outils CLI modernes, lot 2 validé
+
+Sur `content/v2-expansion-cli-02`, depuis `b809151`, 18 exercices enrichissent
+six chapitres existants. Le corpus atteint 75 exercices dans 12 chapitres.
+La recette humaine finale sous Ghostty sur macOS a validé les parcours
+fonctionnels et la présentation le 10 novembre 2026. Le lot est prêt
+pour commit sur sa branche. L'intégration et la publication restent à faire.
+La cible indicative de 100 à 120 exercices reste ouverte.
+[Rapport du lot](docs/CORPUS_P25_LOT2.md)
 
 ## Validation et limites de preuve
 

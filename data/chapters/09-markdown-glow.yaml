@@ -34,3 +34,31 @@ items:
       Le pipeline fournit un chemin choisi. $(...) le récupère
       et les guillemets en font un seul argument de glow,
       même avec des espaces. L’annulation n’est pas gérée.
+  - id: "glow-pager"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["glow"]
+    prompt: |-
+      Affiche le rendu Markdown de README.md avec Glow en
+      utilisant un pager pour parcourir le document.
+    answer:
+      primary: "glow -p README.md"
+      accepted: ["glow --pager README.md"]
+    explanation: |-
+      -p envoie le rendu vers le pager configuré. Son programme
+      et ses touches dépendent de l’environnement.
+  - id: "glow-width"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["glow"]
+    prompt: |-
+      Affiche le rendu Markdown de README.md avec une largeur
+      maximale de 60 colonnes dans Glow.
+    answer:
+      primary: "glow -w 60 README.md"
+      accepted: ["glow --width 60 README.md"]
+    explanation: |-
+      -w fixe la largeur de retour à la ligne du rendu.
+      Ce réglage concerne cet appel uniquement.

@@ -65,3 +65,31 @@ items:
       Ctrl+Q ferme le fichier courant et quitte Micro si c’est le
       dernier fichier ouvert. Des modifications non enregistrées
       peuvent provoquer une confirmation.
+  - id: "micro-undo"
+    type: "shortcut"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Dans Micro avec les raccourcis standard, annule la dernière
+      modification. Écris le raccourci.
+    answer:
+      primary: "Ctrl+Z"
+      accepted: ["control-z", "ctrl z", "^Z"]
+    explanation: |-
+      Ctrl+Z annule la dernière modification du tampon.
+      Cette réponse est textuelle, sans capture clavier.
+  - id: "micro-line-numbers"
+    type: "shortcut"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: ["micro"]
+    prompt: |-
+      Dans Micro avec les raccourcis standard, active ou masque
+      les numéros de ligne. Écris le raccourci.
+    answer:
+      primary: "Ctrl+R"
+      accepted: ["control-r", "ctrl r", "^R"]
+    explanation: |-
+      Ctrl+R bascule l’affichage des numéros de ligne.
+      Une configuration personnelle peut modifier ce raccourci.

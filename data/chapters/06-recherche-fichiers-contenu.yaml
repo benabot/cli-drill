@@ -79,3 +79,103 @@ items:
     explanation: |-
       docs borne la recherche de rg à ce dossier. fzf affiche la
       ligne sélectionnée, avec le chemin fourni par la recherche.
+  - id: "rg-numbered"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, cherche TODO dans docs et affiche le numéro
+      de chaque ligne correspondante, même en sortie redirigée.
+    answer:
+      primary: "rg -n TODO docs"
+      accepted: ["rg --line-number TODO docs"]
+    explanation: |-
+      -n ajoute le numéro de ligne aux résultats. Les fichiers
+      cachés ou ignorés restent exclus par défaut.
+  - id: "rg-matching-files"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, affiche seulement les chemins des fichiers de
+      docs contenant TODO, sans afficher leurs lignes.
+    answer:
+      primary: "rg -l TODO docs"
+      accepted: ["rg --files-with-matches TODO docs"]
+    explanation: |-
+      -l affiche une fois chaque chemin contenant une
+      correspondance, sans imprimer le contenu trouvé.
+  - id: "rg-fixed-dot"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, cherche la chaîne littérale v1.2 dans
+      notes.txt, sans interpréter le point comme un motif.
+    answer:
+      primary: "rg -F 'v1.2' notes.txt"
+      accepted: ['rg -F "v1.2" notes.txt', "rg -F v1.2 notes.txt"]
+    explanation: |-
+      -F traite le motif comme du texte littéral. Sans cette
+      option, le point représente un caractère quelconque.
+  - id: "rg-go-glob"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, cherche TODO dans les fichiers du projet
+      dont le nom se termine par .go.
+    answer:
+      primary: "rg -g '*.go' TODO"
+      accepted: ['rg -g "*.go" TODO', "rg --glob '*.go' TODO"]
+    explanation: |-
+      -g filtre les chemins avec un glob. Les guillemets
+      empêchent le shell de développer le motif avant rg.
+  - id: "fd-go-files"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["fd"]
+    prompt: |-
+      Avec fd, trouve les fichiers ordinaires du projet ayant
+      l’extension go, sans inclure les dossiers.
+    answer:
+      primary: "fd -t f -e go"
+      accepted: ["fd --type f --extension go"]
+    explanation: |-
+      -t f restreint aux fichiers et -e go filtre l’extension.
+      Les chemins cachés et ignorés restent exclus par défaut.
+  - id: "fd-hidden-notes"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["fd"]
+    prompt: |-
+      Avec fd, trouve les fichiers dont le nom contient notes,
+      y compris les cachés, en respectant les exclusions.
+    answer:
+      primary: "fd -H -t f notes"
+      accepted: ["fd --hidden --type f notes"]
+    explanation: |-
+      -H inclut les chemins cachés et -t f limite aux fichiers.
+      Les règles d’exclusion restent appliquées.
+  - id: "rg-files-select"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["rg", "fzf", "bat"]
+    prompt: |-
+      Choisis un fichier de docs contenant TODO et affiche-le avec
+      bat en une commande. La sélection est confirmée. Les chemins
+      peuvent contenir des espaces, sans tiret initial ni saut de ligne.
+    answer:
+      primary: 'bat "$(rg -l TODO docs | fzf)"'
+      accepted: ['bat "$(rg --files-with-matches TODO docs | fzf)"']
+    explanation: |-
+      rg -l fournit des chemins. La substitution récupère le
+      choix. Les guillemets préservent les espaces du chemin.
+      L’annulation n’est pas traitée par cette commande.

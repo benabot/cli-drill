@@ -94,3 +94,45 @@ items:
       cette liste à fzf. Le résultat est un chemin sélectionné,
       pas un changement de dossier. fd ignore les chemins cachés
       et exclus par défaut.
+  - id: "eza-tree-depth"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["eza"]
+    prompt: |-
+      Avec eza, affiche l’arbre du dossier courant en limitant
+      la profondeur à deux niveaux.
+    answer:
+      primary: "eza --tree --level=2"
+      accepted: ["eza -T -L 2"]
+    explanation: |-
+      --tree active la vue arborescente et --level limite la
+      profondeur. Les entrées cachées restent exclues par défaut.
+  - id: "eza-hidden-long"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["eza"]
+    prompt: |-
+      Avec eza, affiche le détail des entrées du dossier courant,
+      y compris les noms cachés mais sans les entrées . et ..
+    answer:
+      primary: "eza -la"
+      accepted: ["eza -l -a", "eza --long --all"]
+    explanation: |-
+      -l affiche les métadonnées et -a inclut les noms cachés.
+      Répéter -a inclurait aussi . et ..
+  - id: "zoxide-list-matches"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["zoxide"]
+    prompt: |-
+      Dans la base Zoxide, liste tous les dossiers correspondant à
+      docs, sans changer le répertoire courant.
+    answer:
+      primary: "zoxide query -l docs"
+      accepted: ["zoxide query --list docs"]
+    explanation: |-
+      query interroge la base et -l affiche les correspondances.
+      Cette commande écrit des chemins sans déplacer le shell.
