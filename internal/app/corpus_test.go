@@ -68,7 +68,9 @@ func TestWave3MixedTrainingRecordsKeysAndText(t *testing.T) {
 	var out bytes.Buffer
 	input := strings.NewReader("\x04\ngit switch |sauvegarde\n\x1f\n")
 	err = runTraining(Options{In: input, Out: &out, ProgressPath: path}, ch)
-	if err != nil || strings.Count(out.String(), "Correct.") != 3 {
+	if err != nil || strings.Count(out.String(), "Correct.") != 3 ||
+		!strings.Contains(out.String(), "Bilan de la séance\nBonnes réponses : 3/3") ||
+		strings.Contains(out.String(), "Chapitre termine.") {
 		t.Fatalf("mixed session: %v\n%s", err, out.String())
 	}
 	state := assertRecordingScore(t, path, chapterID, 4, 4, chapterID+"/ctrl-a",

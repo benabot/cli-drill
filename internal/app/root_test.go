@@ -889,7 +889,7 @@ func TestTrainKeySequenceExitsCleanlyOnEscapeAndCtrlC(t *testing.T) {
 		name  string
 		input string
 	}{
-		{name: "escape", input: "\x1b\x01"},
+		{name: "escape", input: "\x1b"},
 		{name: "ctrl c", input: "\x03\x01"},
 	}
 

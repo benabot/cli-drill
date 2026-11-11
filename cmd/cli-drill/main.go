@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -12,6 +13,10 @@ func main() {
 	root := app.NewRootCommand(data.Chapters())
 	if err := root.Execute(); err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
+		var exitStatus interface{ ExitCode() int }
+		if errors.As(err, &exitStatus) {
+			os.Exit(exitStatus.ExitCode())
+		}
 		os.Exit(1)
 	}
 }
