@@ -26,6 +26,10 @@ func TestStartTrainingUsesV2FoundationsAndKeepsDirectCapture(t *testing.T) {
 	}
 	filter := chapter.SessionFilter{Difficulty: chapter.DifficultyBeginner}
 	for _, item := range filter.EligibleItems(chapters[0], chapter.TextExercises) {
+		if m.screen == screenTrainingSummary {
+			assertContains(t, m.View(), "c Continuer")
+			m = press(t, m, tea.KeyRunes, 'c')
+		}
 		for _, line := range strings.Split(item.Prompt, "\n") {
 			assertContains(t, m.View(), line)
 		}
@@ -34,11 +38,14 @@ func TestStartTrainingUsesV2FoundationsAndKeepsDirectCapture(t *testing.T) {
 		assertContains(t, m.View(), "Correct.")
 		m = press(t, m, tea.KeyEnter)
 	}
-	assertScreen(t, m, screenHome)
+	assertScreen(t, m, screenTrainingSummary)
+	assertContains(t, m.View(), "Bonnes réponses : 6/6")
+	assertNotContains(t, m.View(), "c Continuer")
 	state, err := progress.Load(path)
 	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 12, Correct: 12}) {
 		t.Fatalf("TUI progress: %#v (%v)", state, err)
 	}
+	m = press(t, m, tea.KeyRunes, 'g')
 	m.home.Select(homeActionIndex(homeActionShortcuts))
 	updated, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
 	m = updated.(model)
@@ -62,7 +69,7 @@ func TestWave3ChapterBrowserAndShortcutScopes(t *testing.T) {
 	}{
 		{"mixed through chapter browser", homeActionBrowse, chapter.DifficultyIntermediate, 6, 5},
 		{"capture only through shortcuts", homeActionShortcuts, chapter.DifficultyIntermediate, 6, 0},
-		{"advanced uses text screen", homeActionBrowse, chapter.DifficultyAdvanced, 0, 8},
+		{"advanced uses text screen", homeActionBrowse, chapter.DifficultyAdvanced, 0, 6},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "progress.json")

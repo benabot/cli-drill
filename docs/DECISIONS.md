@@ -317,3 +317,13 @@ Le volume et la répartition par niveau suivent les compétences à acquérir.
 Tout nouveau chapitre requiert une validation explicite de son périmètre.
 Les vagues d'outils CLI modernes et les phases P2.6 et P3 restent prévues.
 [Spécification](SPEC.md) · [Référentiel P2.5](CURRICULUM.md#enrichissement-par-lots)
+
+## 2026-11-11 — P2.6, lots courts et progression
+
+Les séances ordinaires sont découpées en lots de six. Apprendre part des
+exercices non acquis, Réviser tire parmi tous les éligibles et le parcours
+intégral reste explicite. La visite et ses erreurs restent en mémoire. Le
+JSON v1 garde ses clés, son schéma et son contrat à un seul écrivain.
+L'absence de fichier de préférences active Git par défaut. Les choix
+enregistrés restent prioritaires.
+[Parcours utilisateur](SPEC.md#4-parcours-utilisateur)

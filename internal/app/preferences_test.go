@@ -17,7 +17,7 @@ import (
 func TestPreferencesLoadAndExplicitSave(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "cli-drill", "preferences.json")
 	initial, err := loadPreferences(path)
-	if err != nil || initial.Version != 1 || initial.EnabledTools == nil || len(initial.EnabledTools) != 0 ||
+	if err != nil || initial.Version != 1 || !slices.Equal(initial.EnabledTools, []string{"git"}) ||
 		initial.DefaultDifficulty != chapter.DifficultyBeginner {
 		t.Fatalf("defaults = %+v (%v)", initial, err)
 	}

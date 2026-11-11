@@ -1,8 +1,8 @@
 # État du projet — CLI-Drill
 
-**La base publiée `dev` à `d8b383a` compte 262 exercices. La finalisation
-P2.5 est implémentée et testée localement sur
-`content/p25-unix-git-modern-expansion`. La recette d'ensemble reste ouverte.**
+**La base publiée `dev` à `0b8bddb` contient 446 exercices dans 13 chapitres
+et les lots 1 et 2 de P2.6. Le lot 3 est préparé localement sur
+`feat/p26-short-sessions`. La recette d'ensemble reste ouverte.**
 P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
@@ -29,7 +29,7 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Sur `content/p25-unix-git-modern-expansion`, le corpus local compte
+- Le corpus publié depuis `ef5d6ba` compte
   446 exercices dans 13 chapitres, avec 149 Beginner, 169 Intermediate et
   128 Advanced. [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par-lots)
 - La base publiée à `d8b383a` inclut les neuf exercices de navigation et
@@ -51,15 +51,15 @@ L'interface présente CLI-Drill comme un outil d'entraînement local au terminal
   [2](docs/CORPUS_P25_LOT2.md) recensent les ajouts et validations.
   Les dix chapitres du corpus de référence P2.1 restent des fixtures de test.
 - Le démarrage direct CLI et TUI choisit le premier chapitre textuel éligible.
-  Avec les préférences initiales, `00-premiers-pas` propose douze exercices
-  Unix textuels, Beginner et guidés, sur la branche locale.
+  Avec les préférences initiales, `00-premiers-pas` propose un premier lot
+  de six parmi ses douze exercices Unix textuels de niveau Beginner.
 - Les choix QCM sont désormais affichés aussi en CLI texte ; la saisie reste un
   libellé ou une variante acceptée, sans nouveau système de correction.
 - Corpus exclusivement intégré depuis P0.1 ; aucun chargement automatique des
   anciens YAML utilisateur, même lorsqu'ils sont invalides.
 - Commandes publiques `chapters`, `train [chapter-id]`, `stats`, `reset --yes`
   et `prefs`, avec `--progress`, l'aide et la complétion standard Cobra.
-  `train` accepte les choix ponctuels `--difficulty` et `--mode`.
+  `train` accepte les choix ponctuels `--difficulty`, `--mode` et `--all`.
 - Anciennes commandes `init`, `scan`, `generate`, `directory`, `search`, `show`
   et option `--config` retirées ; elles produisent désormais une erreur.
 - Accueil TUI : Start training, Browse chapters, Keyboard shortcuts, My progress,
@@ -745,8 +745,8 @@ exercices éligibles. [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par
 
 ### P2.6 — Lot 2, lisibilité et navigation
 
-La branche locale `fix/p26-readable-ui` part de `dev` publié à `fb29a22`
-(lot 1). La TUI affiche le contenu à la largeur disponible et garde les
+Le lot 2 a été publié dans `dev` à `0b8bddb`, après le lot 1 à `fb29a22`.
+La TUI affiche le contenu à la largeur disponible et garde les
 commandes de navigation ainsi que le champ de réponse textuelle accessibles.
 `PgUp` et `PgDn` permettent de lire le contenu qui dépasse la hauteur.
 Les flèches continuent de sélectionner les choix d'un QCM. La correction
@@ -770,13 +770,53 @@ de tentative au défilement ou au redimensionnement. Les essais couvrent
 aussi un démarrage à 40×12, la recherche, le QCM, le mode sans couleur,
 `TERM=dumb`, les flux redirigés et les régressions de capture du lot 1.
 
-Pour la recette humaine, ouvrir le chapitre 14 en avancé dans la TUI et
-soumettre une réponse incorrecte à l'exercice 12 (bloc `BEGIN` / `END`).
+Pour la recette humaine, ouvrir le chapitre 14 en avancé dans la TUI, choisir
+le parcours intégral avec `a` et soumettre une réponse incorrecte à
+l'exercice 12 (bloc `BEGIN` / `END`).
 Relire la consigne, la fin de la solution `awk` et l'explication à 80×24,
 60×20 et 40×12. Refaire le parcours avec un QCM, puis tester la recherche
 et le retour par Échap. Comparer `chapters` dans le terminal et dans un pipe.
 Utiliser un répertoire `XDG_DATA_HOME` temporaire pour tester les modules et
-les compteurs. Les séances courtes relèvent du lot 3.
+les compteurs.
+
+### P2.6 — Lot 3, séances courtes et progression
+
+La branche locale `feat/p26-short-sessions` part de `0b8bddb`. La CLI,
+la TUI et le parcours clavier utilisent le même ordre préparé, les mêmes
+lots de six et le même décompte. `c` poursuit la visite et `r` reprend les
+seules erreurs de la dernière passe. Le lot initial garde son score.
+Le parcours intégral s'active avec `--all` ou avec `a` dans la fiche TUI.
+Apprendre s'appuie sur les acquis JSON v1. Réviser tire dans tout le filtre.
+Le curseur et les erreurs de la visite restent en mémoire.
+
+Git est actif lorsqu'aucun fichier de préférences n'existe. Une préférence
+enregistrée garde ses modules, y compris si Git est absent ou désactivé.
+`stats` et My progress comptent les chapitres qui ont au moins une tentative.
+Le remplacement atomique du JSON v1 suppose un seul écrivain. Des exécutions
+simultanées peuvent perdre des mises à jour.
+
+Sur macOS arm64 avec Go 1.27.4, les tests ciblés et complets, le détecteur
+de courses et `go vet` ont réussi. Sous pseudo-terminal, la TUI à 40×12
+a enchaîné un lot, une reprise et le lot suivant. Le parcours mixte a
+enchaîné six captures, la reprise d'une erreur et les QCM. Les scénarios
+de restauration du terminal du lot 1 et de lisibilité aux trois dimensions
+du lot 2 ont réussi. La durée et la transmission par un clavier physique
+restent à vérifier.
+
+Recette humaine à faire avec `XDG_DATA_HOME` et `--progress` temporaires :
+
+1. Lancer `cli-drill train` et faire une erreur sur les six premiers exercices.
+   Choisir `r`, corriger cette seule erreur, puis choisir `c`. Vérifier les
+   deux bilans distincts et l'absence de répétition dans le lot suivant.
+2. Interrompre puis relancer. En Apprendre, vérifier que les acquis sont
+   écartés. Une fois le filtre acquis, passer en Réviser. Comparer avec
+   `cli-drill train 00-premiers-pas --all` et avec `a` dans la fiche TUI.
+3. Ouvrir `01-raccourcis-terminal` en intermédiaire depuis le navigateur.
+   Après les six captures, continuer vers les cinq QCM. Vérifier la sortie
+   par Échap et le retour à l'accueil. Refaire sur terminal étroit.
+4. Consulter `cli-drill prefs` sans fichier, désactiver Git explicitement
+   avec `cli-drill prefs --disable git`, puis relancer le chapitre 10.
+   Vérifier le diagnostic et la conservation du choix.
 
 ## Validation et limites de preuve
 

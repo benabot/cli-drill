@@ -22,6 +22,16 @@ type ChapterScore struct {
 	Correct  int `json:"correct"`
 }
 
+func (p Progress) ChaptersWithAttempts() int {
+	count := 0
+	for _, score := range p.ChapterScores {
+		if score.Attempts > 0 {
+			count++
+		}
+	}
+	return count
+}
+
 func Default() Progress {
 	return Progress{
 		Version:            1,

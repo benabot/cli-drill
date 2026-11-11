@@ -60,7 +60,7 @@ func TestMixedTrainingStopsOnTextEscapeOrEOF(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "progress.json")
 			var out bytes.Buffer
 			err := runTraining(Options{In: strings.NewReader("x\n" + lastInput), Out: &out, ProgressPath: path}, ch)
-			if err != nil || strings.Contains(out.String(), "Enter review missed") ||
+			if err != nil || strings.Contains(out.String(), "r Revoir mes erreurs") ||
 				strings.Contains(out.String(), "Chapitre termine.") ||
 				!strings.Contains(out.String(), "Bonnes réponses : 0/1") {
 				t.Fatalf("unexpected interrupted session: %v\n%s", err, &out)

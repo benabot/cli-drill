@@ -8,7 +8,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
@@ -26,6 +25,7 @@ type Options struct {
 	In           io.Reader
 	Out          io.Writer
 	DefaultFS    fs.FS
+	AllExercises bool
 }
 
 var (
@@ -76,6 +76,7 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 				if result.CaptureChapter.ID == "" {
 					return nil
 				}
+				runOpts.AllExercises = result.AllExercises
 				if err := runTraining(runOpts, result.CaptureChapter); err != nil {
 					return err
 				}
@@ -110,11 +111,15 @@ func newChaptersCommand(opts *Options) *cobra.Command {
 
 func newTrainCommand(opts *Options) *cobra.Command {
 	var level, mode string
+	var all bool
 	cmd := &cobra.Command{
 		Use:   "train [chapter-id]",
 		Short: "Train from a chapter in the terminal",
-		Long:  "Train from a built-in chapter. Without an ID, start the first eligible text chapter. Guided chapters default to learn (editorial order). Review and independent sessions shuffle the eligible exercises.",
-		Args:  cobra.MaximumNArgs(1),
+		Long: "Train in batches of up to six. Learn focuses on exercises you have not acquired. " +
+			"Review mixes all eligible exercises. Use --all for the full filtered chapter in one batch. " +
+			"Without an ID, start the first eligible text chapter. " +
+			"At the summary, use c to continue, r to review mistakes or q to finish.",
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, *opts)
 			if err := checkProgressOverride(runOpts); err != nil {
@@ -153,11 +158,7 @@ func newTrainCommand(opts *Options) *cobra.Command {
 				selected = chapters[index]
 				scope = chapter.TextExercises
 			}
-			if sessionMode != "" && !selected.Guided() {
-				return fmt.Errorf("--mode is only available for guided chapters. %s uses shuffled order", selected.ID)
-			}
-			prepared := filter.Prepare(selected, scope, sessionMode, nil)
-			if len(prepared.Items) == 0 {
+			if len(filter.EligibleItems(selected, scope)) == 0 {
 				cmd.SilenceUsage, cmd.SilenceErrors = true, true
 				if groups := filter.MissingModuleGroups(selected, scope); len(groups) > 0 {
 					example, _, _ := strings.Cut(groups[0], " + ")
@@ -166,11 +167,22 @@ func newTrainCommand(opts *Options) *cobra.Command {
 				}
 				return fmt.Errorf("%s: %s Try --difficulty or check cli-drill prefs.", selected.ID, filter.EmptyReason(selected, scope))
 			}
-			return runTraining(runOpts, prepared)
+			state, err := progress.Load(progressPath(runOpts))
+			if err != nil {
+				return err
+			}
+			prepared := filter.PrepareVisit(selected, scope, sessionMode, all, state.CompletedExercises)
+			if len(prepared.Items) == 0 {
+				_, _ = fmt.Fprintf(runOpts.Out, "%s : tous les exercices de ce filtre sont acquis. Choisis Réviser avec --mode review, ou utilise --all.\n", selected.Title)
+				return nil
+			}
+			runOpts.AllExercises = all
+			return runTrainingFrom(runOpts, prepared, state)
 		},
 	}
 	cmd.Flags().StringVar(&level, "difficulty", "", "session difficulty (beginner, intermediate, advanced), defaults to preferences")
-	cmd.Flags().StringVar(&mode, "mode", "", "guided chapters only: learn (default) or review")
+	cmd.Flags().StringVar(&mode, "mode", "", "learn (default) or review")
+	cmd.Flags().BoolVar(&all, "all", false, "train on all eligible exercises in one batch")
 	return cmd
 }
 
@@ -217,7 +229,7 @@ func newStatsCommand(opts *Options) *cobra.Command {
 			_, _ = fmt.Fprintf(runOpts.Out, "Active acquired (%s, enabled CLI modules): %d/%d\n", filter.Difficulty, acquired, total)
 			_, _ = fmt.Fprintln(runOpts.Out, "Historical totals (all sessions)")
 			_, _ = fmt.Fprintf(runOpts.Out, "Completed exercises: %d\n", len(state.CompletedExercises))
-			_, _ = fmt.Fprintf(runOpts.Out, "Chapters with attempts: %d\n", len(state.ChapterScores))
+			_, _ = fmt.Fprintf(runOpts.Out, "Chapters with attempts: %d\n", state.ChaptersWithAttempts())
 			_, _ = fmt.Fprintf(runOpts.Out, "Streak: %d\n", state.Streak)
 			return nil
 		},
@@ -248,117 +260,6 @@ func newResetCommand(opts *Options) *cobra.Command {
 	return cmd
 }
 
-func runTraining(opts Options, selected chapter.Chapter) error {
-	if len(selected.Items) == 0 {
-		return fmt.Errorf("chapter %s has no exercises", selected.ID)
-	}
-	hasKeys := selected.HasKeyExercises()
-	if hasKeys && !canCaptureKeys(opts) {
-		return errCaptureUnavailable
-	}
-
-	if _, err := progress.Load(progressPath(opts)); err != nil {
-		return err
-	}
-	reader := bufio.NewReader(opts.In)
-	textView := newTextTrainingView(opts.Out)
-	mixed := hasKeys && slices.ContainsFunc(selected.Items, func(item chapter.Item) bool {
-		return item.ExerciseType != exercise.TypeKeySequence
-	})
-
-	textHeaderPrinted := false
-	textScore := progress.ChapterScore{}
-	keyStats := keySequenceStats{}
-	interrupted := false
-	for i := 0; i < len(selected.Items); {
-		item := selected.Items[i]
-		if item.ExerciseType == exercise.TypeKeySequence {
-			result, err := runKeySequenceExercise(opts, reader, selected, item, i, len(selected.Items))
-			if err != nil && !errors.Is(err, io.EOF) {
-				return err
-			}
-			if result.Answered && result.Action != keySequenceRetry {
-				keyStats.Total++
-				if result.Correct {
-					keyStats.Correct++
-				} else {
-					keyStats.Missed = append(keyStats.Missed, keySequenceReviewItem{Item: item})
-				}
-			}
-			if result.Action == keySequenceQuit || errors.Is(err, io.EOF) {
-				if errors.Is(err, io.EOF) && !mixed && keyStats.Total == len(selected.Items) {
-					renderKeySequenceSummary(opts.Out, keyStats.Correct, keyStats.Total, len(keyStats.Missed), keySequenceStyleFor(opts))
-				}
-				interrupted = true
-				break
-			}
-			if result.Action == keySequenceNext {
-				i++
-			}
-			continue
-		}
-
-		if !textHeaderPrinted {
-			textView.chapterTitle(selected.Title)
-			textHeaderPrinted = true
-		}
-		textView.question(item, i+1, len(selected.Items))
-		input, aborted, err := readTrainingInput(opts, reader, item.ExerciseType)
-		if err != nil && !errors.Is(err, io.EOF) {
-			return err
-		}
-		if aborted {
-			_, _ = fmt.Fprintln(opts.Out, "\nSession interrompue.")
-			interrupted = true
-			break
-		}
-		if strings.Trim(input, " \r\n") == "" {
-			if errors.Is(err, io.EOF) {
-				interrupted = true
-				break
-			}
-			continue
-		}
-		correct := item.MatchAnswer(input)
-		if _, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct); err != nil {
-			return err
-		}
-		textScore.Attempts++
-		if correct {
-			textScore.Correct++
-		}
-		textView.feedback(item, correct)
-		if errors.Is(err, io.EOF) {
-			interrupted = true
-			break
-		}
-		i++
-	}
-	if mixed {
-		textScore.Attempts += keyStats.Total
-		textScore.Correct += keyStats.Correct
-	}
-	if textScore.Attempts > 0 {
-		textView.summary(textScore)
-	}
-	if !interrupted && keyStats.Total > 0 {
-		if err := runKeySequenceReview(opts, reader, selected, keyStats, !mixed); err != nil && !errors.Is(err, io.EOF) {
-			return err
-		}
-	}
-	return nil
-}
-
-type keySequenceStats struct {
-	Total   int
-	Correct int
-	Missed  []keySequenceReviewItem
-}
-
-type keySequenceReviewItem struct {
-	Item chapter.Item
-}
-
 type keySequenceAction int
 
 const (
@@ -368,12 +269,13 @@ const (
 )
 
 type keySequenceResult struct {
-	Action   keySequenceAction
-	Answered bool
-	Correct  bool
+	Action      keySequenceAction
+	Answered    bool
+	Correct     bool
+	AnsweredKey string
 }
 
-func runKeySequenceExercise(opts Options, reader *bufio.Reader, selected chapter.Chapter, item chapter.Item, index, total int) (keySequenceResult, error) {
+func runKeySequenceExercise(opts Options, reader *bufio.Reader, selected chapter.Chapter, item chapter.Item, index, total int, state *progress.Progress) (keySequenceResult, error) {
 	showHelp := false
 	for {
 		writeKeySequenceScreen(opts, renderKeySequenceQuestion(keySequenceQuestionView{
@@ -401,9 +303,11 @@ func runKeySequenceExercise(opts Options, reader *bufio.Reader, selected chapter
 		}
 
 		correct := item.MatchAnswer(input)
-		if _, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct); err != nil {
+		recorded, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct)
+		if err != nil {
 			return keySequenceResult{Action: keySequenceQuit}, err
 		}
+		*state = recorded
 		explanation := ""
 		if correct {
 			explanation = item.Explanation
@@ -417,7 +321,7 @@ func runKeySequenceExercise(opts Options, reader *bufio.Reader, selected chapter
 		writeKeySequenceScreen(opts, renderKeySequenceFeedback(feedback))
 
 		action, err := readKeySequenceFeedbackAction(opts, reader, item, feedback)
-		return keySequenceResult{Action: action, Answered: true, Correct: correct}, err
+		return keySequenceResult{Action: action, Answered: true, Correct: correct, AnsweredKey: capturedKeyLabel(input)}, err
 	}
 }
 
@@ -441,13 +345,6 @@ type keySequenceSolutionView struct {
 	Expected    string
 	Explanation string
 	Style       keySequenceStyle
-}
-
-type keySequenceSummaryView struct {
-	Correct int
-	Total   int
-	Missed  int
-	Style   keySequenceStyle
 }
 
 func renderKeySequenceQuestion(view keySequenceQuestionView) string {
@@ -575,93 +472,6 @@ func renderKeySequenceSolution(view keySequenceSolutionView) string {
 	}
 	_, _ = fmt.Fprintf(&builder, "\n%s\n", style.commandBar("Enter next", "r retry", "Esc quit"))
 	return builder.String()
-}
-
-func runKeySequenceReview(opts Options, reader *bufio.Reader, selected chapter.Chapter, stats keySequenceStats, showSummary bool) error {
-	missed := stats.Missed
-	for {
-		style := keySequenceStyleFor(opts)
-		if showSummary {
-			renderKeySequenceSummary(opts.Out, stats.Correct, stats.Total, len(missed), style)
-		} else if len(missed) > 0 {
-			_, _ = fmt.Fprintf(opts.Out, "Raccourcis à revoir : %d\n%s\n", len(missed),
-				style.commandBar("Enter review missed", "Esc quit"))
-		}
-		if len(missed) == 0 {
-			return nil
-		}
-		action, err := readKeySequenceReviewAction(opts, reader)
-		if err != nil {
-			return err
-		}
-		if action == keySequenceQuit {
-			return nil
-		}
-
-		reviewStats := keySequenceStats{}
-		for i := 0; i < len(missed); {
-			review := missed[i]
-			result, err := runKeySequenceExercise(opts, reader, selected, review.Item, i, len(missed))
-			if err != nil {
-				return err
-			}
-			if result.Action == keySequenceQuit {
-				return nil
-			}
-			if result.Action == keySequenceRetry {
-				continue
-			}
-			reviewStats.Total++
-			if result.Correct {
-				reviewStats.Correct++
-			} else {
-				reviewStats.Missed = append(reviewStats.Missed, review)
-			}
-			i++
-		}
-		stats = reviewStats
-		missed = reviewStats.Missed
-		showSummary = true
-	}
-}
-
-func renderKeySequenceSummary(w io.Writer, correct, total, missed int, style keySequenceStyle) {
-	_, _ = fmt.Fprint(w, renderKeySequenceSummaryView(keySequenceSummaryView{
-		Correct: correct,
-		Total:   total,
-		Missed:  missed,
-		Style:   style,
-	}))
-}
-
-func renderKeySequenceSummaryView(view keySequenceSummaryView) string {
-	style := view.Style
-	var builder strings.Builder
-	_, _ = fmt.Fprintf(&builder, "\n%s\nCorrect: %d/%d\nÀ revoir: %d\n", style.title("Chapitre termine."), view.Correct, view.Total, view.Missed)
-	if view.Missed > 0 {
-		_, _ = fmt.Fprintf(&builder, "\n%s\n", style.commandBar("Enter review missed", "Esc quit"))
-	}
-	return builder.String()
-}
-
-func readKeySequenceReviewAction(opts Options, reader *bufio.Reader) (keySequenceAction, error) {
-	for {
-		input, err := readKeySequence(opts, reader)
-		if err != nil {
-			return keySequenceQuit, err
-		}
-		switch input {
-		case "":
-			continue
-		case "Enter":
-			return keySequenceNext, nil
-		case "Esc", "Ctrl+C":
-			_, _ = fmt.Fprintln(opts.Out, "\nSession interrompue.")
-			return keySequenceQuit, nil
-		default:
-			_, _ = fmt.Fprintf(opts.Out, "\n%s\n", keySequenceStyleFor(opts).commandBar("Enter review missed", "Esc quit"))
-		}
-	}
 }
 
 func readTrainingInput(opts Options, reader *bufio.Reader, exerciseType exercise.Type) (string, bool, error) {

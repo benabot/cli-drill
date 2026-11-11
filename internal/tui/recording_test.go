@@ -181,9 +181,12 @@ func TestTUIRepeatedEnterAndNewSession(t *testing.T) {
 	}
 	m = press(t, m, tea.KeyEsc)
 	m = press(t, m, tea.KeyEnter)
+	if m.currentItem().ID != "scenario" {
+		t.Fatalf("learning repeated an acquired exercise: %s", m.currentItem().ID)
+	}
 	m.input.SetValue("pwd")
 	m = press(t, m, tea.KeyEnter)
-	assertSavedRecording(t, path, 2, 2, "text/free-answer")
+	assertSavedRecording(t, path, 2, 2, "text/free-answer", "text/scenario")
 }
 
 func recordingSaveFailure(t *testing.T) (model, string, string) {
@@ -308,7 +311,7 @@ func TestTUIPerfectSessionSurvivesQuitAndRestart(t *testing.T) {
 		m = press(t, m, tea.KeyEnter)
 		m = press(t, m, tea.KeyEnter)
 	}
-	assertScreen(t, m, screenHome)
+	assertScreen(t, m, screenTrainingSummary)
 	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'q'}})
 	assertQuitCommand(t, cmd)
 	restarted := newModel(Options{Chapters: []chapter.Chapter{recordingChapter()}, ProgressPath: path})

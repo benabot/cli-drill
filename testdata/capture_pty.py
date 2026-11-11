@@ -72,7 +72,7 @@ class Capture:
 
 
 @contextlib.contextmanager
-def session(binary, difficulty="beginner"):
+def session(binary, difficulty="beginner", all_exercises=False):
     with tempfile.TemporaryDirectory(prefix="cli-drill-capture-") as temp:
         progress = Path(temp) / "progress.json"
         master, slave = pty.openpty()
@@ -81,6 +81,8 @@ def session(binary, difficulty="beginner"):
         args = [binary, "--progress", str(progress)]
         if difficulty is not None:
             args.extend(["train", "01-raccourcis-terminal", "--difficulty", difficulty])
+        if all_exercises:
+            args.append("--all")
         process = subprocess.Popen(
             args,
             stdin=slave, stdout=slave, stderr=slave,
@@ -141,7 +143,7 @@ def check_escape_and_labels(binary):
 
 def check_mixed_session(binary):
     keys = (b"\x04", b"\x14", b"\x10", b"\x0e", b"\x1f", b"\x07")
-    with session(binary, "intermediate") as capture:
+    with session(binary, "intermediate", all_exercises=True) as capture:
         for key in (b"x", *keys[1:]):
             capture.expect("Waiting for key")
             capture.send(key)
@@ -154,11 +156,11 @@ def check_mixed_session(binary):
         capture.expect("Session interrompue")
         capture.expect("Bonnes réponses : 5/6")
         assert capture.finish() == 0
-        assert b"Enter review missed" not in capture.pending
+        assert b"r Revoir mes erreurs" not in capture.pending
         capture.assert_score(6, 5)
     print("OK mixed session: text escape exits without opening the review")
 
-    with session(binary, "intermediate") as capture:
+    with session(binary, "intermediate", all_exercises=True) as capture:
         for key in keys:
             capture.expect("Waiting for key")
             capture.send(key)
@@ -174,9 +176,42 @@ def check_mixed_session(binary):
             capture.expect("Correct.")
         capture.expect("Bonnes réponses : 11/11")
         assert capture.finish() == 0
-        assert b"Chapitre termine" not in capture.pending
+        assert b"Bilan du lot" not in capture.pending
         capture.assert_score(11, 11)
     print("OK mixed session: one score covers both formats")
+
+
+def check_short_mixed_visit(binary):
+    with session(binary, "intermediate") as capture:
+        for index, key in enumerate((b"x", b"\x14", b"\x10", b"\x0e", b"\x1f", b"\x07"), 1):
+            capture.expect(f"Progression: {index}/6")
+            capture.expect("Waiting for key")
+            capture.send(key)
+            capture.expect("Pas encore." if key == b"x" else "Correct.")
+            capture.send(b"\r")
+        capture.expect("Bilan du lot")
+        capture.expect("Bonnes réponses : 5/6")
+        capture.expect("r Revoir mes erreurs")
+        capture.send(b"r")
+        capture.expect("Progression: 1/1")
+        capture.expect("Waiting for key")
+        capture.send(b"\x04")
+        capture.expect("Correct.")
+        capture.send(b"\r")
+        capture.expect("Bilan de la reprise")
+        capture.expect("Bonnes réponses : 1/1")
+        capture.expect("Lot initial : 5/6")
+        capture.expect("c Continuer")
+        capture.send(b"c")
+        capture.expect("Exercice 1/5")
+        capture.send(b"git switch |sauvegarde\r", raw=False)
+        capture.expect("Correct.")
+        capture.expect("Exercice 2/5")
+        capture.send(b"\x1b\r", raw=False)
+        capture.expect("Session interrompue")
+        assert capture.finish() == 0
+        capture.assert_score(8, 7)
+    print("OK short visit: six captures, one retry, then the text batch")
 
 
 def check_tui_return(binary):
@@ -199,4 +234,5 @@ if __name__ == "__main__":
     check_signals(binary)
     check_escape_and_labels(binary)
     check_mixed_session(binary)
+    check_short_mixed_visit(binary)
     check_tui_return(binary)

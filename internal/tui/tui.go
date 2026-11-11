@@ -62,7 +62,6 @@ const (
 	footerChoiceInput
 	footerTextFeedback
 	footerTrainingSummary
-	footerTrainingSummaryRetry
 	footerPreferences
 	footerHome
 )
@@ -88,6 +87,7 @@ type Options struct {
 
 type Result struct {
 	CaptureChapter chapter.Chapter
+	AllExercises   bool
 }
 
 // Keep the clipboard's raw text until it passes the same checks as terminal paste.
@@ -116,22 +116,6 @@ func (i listItem) FilterValue() string {
 		text += "\n" + i.searchDescription
 	}
 	return text
-}
-
-type trainingMiss struct {
-	Prompt   string
-	Expected string
-	Answered string
-}
-
-type trainingSummary struct {
-	Total   int
-	Correct int
-	Missed  []trainingMiss
-}
-
-func (s trainingSummary) retryAvailable() bool {
-	return len(s.Missed) > 0
 }
 
 type tuiStyleSet struct {
@@ -174,17 +158,21 @@ type model struct {
 	itemIndex          int
 	choiceIndex        int
 	feedback           string
-	summary            trainingSummary
+	summary            chapter.BatchResult
+	firstSummary       chapter.BatchResult
+	reviewing          bool
 	showHelp           bool
 	result             Result
 	filter             chapter.SessionFilter
 	preferencesError   error
 	detailDifficulty   chapter.Difficulty
 	detailMode         chapter.SessionMode
+	detailAll          bool
 	detailScope        chapter.ExerciseScope
 	browserNotice      string
 	captureUnavailable string
 	session            chapter.Chapter
+	visit              chapter.Visit
 	width, height      int
 	scrollOffset       int
 }
@@ -326,6 +314,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			case "esc":
 				m.back()
+				return m, nil
+			case "c":
+				m.nextBatch()
+				return m, nil
+			case "r":
+				m.reviewErrors()
 				return m, nil
 			case "enter":
 				return m.handleEnter()
@@ -506,9 +500,10 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 	case screenTraining:
 		return m.answerOrAdvance(), nil
 	case screenTrainingSummary:
-		if m.summary.retryAvailable() {
-			m.resetTextTraining()
-			return m, nil
+		if m.visit.HasNext() {
+			m.nextBatch()
+		} else {
+			m.reviewErrors()
 		}
 	}
 	return m, nil
@@ -586,11 +581,7 @@ func (m model) answerOrAdvance() model {
 		m.feedback = ""
 		m.input.SetValue("")
 		if m.currentItem() == nil {
-			if m.summary.retryAvailable() {
-				m.screen = screenTrainingSummary
-			} else {
-				m.goHome()
-			}
+			m.screen = screenTrainingSummary
 		}
 		return m
 	}
@@ -614,16 +605,10 @@ func (m model) answerOrAdvance() model {
 	m.progress = recorded
 	m.progressError = ""
 	m.scrollOffset = 0
-	m.summary.Total++
+	m.summary.Record(*current, answered, correct)
 	if correct {
-		m.summary.Correct++
 		m.feedback = "Correct."
 	} else {
-		m.summary.Missed = append(m.summary.Missed, trainingMiss{
-			Prompt:   current.Prompt,
-			Expected: current.Answer.Primary,
-			Answered: answered,
-		})
 		m.feedback = incorrectAnswer
 	}
 	return m
@@ -715,22 +700,30 @@ func (m model) chapterDetailView() string {
 	eligible := filter.EligibleItems(*current, m.detailScope)
 	acquired := chapter.AcquiredCount(current.ID, eligible, m.progress.CompletedExercises)
 	heading := styles.Info.Bold(true)
-	order := "Ordre aléatoire"
-	if current.Guided() {
+	order := "Mode : Apprendre (ordre aléatoire) · m Changer"
+	if m.detailMode == chapter.ModeReview {
+		order = "Mode : Réviser (ordre aléatoire) · m Changer"
+	} else if current.Guided() {
 		order = "Mode : Apprendre (ordre du chapitre) · m Changer"
-		if m.detailMode == chapter.ModeReview {
-			order = "Mode : Réviser (ordre aléatoire) · m Changer"
-		}
+	}
+	planned := filter.VisitItems(*current, m.detailScope, m.detailMode, m.detailAll, m.progress.CompletedExercises)
+	format := "Lot court · a Parcours intégral"
+	if len(planned) > 0 {
+		format = fmt.Sprintf("Taille du lot : %d · a Parcours intégral", min(chapter.BatchSize, len(planned)))
+	}
+	if m.detailAll {
+		format = fmt.Sprintf("Parcours intégral (%d) · a Lot court", len(planned))
 	}
 	lines := []string{
 		styles.ScreenTitle.Render(current.Title),
 		heading.Render("Ma séance"),
 		"Niveau : " + sessionLevelLabel(filter.Difficulty) + " · d Changer",
 		order,
+		format,
 		fmt.Sprintf("Exercices éligibles : %d", len(eligible)),
 	}
 	prepared := *current
-	prepared.Items = eligible
+	prepared.Items = planned
 	switch {
 	case len(eligible) == 0:
 		lines = append(lines, styles.Warning.Render("Aucun exercice éligible à ce niveau."))
@@ -739,6 +732,8 @@ func (m model) chapterDetailView() string {
 				"Modules à activer (un groupe suffit) : "+strings.Join(groups, " ou "),
 				"Depuis l’accueil, ouvre Preferences (p), active les modules avec Entrée puis enregistre avec s.")
 		}
+	case len(planned) == 0:
+		lines = append(lines, styles.Info.Render("Tous les exercices de ce filtre sont acquis. Choisis Réviser avec m, ou le parcours intégral avec a."))
 	case prepared.HasKeyExercises():
 		lines = append(lines, styles.Info.Render("Capture réelle des raccourcis dans un mode dédié."))
 		if m.captureUnavailable != "" {
@@ -812,12 +807,22 @@ func (m model) trainingSummaryView() string {
 	if current := m.currentChapter(); current != nil {
 		title = current.Title
 	}
+	heading := "Bilan du lot"
+	if m.reviewing {
+		heading = "Bilan de la reprise"
+	}
 	lines := []string{
-		styles.ScreenTitle.Render("Bilan de la séance"),
+		styles.ScreenTitle.Render(heading),
 		styles.Subtitle.Render(title),
 		m.separator(),
 		"",
 		fmt.Sprintf("Bonnes réponses : %d/%d", m.summary.Correct, m.summary.Total),
+		fmt.Sprintf("Exercices réalisés : %d", m.summary.Total),
+		fmt.Sprintf("Erreurs : %d", len(m.summary.Missed)),
+		fmt.Sprintf("Acquis cumulés (historique) : %d", len(m.progress.CompletedExercises)),
+	}
+	if m.reviewing {
+		lines = append(lines, fmt.Sprintf("Lot initial : %d/%d bonnes réponses", m.firstSummary.Correct, m.firstSummary.Total))
 	}
 	if len(m.summary.Missed) == 0 {
 		return strings.Join(lines, "\n")
@@ -830,8 +835,8 @@ func (m model) trainingSummaryView() string {
 			break
 		}
 		lines = append(lines,
-			missed.Prompt,
-			styles.Muted.Render(m.answerLine("Réponse attendue : ", missed.Expected)),
+			missed.Item.Prompt,
+			styles.Muted.Render(m.answerLine("Réponse attendue : ", missed.Item.Answer.Primary)),
 			styles.Muted.Render(m.answerLine("Ta réponse : ", valueOrFallback(missed.Answered, "(vide)"))),
 		)
 	}
@@ -841,12 +846,6 @@ func (m model) trainingSummaryView() string {
 func (m model) statsView() string {
 	styles := newTUIStyles()
 	acquired, total := m.filter.ActiveCounts(m.chapters, m.progress.CompletedExercises)
-	practiced := 0
-	for _, score := range m.progress.ChapterScores {
-		if score.Attempts > 0 {
-			practiced++
-		}
-	}
 	heading := styles.Info.Bold(true)
 	lines := []string{
 		styles.ScreenTitle.Render("Ma progression"),
@@ -868,7 +867,7 @@ func (m model) statsView() string {
 		"",
 		heading.Render("Historique global"),
 		fmt.Sprintf("Exercices acquis au total : %d", len(m.progress.CompletedExercises)),
-		fmt.Sprintf("Chapitres pratiqués : %d", practiced),
+		fmt.Sprintf("Chapitres pratiqués : %d", m.progress.ChaptersWithAttempts()),
 		styles.Muted.Render("Les acquis restent dans l’historique après désactivation d’un module."),
 	)
 	return strings.Join(lines, "\n")
@@ -902,9 +901,14 @@ func (m model) footer() string {
 	}
 	text := footerText(m.footerContext())
 	if m.screen == screenChapterDetail {
-		text += " · d Niveau"
-		if ch := m.currentChapter(); ch != nil && ch.Guided() {
-			text += " · m Mode"
+		text += " · d Niveau · m Mode · a Format"
+	}
+	if m.screen == screenTrainingSummary {
+		if len(m.summary.Missed) > 0 {
+			text = "r Revoir mes erreurs · " + text
+		}
+		if m.visit.HasNext() {
+			text = "c Continuer · " + text
 		}
 	}
 	return text
@@ -931,7 +935,7 @@ func (m model) footerContext() footerContext {
 	case screenChapterDetail:
 		if current := m.currentChapter(); current != nil {
 			selected := *current
-			selected.Items = m.detailFilter().EligibleItems(selected, m.detailScope)
+			selected.Items = m.detailFilter().VisitItems(selected, m.detailScope, m.detailMode, m.detailAll, m.progress.CompletedExercises)
 			if len(selected.Items) == 0 || (selected.HasKeyExercises() && m.captureUnavailable != "") {
 				return footerReadOnly
 			}
@@ -949,9 +953,6 @@ func (m model) footerContext() footerContext {
 		}
 		return footerTextInput
 	case screenTrainingSummary:
-		if m.summary.retryAvailable() {
-			return footerTrainingSummaryRetry
-		}
 		return footerTrainingSummary
 	default:
 		return footerNavigation
@@ -980,10 +981,8 @@ func footerText(context footerContext) string {
 		return "↑/↓ j/k move · enter submit · esc chapter · ctrl+c quit"
 	case footerTextFeedback:
 		return "enter next · esc chapter · ctrl+c quit"
-	case footerTrainingSummaryRetry:
-		return "enter retry · esc chapter · g home · q quit"
 	case footerTrainingSummary:
-		return "esc chapter · g home · q quit"
+		return "Échap Chapitre · g Accueil · q Terminer"
 	default:
 		return "enter select · / search · j/k move · esc back · g home · h help · q quit"
 	}

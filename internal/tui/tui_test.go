@@ -312,22 +312,22 @@ func TestTrainingSummaryShowsMissedAnswersAndOffersRetry(t *testing.T) {
 	assertContains(t, view, "Aller au debut de ligne")
 	assertContains(t, view, "Réponse attendue : Ctrl+A")
 	assertContains(t, view, "Ta réponse : Ctrl+L")
-	assertContains(t, view, "enter retry · esc chapter · g home · q quit")
+	assertContains(t, view, "r Revoir mes erreurs")
 
 	m = press(t, m, tea.KeyEnter)
 	assertScreen(t, m, screenTraining)
 }
 
-func TestTrainingReturnsHomeWithoutMissedAnswers(t *testing.T) {
+func TestTrainingShowsSummaryWithoutMissedAnswers(t *testing.T) {
 	m := newTrainingModel(t)
 	m.input.SetValue("Ctrl+A")
 	m = press(t, m, tea.KeyEnter)
 	m = press(t, m, tea.KeyEnter)
 
-	assertScreen(t, m, screenHome)
+	assertScreen(t, m, screenTrainingSummary)
 	view := m.View()
 	assertNotContains(t, view, "À revoir")
-	assertNotContains(t, view, "enter retry")
+	assertNotContains(t, view, "r Revoir mes erreurs")
 }
 
 func TestTrainingSummaryEscReturnsToChapterDetail(t *testing.T) {

@@ -29,10 +29,9 @@ progressifs, répétables, écrits et vérifiés. Saisir une commande et appuyer
 un vrai raccourci sont des activités centrales. Les questions de connaissance
 servent ces pratiques ; elles ne constituent pas à elles seules le produit.
 
-La durée indicative d'une séance est de cinq à dix minutes, avec une longueur
-déterminée par les exercices éligibles après sélection du niveau et des modules
-CLI tiers. L'apprentissage guidé suit l'ordre éditorial et la révision mélange
-les exercices éligibles.
+Un lot propose jusqu'à six exercices après sélection du niveau et des modules.
+Les cinq à dix minutes restent un repère à vérifier en recette humaine.
+Le parcours intégral est disponible sur demande.
 
 ## 2. Périmètre décidé
 
@@ -111,8 +110,9 @@ terminal peuvent constituer des modules tiers, avec leurs limites de capture.
 
 Les commandes Unix fondamentales restent toujours disponibles : aucun réglage
 ne peut désactiver ce socle. Les modules CLI tiers sont activables individuellement
-par choix manuel, indépendamment des logiciels réellement installés. Par défaut,
-aucun module tiers n'est activé ; le premier entraînement textuel utilise le socle.
+par choix manuel, indépendamment des logiciels réellement installés. Sans
+fichier de préférences, Git essentiel est actif. Les autres modules restent
+facultatifs et le premier entraînement textuel utilise le socle.
 Les commandes macOS natives et les notions de shell gardent leur contexte
 explicite sans être assimilées à des outils tiers installés.
 
@@ -205,9 +205,10 @@ Conserver la palette, la bannière et le style existants.
 La sélection des modules et du niveau par défaut utilise les composants existants,
 sans refonte de l'accueil ni nouveau parcours de configuration obligatoire.
 Une sélection de niveau depuis une fiche vaut pour le lancement concerné ;
-aucune table de préférences par chapitre n'est nécessaire. La future CLI doit
-permettre les mêmes choix de séance que la TUI ; sa syntaxe sera fixée dans la
-sous-phase d'interface, sans rétablir `--config`.
+aucune table de préférences par chapitre n'est nécessaire. Dans la fiche,
+`d` change le niveau, `m` bascule entre Apprendre et Réviser et `a` choisit
+le format court ou intégral. Les équivalents CLI sont `--difficulty`,
+`--mode learn|review` et `--all`.
 
 ### Répondre, comprendre et poursuivre
 
@@ -216,38 +217,40 @@ correction avec explication, puis permettre de poursuivre. Une action de
 navigation ne devient jamais une réponse. Les touches imprimables doivent
 atteindre la réponse ou le filtre actif avant les raccourcis globaux.
 
-Le bilan distingue le résultat de la session et les compteurs historiques.
-La révision des erreurs reste en mémoire pour la session ; aucun nouveau
-stockage de session n'est requis. Une relance de chapitre crée une nouvelle
-séance, tout en conservant les acquis et tentatives précédents. La reprise
-exacte au curseur interrompu est différée.
+Chaque bilan affiche les exercices réalisés, les bonnes réponses, les erreurs
+et les acquis cumulés de l'historique. `c` continue s'il reste des exercices
+dans la visite, `r` reprend les seules erreurs et `q` termine. Entrée continue
+si possible, sinon ouvre la reprise quand il reste des erreurs. Dans la CLI
+textuelle, valider la lettre par Entrée. Le menu en mode capture lit la touche
+directement. Dans la TUI, Échap revient à la fiche et `g` à l'accueil.
+
+La reprise affiche son propre score et conserve celui du lot initial. Une
+nouvelle reprise porte sur les erreurs restantes de la dernière passe. Le
+réessai immédiat déjà disponible en capture ajoute une tentative et son
+résultat apparaît séparément au bilan. Toute bonne réponse peut ajouter un
+acquis unique. L'interruption conserve les réponses sauvegardées.
 
 ### Ordre de séance et apprentissage guidé
 
-Au lancement, former un instantané des exercices du chapitre : appliquer la
-sélection des modules, puis le niveau, puis déterminer l'ordre. Une séance
-ordinaire mélange cette liste une seule fois. La permutation reste en mémoire
-et stable jusqu'à la sortie ; feedback, aide, redimensionnement, retour d'une
-capture et retry ne la recalculent pas. Chaque exercice éligible apparaît une
-fois dans le parcours initial, aucun autre n'y apparaît. Le corpus source n'est
-pas réordonné et la clé enregistrée est toujours l'identifiant original,
-jamais la position dans la permutation.
+Au lancement, appliquer le niveau, les modules et le périmètre de l'entrée
+choisie. **Apprendre**, le mode par défaut, propose les exercices non acquis.
+Il conserve l'ordre éditorial pour les chapitres guidés et mélange les chapitres
+indépendants. Une fois le filtre acquis, le logiciel propose **Réviser**.
+**Réviser** mélange tous les exercices éligibles, y compris ceux déjà réussis.
+Le parcours intégral explicite (`--all` ou `a`) propose tous les exercices
+éligibles en un seul lot, selon l'ordre du mode choisi.
 
-Chaque nouvelle séance de révision refait le mélange ; deux tirages peuvent
-produire le même ordre, notamment avec zéro ou un exercice. Un retry volontaire
-reste sur le même exercice ; la révision des erreurs est une passe distincte
-sur la liste des erreurs. Ces nouvelles réponses ajoutent des tentatives selon
-P1.2, sans dupliquer les acquis ni le total du parcours initial.
+La liste est fixée une fois par visite. **Continuer** prend la suite des
+exercices sans rejouer ceux déjà présentés. Une erreur n'empêche pas d'avancer.
+La reprise des erreurs utilise une liste distincte en mémoire. Le retour
+après interruption recalcule un lot d'apprentissage à partir des acquis
+JSON v1. Un exercice raté peut donc revenir à la prochaine visite.
+Le curseur, l'ordre du tirage et les erreurs de la visite ne sont pas
+persistés. Le JSON v1 ne permet pas de classer les erreurs anciennes par
+exercice. La révision ne les privilégie pas.
 
-Lorsqu'un ordre pédagogique est indispensable, le chapitre le déclare :
-**Apprendre** suit l'ordre éditorial filtré, **Réviser** mélange les mêmes
-exercices lors des séances ultérieures. Le parcours guidé est proposé par défaut
-pour ces chapitres ; l'utilisateur choisit explicitement la révision. Aucun
-marqueur persistant de première séance, ni déduction de maîtrise depuis les
-scores cumulés, n'est requis. Le guidage ordonne des exercices autonomes ; il
-ne permet pas de faire dépendre une réponse du résultat précédent.
-Les préférences modifiées s'appliquent au lancement suivant. Quitter une séance
-abandonne son ordre en mémoire, sans perdre les réponses déjà sauvegardées.
+Les modifications de préférences s'appliquent au lancement suivant.
+Chaque réponse conserve sa clé d'origine `chapter-id/item-id`.
 
 ## 5. Formats d'exercices
 
@@ -344,28 +347,30 @@ position d'un exercice ne doit jamais changer sa clé.
 
 La sauvegarde doit être atomique et ses erreurs visibles. Un fichier invalide
 ou de version non prise en charge ne doit pas être remplacé par un état vide.
+Utiliser un seul processus écrivain par fichier. Deux entraînements
+simultanés peuvent perdre des mises à jour malgré le remplacement atomique.
 Une consultation ou un premier lancement ne déclenche pas de migration écrite.
 `reset --yes` demeure la seule suppression explicitement demandée par
 l'utilisateur ; une mise à niveau ne doit jamais l'appeler implicitement.
 
 ### Préférences pédagogiques P2, distinctes de la progression
 
-Contrat minimal prévu, **non implémenté par P2.0** : un fichier local
+Le fichier local
 `preferences.json` séparé, sous `$XDG_DATA_HOME/cli-drill/` ou, par défaut,
 `~/.local/share/cli-drill/`. Le choix de ce répertoire réutilise la résolution
 de données existante ; il ne rétablit ni le TOML dotfiles ni `--config`.
-`--progress` ne déplace que la progression. Aucun fichier n'est créé dans cette
-mission et le futur premier lancement n'en crée pas automatiquement.
+`--progress` ne déplace que la progression. Le premier lancement
+n'en crée pas automatiquement.
 
 | Champ prévu | Rôle et valeur par défaut en mémoire |
 | --- | --- |
 | `version` | Version propre aux préférences, initialement `1` ; indépendante du JSON de progression v1. |
-| `enabled_tools` | Liste d'identifiants de modules CLI activés manuellement ; défaut `[]`. |
+| `enabled_tools` | Liste des modules actifs. Sans fichier, défaut `["git"]`. Dans un fichier existant, une liste vide ou omise reste vide. |
 | `default_difficulty` | `beginner`, `intermediate` ou `advanced` ; défaut `beginner`. |
 
-Les champs facultatifs omis utilisent ces défauts ; `version`, lorsqu'un fichier
-existe, doit être présente et prise en charge. Un mauvais type ou une valeur
-explicite hors contrat est invalide, sans conversion silencieuse.
+Le niveau omis prend la valeur `beginner`. Dans un fichier existant,
+`version` est obligatoire. Un mauvais type ou une valeur explicite hors
+contrat produit un diagnostic.
 
 Ces choix d'encodage et les défauts précisent la mise en œuvre minimale de P2.0.
 Ils n'ajoutent ni préférences de durée/navigation, ni profil de shell, ni réglage
@@ -375,9 +380,9 @@ l'utilisateur écrit les préférences, avec remplacement atomique et erreur vis
 Une consultation ou un entraînement n'écrit jamais ce fichier.
 
 Absence du fichier : utiliser les défauts sans écriture. Fichier illisible,
-invalide ou de version inconnue : diagnostic, aucune réparation ni réécriture
-automatique ; permettre le socle avec les défauts en mémoire, signalés comme tels,
-et refuser la sauvegarde tant que le fichier ne peut être lu et validé.
+invalide ou de version inconnue : diagnostic et accès au socle en niveau
+Beginner, sans module actif. La sauvegarde reste bloquée tant que le fichier
+ne peut être lu et validé.
 Un identifiant de module devenu absent du corpus est ignoré pour la sélection,
 signalé et conservé lors des sauvegardes, sans recherche d'installation.
 Un échec d'enregistrement ne doit pas annoncer les nouveaux choix comme persistés.
@@ -454,9 +459,10 @@ des validations acquises par la présente modification documentaire.
     Unix toujours accessible, filtres combinés prévisibles et diagnostic si vide.
 11. Trois niveaux portés par les exercices ; anciens YAML sans difficulté lus
     comme Beginner sans modification ; ni import automatique ni changement de clés.
-12. Chaque séance ordinaire ou révision utilise une permutation complète des seuls
-    exercices éligibles, stable jusqu'à la sortie. Apprentissage guidé conservé
-    lorsque nécessaire ; retries et feedback respectent les compteurs P1.
+12. Les lots courts contiennent au plus six exercices du filtre. Apprendre
+    privilégie les non-acquis dans l'ordre prévu, Réviser inclut tous les
+    éligibles, et Continuer ne rejoue aucun exercice présenté pendant la
+    visite. Le parcours intégral et la reprise ciblée respectent les compteurs P1.
 13. Préférences séparées, facultatives, créées seulement sur enregistrement
     explicite ; erreurs visibles, aucune modification du JSON v1 par ces réglages.
 14. Couverture des compétences et progression vérifiées par lot. Justifier la

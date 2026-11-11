@@ -70,6 +70,10 @@ func (f SessionFilter) FirstTextChapter(chapters []Chapter) int {
 // Prepare snapshots the eligible exercises and fixes their order for the session.
 func (f SessionFilter) Prepare(c Chapter, scope ExerciseScope, mode SessionMode, shuffle func(int, func(int, int))) Chapter {
 	c.Items = f.EligibleItems(c, scope)
+	return orderSession(c, mode, shuffle)
+}
+
+func orderSession(c Chapter, mode SessionMode, shuffle func(int, func(int, int))) Chapter {
 	if len(c.Items) > 1 && (!c.Guided() || mode == ModeReview) {
 		if shuffle == nil {
 			shuffle = rand.Shuffle

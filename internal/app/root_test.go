@@ -124,7 +124,7 @@ items:
 	if !strings.Contains(got, "Recu: L") || !strings.Contains(got, "Pas encore.") {
 		t.Fatalf("expected bare L to be rejected, got:\n%s", got)
 	}
-	if !strings.Contains(got, "Correct: 2/3") || !strings.Contains(got, "À revoir: 1") {
+	if !strings.Contains(got, "Bonnes réponses : 2/3") || !strings.Contains(got, "Erreurs : 1") {
 		t.Fatalf("expected chapter summary with one missed exercise, got:\n%s", got)
 	}
 }
@@ -449,34 +449,6 @@ func TestRenderKeySequenceSolution(t *testing.T) {
 	}
 }
 
-func TestRenderKeySequenceSummary(t *testing.T) {
-	got := renderKeySequenceSummaryView(keySequenceSummaryView{
-		Correct: 2,
-		Total:   3,
-		Missed:  1,
-	})
-
-	for _, want := range []string{
-		"Chapitre termine.",
-		"Correct: 2/3",
-		"À revoir: 1",
-		"Enter review missed · Esc quit",
-	} {
-		if !strings.Contains(got, want) {
-			t.Fatalf("expected summary render to contain %q, got:\n%s", want, got)
-		}
-	}
-
-	got = renderKeySequenceSummaryView(keySequenceSummaryView{
-		Correct: 3,
-		Total:   3,
-		Missed:  0,
-	})
-	if strings.Contains(got, "Enter review missed") {
-		t.Fatalf("perfect summary should not contain review footer, got:\n%s", got)
-	}
-}
-
 func TestTrainKeySequenceSupportsRetryCommand(t *testing.T) {
 	allowSimulatedCapture(t)
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
@@ -635,7 +607,7 @@ items:
 	if !strings.Contains(got, "Recu: Ctrl+A") || !strings.Contains(got, "Correct.") {
 		t.Fatalf("expected answer after ignored enter to be accepted, got:\n%s", got)
 	}
-	if !strings.Contains(got, "Correct: 1/1") || !strings.Contains(got, "À revoir: 0") {
+	if !strings.Contains(got, "Bonnes réponses : 1/1") || !strings.Contains(got, "Erreurs : 0") {
 		t.Fatalf("help and ignored enter should not add review items, got:\n%s", got)
 	}
 }
@@ -672,7 +644,7 @@ items:
 	if strings.Contains(got, "Recu: h") || strings.Contains(got, "Pas encore.") {
 		t.Fatalf("h help should not be recorded as a wrong answer, got:\n%s", got)
 	}
-	if !strings.Contains(got, "Correct: 1/1") || !strings.Contains(got, "À revoir: 0") {
+	if !strings.Contains(got, "Bonnes réponses : 1/1") || !strings.Contains(got, "Erreurs : 0") {
 		t.Fatalf("h help should not add the exercise to review, got:\n%s", got)
 	}
 }
@@ -872,13 +844,13 @@ items:
 	}
 
 	got := out.String()
-	if !strings.Contains(got, "Correct: 1/2") || !strings.Contains(got, "À revoir: 1") {
+	if !strings.Contains(got, "Bonnes réponses : 1/2") || !strings.Contains(got, "Erreurs : 1") {
 		t.Fatalf("expected initial summary with one missed exercise, got:\n%s", got)
 	}
 	if strings.Count(got, "Progression: 1/1\n\nPress Ctrl+A.") != 1 {
 		t.Fatalf("expected review pass to include only missed Ctrl+A exercise, got:\n%s", got)
 	}
-	if !strings.Contains(got, "Correct: 1/1") || !strings.Contains(got, "À revoir: 0") {
+	if !strings.Contains(got, "Bonnes réponses : 1/1") || !strings.Contains(got, "Erreurs : 0") {
 		t.Fatalf("expected review summary to clear missed exercise, got:\n%s", got)
 	}
 }

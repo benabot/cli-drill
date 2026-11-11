@@ -43,6 +43,7 @@ func readPreferences(path string) (preferences, error) {
 	state := defaultPreferences()
 	info, err := os.Lstat(path)
 	if errors.Is(err, os.ErrNotExist) {
+		state.EnabledTools = []string{"git"}
 		return state, nil
 	}
 	if err != nil {

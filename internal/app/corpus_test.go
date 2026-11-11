@@ -20,7 +20,7 @@ func TestDefaultTrainingUsesUnixFoundationsWithoutExecutingAnswers(t *testing.T)
 	isolateChapterHome(t)
 	dir := useTemporaryTrainingDirectory(t)
 	path := filepath.Join(dir, "progress.json")
-	output, err := runSessionCLI(path, "pwd\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nmkdir essais\ncat 'notes de cours.txt'\ncd ~\nman ls\nls -lt livraisons\nman -k checksum\n", "train")
+	output, err := runSessionCLI(path, "pwd\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nc\nmkdir essais\ncat 'notes de cours.txt'\ncd ~\nman ls\nls -lt livraisons\nman -k checksum\n", "train")
 	if err != nil || !strings.Contains(output, "Premiers pas Unix") || strings.Count(output, "Correct.") != 12 {
 		t.Fatalf("default training failed: %v\n%s", err, output)
 	}
@@ -69,7 +69,7 @@ func TestWave3MixedTrainingRecordsKeysAndText(t *testing.T) {
 	input := strings.NewReader("\x04\ngit switch |sauvegarde\n\x1f\n")
 	err = runTraining(Options{In: input, Out: &out, ProgressPath: path}, ch)
 	if err != nil || strings.Count(out.String(), "Correct.") != 3 ||
-		!strings.Contains(out.String(), "Bilan de la séance\nBonnes réponses : 3/3") ||
+		!strings.Contains(out.String(), "Bilan du lot\nBonnes réponses : 3/3") ||
 		strings.Contains(out.String(), "Chapitre termine.") {
 		t.Fatalf("mixed session: %v\n%s", err, out.String())
 	}
@@ -92,7 +92,7 @@ func TestUnixStreamsRecordWithoutRunningRedirections(t *testing.T) {
 	writeAppTestFileContent(t, filepath.Join("docs", "fichier.txt"), "documentation\n")
 
 	output, err := runSessionCLI(path, "ls docs > inventaire.txt\ncat note.txt > journal.txt\n", "train", "11-flux-shell", "--mode", "learn")
-	if err != nil || !strings.Contains(output, "Bilan de la séance\nBonnes réponses : 1/2") {
+	if err != nil || !strings.Contains(output, "Bilan du lot\nBonnes réponses : 1/2") {
 		t.Fatalf("stream training: %v\n%s", err, output)
 	}
 	state := assertRecordingScore(t, path, "11-flux-shell", 2, 1, "11-flux-shell/redirect-output")
@@ -108,7 +108,7 @@ func TestTextTrainingPlainOutputSeparatesQuestionAndFeedback(t *testing.T) {
 	isolateChapterHome(t)
 	t.Setenv("CLICOLOR_FORCE", "1")
 	path := filepath.Join(t.TempDir(), "progress.json")
-	args := []string{"train", "11-flux-shell", "--difficulty", "advanced"}
+	args := []string{"train", "11-flux-shell", "--difficulty", "advanced", "--all"}
 	const solution = "ls docs absent > bilan.log 2>&1"
 	question, err := runSessionCLI(path, "", args...)
 	if err != nil || !strings.Contains(question, "Exercice 1/13\n\nListe le dossier docs") ||
@@ -124,7 +124,7 @@ func TestTextTrainingPlainOutputSeparatesQuestionAndFeedback(t *testing.T) {
 		output, err := runSessionCLI(path, tc.answer, args...)
 		if err != nil || !strings.HasPrefix(output, question+"\n"+tc.feedback+"\n") ||
 			!strings.Contains(output, "Le shell redirige d’abord") ||
-			!strings.HasSuffix(output, "Bilan de la séance\n"+tc.score+"\n") ||
+			!strings.Contains(output, "Bilan du lot\n"+tc.score+"\n") ||
 			strings.Contains(output, "\x1b") {
 			t.Fatalf("unexpected feedback: %v\n%s", err, output)
 		}
@@ -198,7 +198,7 @@ func TestCurrentTextCorpusPreservesRetiredProgress(t *testing.T) {
 				}))
 				cmd.SetOut(&output)
 				cmd.SetErr(&output)
-				cmd.SetArgs([]string{"--progress", path, "train", ch.ID, "--difficulty", string(level)})
+				cmd.SetArgs([]string{"--progress", path, "train", ch.ID, "--difficulty", string(level), "--all"})
 				if err := cmd.Execute(); err != nil {
 					t.Fatal(err)
 				}

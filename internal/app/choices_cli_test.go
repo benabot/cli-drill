@@ -93,6 +93,7 @@ func TestCLIChoicesKeepCorrectionAndV1Recording(t *testing.T) {
 			correctFeedback, wrongFeedback := 0, 0
 			for _, input := range tc.inputs {
 				output, cmd := choicesCLICommand(path)
+				cmd.SetArgs([]string{"--progress", path, "train", "choices", "--mode", "review"})
 				cmd.SetIn(strings.NewReader(input))
 				if err := cmd.Execute(); err != nil {
 					t.Fatal(err)

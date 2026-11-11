@@ -50,11 +50,10 @@ func TestProgressAndChapterViewsFitAfterResize(t *testing.T) {
 				assertContains(t, view, heading)
 			}
 			if !ch.Guided() {
-				assertContains(t, view, "Ordre aléatoire")
-				assertNotContains(t, view, "m Changer")
+				assertContains(t, view, "Mode : Apprendre (ordre aléatoire)")
 				m = press(t, m, tea.KeyRunes, 'm')
-				if m.detailMode != "" {
-					t.Fatal("m changed the order of an independent chapter")
+				if m.detailMode != chapter.ModeReview {
+					t.Fatal("m did not offer review on an independent chapter")
 				}
 			}
 			views[ch.ID] = view

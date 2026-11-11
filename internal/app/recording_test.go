@@ -170,7 +170,7 @@ func TestRecordingKeepsV1StatsAndReset(t *testing.T) {
 		t.Fatal(err)
 	}
 	for range 2 {
-		if _, err := runRecordingCLI(path, strings.NewReader("pwd\npwd\npwd\npwd\n"), "train", "text"); err != nil {
+		if _, err := runRecordingCLI(path, strings.NewReader("pwd\npwd\npwd\npwd\n"), "train", "text", "--all"); err != nil {
 			t.Fatal(err)
 		}
 	}

@@ -50,14 +50,14 @@ func (m *model) changeSessionChoice(key string) bool {
 		m.detailDifficulty = nextDifficulty(m.detailFilter().Difficulty)
 		return true
 	case "m":
-		if !current.Guided() {
-			return false
-		}
 		if m.detailMode == chapter.ModeReview {
 			m.detailMode = chapter.ModeLearn
 		} else {
 			m.detailMode = chapter.ModeReview
 		}
+		return true
+	case "a":
+		m.detailAll = !m.detailAll
 		return true
 	default:
 		return false
@@ -70,7 +70,7 @@ func (m model) launchSession() (model, tea.Cmd) {
 		return m, nil
 	}
 	filter := m.detailFilter()
-	prepared := filter.Prepare(*current, m.detailScope, m.detailMode, nil)
+	prepared := filter.PrepareVisit(*current, m.detailScope, m.detailMode, m.detailAll, m.progress.CompletedExercises)
 	if len(prepared.Items) == 0 {
 		return m, nil
 	}
@@ -79,11 +79,33 @@ func (m model) launchSession() (model, tea.Cmd) {
 			return m, nil
 		}
 		m.result.CaptureChapter = prepared
+		m.result.AllExercises = m.detailAll
 		return m, tea.Quit
 	}
-	m.session = prepared
-	m.resetTextTraining()
+	m.visit = chapter.NewVisit(prepared, m.detailAll)
+	m.nextBatch()
 	return m, nil
+}
+
+func (m *model) nextBatch() {
+	if m.visit.HasNext() {
+		m.session = m.visit.Next()
+		m.reviewing = false
+		m.firstSummary = chapter.BatchResult{}
+		m.resetTextTraining()
+	}
+}
+
+func (m *model) reviewErrors() {
+	if len(m.summary.Missed) == 0 {
+		return
+	}
+	if !m.reviewing {
+		m.firstSummary = m.summary
+	}
+	m.session.Items = m.summary.RetryItems()
+	m.reviewing = true
+	m.resetTextTraining()
 }
 
 func (m *model) resetTextTraining() {
@@ -91,7 +113,7 @@ func (m *model) resetTextTraining() {
 	m.itemIndex = 0
 	m.choiceIndex = 0
 	m.feedback = ""
-	m.summary = trainingSummary{}
+	m.summary = chapter.BatchResult{}
 	m.showHelp = false
 	m.scrollOffset = 0
 	m.input.SetValue("")
@@ -102,6 +124,8 @@ func (m *model) resetTextTraining() {
 func (m *model) clearSession() {
 	m.detailDifficulty = ""
 	m.detailMode = ""
+	m.detailAll = false
+	m.visit = chapter.Visit{}
 	m.session = chapter.Chapter{}
 	m.feedback = ""
 	m.input.SetValue("")

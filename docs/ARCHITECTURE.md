@@ -55,6 +55,13 @@ Les éléments conservent leurs clés `chapter-id/item-id`. L'ordre et le curseu
 restent en mémoire. La révision des erreurs et les retries restent distincts
 du parcours initial, avec les règles P1 d'enregistrement par soumission.
 
+En P2.6, `chapter.Visit` découpe cette liste en lots de six et garde le
+curseur en mémoire. Le parcours intégral utilise le même ordre en un seul
+lot. Le bilan et les erreurs passent par `chapter.BatchResult` en CLI et
+TUI. Les erreurs peuvent former une passe distincte sans déplacer le curseur
+de la visite. La TUI délègue la liste préparée au moteur CLI lorsque le
+parcours contient des captures.
+
 Le fichier de préférences est facultatif, séparé de la progression ; `app`
 porte des fonctions concrètes de lecture/enregistrement et `xdg` son chemin.
 Pas de framework de configuration, de service de session ou d'interface de

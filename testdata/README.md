@@ -21,7 +21,8 @@ python3 testdata/capture_pty.py "$p26_dir/cli-drill"
 
 Le script crée une progression temporaire par essai. Il injecte des octets,
 envoie des signaux au binaire et compare les paramètres du pseudo-terminal
-avant et après la sortie. Il couvre aussi la sortie d'une séance mixte,
-son bilan et le retour à l'accueil après capture. La transmission par un
+avant et après la sortie. Il couvre aussi les bilans d'un parcours mixte,
+la reprise d'une seule erreur, la transition du lot clavier au lot texte
+et le retour à l'accueil après capture. La transmission par un
 clavier physique et les raccourcis interceptés par un émulateur relèvent
 de la recette manuelle.

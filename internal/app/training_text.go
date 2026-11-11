@@ -6,7 +6,6 @@ import (
 
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/exercise"
-	"github.com/benabot/cli-drill/internal/progress"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -55,8 +54,11 @@ func (v textTrainingView) feedback(item chapter.Item, correct bool) {
 	}
 }
 
-func (v textTrainingView) summary(score progress.ChapterScore) {
-	_, _ = fmt.Fprintf(v.out, "\n%s\n%s\nBonnes réponses : %d/%d\n",
+func (v textTrainingView) summary(title string, pass trainingPass, acquired int) {
+	_, _ = fmt.Fprintf(v.out, "\n%s\n%s\nBonnes réponses : %d/%d\nExercices réalisés : %d\nErreurs : %d\nAcquis cumulés (historique) : %d\n",
 		v.secondary.Render("----------------------------------------"),
-		v.title.Render("Bilan de la séance"), score.Correct, score.Attempts)
+		v.title.Render(title), pass.Correct, pass.Total, pass.Total, len(pass.Missed), acquired)
+	if pass.immediate.Attempts > 0 {
+		_, _ = fmt.Fprintf(v.out, "Réessais immédiats : %d/%d bonnes réponses\n", pass.immediate.Correct, pass.immediate.Attempts)
+	}
 }
