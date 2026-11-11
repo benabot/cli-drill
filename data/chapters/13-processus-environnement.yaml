@@ -493,3 +493,116 @@ items:
       Dans le sous-shell, le signal piégé par le parent retrouve
       son action héritée au démarrage de Bash. Ici l’action par
       défaut de USR1 est l’arrêt, sans exécuter le gestionnaire.
+  - id: "run-executable-relative-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Le programme exécutable releve est dans le dossier courant,
+      que PATH ne contient pas. Lance ce fichier par un chemin
+      relatif, sans modifier PATH.
+    answer:
+      primary: "./releve"
+      accepted:
+        - "'./releve'"
+        - "\"./releve\""
+    explanation: |-
+      Avec ./, tu donnes un chemin depuis le dossier courant.
+      Un nom qui contient / évite la recherche dans PATH.
+  - id: "path-prepend-for-one-call"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      analyse est un exécutable qui existe aussi dans
+      /opt/test/bin. Lance-le par son nom en donnant la
+      priorité à ce dossier pour ce seul appel. Garde les
+      autres entrées de PATH. Aucun alias ni fonction ne
+      s’appelle analyse et PATH est déjà renseigné.
+    answer:
+      primary: "PATH=\"/opt/test/bin:$PATH\" analyse"
+      accepted:
+        - "PATH=/opt/test/bin:\"$PATH\" analyse"
+        - "env PATH=\"/opt/test/bin:$PATH\" analyse"
+    explanation: |-
+      Le dossier ajouté en tête est cherché en premier.
+      L’affectation devant cette commande externe vaut pour
+      un seul appel. Les entrées déjà présentes restent
+      disponibles après le dossier de test.
+  - id: "find-process-by-exact-name"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Sur macOS, FreeBSD ou Linux avec procps, affiche les PID
+      des processus dont le nom court est exactement agentweb.
+      La machine exécute aussi agentweb-test. Ne leur envoie
+      aucun signal.
+    answer:
+      primary: "pgrep -x agentweb"
+      accepted:
+        - "pgrep -x 'agentweb'"
+        - "pgrep '^agentweb$'"
+    explanation: |-
+      pgrep affiche les PID trouvés. -x impose une
+      correspondance sur le nom entier, comme les ancres
+      ^ et $. agentweb-test ne correspond donc pas.
+  - id: "read-job-control-stop-state"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Voici deux lignes d’un relevé ps de procps sous Linux.
+      Quel PID a été arrêté par un signal de contrôle de tâches ?
+
+      PID   STAT  COMMAND
+      4812  T     agentweb
+      4813  S     agentweb-test
+    answer:
+      primary: "4812"
+    explanation: |-
+      Dans STAT, T indique un arrêt par un signal de contrôle
+      de tâches. S indique une attente interruptible.
+  - id: "diagnose-command-launch-status"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans un shell POSIX, le premier appel échoue car le nom
+      demandé est introuvable. Le second trouve le fichier
+      voulu mais ne peut pas le lancer faute de droit
+      d’exécution. Donne les deux statuts dans l’ordre.
+    answer:
+      primary: "127 126"
+      accepted:
+        - "127, 126"
+        - "127,126"
+    explanation: |-
+      127 signifie que le shell n’a pas trouvé la commande.
+      126 signifie qu’il l’a trouvée mais ne peut pas
+      l’exécuter.
+  - id: "force-stop-verified-pid"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Le délai d’arrêt après TERM est écoulé. Un relevé
+      récent confirme que 4821 est toujours le PID du
+      service de test visé. L’arrêt forcé est autorisé.
+      Envoie le signal à ce seul PID par son nom symbolique.
+    answer:
+      primary: "kill -s KILL 4821"
+      accepted:
+        - "kill -s 'KILL' 4821"
+        - "kill -KILL 4821"
+    explanation: |-
+      KILL ne peut être intercepté ni ignoré. Le processus
+      ne peut donc pas exécuter son nettoyage. Ici, TERM a
+      déjà été tenté et le PID a été vérifié avant l’arrêt
+      forcé.

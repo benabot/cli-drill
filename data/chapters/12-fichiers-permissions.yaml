@@ -515,3 +515,140 @@ items:
       Sur macOS, -f choisit le format ; %OLp affiche en octal la
       partie permissions du mode. GNU stat demande le format avec
       -c et utilise %a pour les droits en octal.
+  - id: "remove-tree-with-confirmation"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans le dossier courant, tu as vérifié que cache-sortie et
+      tout son contenu sont jetables. Supprime uniquement cet
+      arbre et demande confirmation pendant le parcours.
+    answer:
+      primary: "rm -ri ./cache-sortie"
+      accepted:
+        - "rm -ir ./cache-sortie"
+        - "rm -r -i ./cache-sortie"
+        - "rm -R -i ./cache-sortie"
+        - "rm -ri cache-sortie"
+    explanation: |-
+      -r ou -R descend dans le dossier. -i demande confirmation
+      pendant le parcours. Une réponse négative peut laisser
+      une partie de l’arbre en place. Le chemin désigne un
+      seul arbre, sans motif qui pourrait élargir la sélection.
+  - id: "copy-tree-keep-symlinks"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Copie config et ses descendants sous le nom libre
+      config-copie. Un lien symbolique dans config pointe hors
+      du dossier. Reproduis les liens en gardant le chemin
+      inscrit dans chacun, sans copier les fichiers ciblés.
+    answer:
+      primary: "cp -RP config config-copie"
+      accepted:
+        - "cp -PR config config-copie"
+        - "cp -R -P config config-copie"
+        - "cp -P -R config config-copie"
+    explanation: |-
+      -R copie l’arbre. Avec -P, les liens sources sont copiés
+      tels quels. GNU cp préserve déjà les liens avec -R seul
+      par défaut. POSIX laisse ce choix à l’implémentation si
+      aucune option de suivi n’est précisée.
+  - id: "chmod-exact-config-mode"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Tu possèdes service.conf, un fichier ordinaire sans ACL
+      ni bit spécial. Règle ses droits pour que le propriétaire
+      puisse lire et écrire, le groupe lire, et les autres
+      n’aient aucun droit.
+    answer:
+      primary: "chmod 640 service.conf"
+      accepted:
+        - "chmod 0640 service.conf"
+        - "chmod u=rw,g=r,o= service.conf"
+    explanation: |-
+      6 vaut lecture et écriture, 4 vaut lecture, 0 retire
+      tous les droits de la classe. Un mode numérique fixe
+      les trois classes, comme les trois affectations avec =.
+  - id: "mkdir-private-mode"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Crée le dossier prive dans le dossier courant. Dès sa
+      création, réserve au propriétaire la lecture, l’écriture
+      et la traversée. Le nom est libre et le parent n’a pas
+      d’ACL par défaut.
+    answer:
+      primary: "mkdir -m 700 prive"
+      accepted:
+        - "mkdir -m 0700 prive"
+        - "mkdir -m u=rwx,go= prive"
+    explanation: |-
+      -m fixe les droits à la création. 700 accorde les trois
+      droits au propriétaire et aucun au groupe ou aux autres.
+  - id: "du-directory-kib"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avant de libérer de la place, affiche sur une seule ligne
+      l’espace occupé sur disque par archives et son contenu.
+      Exprime le total en Kio.
+    answer:
+      primary: "du -sk archives"
+      accepted:
+        - "du -ks archives"
+        - "du -s -k archives"
+        - "du -k -s archives"
+    explanation: |-
+      du estime l’espace disque occupé par l’arbre. -s résume
+      le total et -k utilise des unités de 1 024 octets.
+  - id: "df-target-filesystem-kib"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avant une copie vers /mnt/backup/exports, affiche l’espace
+      disponible sur le système de fichiers de ce chemin
+      existant. Demande la présentation POSIX et des unités
+      de 1 024 octets.
+    answer:
+      primary: "df -Pk /mnt/backup/exports"
+      accepted:
+        - "df -kP /mnt/backup/exports"
+        - "df -P -k /mnt/backup/exports"
+        - "df -k -P /mnt/backup/exports"
+    explanation: |-
+      df prend le chemin comme repère pour choisir le système
+      de fichiers. -P fixe la présentation POSIX et -k règle
+      les unités. En locale C, Available indique l’espace libre.
+  - id: "move-cross-filesystem-interrupted"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Tu interromps mv pendant le déplacement d’une archive
+      vers un nom libre sur un autre système de fichiers.
+      Pourquoi vérifier les deux chemins avant de recommencer ?
+    choices:
+      - "Le renommage est atomique entre les deux volumes."
+      - "Une copie et une suppression sont deux étapes distinctes."
+      - "La source est toujours supprimée avant la copie."
+    answer:
+      primary: "Une copie et une suppression sont deux étapes distinctes."
+    explanation: |-
+      Entre deux systèmes de fichiers, mv peut copier puis
+      supprimer la source après réussite de la copie. Après
+      une interruption, vérifie la présence et l’intégrité des
+      fichiers avant de choisir comment reprendre.

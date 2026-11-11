@@ -30,14 +30,14 @@ func TestUnixExpansionSessions(t *testing.T) {
 			{"merge-output-errors", "pipefail-rightmost-failure", "bash-pipeline-status-vector", "nul-delimited-sort", "sort-before-replacement", "exec-persistent-stdout", "redirect-brace-group", "heredoc-expanded-body", "sort-locale-precedence", "newline-vs-record-count"},
 		}},
 		{"12-fichiers-permissions", LearningOrderIndependent, [3][]string{
-			{"copy-spaced-path", "rename-file", "remove-file", "remove-empty-directory", "list-permissions", "touch-new-file", "copy-backup-name", "read-owner-column", "chmod-group-no-write", "recognize-link-entry"},
-			{"owner-execute", "copy-directory-tree", "copy-confirm-overwrite", "move-many-sources", "copy-preserve-times", "link-relative-target", "readlink-stored-target", "chmod-two-classes", "interpret-octal-mode", "missing-directory-search"},
-			{"remove-symlink-only", "umask-file-and-directory", "unlink-vs-write", "sticky-shared-directory", "setgid-inherit-group", "move-relative-symlink", "hardlink-after-replace", "chmod-conditional-search", "copy-exact-destination-gnu", "stat-mode-macos"},
+			{"copy-spaced-path", "rename-file", "remove-file", "remove-empty-directory", "list-permissions", "touch-new-file", "copy-backup-name", "read-owner-column", "chmod-group-no-write", "recognize-link-entry", "mkdir-private-mode"},
+			{"owner-execute", "copy-directory-tree", "copy-confirm-overwrite", "move-many-sources", "copy-preserve-times", "link-relative-target", "readlink-stored-target", "chmod-two-classes", "interpret-octal-mode", "missing-directory-search", "remove-tree-with-confirmation", "copy-tree-keep-symlinks", "chmod-exact-config-mode", "du-directory-kib", "df-target-filesystem-kib"},
+			{"remove-symlink-only", "umask-file-and-directory", "unlink-vs-write", "sticky-shared-directory", "setgid-inherit-group", "move-relative-symlink", "hardlink-after-replace", "chmod-conditional-search", "copy-exact-destination-gnu", "stat-mode-macos", "move-cross-filesystem-interrupted"},
 		}},
 		{"13-processus-environnement", LearningOrderIndependent, [3][]string{
-			{"show-environment-variable", "set-shell-variable", "ps-terminal-processes", "read-process-id", "list-exported-environment", "unset-shell-variable", "list-shell-jobs", "launch-background-job", "foreground-known-job", "empty-exported-variable"},
-			{"inspect-pid", "request-termination", "export-variable", "one-command-environment", "ps-pid-parent-columns", "last-background-pid", "wait-specific-child", "resume-suspended-in-background", "wait-child-exit-status", "launch-with-clean-environment"},
-			{"identify-job-process-group", "signal-service-cleanup", "background-terminal-read-stop", "path-change-clears-cache", "export-after-child-launch", "subshell-variable-isolation", "load-script-current-shell", "cwd-with-empty-environment", "read-zombie-process-state", "trap-scope-subshell"},
+			{"show-environment-variable", "set-shell-variable", "ps-terminal-processes", "read-process-id", "list-exported-environment", "unset-shell-variable", "list-shell-jobs", "launch-background-job", "foreground-known-job", "empty-exported-variable", "run-executable-relative-path"},
+			{"inspect-pid", "request-termination", "export-variable", "one-command-environment", "ps-pid-parent-columns", "last-background-pid", "wait-specific-child", "resume-suspended-in-background", "wait-child-exit-status", "launch-with-clean-environment", "path-prepend-for-one-call", "find-process-by-exact-name", "read-job-control-stop-state", "diagnose-command-launch-status"},
+			{"identify-job-process-group", "signal-service-cleanup", "background-terminal-read-stop", "path-change-clears-cache", "export-after-child-launch", "subshell-variable-isolation", "load-script-current-shell", "cwd-with-empty-environment", "read-zombie-process-state", "trap-scope-subshell", "force-stop-verified-pid"},
 		}},
 	} {
 		t.Run(lesson.id, func(t *testing.T) {
@@ -118,6 +118,19 @@ func TestUnixExpansionRejectsCommandsWithDifferentEffects(t *testing.T) {
 		{"13-processus-environnement/set-shell-variable", "ATELIER_MODE=test", "export ATELIER_MODE=test"},
 		{"13-processus-environnement/export-variable", "export ATELIER_MODE=test", "ATELIER_MODE=test"},
 		{"13-processus-environnement/one-command-environment", "env LC_ALL=C sort noms.txt", "export LC_ALL=C; sort noms.txt"},
+		{"12-fichiers-permissions/remove-tree-with-confirmation", "rm -ri ./cache-sortie", "rm -rf ./cache-sortie"},
+		{"12-fichiers-permissions/copy-tree-keep-symlinks", "cp -RP config config-copie", "cp -RL config config-copie"},
+		{"12-fichiers-permissions/chmod-exact-config-mode", "chmod 640 service.conf", "chmod u+rw,g+r service.conf"},
+		{"12-fichiers-permissions/mkdir-private-mode", "mkdir -m 700 prive", "mkdir prive"},
+		{"12-fichiers-permissions/du-directory-kib", "du -sk archives", "du -k archives"},
+		{"12-fichiers-permissions/df-target-filesystem-kib", "df -Pk /mnt/backup/exports", "du -sk /mnt/backup/exports"},
+		{"12-fichiers-permissions/move-cross-filesystem-interrupted", "Une copie et une suppression sont deux étapes distinctes.", "Le renommage est atomique entre les deux volumes."},
+		{"13-processus-environnement/run-executable-relative-path", "./releve", "releve"},
+		{"13-processus-environnement/path-prepend-for-one-call", "PATH=\"/opt/test/bin:$PATH\" analyse", "PATH=\"/opt/test/bin\" analyse"},
+		{"13-processus-environnement/find-process-by-exact-name", "pgrep -x agentweb", "pgrep agentweb"},
+		{"13-processus-environnement/read-job-control-stop-state", "4812", "4813"},
+		{"13-processus-environnement/diagnose-command-launch-status", "127 126", "126 127"},
+		{"13-processus-environnement/force-stop-verified-pid", "kill -s KILL 4821", "kill -s TERM 4821"},
 	} {
 		t.Run(tc.key, func(t *testing.T) {
 			item, ok := items[tc.key]
@@ -126,6 +139,11 @@ func TestUnixExpansionRejectsCommandsWithDifferentEffects(t *testing.T) {
 			}
 			if !item.MatchAnswer(tc.valid) || item.MatchAnswer(tc.wrong) {
 				t.Fatalf("want to accept %q and reject %q", tc.valid, tc.wrong)
+			}
+			for _, choice := range item.Choices {
+				if item.MatchAnswer(choice) != (choice == item.Answer.Primary) {
+					t.Errorf("unexpected verdict for choice %q", choice)
+				}
 			}
 		})
 	}

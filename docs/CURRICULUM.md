@@ -14,8 +14,8 @@ Le point de départ est `dev` à `4320650`, après publication du
 [lot 2](CORPUS_P25_LOT2.md). Les vagues [1](CORPUS_P25_WAVE1.md) et
 [2](CORPUS_P25_WAVE2.md) sont publiées sur `dev` à `f97718a` et
 `fd37fe4`. La [vague 3](CORPUS_P25_WAVE3.md) est intégrée à `a6af7b4`.
-Le bilan inclut le [chapitre 14](CORPUS_P25_UNIX_TEXT.md), ajouté et testé
-localement sur `content/p25-unix-text` depuis `b3f2556`.
+Le [chapitre 14](CORPUS_P25_UNIX_TEXT.md) est intégré à `0178ab9`. Le corpus
+publié à cette base compte 240 exercices.
 Le relevé porte sur les YAML intégrés de
 [`data/chapters`](../data/chapters/), sans compter les fixtures. Les identifiants
 03 et 04 ont été retirés. Les garder réservés et conserver les identifiants
@@ -27,11 +27,11 @@ initialement ; seules les sections marquées comme implémentées ont été réa
 ## Bilan par chapitre
 
 B = Beginner, I = Intermediate, A = Advanced. Le relevé décrit le corpus
-local. Les approfondissements seront chiffrés par compétence.
+publié. Les propositions de l'audit sont hors décompte.
 
 | Chapitre | B | I | A | Total | Suite à évaluer |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `00-premiers-pas` | 10 | 10 | 10 | 30 | Chemins contenant des espaces, motifs de noms et résolution de commandes. |
+| `00-premiers-pas` | 10 | 10 | 10 | 30 | [Aide locale, lecture des listes et repères de chemin](#audit-du-chapitre-00). |
 | `01-raccourcis-terminal` | 12 | 11 | 8 | 31 | Validation de la révision guidée et des limites de capture. |
 | `02-navigation-shell` | 5 | 4 | 0 | 9 | Navigation propre à chaque outil et annulation d'une sélection. |
 | `05-outils-quotidiens` | 2 | 1 | 0 | 3 | Historique local Atuin et navigation propre à Lazygit. |
@@ -40,9 +40,9 @@ local. Les approfondissements seront chiffrés par compétence.
 | `08-micro` | 5 | 1 | 0 | 6 | Édition courante et récupération des erreurs. |
 | `09-markdown-glow` | 1 | 2 | 1 | 4 | Aperçu Markdown, pagination et largeur d'affichage. |
 | `10-workflows-dotfiles` | 3 | 0 | 0 | 3 | États Git, index, historique, branches et récupération. |
-| `11-flux-shell` | 10 | 10 | 10 | 30 | Combiner des filtres, interpréter une sortie vide ou diagnostiquer l'échec d'un pipeline. |
-| `12-fichiers-permissions` | 10 | 10 | 10 | 30 | Inspecter des métadonnées, comprendre un accès refusé ou repérer un lien cassé. |
-| `13-processus-environnement` | 10 | 10 | 10 | 30 | Retrouver un processus, choisir un signal ou diagnostiquer `PATH`. |
+| `11-flux-shell` | 10 | 10 | 10 | 30 | [Suivi de journaux, ouvertures de fichiers et statuts](#audit-du-chapitre-11). |
+| `12-fichiers-permissions` | 10 | 10 | 10 | 30 | [Opérations sûres, espace disque et permissions](#audit-du-chapitre-12). |
+| `13-processus-environnement` | 10 | 10 | 10 | 30 | [Recherche de processus, signaux et chemins d'exécution](#audit-du-chapitre-13). |
 | `14-recherche-texte-unix` | 14 | 22 | 12 | 48 | Recette du contenu et de la durée par niveau. |
 | **Total** | **85** | **92** | **63** | **240** | |
 
@@ -320,7 +320,7 @@ L'écriture de scripts et leur débogage sont hors périmètre.
 
 ### Recherche et traitement de texte Unix
 
-Le chapitre dédié `14-recherche-texte-unix` est implémenté localement.
+Le chapitre dédié `14-recherche-texte-unix` est intégré à `dev`.
 Les 48 exercices autonomes suivent un ordre guidé dans chaque niveau et
 sont mélangés en révision. Le socle POSIX est accessible sans module tiers.
 Les exercices précisent le contexte GNU ou macOS lorsqu'il détermine la
@@ -340,13 +340,217 @@ chemins ou chercher et transformer des données. La séance Intermediate
 comporte 22 exercices. Sa durée reste à mesurer en recette.
 [Matrice détaillée et références](CORPUS_P25_UNIX_TEXT.md)
 
+### Audit des quatre chapitres fondamentaux
+
+La base `0178ab90edc468a0458e0f8bd94484f9adc5c906` contient 30 exercices
+dans chacun des chapitres `00`, `11`, `12` et `13`. L'audit porte sur leurs
+120 exercices, avec comparaison des compétences de `06` et `14`. La
+couverture ci-dessous décrit les YAML. Les propositions restent à produire.
+
+Chaque proposition indispensable comble un manque qui gêne un usage courant
+ou une décision à risque. Une proposition utile étend le même chapitre à un
+cas moins fréquent. Les sujets facultatifs restent hors des volumes recommandés.
+Les références distinguent le socle POSIX et les variantes d'implémentation.
+Une option normalisée par POSIX.1-2024 exige encore une implémentation qui la
+prend en charge.
+
+Le format « Commande » désigne `simple-shell-sim`. Le correcteur compare
+la réponse principale et ses variantes déclarées. Il assouplit l'espacement
+des mots simples et des pipes simples. Les guillemets, échappements,
+expansions et autres opérateurs demandent des variantes explicites. Pour les
+diagnostics, employer une réponse courte ou un QCM à partir d'un état fourni.
+Chaque exercice doit rester autonome, même au sein d'un lot. Les situations
+qui modifient des fichiers ou des processus restent fictives dans CLI-Drill.
+[Correcteur](../internal/exercise/exercise.go) · [Formats et sélection de la correction](../internal/chapter/chapter.go)
+
+#### Audit du chapitre 00
+
+**Couverture.** Le chapitre fait travailler les chemins relatifs et absolus,
+les déplacements vers le parent, le dossier personnel et le précédent,
+les entrées cachées, la lecture de fichiers, `mkdir` et `mkdir -p`. Il couvre
+également les motifs et leur protection, la casse, `CDPATH`, les chemins
+logiques et physiques lors d'un déplacement, le sous-shell et la résolution
+du premier nom de commande. `man-ls` ouvre une page déjà identifiée.
+[YAML de `00`](../data/chapters/00-premiers-pas.yaml)
+
+**Lacunes et recouvrements.** Sur une machine inconnue, il manque le choix de
+la bonne section du manuel et la recherche d'une commande à partir d'un besoin.
+Les listes actuelles visent surtout la visibilité des entrées. Les nouveaux
+exercices sur les chemins doivent servir à transmettre ou à retrouver un chemin,
+avec une différence observable par rapport aux scénarios de `cd` existants.
+`06` et `14` cherchent et filtrent déjà des entrées. Garder dans `00` les
+opérations sur un chemin déjà connu et dans `13` le choix d'un exécutable via
+`PATH`. La lecture des droits reste en `12`.
+
+| Proposition | Priorité | Niveau et format | Situation et compétence | Référence |
+| --- | --- | --- | --- | --- |
+| 00.1 | Indispensable | B · Commande | Dans `livraisons`, voir les entrées visibles en liste détaillée, de la plus récemment modifiée à la plus ancienne. Les dates sont distinctes. Trier la liste de `ls` par date de modification. | [POSIX ls, `-l` et `-t`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/ls.html) |
+| 00.2 | Indispensable | I · Commande | Sur macOS ou avec man-db, ouvrir la page de la commande externe `printf` alors que la fonction C homonyme est aussi documentée. Choisir la section 1. | [man-db, sections](https://man7.org/linux/man-pages/man1/man.1.html#DESCRIPTION) · [FreeBSD man, synopsis](https://man.freebsd.org/cgi/man.cgi?query=man&sektion=1) |
+| 00.3 | Indispensable | I · Commande | Depuis un dossier atteint par un lien, fournir son chemin physique à un collègue sans changer de répertoire. Choisir le mode physique de `pwd`. | [POSIX pwd, `-P`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/pwd.html) |
+| 00.4 | Utile | B · Commande | Sur une machine dont l'index des manuels est disponible, trouver les pages qui traitent du mot `checksum` sans connaître le nom d'une commande. Interroger le résumé des pages. | [POSIX man, `-k`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/man.html) |
+| 00.5 | Utile | I · Commande | Extraire la partie répertoire de `build/exports/rapport.txt` pour préparer une destination, alors que ce chemin n'existe pas encore. Manipuler la chaîne du chemin. | [POSIX dirname, DESCRIPTION](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/dirname.html) |
+| 00.6 | Utile | I · Commande | Avec `realpath` compatible POSIX.1-2024, obtenir le chemin absolu d'un fichier existant atteint via un lien intermédiaire et échouer si un composant manque. Résoudre un chemin donné en opérande. | [POSIX realpath, `-e`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/realpath.html) · [GNU realpath, `-e`](https://www.gnu.org/software/coreutils/manual/html_node/realpath-invocation.html) |
+
+**Facultatif.** I · Alterner entre trois dossiers avec la pile de Bash après
+avoir constaté la limite du simple retour au dossier précédent. À réserver à
+un besoin de navigation répétée, vu `cd -` et la couverture de zoxide en `02`.
+[Manuel Bash, Directory Stack](https://www.gnu.org/software/bash/manual/html_node/The-Directory-Stack.html)
+
+**Volume recommandé.** 3 indispensables et 3 utiles. Les motifs de noms, les
+variantes de `cd` et les guillemets sont déjà travaillés dans plusieurs situations.
+
+#### Audit du chapitre 11
+
+**Couverture.** Le chapitre traite stdin, stdout et stderr, l'ajout et la
+troncature, la séparation ou fusion de sorties, les pipes, `tee`, les aperçus
+avec `head` et `tail`, les compteurs, le tri, `uniq`, `cut`, les documents
+incorporés et la portée des redirections. Il couvre `pipefail`, les statuts
+individuels, les séparateurs NUL et le remplacement conditionné par un tri
+réussi. [YAML de `11`](../data/chapters/11-flux-shell.yaml)
+
+**Lacunes et recouvrements.** Il manque le suivi en direct, la lecture du
+statut immédiatement après une commande et le diagnostic d'une ouverture
+ratée avant l'exécution. `merge-output-errors` fournit l'ordre correct pour
+fusionner deux flux. Le nouveau cas demande de prévoir l'effet de l'ordre
+inverse. `sort-before-replacement` traite déjà la troncature de l'entrée et
+une condition de succès. `06` et `14` couvrent le filtrage, le comptage par
+critère et le passage de chemins en arguments. Aucun nouveau filtre de texte
+générique n'est nécessaire pour ces lots.
+
+| Proposition | Priorité | Niveau et format | Situation et compétence | Référence |
+| --- | --- | --- | --- | --- |
+| 11.1 | Indispensable | B · Commande | Suivre les nouvelles lignes de `service.log` après les dix dernières. Le fichier existe et reste en place. Distinguer un suivi d'un aperçu. | [POSIX tail, `-f` et nombre de lignes par défaut](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/tail.html) |
+| 11.2 | Indispensable | I · Diagnostic | Une commande de mesure redirige sa sortie dans un dossier inexistant. Le shell signale l'échec d'ouverture. Déterminer si le programme a pu démarrer et où chercher la panne. | [POSIX Shell, § 2.7 Redirection et § 2.8.1 Consequences of Shell Errors](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+| 11.3 | Indispensable | I · Commande | Tenter une exportation vers `rapport.txt` en refusant d'écraser ce fichier s'il existe déjà comme fichier ordinaire. Appliquer `set -C` dans un sous-shell pour cette seule tentative. | [POSIX Shell, § 2.7.2, § 2.9.4 et `set -C`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+| 11.4 | Indispensable | A · Diagnostic | Une commande reçoit d'abord `2>&1`, puis redirige stdout vers un fichier. Le terminal était la destination initiale des deux flux. Expliquer pourquoi le diagnostic reste visible. | [POSIX Shell, § 2.7 et § 2.7.6 Duplicating an Output File Descriptor](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+| 11.5 | Indispensable | I · Commande | Un outil vient de terminer. Afficher son statut dans la commande suivante avant qu'une autre commande ne le remplace. Exploiter le paramètre spécial `?`. | [POSIX Shell, § 2.5.2 Special Parameters](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+| 11.6 | Indispensable | A · Diagnostic | Dans une chaîne interactive de préparation, publication et alerte, la préparation réussit et la publication échoue. Prédire l'alerte dans une liste qui enchaîne `&&` puis l'opérateur OU. | [POSIX Shell, § 2.9.3 Lists](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+| 11.7 | Utile | I · Commande | Émettre un diagnostic avec `printf` sur stderr afin que stdout reste disponible pour des données. Diriger la sortie de cette commande vers le descripteur 2. | [POSIX Shell, § 2.7.6](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+| 11.8 | Utile | I · Commande | Avec GNU tail ou le tail natif de macOS, continuer à suivre un journal qui est renommé puis recréé sous le même nom. Choisir le suivi par nom avec réouverture. | [GNU tail, `-F`](https://www.gnu.org/software/coreutils/manual/html_node/tail-invocation.html) · [FreeBSD tail, `-F`](https://man.freebsd.org/cgi/man.cgi?query=tail&sektion=1) |
+| 11.9 | Utile | A · Diagnostic | Sous Bash avec `pipefail`, `head` a produit la ligne demandée puis fermé le pipe. Un relevé indique que le producteur a reçu `SIGPIPE`. Relier la fermeture au statut global en échec malgré l'aperçu obtenu. | [POSIX signal.h, `SIGPIPE`](https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/signal.h.html) · [Bash, Pipelines](https://www.gnu.org/software/bash/manual/html_node/Pipelines.html) |
+
+**Facultatif.** A · Diagnostiquer un affichage retardé par la mise en mémoire
+tampon d'un programme GNU compatible avec `stdbuf`. L'exercice doit préciser
+que le producteur utilise les flux C et ne règle pas lui-même son tampon.
+Réserver le sujet à un symptôme concret.
+[GNU stdbuf, conditions d'utilisation](https://www.gnu.org/software/coreutils/manual/html_node/stdbuf-invocation.html)
+
+**Volume recommandé.** 6 indispensables et 3 utiles. Les nouveaux cas portent
+sur les effets d'une opération de flux ou d'un échec observable en session.
+
+#### Audit du chapitre 12
+
+**Couverture.** Le chapitre enseigne les copies et déplacements courants,
+la suppression simple, `rmdir`, la copie récursive, la confirmation avant
+copie, la conservation des dates, la lecture et la modification des droits,
+`umask`, les liens symboliques et physiques, le sticky bit, le setgid, le droit
+de traversée et une lecture du mode sous macOS. Il distingue déjà la suppression
+d'une entrée des droits d'écriture sur son contenu.
+[YAML de `12`](../data/chapters/12-fichiers-permissions.yaml)
+
+**Lacunes et recouvrements.** Les cas manquants touchent les conséquences
+d'une copie avec des liens, d'un déplacement entre volumes et d'une suppression
+récursive. Le corpus ne fait pas encore distinguer l'espace occupé par un
+dossier de l'espace libre sur son système de fichiers. `00` traite la résolution
+de chemins et `14` utilise taille, date, type et suivi de liens pour sélectionner
+des entrées. Garder en `12` l'opération sur l'entrée et l'interprétation des
+métadonnées. La composition `find` et `cksum` existe déjà en `14`.
+
+| Proposition | Priorité | Niveau et format | Situation et compétence | Référence |
+| --- | --- | --- | --- | --- |
+| 12.1 | Indispensable | I · Commande | Un sous-dossier généré `./cache-sortie` et son contenu ont été identifiés comme jetables. Demander confirmation pendant la suppression récursive de ce seul arbre. | [POSIX rm, `-r` et `-i`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/rm.html) |
+| 12.2 | Indispensable | I · Commande | Copier une arborescence de configuration vers un nom libre. Un lien pointe hors de la source. Reproduire le lien avec son chemin cible d'origine, sans copier la cible. | [POSIX cp, `-R` et `-P`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/cp.html) · [GNU cp, lien source et destination](https://www.gnu.org/software/coreutils/manual/html_node/cp-invocation.html) |
+| 12.3 | Indispensable | I · Commande | Imposer à un fichier ordinaire de configuration le mode lecture-écriture pour le propriétaire, lecture seule pour le groupe et aucun droit pour les autres. Aucun bit spécial ni ACL. Définir un mode complet. | [POSIX chmod, mode octal](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/chmod.html) |
+| 12.4 | Indispensable | B · Commande | Créer `prive` avec tous les droits pour le propriétaire et aucun droit pour les autres dès la création. Le parent autorise la création et n'a pas d'ACL par défaut. | [POSIX mkdir, `-m`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/mkdir.html) |
+| 12.5 | Indispensable | I · Commande | Résumer en Kio l'espace occupé sur disque par `archives`, descendants compris, sur une seule ligne. Utiliser l'occupation du dossier et ses unités. | [POSIX du, `-s` et `-k`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/du.html) |
+| 12.6 | Indispensable | I · Commande | Avant une copie vers `/mnt/backup/exports`, obtenir la ligne d'espace disponible en Kio du système de fichiers de ce chemin existant, au format portable. | [POSIX df, opérande fichier, `-P` et `-k`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/df.html) |
+| 12.7 | Indispensable | A · Diagnostic | Un gros déplacement vers une destination initialement libre située sur un autre système de fichiers a été interrompu. Expliquer pourquoi il faut vérifier source et destination avant de relancer. | [POSIX mv, cas `EXDEV`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/mv.html) · [GNU mv, déplacement entre systèmes de fichiers](https://www.gnu.org/software/coreutils/manual/html_node/mv-invocation.html) |
+| 12.8 | Utile | I · Commande | Créer avec GNU ou BSD/macOS un répertoire de travail temporaire au nom imprévisible dans un emplacement donné et afficher son chemin. Faire créer le dossier par `mktemp`. | [GNU mktemp, modèle et `-d`](https://www.gnu.org/software/coreutils/manual/html_node/mktemp-invocation.html) · [FreeBSD mktemp, `-d`](https://man.freebsd.org/cgi/man.cgi?query=mktemp&sektion=1) |
+| 12.9 | Utile | I · Commande | Avant d'éditer deux fichiers ordinaires situés sur le même système de fichiers, relever leurs numéros d'inode pour savoir s'ils désignent le même objet. | [POSIX ls, `-i`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/ls.html) · [POSIX stat, `st_dev` et `st_ino`](https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/sys_stat.h.html) |
+| 12.10 | Utile | A · Diagnostic | Nora possède le fichier et les dossiers source et destination sur le même système de fichiers. Le dossier source a le mode `0700` et la destination `0500`, sans ACL ni sticky bit. Le déplacement échoue. Identifier le droit manquant et le dossier concerné. | [POSIX rename, `EACCES`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/rename.html) |
+| 12.11 | Utile | I · Commande | Avec le `mv` natif de macOS, tenter un renommage sans invite en conservant les deux fichiers si le nom de destination existe déjà. Évaluer les effets sur les fichiers sans déduire un statut portable. | [Apple mv, `-n`](https://github.com/apple-oss-distributions/file_cmds/blob/main/mv/mv.1) · [GNU mv, options sans écrasement](https://www.gnu.org/software/coreutils/manual/html_node/mv-invocation.html) |
+
+**Facultatif.** A · Expliquer un refus d'accès à partir d'une sortie
+`getfacl` fournie sur FreeBSD, avec une ACL POSIX.1e et son masque. Ce cas
+introduit un modèle supplémentaire et doit annoncer le type d'ACL du volume.
+Les copies à préservation avancée sont à envisager seulement avec un cas réel
+de métadonnées à conserver et une plateforme annoncée.
+[FreeBSD getfacl](https://man.freebsd.org/cgi/man.cgi?query=getfacl&sektion=1) · [GNU cp, `--preserve`](https://www.gnu.org/software/coreutils/manual/html_node/cp-invocation.html)
+
+**Volume recommandé.** 7 indispensables et 4 utiles. La variété des conséquences
+sur les données justifie le plus grand ajout des quatre chapitres.
+
+#### Audit du chapitre 13
+
+**Couverture.** Le chapitre couvre les variables absentes ou vides, l'export,
+l'environnement d'une commande ou d'un enfant, le cache Bash de `PATH`,
+la consultation des processus d'un terminal macOS, l'inspection d'un PID
+connu, les jobs, `fg`, `bg`, `wait`, `TERM`, `USR1`, `SIGTTIN`, les groupes de
+processus et les zombies. Il contient aussi des diagnostics sur la portée du
+sous-shell, du chargement d'un profil et de `trap`.
+[YAML de `13`](../data/chapters/13-processus-environnement.yaml)
+
+**Lacunes et recouvrements.** Un PID est souvent inconnu au départ. Le corpus
+fait peu travailler la recherche par nom, les états usuels et les précautions
+avant d'escalader un signal. `00` couvre déjà `command -v` et la résolution
+d'une commande masquée. Ici, `PATH` sert à sélectionner une version pour une
+seule exécution. `11` garde la mécanique des statuts de pipeline. Le statut
+126 ou 127 est un diagnostic de lancement, distinct du statut de recherche
+de `grep` en `14`. Éviter `ps -T` sans plateforme, car l'option Linux procps
+vise les threads. [procps ps, THREAD DISPLAY](https://man7.org/linux/man-pages/man1/ps.1.html#THREAD_DISPLAY)
+
+| Proposition | Priorité | Niveau et format | Situation et compétence | Référence |
+| --- | --- | --- | --- | --- |
+| 13.1 | Indispensable | B · Commande | Le fichier exécutable `releve` se trouve dans le dossier courant, absent de `PATH`. Le lancer explicitement par son chemin relatif. | [POSIX Shell, § 2.9.1.4 Command Search and Execution](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+| 13.2 | Indispensable | I · Commande | Tester la version de `analyse` dans `/opt/test/bin` pour un seul appel, en gardant le reste de `PATH` et sans alias ni fonction homonyme. Donner la priorité au dossier de test. | [POSIX Shell, § 2.9.1 Simple Commands](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) · [POSIX env, affectations](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/env.html) |
+| 13.3 | Indispensable | I · Commande | Avec `pgrep` de procps ou BSD/macOS, retrouver les PID du nom court exact `agentweb` sans inclure `agentweb-test`. Rechercher le nom du processus sans lui envoyer de signal. | [procps pgrep, `-x` et NOTES](https://man7.org/linux/man-pages/man1/pgrep.1.html) · [FreeBSD pgrep, `-x`](https://man.freebsd.org/cgi/man.cgi?query=pgrep&sektion=1) |
+| 13.4 | Indispensable | I · Diagnostic | Une sortie procps présente `T` et `S` pour deux processus. Identifier le processus arrêté par le contrôle de tâches, dont l'état diffère d'une attente interruptible. | [procps ps, PROCESS STATE CODES](https://man7.org/linux/man-pages/man1/ps.1.html#PROCESS_STATE_CODES) |
+| 13.5 | Indispensable | I · Diagnostic | Une invocation échoue parce que le nom est introuvable. Une autre trouve le fichier mais ne peut pas l'exécuter faute de droit. Associer les statuts 127 et 126 aux deux causes. | [POSIX Shell, § 2.8.2 Exit Status for Commands](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+| 13.6 | Indispensable | A · Commande | Le délai d'arrêt après `TERM` est écoulé. Un relevé récent confirme que le PID désigne toujours le même service de test et qu'un arrêt forcé est autorisé. Choisir le signal en tenant compte de la perte du nettoyage. | [POSIX kill, `-s`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/kill.html) · [POSIX signal.h, `SIGKILL`](https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/signal.h.html) |
+| 13.7 | Utile | I · Commande | Dans le shell interactif qui a lancé plusieurs tâches, afficher les PID avec leurs numéros de job afin de les distinguer d'une liste de PID seule. | [POSIX jobs, `-l`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/jobs.html) |
+| 13.8 | Utile | I · Commande | Avec GNU env ou le env natif de macOS, lancer un client avec `HTTP_PROXY` absente pour ce seul appel, en conservant le reste de l'environnement. Une valeur vide ne convient pas. | [GNU env, `-u`](https://www.gnu.org/software/coreutils/manual/html_node/env-invocation.html) · [FreeBSD env, `-u`](https://man.freebsd.org/cgi/man.cgi?query=env&sektion=1) |
+| 13.9 | Utile | A · Diagnostic | Un test du signal zéro réussit pour un PID. Déduire l'existence d'une cible accessible au moment du test. Le relevé ne renseigne ni son identité ni son bon fonctionnement. | [POSIX kill, signal `0`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/kill.html) · [POSIX kill, erreurs `EPERM` et `ESRCH`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/kill.html) |
+| 13.10 | Utile | A · Commande | Depuis le terminal, lancer une collecte en arrière-plan, détacher stdin, écrire les deux flux dans un journal et ignorer `SIGHUP` si le shell l'envoie. Le programme n'a pas besoin de stdin et conserve la disposition du signal. | [POSIX nohup, DESCRIPTION](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/nohup.html) · [POSIX Shell, redirections et listes asynchrones](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) |
+
+**Facultatif.** A · Identifier le processus qui écoute sur un port occupé à
+partir d'un relevé `lsof` fourni, avec visibilité et plateforme annoncées.
+L'exercice demande un diagnostic supplémentaire de ressources ouvertes. I ·
+Lister toutes les résolutions possibles avec `type -a` dans Bash si une
+collision entre plusieurs versions reste mal couverte après `00` et `13.2`.
+[Manuel lsof, sélection Internet et états TCP](https://lsof.readthedocs.io/en/latest/manpage/) · [Bash Builtins, `type`](https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html)
+
+**Volume recommandé.** 6 indispensables et 4 utiles. Les nouveaux cas visent
+l'identification du bon processus ou exécutable et une action proportionnée.
+
+#### Lots de production proposés
+
+| Ordre | Chapitres et exercices | Volume | Justification |
+| --- | --- | ---: | --- |
+| 1 | `12.1` à `12.7` et `13.1` à `13.6` | 13 | Réduire les erreurs coûteuses sur les fichiers et les processus, avec des gestes immédiatement réutilisables. |
+| 2 | `00.1` à `00.3` et `11.1` à `11.6` | 9 | Donner des repères pour s'orienter seul et diagnostiquer un échec au terminal. |
+| 3 | `00.4` à `00.6` et `11.7` à `11.9` | 6 | Étendre la navigation et les flux à des cas d'usage ciblés. |
+| 4 | `12.8` à `12.11` et `13.7` à `13.10` | 8 | Approfondir les métadonnées, l'environnement et les tâches au-delà des premiers gestes. |
+| **Total indicatif** | **22 indispensables et 14 utiles** | **36** | **6 en `00`, 9 en `11`, 11 en `12`, 10 en `13`.** |
+
+Chaque lot peut être produit et vérifié d'un bloc. L'ordre sert à prioriser
+les chantiers. Les exercices partent de leur propre état simulé. Pour les
+ajouts ultérieurs, vérifier les variantes sur des fixtures isolées et conserver
+les identifiants publiés. Mesurer la durée des séances par niveau lors de la
+recette, en particulier quand plusieurs commandes sont à composer.
+
+Le seul arbitrage de périmètre proposé concerne les ACL et l'inspection des
+ports avec `lsof`. Leur intérêt est réel en administration, mais ils demandent
+des contextes de plateforme, d'outils et de visibilité plus précis. Recommandation
+de les laisser facultatifs et de les reprendre si les retours de recette
+font apparaître ce besoin.
+
 ## Enrichissement par lots
 
 Poursuivre la validation de `01` et la recette du chapitre de recherche et
 de traitement de texte Unix. Pour la suite du socle, retenir les
-approfondissements de `00`, `11`, `12` et `13` qui apportent une compétence
-distincte et directement utile au terminal. Poursuivre les vagues prévues
-pour Git et les outils CLI modernes selon leur utilité et les recouvrements
+approfondissements de `00`, `11`, `12` et `13` proposés dans
+[l'audit du socle](#audit-des-quatre-chapitres-fondamentaux). Poursuivre les
+vagues prévues pour Git et les outils CLI modernes selon les recouvrements
 repérés. Les phases P2.6 et P3 suivent le [backlog](../TODO.md).
 
 ### Planification initiale des vagues

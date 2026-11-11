@@ -1,8 +1,8 @@
 # État du projet — CLI-Drill
 
-**Les lots 1 et 2 et les vagues 1 à 3 de P2.5 sont intégrés à `dev`.
-Le chapitre 14 est ajouté et testé sur `content/p25-unix-text`. Sa recette
-humaine et son intégration restent ouvertes.**
+**Les lots 1 et 2, les vagues 1 à 3 et le chapitre 14 de P2.5 sont intégrés
+à `dev`. Le lot sécurité des fichiers et processus est implémenté et testé
+sur `content/p25-unix-safety-processes`. Sa validation reste ouverte.**
 P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
@@ -29,9 +29,12 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Sur `content/p25-unix-text`, le corpus compte 240 exercices dans 13 chapitres,
-  avec 85 Beginner, 92 Intermediate et 63 Advanced. Le chapitre 14 ajoute
-  48 exercices sans module tiers. [Rapport du chapitre 14](docs/CORPUS_P25_UNIX_TEXT.md)
+- Sur `content/p25-unix-safety-processes`, le corpus local compte
+  253 exercices dans 13 chapitres, avec 87 Beginner, 101 Intermediate et
+  65 Advanced. [Rapport du lot](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md)
+- La base publiée `dev` à `0178ab9` compte 240 exercices dans 13 chapitres.
+  Elle inclut les 48 exercices sans module tiers du chapitre 14.
+  [Rapport du chapitre 14](docs/CORPUS_P25_UNIX_TEXT.md)
 - La base `dev` à `b3f2556` compte 192 exercices dans 12 chapitres. Elle inclut
   les 31 exercices de `01` intégrés à `a6af7b4`.
   [Rapport de la vague 3](docs/CORPUS_P25_WAVE3.md)
@@ -704,14 +707,21 @@ huit diagnostics textuels. La recette physique sur des terminaux
 représentatifs relève de P2.6.
 [Rapport et limites de capture](docs/CORPUS_P25_WAVE3.md)
 
-### P2.5 — Recherche et traitement de texte Unix, chapitre 14 ajouté
+### P2.5 — Recherche et traitement de texte Unix, chapitre 14 intégré
 
-Depuis `b3f2556`, la branche `content/p25-unix-text` ajoute 48 exercices
+Intégrée à `0178ab9`, la branche `content/p25-unix-text` ajoute 48 exercices
 sur `grep`, `find`, `sed`, `awk` et leurs combinaisons. Apprendre suit
 l'ordre éditorial du niveau et Réviser mélange la sélection. Les essais
 sur fixtures couvrent les réponses de commande, dont les noms atypiques.
 La durée de la séance Intermediate, qui contient 22 exercices, reste à
 mesurer lors de la recette humaine. [Rapport](docs/CORPUS_P25_UNIX_TEXT.md)
+
+### P2.5 — Sécurité des fichiers et processus, premier lot local
+
+Le lot ajoute les sept indispensables de `12` et les six de `13` prévus par
+l'audit. Les deux chapitres restent en ordre mélangé. Les essais CLI sur une
+progression synthétique ont conservé les acquis JSON v1.
+[Rapport du lot](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md)
 
 Le référentiel conserve les approfondissements du socle et les vagues Git
 et outils CLI modernes. [Priorités P2.5](docs/CURRICULUM.md#enrichissement-par-lots)
