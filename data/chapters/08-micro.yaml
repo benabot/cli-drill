@@ -1,9 +1,230 @@
 id: "08-micro"
-title: "Éditer du texte dans le terminal"
-description: "Éditeur à barre de commandes accessible par Ctrl+E."
-family: "modern-cli-macos"
-learning_order: "independent"
+title: "Éditer des fichiers dans le terminal"
+description: "Apprends les gestes d’édition avec Nano, puis retrouve-les dans Micro si son module est activé. Les raccourcis sont décrits en texte."
+family: "unix-shell"
+learning_order: "guided"
 items:
+  - id: "nano-open-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Ouvre notes.txt avec Nano depuis le terminal pour corriger une
+      faute.
+    answer:
+      primary: "nano notes.txt"
+    explanation: |-
+      Le nom en argument ouvre le fichier dans le tampon
+      d’édition de Nano.
+  - id: "nano-delete-before-cursor"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Nano, le curseur est juste après une lettre en trop. Quelle
+      touche de suppression retire le caractère qui précède le curseur ?
+    choices:
+      - "Suppr"
+      - "Retour arrière"
+      - "Flèche gauche"
+    answer:
+      primary: "Retour arrière"
+    explanation: |-
+      Retour arrière efface le caractère précédent. Suppr agit
+      sur le caractère sous le curseur.
+  - id: "nano-start-forward-search"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans GNU nano 9.3 avec les raccourcis par défaut, quelle combinaison
+      démarre une recherche vers l’avant ? Écris la combinaison.
+    answer:
+      primary: "Ctrl+F"
+      accepted: ["^F"]
+    explanation: |-
+      Ctrl+F ouvre la recherche vers l’avant dans cette version.
+      Certaines versions ou configurations affichent ^W pour la
+      recherche.
+  - id: "nano-save-confirm-filename"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Nano avec ses raccourcis par défaut, tu veux ouvrir l’invite
+      qui propose le nom du fichier à enregistrer. Quelle combinaison
+      utiliser ?
+    answer:
+      primary: "Ctrl+O"
+      accepted: ["^O"]
+    explanation: |-
+      Ctrl+O ouvre l’invite d’écriture. Vérifie le nom proposé
+      avant de le confirmer.
+  - id: "nano-quit-unmodified"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Nano avec les raccourcis par défaut, le fichier n’a pas de
+      changements en attente. Quelle combinaison ferme son tampon ?
+    answer:
+      primary: "Ctrl+X"
+      accepted: ["^X"]
+    explanation: |-
+      Ctrl+X ferme le tampon actif. Si c’est le dernier, Nano
+      rend la main au shell.
+  - id: "nano-cut-line"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Nano, sans sélection ni réglage personnalisé, coupe la ligne du
+      curseur pour la réutiliser ailleurs. Donne la combinaison.
+    answer:
+      primary: "Ctrl+K"
+      accepted: ["^K"]
+    explanation: |-
+      Ctrl+K retire la ligne et la place dans le tampon de coupe.
+  - id: "nano-paste-cut-line"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Nano, le tampon de coupe contient la ligne que tu viens de
+      déplacer. Donne la combinaison pour l’insérer à la position
+      actuelle.
+    answer:
+      primary: "Ctrl+U"
+      accepted: ["^U"]
+    explanation: |-
+      Ctrl+U insère le contenu du tampon de coupe au curseur.
+  - id: "nano-open-config-at-line"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Une erreur pointe la ligne 42 de service.ini. Ouvre ce fichier avec
+      Nano en plaçant le curseur directement sur cette ligne.
+    answer:
+      primary: "nano +42 service.ini"
+    explanation: |-
+      La position +42 donnée avant le chemin fixe la ligne
+      initiale du curseur.
+  - id: "nano-jump-end-buffer"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans GNU nano 9.3 aux raccourcis par défaut, quelle combinaison Alt
+      rejoint la fin du tampon sans défiler page par page ?
+    choices:
+      - "Alt+\\"
+      - "Alt+F"
+      - "Alt+/"
+    answer:
+      primary: "Alt+/"
+    explanation: |-
+      Alt+/ rejoint la fin du tampon. Alt+\ rejoint son début.
+  - id: "nano-next-forward-match"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans GNU nano 9.3, une recherche vers l’avant est déjà terminée et
+      le curseur est sur une occurrence. Quelle combinaison Alt trouve la
+      suivante ?
+    choices:
+      - "Alt+B"
+      - "Alt+R"
+      - "Alt+F"
+    answer:
+      primary: "Alt+F"
+    explanation: |-
+      Alt+F reprend la dernière recherche vers l’avant. Alt+B la
+      reprend en sens opposé.
+  - id: "nano-save-copy-other-name"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Nano, tu as modifié brouillon.md. Tu veux garder l’original
+      intact et enregistrer le tampon dans revue.md. Que fais-tu à
+      l’invite d’écriture ?
+    choices:
+      - "Confirmer brouillon.md puis renommer le tampon."
+      - "Remplacer le nom proposé par revue.md, puis confirmer."
+      - "Quitter en répondant non à l’enregistrement."
+    answer:
+      primary: "Remplacer le nom proposé par revue.md, puis confirmer."
+    explanation: |-
+      L’invite d’écriture permet de modifier le chemin cible
+      avant la validation. Le tampon est écrit au nouveau chemin.
+  - id: "nano-move-line-by-cut-paste"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Nano aux réglages par défaut, déplace une ligne entière juste
+      au-dessus d’une autre sans en laisser une copie à l’ancien
+      emplacement. Quelle suite d’actions convient ?
+    choices:
+      - "Couper la ligne puis coller au début de la ligne cible."
+      - "Copier la ligne puis coller au début de la ligne cible."
+      - "Coller la ligne avant de la retirer à son emplacement initial."
+    answer:
+      primary: "Couper la ligne puis coller au début de la ligne cible."
+    explanation: |-
+      La coupe retire la ligne et l’insère dans le tampon de
+      coupe. Le collage au début de la cible la place avant
+      celle-ci.
+  - id: "nano-softwrap-preserves-data"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans GNU nano 9.3, une longue ligne de configuration doit rester sur
+      une seule ligne sur disque. Tu veux la voir sur plusieurs rangées.
+      Quelle fonction choisir ?
+    choices:
+      - "L’insertion de sauts de ligne lors de la frappe."
+      - "Le retour visuel à la ligne."
+      - "La justification du paragraphe."
+    answer:
+      primary: "Le retour visuel à la ligne."
+    explanation: |-
+      Le retour visuel replie la présentation sans insérer de
+      nouvelles lignes dans le fichier.
+  - id: "nano-save-elsewhere-permission"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Nano, l’écriture de service.ini échoue faute de permission. Le
+      tampon contient encore tes changements. Quel geste les conserve sans
+      modifier les droits du dossier ?
+    choices:
+      - "Enregistrer le tampon sous un chemin accessible."
+      - "Quitter et refuser l’enregistrement."
+      - "Fermer puis rouvrir le fichier d’origine."
+    answer:
+      primary: "Enregistrer le tampon sous un chemin accessible."
+    explanation: |-
+      Une erreur d’écriture laisse le texte en mémoire. Utilise
+      l’invite d’écriture pour choisir un autre chemin.
   - id: "micro-open-file"
     type: "workflow"
     exercise_type: "simple-shell-sim"
@@ -93,3 +314,169 @@ items:
     explanation: |-
       Ctrl+R bascule l’affichage des numéros de ligne.
       Une configuration personnelle peut modifier ce raccourci.
+  - id: "micro-cut-selected-text"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Dans Micro avec les raccourcis par défaut, un mot est sélectionné.
+      Coupe ce mot pour le réinsérer ailleurs. Écris la combinaison.
+    answer:
+      primary: "Ctrl+X"
+      accepted: ["^X"]
+    explanation: |-
+      Ctrl+X coupe la sélection. Ctrl+C la copie sans la retirer.
+  - id: "micro-paste-clipboard"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Dans Micro avec les raccourcis par défaut, quelle combinaison colle
+      au curseur le texte copié auparavant ?
+    answer:
+      primary: "Ctrl+V"
+      accepted: ["^V"]
+    explanation: |-
+      Ctrl+V colle le contenu du presse-papiers utilisé par
+      Micro.
+  - id: "micro-redo-undo"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Tu as annulé une modification dans Micro et veux la rétablir. Donne
+      la combinaison par défaut.
+    answer:
+      primary: "Ctrl+Y"
+      accepted: ["^Y"]
+    explanation: |-
+      Ctrl+Y rétablit l’action annulée. Ctrl+Z annule l’action
+      précédente.
+  - id: "micro-open-editor-help"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["micro"]
+    prompt: |-
+      Dans le tampon principal de Micro, affiche l’aide intégrée avec la
+      combinaison par défaut.
+    answer:
+      primary: "Ctrl+G"
+      accepted: ["^G"]
+    explanation: |-
+      Ctrl+G ouvre le document d’aide de Micro.
+  - id: "micro-goto-diagnostic-line"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: ["micro"]
+    prompt: |-
+      La barre de commandes Micro est ouverte. Entre la commande qui place
+      le curseur à la ligne 42 du fichier courant.
+    answer:
+      primary: "goto 42"
+    explanation: |-
+      goto vise une position absolue. jump se déplace par rapport
+      à la position courante.
+  - id: "micro-find-next-from-buffer"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: ["micro"]
+    prompt: |-
+      La recherche est validée et le curseur est revenu dans le tampon
+      Micro. Donne la combinaison par défaut pour l’occurrence suivante.
+    answer:
+      primary: "Ctrl+N"
+      accepted: ["^N"]
+    explanation: |-
+      Depuis le tampon, Ctrl+N retrouve la prochaine occurrence
+      du motif actif.
+  - id: "micro-replace-with-confirmation"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: ["micro"]
+    prompt: |-
+      Dans la barre de commandes Micro, cherche old_host et propose
+      new_host en demandant confirmation à chaque occurrence.
+    answer:
+      primary: "replace old_host new_host"
+    explanation: |-
+      Sans -a, le remplacement laisse le choix à chaque
+      occurrence. -a applique toutes les substitutions.
+  - id: "micro-save-copy-spaced-name"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: ["micro"]
+    prompt: |-
+      Dans la barre de commandes Micro, enregistre le tampon sous revue
+      finale.md. Le nom contient un espace.
+    answer:
+      primary: "save \"revue finale.md\""
+      accepted: ["save 'revue finale.md'"]
+    explanation: |-
+      La barre de commandes traite le nom cité comme un seul
+      argument. save avec un chemin écrit le tampon sous ce nom.
+  - id: "micro-vsplit-compare-files"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: ["micro"]
+    prompt: |-
+      Dans la barre de commandes Micro, ouvre modele.ini dans une seconde
+      vue, à côté du fichier courant, pour les comparer.
+    answer:
+      primary: "vsplit modele.ini"
+    explanation: |-
+      vsplit place une vue à côté de l’autre. hsplit les empile.
+  - id: "micro-replace-literal-dots"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: ["micro"]
+    prompt: |-
+      Dans la barre de commandes Micro, remplace toutes les occurrences
+      littérales de v1.2 par v1.3. Laisse v1x2 intact.
+    answer:
+      primary: "replace v1.2 v1.3 -l -a"
+      accepted: ["replace v1.2 v1.3 -a -l"]
+    explanation: |-
+      -l désactive les regex pour le motif. -a effectue le
+      remplacement sur toutes les occurrences.
+  - id: "micro-local-json-filetype"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: ["micro"]
+    prompt: |-
+      Le tampon Micro courant contient du JSON sans extension. Dans la
+      barre de commandes, impose la syntaxe JSON au seul tampon, sans
+      renommer le fichier.
+    answer:
+      primary: "setlocal filetype json"
+    explanation: |-
+      setlocal règle une option pour le tampon courant. filetype
+      pilote la coloration appliquée au fichier.
+  - id: "micro-remapped-shortcut-diagnostic"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["micro"]
+    prompt: |-
+      Une configuration Micro remplace explicitement Ctrl+S par Quit.
+      L’appui est bien reçu et ferme le tampon au lieu d’enregistrer.
+      Quelle source inspecter pour rétablir le geste ?
+    choices:
+      - "Le format des fins de ligne du fichier."
+      - "Le fichier bindings.json de Micro."
+      - "Le fichier .gitignore du dépôt."
+    answer:
+      primary: "Le fichier bindings.json de Micro."
+    explanation: |-
+      bindings.json peut associer la touche à une autre action
+      que celle prévue par défaut.

@@ -561,3 +561,44 @@ items:
       -P affiche le chemin absolu du répertoire courant avec
       les liens résolus. Le mode logique peut conserver le
       nom du lien par lequel tu es entré.
+  - id: "man-keyword-checksum"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Sur une machine dont l’index des manuels est prêt, cherche les pages
+      liées au mot checksum sans connaître le nom de la commande.
+    answer:
+      primary: "man -k checksum"
+    explanation: |-
+      La recherche par mot-clé consulte les noms et descriptions
+      des pages indexées.
+  - id: "dirname-export-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Affiche la partie répertoire de build/exports/rapport.txt. Ni le
+      fichier ni le dossier n’existent encore.
+    answer:
+      primary: "dirname build/exports/rapport.txt"
+      accepted: ["dirname 'build/exports/rapport.txt'"]
+    explanation: |-
+      dirname retire le dernier composant de ce chemin sans
+      consulter le système de fichiers.
+  - id: "realpath-existing-export"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Sur un système avec realpath POSIX.1-2024, affiche le chemin absolu
+      réel de courant/bilan.txt. courant est un lien intermédiaire. Fais
+      échouer la commande si un composant manque.
+    answer:
+      primary: "realpath -e courant/bilan.txt"
+    explanation: |-
+      Le mode -e exige que tous les composants existent et résout
+      les liens du chemin.

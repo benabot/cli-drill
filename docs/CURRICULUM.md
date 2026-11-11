@@ -18,7 +18,9 @@ Le [chapitre 14](CORPUS_P25_UNIX_TEXT.md) est intégré à `0178ab9`. Le corpus
 publié à cette base compte 240 exercices. Le [lot sécurité des fichiers et
 processus](CORPUS_P25_UNIX_SAFETY_PROCESSES.md) porte la base publiée
 `c9ad59c` à 253 exercices. Le [lot navigation et
-flux](CORPUS_P25_UNIX_BASICS_FLOWS.md) en ajoute 9 localement.
+flux](CORPUS_P25_UNIX_BASICS_FLOWS.md) porte la base publiée `d8b383a`
+à 262 exercices. La campagne de finalisation porte le corpus local à
+446 exercices dans 13 chapitres.
 Le relevé porte sur les YAML intégrés de
 [`data/chapters`](../data/chapters/), sans compter les fixtures. Les identifiants
 03 et 04 ont été retirés. Les garder réservés et conserver les identifiants
@@ -30,30 +32,29 @@ initialement ; seules les sections marquées comme implémentées ont été réa
 ## Bilan par chapitre
 
 B = Beginner, I = Intermediate, A = Advanced. Le relevé inclut les exercices
-implémentés sur la branche locale `content/p25-unix-basics-flows`.
+implémentés sur `content/p25-unix-git-modern-expansion`.
 
-| Chapitre | B | I | A | Total | Suite à évaluer |
+| Chapitre | B | I | A | Total | Couverture et recette |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `00-premiers-pas` | 11 | 12 | 10 | 33 | [Aide locale, lecture des listes et repères de chemin](#audit-du-chapitre-00). |
+| `00-premiers-pas` | 12 | 14 | 10 | 36 | Aide locale, tri, chemins lexicaux et physiques. |
 | `01-raccourcis-terminal` | 12 | 11 | 8 | 31 | Validation de la révision guidée et des limites de capture. |
-| `02-navigation-shell` | 5 | 4 | 0 | 9 | Navigation propre à chaque outil et annulation d'une sélection. |
-| `05-outils-quotidiens` | 2 | 1 | 0 | 3 | Historique local Atuin et navigation propre à Lazygit. |
-| `06-recherche-fichiers-contenu` | 2 | 9 | 1 | 12 | Recherche et sélection propres à rg, fd et fzf. |
-| `07-lecture-preview` | 1 | 2 | 1 | 4 | Inspection utile avec bat. |
-| `08-micro` | 5 | 1 | 0 | 6 | Édition courante et récupération des erreurs. |
-| `09-markdown-glow` | 1 | 2 | 1 | 4 | Aperçu Markdown, pagination et largeur d'affichage. |
-| `10-workflows-dotfiles` | 3 | 0 | 0 | 3 | États Git, index, historique, branches et récupération. |
-| `11-flux-shell` | 11 | 13 | 12 | 36 | [Suivi de journaux, ouvertures de fichiers et statuts](#audit-du-chapitre-11). |
-| `12-fichiers-permissions` | 11 | 15 | 11 | 37 | [Opérations sûres, espace disque et permissions](#audit-du-chapitre-12). |
-| `13-processus-environnement` | 11 | 14 | 11 | 36 | [Recherche de processus, signaux et chemins d'exécution](#audit-du-chapitre-13). |
+| `02-navigation-shell` | 10 | 10 | 10 | 30 | eza, zoxide et Yazi, avec sélections de dossiers. |
+| `05-outils-quotidiens` | 10 | 10 | 10 | 30 | Historique local Atuin et panneaux de Lazygit. |
+| `06-recherche-fichiers-contenu` | 10 | 10 | 10 | 30 | ripgrep, fd et fzf, y compris les noms atypiques. |
+| `07-lecture-preview` | 11 | 11 | 8 | 30 | Socle less, puis inspection complémentaire avec Bat. |
+| `08-micro` | 16 | 11 | 5 | 32 | Édition guidée avec Nano puis Micro. |
+| `09-markdown-glow` | 11 | 11 | 7 | 29 | Markdown pratique et prévisualisation locale avec Glow. |
+| `10-workflows-dotfiles` | 10 | 10 | 10 | 30 | Git guidé, de l’arbre de travail à la récupération. |
+| `11-flux-shell` | 11 | 15 | 13 | 39 | Descripteurs, suivi après rotation et statuts de pipeline. |
+| `12-fichiers-permissions` | 11 | 18 | 12 | 41 | Opérations sûres, espace, inodes et permissions. |
+| `13-processus-environnement` | 11 | 16 | 13 | 40 | Processus, environnement, tâches et signaux. |
 | `14-recherche-texte-unix` | 14 | 22 | 12 | 48 | Recette du contenu et de la durée par niveau. |
-| **Total** | **89** | **106** | **67** | **262** | |
+| **Total** | **149** | **169** | **128** | **446** | |
 
-Les périmètres de bat, Micro et Glow peuvent justifier moins de 30 exercices.
-L'inspection de texte, l'édition courante et l'aperçu ont chacun leurs propres
-besoins. Les réglages rares restent facultatifs. Dans `06`, les exercices
-`rg-fzf-todo` et `rg-fzf-docs` se recouvrent déjà. Les ajouts doivent viser
-une décision différente.
+Les chapitres `07`, `08` et `09` offrent un parcours sans module
+activé. Le complément Bat, Micro ou Glow se débloque par exercice.
+Le chapitre Markdown atteint 29 exercices. Les usages retenus suffisent
+à une progression complète des README vers les cas de structure.
 
 ## Progression et format
 
@@ -70,13 +71,17 @@ indépendamment du nombre d'options ou du format. La saisie de commandes prime
 lorsqu'elle permet d'évaluer le geste ; les questions de diagnostic peuvent
 s'appuyer sur une sortie simulée ou un QCM discriminant.
 
+La répétition consolide les acquis lorsqu'elle change la décision ou le
+contexte. On lit par exemple un diff dans Git, puis on décide dans quel
+panneau de Lazygit vérifier l'index. Changer seulement les noms de
+fichiers laisse le même raisonnement.
+
 ## Matrice des compétences à ajouter
 
-Le point-virgule sépare les compétences à transformer en exercices. Après
-chacune, le code indique la [source officielle](#références-par-compétence) et
-la section, l'option ou la commande à consulter.
-Les extensions de périmètre sont des propositions éditoriales : elles ne
-changent ni les identifiants, ni les familles, ni l'ordre actuel.
+Les codes renvoient aux [sources officielles](#références-par-compétence),
+avec la section, l'option ou la commande à consulter. Les matrices
+conservent le programme de départ et les rapports de jalon donnent les
+exercices réalisés. Les identifiants historiques sont conservés.
 
 ### `00-premiers-pas` — Premiers pas
 
@@ -128,6 +133,8 @@ Le rapport de révision indique les diagnostics remplacés.
 
 ### `02-navigation-shell` — Navigation avec les outils CLI
 
+**Jalon implémenté localement.** [Exercices et vérifications](CORPUS_P25_FINAL_NAV_SEARCH.md#02).
+
 **Couverture actuelle.** B : saut zoxide, liste fzf sur stdin, repérage fd, arborescence eza, ouverture Yazi. I : sélection fd et fzf de dossiers, profondeur eza, détails et fichiers cachés, liste zoxide.
 
 **Suite proposée.** Se déplacer et s’orienter parmi les dossiers. La recherche par nom ou par contenu de fichiers relève de `06`.
@@ -139,6 +146,8 @@ Le rapport de révision indique les diagnostics remplacés.
 | Advanced (+10) | Distinguer rang zoxide et date de modification du dossier (ZOX/rank) ; Écarter une entrée obsolète de l’index (ZOX/remove) ; Diagnostiquer pourquoi un saut échoue si le hook shell manque (ZOX/integration) ; Préserver le dossier courant quand une sélection est annulée (FZF/exit+SH/quoting) ; Distinguer le dossier du shell de celui atteint dans Yazi au retour (YAZI/shell) ; Prévoir si un arbre suit un lien symbolique vers un dossier hors de la racine demandée (EZA/filter) ; Inspecter une branche avec un nom contenant des métacaractères (EZA/filter+SH/quoting) ; Restreindre une sélection interactive à une racine et une profondeur utiles (FD/depth+FZF/input) ; Choisir une représentation sûre pour des chemins de dossiers avec retour à la ligne (FD/print0+FZF/input) ; Diagnostiquer un chemin relatif interprété depuis la mauvaise racine (FD/paths+SH/cd). | ZOX · FZF · SH · YAZI · EZA · FD |
 
 ### `05-outils-quotidiens` — Historique et interface Git
+
+**Jalon implémenté localement.** [Exercices et vérifications](CORPUS_P25_FINAL_GIT_HISTORY.md#05).
 
 **Couverture actuelle.** B : recherche Atuin limitée, reconnaissance de Lazygit. I : recherche Atuin par code de sortie.
 
@@ -152,6 +161,8 @@ Le rapport de révision indique les diagnostics remplacés.
 
 ### `06-recherche-fichiers-contenu` — Recherche et sélection
 
+**Jalon implémenté localement.** [Exercices et vérifications](CORPUS_P25_FINAL_NAV_SEARCH.md#06).
+
 **Couverture actuelle.** B : nom via fd, rôle de rg. I : lignes et chemins, littéral, glob, type, extension, ignores, trois pipes de sélection. A : ouvrir avec bat la sélection issue d’une recherche de contenu.
 
 **Suite proposée.** Deux pipes existants `rg-fzf-todo` et `rg-fzf-docs` se recouvrent. Garder leurs clés ; ne pas ajouter une troisième version du même geste. `02` possède la sélection de dossiers, `09` le rendu Markdown.
@@ -162,43 +173,55 @@ Le rapport de révision indique les diagnostics remplacés.
 | Intermediate (+1) | Faire primer une exclusion explicite sur une sélection de fichiers (RG/glob+FD/exclude). | RG · FD |
 | Advanced (+9) | Inclure seulement un sous-ensemble de fichiers ignorés (RG/ignore) ; Rendre visibles des résultats dans un dépôt imbriqué selon les règles d’ignore (RG/ignore) ; Préserver des chemins arbitraires entre producteur et sélecteur avec des séparateurs NUL (FD/print0+FZF/input) ; Empêcher l’action aval sur sélection vide (FZF/exit+SH/quoting) ; Traiter plusieurs sélections sans les scinder sur les espaces (FZF/multi+SH/quoting) ; Diagnostiquer une recherche qui ignore un fichier traité comme binaire (RG/binary) ; Interpréter le statut d’échec distinct d’une absence de résultat (RG/exit) ; Vérifier une expression qui doit couvrir plusieurs lignes (RG/multiline) ; Exploiter un format structuré lorsque chemins et lignes contiennent des délimiteurs ambigus (RG/json). | RG · FD · FZF · SH |
 
-### `07-lecture-preview` — Lecture et inspection de texte
+### `07-lecture-preview` — Lire et inspecter des fichiers
 
-**Couverture actuelle.** B : lire un fichier avec bat. I : numéros de ligne, plage. A : aperçu JSON sur stdin, couleur et pager explicités.
+**Jalon implémenté localement.** [Exercices et vérifications](CORPUS_P25_FINAL_READ_EDIT.md#07).
 
-**Suite proposée.** Élargir de la simple lecture à l’inspection d’un texte. Garder bat dans les exercices du chapitre : la famille actuelle requiert au moins un module tiers. `11` possède la mécanique des flux ; `09`, la mise en forme Markdown.
-
-| Niveau | Compétences à ajouter | Références |
-| --- | --- | --- |
-| Beginner (+9) | Lire plusieurs fichiers dans l’ordre fourni (BAT/usage) ; Lire depuis l’entrée standard (BAT/usage) ; Éviter le pager pour une lecture continue (BAT/paging) ; Afficher sans décor (BAT/style) ; Révéler les caractères invisibles (BAT/nonprint) ; Indiquer la syntaxe d’un fichier sans extension (BAT/syntax) ; Lister les syntaxes reconnues (BAT/syntax) ; Lister les thèmes installés (BAT/themes) ; Ouvrir un fichier dont le nom débute par un tiret (BAT/usage+FS/options). | BAT · FS |
-| Intermediate (+8) | Associer durablement un motif de nom à un langage via une configuration fournie (BAT/syntax) ; Indiquer des lignes à mettre en évidence (BAT/highlight) ; Comparer largeur du terminal et gestion des retours visuels (BAT/wrap) ; Composer un extrait de fin de fichier en annonçant la perte de numérotation source (BAT/usage+FS/tail) ; Distinguer une tabulation affichée d’espaces réels (BAT/nonprint) ; Afficher un extrait avec son chemin (BAT/style) ; Comparer style réduit et style complet (BAT/style) ; Examiner les résultats de recherche tout en conservant leur provenance (BAT/integration+RG/basics). | BAT · FS · RG |
-| Advanced (+9) | Produire une sortie exploitable par un outil aval sans codes de couleur (BAT/color+SH/pipelines) ; Diagnostiquer un pager imposé par l’environnement (BAT/paging) ; Examiner un fichier sans extension dont le contenu trompe la détection (BAT/syntax) ; Conserver les numéros fournis par la recherche sans renuméroter ses lignes à l’affichage (BAT/integration+RG/basics) ; Localiser un caractère de contrôle dans un extrait fourni (BAT/nonprint) ; Diagnostiquer un décalage entre largeur visuelle et nombre d’octets (BAT/wrap) ; Préserver des chemins provenant d’une recherche à délimiteurs NUL (BAT/integration+RG/print0) ; Distinguer inspection d’un fichier non textuel et tentative de rendu (BAT/syntax) ; Inspecter depuis une ligne donnée jusqu’à la fin d’un flux de longueur inconnue (BAT/range+SH/pipelines). | BAT · SH · RG |
-
-### `08-micro` — Édition de texte
-
-**Couverture actuelle.** B : ouvrir, enregistrer, chercher, quitter, annuler. I : bascule des numéros de ligne.
-
-**Suite proposée.** Élargir à l’édition de plusieurs buffers, aux remplacements et à la préservation du format. Les commandes de l’invite Micro et les touches décrites en texte ne sont pas des captures de raccourcis.
+**Progression guidée.** Lire et explorer avec `less`, puis utiliser Bat pour
+la coloration, les métadonnées et la présentation lorsque son module est
+activé. `11` traite les flux et leurs descripteurs. Ici, la tâche est de
+trouver et lire le bon passage sans modifier le fichier.
 
 | Niveau | Compétences à ajouter | Références |
 | --- | --- | --- |
-| Beginner (+5) | Refaire une modification annulée (MIC/keys) ; Sélectionner toute la zone d’édition (MIC/keys) ; Couper une sélection (MIC/keys) ; Copier sans effacer (MIC/keys) ; Ouvrir l’aide de l’éditeur (MIC/commands). | MIC |
-| Intermediate (+9) | Aller à une ligne donnée (MIC/commands) ; Retrouver l’occurrence suivante (MIC/keys) ; Remplacer une occurrence (MIC/commands) ; Remplacer dans tout le buffer (MIC/commands) ; Enregistrer sous un autre nom (MIC/commands) ; Ouvrir une seconde vue (MIC/commands) ; Passer au buffer voisin (MIC/keys) ; Changer la largeur des tabulations (MIC/options) ; Régler le retour visuel à la ligne (MIC/options). | MIC |
-| Advanced (+10) | Restreindre un remplacement aux débuts de lignes via une expression (MIC/commands) ; Traiter un point littéral dans une recherche par motif (MIC/commands) ; Distinguer indentation affichée et tabulations écrites (MIC/options) ; Préserver les fins de ligne d’un fichier partagé (MIC/options) ; Diagnostiquer pourquoi une syntaxe est mal reconnue sans renommer le fichier (MIC/options) ; Récupérer le contenu d’un buffer lorsque la destination n’est pas accessible (MIC/commands) ; Différencier réglage local au buffer et réglage global dans un contexte fourni (MIC/options) ; Repérer quelle vue partage le même buffer lors d’une modification (MIC/commands) ; Préserver le texte en quittant une vue contenant des modifications (MIC/commands) ; Diagnostiquer une touche indisponible ou remappée à partir de la configuration fournie (MIC/keys+MIC/options). | MIC |
+| Beginner (+10) | Ouvrir un fichier, avancer d'une page, quitter et chercher dans less ; ouvrir plusieurs fichiers, lire stdin, désactiver le pager, retirer les décorations, révéler les caractères invisibles et choisir le langage dans Bat. | LESS · BAT |
+| Intermediate (+9) | Revenir à une occurrence, viser la fin, activer la numérotation, inspecter sans repli visuel, changer de fichier dans less ; surligner une plage, donner un nom à un flux, lister les langages et ouvrir un nom préfixé d'un tiret dans Bat. | LESS · BAT |
+| Advanced (+7) | Suspendre le suivi less pour relire, rechercher dans le sens inverse, choisir une sortie brute pour les codes de couleur SGR ; retirer les couleurs pour un consommateur, neutraliser un pager imposé, isoler la représentation binaire et afficher jusqu'à la fin d'un flux dans Bat. | LESS · BAT |
 
-### `09-markdown-glow` — Lecture de Markdown
+### `08-micro` — Éditer des fichiers dans le terminal
 
-**Couverture actuelle.** B : ouvrir un fichier avec Glow. I : pager, largeur. A : sélectionner un fichier Markdown via fd/fzf puis le rendre, avec protection des espaces.
+**Jalon implémenté localement.** [Exercices et vérifications](CORPUS_P25_FINAL_READ_EDIT.md#08).
 
-**Suite proposée.** Élargir à la relecture locale du Markdown : repérer et réparer un rendu inattendu à partir de courts extraits, sans ajouter de moteur d’édition. Associer les diagnostics aux comportements réellement observés de Glow ; ne présumer ni la prise en charge complète de GFM ni un export HTML.
+**Progression guidée.** Apprendre d'abord les gestes de Nano. Le module
+Micro reprend ces gestes dans un second contexte et aborde des fonctions
+d'édition supplémentaires. Le socle Nano suppose un exécutable disponible
+sur la machine pour une pratique hors de CLI-Drill. Les raccourcis dans
+ce chapitre sont des réponses textuelles.
 
 | Niveau | Compétences à ajouter | Références |
 | --- | --- | --- |
-| Beginner (+9) | Lire un extrait sur stdin (GLOW/stdin) ; Consulter un fichier depuis l’interface locale (GLOW/tui) ; Choisir un style de rendu intégré (GLOW/styles) ; Distinguer un titre d’une ligne de texte (MD/headings) ; Reconnaître un lien dont le libellé diffère de l’adresse (MD/links) ; Distinguer texte et code en ligne (MD/code) ; Lire une liste ordonnée (MD/lists) ; Repérer un bloc de citation (MD/quotes) ; Reconnaître un bloc de code clôturé (MD/fences). | GLOW · MD |
-| Intermediate (+8) | Distinguer l’entrée standard d’un argument interprété comme chemin (GLOW/stdin+SH/quoting) ; Identifier pourquoi des lignes indentées ont été rendues comme code (MD/code) ; Reconnaître pourquoi deux paragraphes ont fusionné (MD/paragraphs) ; Préserver l’imbrication voulue d’une liste (MD/lists) ; Rendre visible un fragment Markdown comme code (MD/fences) ; Distinguer une URL d’un chemin local qui contient des espaces (MD/links+SH/quoting) ; Repérer une table rendue comme texte dans un scénario GFM vérifié (MD/tables+GLOW/cli) ; Relire en deux temps la source et le rendu en mobilisant bat et Glow (BAT/usage+GLOW/cli). | GLOW · SH · MD · BAT |
-| Advanced (+9) | Diagnostiquer une clôture de code absorbant la suite du document (MD/fences) ; Protéger une clôture citée à l’intérieur d’un bloc (MD/fences) ; Conserver le bon niveau d’imbrication d’un bloc au sein d’une liste (MD/lists) ; Échapper un séparateur dans une cellule GFM vérifiée (MD/tables+GLOW/cli) ; Diagnostiquer un lien relatif selon l’emplacement de la source, sans suivre le lien (MD/links+GLOW/cli) ; Distinguer le retour visuel de la coupure Markdown explicite (MD/breaks+GLOW/wrap) ; Diagnostiquer un style peu lisible selon le profil terminal (GLOW/styles) ; Prévisualiser une portion de document sans couper la structure qui l’entoure (MD/blocks+GLOW/stdin) ; Distinguer la représentation du fichier de ce que le pager peut masquer (GLOW/pager+BAT/usage). | MD · GLOW · BAT |
+| Beginner (+11) | Ouvrir Nano, corriger au curseur, chercher, enregistrer, quitter, couper et coller ; couper, coller, rétablir et ouvrir l'aide de Micro. | NANO · MIC |
+| Intermediate (+10) | Ouvrir Nano à une ligne donnée, rejoindre la fin, relancer une recherche, enregistrer sous un autre nom, déplacer une ligne ; rejoindre une ligne, trouver la prochaine occurrence, choisir un remplacement, enregistrer une copie, séparer deux vues dans Micro. | NANO · MIC |
+| Advanced (+5) | Choisir le repli visuel et récupérer un tampon Nano après un refus d'écriture ; remplacer un motif littéral en série, fixer la syntaxe locale et diagnostiquer un raccourci remappé dans Micro. | NANO · MIC |
+
+### `09-markdown-glow` — Markdown pratique dans le terminal
+
+**Jalon implémenté localement.** [Exercices et vérifications](CORPUS_P25_FINAL_READ_EDIT.md#09).
+
+**Progression guidée.** Lire et corriger de courts extraits de README.
+Le socle porte sur la source et le rendu CommonMark. Les tableaux sont
+identifiés comme extension GFM. Glow reste un module complémentaire de
+prévisualisation et les exercices le nomment lorsqu'il intervient.
+
+| Niveau | Compétences à ajouter | Références |
+| --- | --- | --- |
+| Beginner (+10) | Lire la source, écrire un titre, une liste, un lien, une citation et du code en ligne, reconnaître un bloc de code ; lire stdin, choisir un style et distinguer lecture de source et rendu. | MD · GLOW · LESS |
+| Intermediate (+9) | Réparer une séparation de paragraphes, une indentation de code, un lien local, une sous-liste, une table GFM et sa ligne de séparation, puis rendre un fragment comme code ; lancer la navigation locale Glow et relire la source puis le rendu. | MD · GLOW |
+| Advanced (+6) | Diagnostiquer une clôture manquante, montrer une clôture dans un exemple, échapper un séparateur GFM, conserver un bloc dans une liste, distinguer coupure explicite et retour visuel, prévisualiser une section autonome. | MD · GLOW |
 
 ### `10-workflows-dotfiles` — Git essentiel
+
+**Jalon implémenté localement.** [Exercices et vérifications](CORPUS_P25_FINAL_GIT_HISTORY.md#10).
 
 **Couverture actuelle.** B : état court, résumé des changements et liste des fichiers modifiés.
 
@@ -282,6 +305,8 @@ la version ou le tag dans le rapport du lot si le comportement en dépend.
 | BAT | [bat](https://github.com/sharkdp/bat) : Usage, Integration with other tools, Customization (syntaxes, thèmes, style, pager). Vérifier les options d'affichage dans le [manuel](https://github.com/sharkdp/bat/blob/master/assets/manual/bat.1.in). |
 | MIC | Micro : [Default keys](https://github.com/micro-editor/micro/blob/master/runtime/help/defaultkeys.md), [Commands](https://github.com/micro-editor/micro/blob/master/runtime/help/commands.md) (aide, navigation, recherche/remplacement, buffers), [Options](https://github.com/micro-editor/micro/blob/master/runtime/help/options.md) (syntaxe, indentation, fins de ligne et portée des réglages). |
 | GLOW | [Glow](https://github.com/charmbracelet/glow) : Usage (TUI, CLI, entrée standard), Word Wrapping et Styles. Vérifier séparément les fonctions du moteur de rendu sur la version retenue. |
+| LESS | [less, manuel](https://github.com/gwsw/less/blob/v668/less.nro.VER), commandes, recherche, options et suivi. |
+| NANO | [GNU nano, manuel](https://www.nano-editor.org/dist/latest/nano.html) et [raccourcis](https://www.nano-editor.org/dist/latest/cheatsheet.html), versions et configuration par défaut. |
 | MD | [CommonMark](https://spec.commonmark.org/current/) : Blocks and Inlines, listes, clôtures de code et liens. [GFM](https://github.github.com/gfm/) : extension Tables. Les spécifications expliquent la syntaxe ; elles ne garantissent pas à elles seules le rendu de Glow. |
 
 Pour l'ordre pédagogique, [MIT Missing Semester](https://missing.csail.mit.edu/)
@@ -308,9 +333,8 @@ originales et la syntaxe est vérifiée dans les manuels.
   ou à l'interruption. Un diagnostic textuel ne vaut pas validation d'une capture.
 - **Outils tiers.** Déclarer tous les modules réellement requis et vérifier
   options et défauts pour la version citée. Ne supposer ni alias, ni configuration
-  personnelle, ni intégration shell implicite, ni service distant. Un diagnostic
-  Markdown prévu dans `09` doit avoir un rapport concret avec le rendu Glow ;
-  sinon il n'a pas sa place dans ce chapitre.
+  personnelle, ni intégration shell implicite, ni service distant. Distinguer les exercices Markdown autonomes des
+  exercices de rendu propres à Glow.
 
 ## Approfondissements du socle Unix
 
@@ -537,8 +561,8 @@ l'identification du bon processus ou exécutable et une action proportionnée.
 | **Total indicatif** | **22 indispensables et 14 utiles** | **36** | **6 en `00`, 9 en `11`, 11 en `12`, 10 en `13`.** |
 
 Le lot 1 est intégré à `dev` à `c9ad59c`. Les neuf exercices du lot 2
-sont implémentés et testés localement. Les 14 propositions utiles des lots 3
-et 4 restent ouvertes. [Rapport du lot 1](CORPUS_P25_UNIX_SAFETY_PROCESSES.md)
+sont intégrés à `dev` à `d8b383a`. Les 14 propositions utiles des lots 3
+et 4 sont implémentées et testées localement. [Rapport du lot 1](CORPUS_P25_UNIX_SAFETY_PROCESSES.md)
 · [Rapport du lot 2](CORPUS_P25_UNIX_BASICS_FLOWS.md)
 
 Chaque lot peut être produit et vérifié d'un bloc. L'ordre sert à prioriser
@@ -555,12 +579,17 @@ font apparaître ce besoin.
 
 ## Enrichissement par lots
 
-Poursuivre la validation de `01` et la recette du chapitre de recherche et
-de traitement de texte Unix. Pour la suite du socle, retenir les
-approfondissements de `00`, `11`, `12` et `13` proposés dans
-[l'audit du socle](#audit-des-quatre-chapitres-fondamentaux). Poursuivre les
-vagues prévues pour Git et les outils CLI modernes selon les recouvrements
-repérés. Les phases P2.6 et P3 suivent le [backlog](../TODO.md).
+| Jalon local | Chapitres | Ajouts B / I / A | Cumul | Vérifications |
+| --- | --- | --- | ---: | --- |
+| Fondamentaux Unix | `00`, `11`, `12`, `13` | 1 / 9 / 4 | 276 | [Unix](CORPUS_P25_FINAL_UNIX.md) |
+| Git et historique | `10`, `05` | 15 / 19 / 20 | 330 | [Git et historique](CORPUS_P25_FINAL_GIT_HISTORY.md) |
+| Navigation et recherche modernes | `02`, `06` | 13 / 7 / 19 | 369 | [Navigation et recherche](CORPUS_P25_FINAL_NAV_SEARCH.md) |
+| Lecture, édition et Markdown | `07`, `08`, `09` | 31 / 28 / 18 | 446 | [Lecture, édition et Markdown](CORPUS_P25_FINAL_READ_EDIT.md) |
+
+Les quatre jalons sont implémentés localement. La recette P2.6 couvre
+notamment les interfaces interactives, la durée des séances et les
+configurations représentatives. Les pistes facultatives de l'audit Unix et
+P3 restent suivies dans le [backlog](../TODO.md).
 
 ### Planification initiale des vagues
 
@@ -584,8 +613,8 @@ Une frontière partagée a un responsable pédagogique : chemins et résolution
 en `00`, effets sur le système de fichiers en `12`, flux en `11`, portée et
 processus en `13`. Appliquer la même règle à la navigation/recherche
 (`02`/`06`), à l'inspection/rendu (`07`/`09`) et aux commandes/interfaces Git
-(`10`/`05`). Une deuxième mise en situation n'est utile que si elle évalue une
-décision différente. Avant le premier lot qui élargit un chapitre, préciser les
+(`10`/`05`). Une deuxième mise en situation consolide un acquis en changeant
+le contexte, la décision ou les contraintes. Avant le premier lot qui élargit un chapitre, préciser les
 limites dans son rapport ; si une compétence exige de modifier le moteur ou la
 structure historique, la remplacer ou laisser la case ouverte.
 

@@ -23,7 +23,7 @@ func TestV2Corpus(t *testing.T) {
 		t.Fatalf("want 13 chapters, got %d", len(chapters))
 	}
 	first := chapters[0]
-	if first.ID != "00-premiers-pas" || first.Family != FamilyUnixShell || first.LearningOrder != LearningOrderGuided || len(first.Items) != 33 {
+	if first.ID != "00-premiers-pas" || first.Family != FamilyUnixShell || first.LearningOrder != LearningOrderGuided || len(first.Items) != 36 {
 		t.Fatalf("unexpected first chapter: %#v", first)
 	}
 	answers := []string{"pwd", "ls", "ls -a", "cd docs", "cd ..", "cd /atelier", "mkdir essais", `cat "notes de cours.txt"`}
@@ -69,7 +69,7 @@ func TestV2Corpus(t *testing.T) {
 			total++
 		}
 	}
-	if total != 262 || !reflect.DeepEqual(families, map[Family]int{FamilyUnixShell: 193, FamilyKeyboardShortcuts: 31, FamilyModernCLIMacOS: 38}) {
+	if total != 446 || !reflect.DeepEqual(families, map[Family]int{FamilyUnixShell: 325, FamilyKeyboardShortcuts: 31, FamilyModernCLIMacOS: 90}) {
 		t.Fatalf("unexpected corpus: %d / %v", total, families)
 	}
 }
@@ -141,7 +141,7 @@ func TestV2HistoricalKeyPolicy(t *testing.T) {
 	}
 	sort.Strings(preserved)
 	sort.Strings(want)
-	if !reflect.DeepEqual(preserved, want) || fresh != 242 || len(old)-len(preserved) != 48 {
+	if !reflect.DeepEqual(preserved, want) || fresh != 426 || len(old)-len(preserved) != 48 {
 		t.Fatalf("key policy changed: kept=%v fresh=%d retired=%d", preserved, fresh, len(old)-len(preserved))
 	}
 }

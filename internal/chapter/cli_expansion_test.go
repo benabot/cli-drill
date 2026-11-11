@@ -70,7 +70,7 @@ func TestModernExpansionEligibilityAndAnswers(t *testing.T) {
 				}
 			}
 			filter.EnabledTools = tc.tools
-			shuffled := filter.Prepare(ch, AllExercises, "", func(n int, swap func(int, int)) {
+			shuffled := filter.Prepare(ch, AllExercises, ModeReview, func(n int, swap func(int, int)) {
 				for i := 0; i < n/2; i++ {
 					swap(i, n-1-i)
 				}

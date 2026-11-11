@@ -2,7 +2,7 @@ id: "10-workflows-dotfiles"
 title: "Git essentiel"
 description: "Git, outil CLI de gestion de versions, dans un dépôt simulé. L’identifiant historique du chapitre est conservé pour protéger les acquis ; aucun workflow personnel de dotfiles ne reste actif."
 family: "unix-shell"
-learning_order: "independent"
+learning_order: "guided"
 items:
   - id: "dotfiles-status-shell"
     type: "workflow"
@@ -49,3 +49,396 @@ items:
       --name-only affiche les noms des fichiers différents entre
       l’arbre de travail et l’index dans ce cas. Les modifications
       déjà indexées demanderaient --cached.
+  - id: "git-current-branch"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Dans un dépôt Git 2.22 ou plus récent, affiche uniquement le nom de
+      la branche active. HEAD est attaché.
+    answer:
+      primary: "git branch --show-current"
+    explanation: |-
+      L’option --show-current écrit le nom de la branche active.
+      Sans branche active, elle ne donne pas de nom.
+  - id: "git-show-last-commit"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Affiche le dernier commit de la branche active, avec son message et
+      son patch.
+    answer:
+      primary: "git show HEAD"
+      accepted: ["git show"]
+    explanation: |-
+      git show sur un commit affiche ses métadonnées et son diff.
+  - id: "git-log-oneline"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Parcours les commits accessibles depuis HEAD avec un identifiant
+      abrégé et le sujet sur chaque ligne.
+    answer:
+      primary: "git log --oneline"
+    explanation: |-
+      --oneline condense chaque entrée en identifiant abrégé et
+      sujet.
+  - id: "git-worktree-diff-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Affiche les modifications non indexées de config.ini avec le détail
+      des lignes. D’autres fichiers ont aussi changé.
+    answer:
+      primary: "git diff -- config.ini"
+    explanation: |-
+      Sans révision, git diff compare l’arbre de travail à
+      l’index. Le chemin après -- borne le patch.
+  - id: "git-add-single-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Prépare uniquement docs/guide.md pour le prochain commit. Laisse les
+      autres modifications dans l’arbre de travail.
+    answer:
+      primary: "git add -- docs/guide.md"
+      accepted: ["git add docs/guide.md"]
+    explanation: |-
+      git add enregistre dans l’index le contenu actuel du seul
+      chemin indiqué.
+  - id: "git-create-branch-in-place"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Crée une branche relire-doc au commit courant et reste sur ta
+      branche actuelle.
+    answer:
+      primary: "git branch relire-doc"
+    explanation: |-
+      git branch avec un nom crée une référence au commit courant
+      et laisse HEAD en place.
+  - id: "git-show-historical-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["git"]
+    prompt: |-
+      Lis le contenu entier de config.ini tel qu’il était au tag v1.2.
+      Garde ta version locale intacte.
+    answer:
+      primary: "git show v1.2:config.ini"
+    explanation: |-
+      La notation révision:chemin sélectionne le contenu
+      enregistré à cet emplacement dans la révision.
+  - id: "git-diff-index-only"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Avant de valider, relis le patch exact préparé dans l’index par
+      rapport au dernier commit. Ignore les retouches locales non
+      indexées.
+    answer:
+      primary: "git diff --cached"
+      accepted: ["git diff --staged"]
+    explanation: |-
+      --cached compare l’index à HEAD par défaut.
+  - id: "git-unstage-keep-edit"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Avec Git 2.23 ou plus récent, retire config.ini de l’index. Garde
+      toutes les retouches dans le fichier de travail. HEAD contient ce
+      fichier.
+    answer:
+      primary: "git restore --staged -- config.ini"
+      accepted: ["git reset HEAD -- config.ini"]
+    explanation: |-
+      --staged rétablit l’entrée de l’index depuis HEAD. Le
+      fichier de travail est préservé.
+  - id: "git-add-patch-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Dans settings.yml, tu veux préparer un correctif et laisser les
+      autres retouches de côté. Ouvre la sélection interactive des
+      fragments de ce fichier.
+    answer:
+      primary: "git add -p -- settings.yml"
+      accepted: ["git add --patch -- settings.yml"]
+    explanation: |-
+      -p propose les fragments un par un pour sélectionner ce qui
+      entrera dans l’index.
+  - id: "git-ignore-source-rule"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Le fichier non suivi build/cache.db est ignoré. Affiche la règle qui
+      le masque, son fichier et son numéro de ligne.
+    answer:
+      primary: "git check-ignore -v -- build/cache.db"
+    explanation: |-
+      Le mode détaillé de check-ignore indique la source, la
+      ligne et le motif correspondant au chemin.
+  - id: "git-follow-renamed-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      docs/guide.md a changé de nom. Consulte l’historique d’un seul
+      chemin en suivant ses renommages antérieurs.
+    answer:
+      primary: "git log --follow -- docs/guide.md"
+    explanation: |-
+      --follow poursuit l’historique d’un chemin au-delà des
+      renommages que Git détecte.
+  - id: "git-log-only-topic"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Affiche les commits accessibles depuis correction mais absents de
+      l’historique accessible depuis main.
+    answer:
+      primary: "git log main..correction"
+    explanation: |-
+      A..B retient les commits accessibles depuis B, en retirant
+      ceux accessibles depuis A.
+  - id: "git-log-symmetric-divergence"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Les branches locale et revue ont divergé. Liste les commits propres
+      à l’une ou l’autre et marque le côté auquel chacun appartient.
+    answer:
+      primary: "git log --left-right locale...revue"
+    explanation: |-
+      Les trois points sélectionnent la différence symétrique des
+      historiques. --left-right distingue les deux côtés.
+  - id: "git-show-commit-file-list"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Pour le commit a1b2c3d, affiche les noms des fichiers modifiés avec
+      les métadonnées du commit. Évite le patch détaillé.
+    answer:
+      primary: "git show --name-only a1b2c3d"
+    explanation: |-
+      --name-only montre les chemins modifiés dans le diff sans
+      les lignes du patch.
+  - id: "git-grep-tag-content"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Retrouve TIMEOUT dans les fichiers suivis tels qu’ils étaient au tag
+      v2.0. Ne lis pas les modifications locales.
+    answer:
+      primary: "git grep TIMEOUT v2.0"
+      accepted: ["git grep -e TIMEOUT v2.0"]
+    explanation: |-
+      En lui donnant une révision, git grep parcourt son arbre de
+      fichiers plutôt que l’arbre de travail.
+  - id: "git-diff-cached-remote-ref"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["git"]
+    prompt: |-
+      Compare les contenus de origin/main et HEAD dans ce sens. La
+      référence distante locale existe déjà et tu travailles hors ligne.
+    answer:
+      primary: "git diff origin/main HEAD"
+      accepted: ["git diff origin/main..HEAD"]
+    explanation: |-
+      Deux révisions demandent une comparaison de leurs contenus
+      enregistrés. La référence locale origin/main peut être
+      ancienne.
+  - id: "git-status-two-columns"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      L’état court affiche MM pour service.yml, un fichier suivi sans
+      conflit. Comment interpréter ces deux colonnes ?
+    choices:
+      - "Le fichier a été modifié deux fois dans l’index."
+      - "Une version est indexée, puis le fichier a encore changé."
+      - "Le fichier est en conflit sur les deux branches."
+    answer:
+      primary: "Une version est indexée, puis le fichier a encore changé."
+    explanation: |-
+      Le premier M compare l’index à HEAD. Le second M compare le
+      fichier de travail à l’index.
+  - id: "git-diff-from-common-base"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      main et correctif ont divergé. Affiche uniquement les changements du
+      côté correctif depuis leur ancêtre commun.
+    answer:
+      primary: "git diff main...correctif"
+    explanation: |-
+      Dans git diff, les trois points comparent l’ancêtre commun
+      au second côté. Deux références seules comparent les deux
+      extrémités.
+  - id: "git-reflog-before-reset"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      Après un reset, le reflog simulé affiche a310ffe HEAD@{0}: reset
+      puis b420ffe HEAD@{1}: commit: Corriger délai. Quel identifiant
+      repère le commit à retrouver ?
+    answer:
+      primary: "b420ffe"
+    explanation: |-
+      Le reflog local garde les positions précédentes de HEAD.
+      L’entrée antérieure au reset désigne le commit recherché.
+  - id: "git-detached-versus-unborn"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      Dans A, Git indique HEAD détaché sur a310ffe. Dans B, Git affiche «
+      On branch main » puis « No commits yet ». Où HEAD désigne-t-il un
+      commit sans passer par une branche ?
+    choices:
+      - "Dans B uniquement."
+      - "Dans les deux dépôts."
+      - "Dans A uniquement."
+    answer:
+      primary: "Dans A uniquement."
+    explanation: |-
+      HEAD détaché pointe directement sur un commit. Une branche
+      avant son premier commit a déjà un nom, mais aucun commit à
+      désigner.
+  - id: "git-branch-missing-upstream"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      git branch -vv affiche « * revue a310ffe Relire » sans référence
+      entre crochets. origin/revue existe déjà localement. Pourquoi un
+      pull sans argument peut-il signaler l’absence de branche de suivi ?
+    choices:
+      - "La branche revue n’a pas de branche amont configurée."
+      - "origin/revue a forcément été supprimée sur le serveur."
+      - "HEAD est détaché."
+    answer:
+      primary: "La branche revue n’a pas de branche amont configurée."
+    explanation: |-
+      L’existence d’une référence distante ne configure pas le
+      suivi. -vv montre la relation de suivi si elle est
+      renseignée.
+  - id: "git-stash-inspect-patch"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      La liste des stashes associe « timeout API » à stash@{2}. Affiche le
+      patch de cette entrée suivie en laissant l’arbre et la pile intacts.
+    answer:
+      primary: "git stash show -p 'stash@{2}'"
+      accepted: ["git stash show --patch 'stash@{2}'","git stash show -p \"stash@{2}\""]
+    explanation: |-
+      stash show -p lit le patch. Le sélecteur entre guillemets
+      reste un argument littéral pour le shell.
+  - id: "git-show-conflict-stage"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      Pendant une fusion simple, config.ini est en conflit. Affiche la
+      version de la branche courante stockée dans l’index, sans choisir de
+      résolution.
+    answer:
+      primary: "git show :2:config.ini"
+    explanation: |-
+      Dans cette fusion, le stade 2 correspond au côté courant et
+      le stade 3 au côté fusionné. Le stade 1 contient la base si
+      elle existe.
+  - id: "git-ignore-already-tracked"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      secrets-demo.txt est déjà suivi. Tu ajoutes son nom à .gitignore,
+      puis modifies le fichier. Pourquoi Git affiche-t-il toujours sa
+      modification ?
+    choices:
+      - "La règle prendra effet dès la prochaine ouverture du dépôt."
+      - "Les règles ignorent seulement les fichiers cachés."
+      - "La règle ne retire pas un fichier déjà suivi de l’index."
+    answer:
+      primary: "La règle ne retire pas un fichier déjà suivi de l’index."
+    explanation: |-
+      Les exclusions s’appliquent aux fichiers non suivis. Les
+      changements d’un fichier déjà dans l’index restent
+      visibles.
+  - id: "git-bisect-linear-boundary"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      Sur une chaîne A → B → C → D → E, A et C passent le test, D et E
+      échouent. Le défaut persiste après son apparition. Quel commit est
+      le premier fautif ?
+    choices:
+      - "C"
+      - "E"
+      - "D"
+    answer:
+      primary: "D"
+    explanation: |-
+      C borne le dernier succès et D l’échec immédiatement
+      suivant. Il ne reste aucun commit entre ces deux bornes.
+  - id: "git-log-pickaxe-regex"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["git"]
+    prompt: |-
+      Cherche les commits dont une ligne ajoutée ou supprimée correspond à
+      timeout, même si un remplacement conserve le nombre d’occurrences du
+      mot.
+    answer:
+      primary: "git log -G timeout"
+    explanation: |-
+      -G recherche le motif dans les lignes du patch. -S regarde
+      si le nombre d’occurrences change.

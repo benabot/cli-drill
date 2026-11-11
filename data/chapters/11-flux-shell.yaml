@@ -632,3 +632,51 @@ items:
       Le shell évalue && et || de gauche à droite, à
       priorité égale. preparer réussit, donc publier se
       lance. Son échec déclenche alerter.
+  - id: "printf-diagnostic-stderr"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Affiche « Source absente » suivi d’un saut de ligne avec printf sur
+      la sortie d’erreur. La sortie standard reste réservée aux données.
+    answer:
+      primary: "printf '%s\\n' 'Source absente' >&2"
+      accepted: ["printf '%s\\n' 'Source absente' 1>&2"]
+    explanation: |-
+      Le descripteur 1 de printf prend la destination du
+      descripteur 2. Le texte arrive sur stderr.
+  - id: "tail-follow-rotated-log"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec GNU tail ou le tail natif de macOS, suis service.log en
+      continu. Le service renomme le journal puis recrée un fichier sous
+      ce même nom.
+    answer:
+      primary: "tail -F service.log"
+    explanation: |-
+      Le mode -F rouvre le journal sous le même nom après le
+      remplacement du fichier.
+  - id: "pipefail-head-sigpipe"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash avec pipefail, producteur | head -n 1 affiche la ligne
+      voulue. head sort avec succès et le relevé montre que producteur
+      s’est terminé sur SIGPIPE. Pourquoi le pipeline renvoie-t-il un
+      échec ?
+    choices:
+      - "Le producteur a écrit après la fermeture du pipe."
+      - "head a échoué malgré son statut zéro."
+      - "Bash refuse un pipeline qui n’affiche qu’une ligne."
+    answer:
+      primary: "Le producteur a écrit après la fermeture du pipe."
+    explanation: |-
+      Quand le lecteur ferme le pipe, le producteur peut recevoir
+      SIGPIPE en écrivant. Avec pipefail, son statut non nul
+      compte.

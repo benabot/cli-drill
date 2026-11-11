@@ -48,3 +48,452 @@ items:
     explanation: |-
       --exit filtre selon le code enregistré par Atuin.
       La recherche ne relance aucune commande historique.
+  - id: "atuin-local-stats"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["atuin"]
+    prompt: |-
+      Affiche le résumé statistique de l’historique local Atuin, sans
+      consulter de service distant.
+    answer:
+      primary: "atuin stats"
+    explanation: |-
+      stats agrège les commandes de la base locale.
+  - id: "atuin-search-with-dates"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["atuin"]
+    prompt: |-
+      Dans Atuin 18, recherche cargo et affiche pour chaque résultat sa
+      date d’exécution et la commande. Utilise les champs time et command.
+    answer:
+      primary: "atuin search --format '{time} {command}' cargo"
+      accepted: ["atuin search -f '{time} {command}' cargo"]
+    explanation: |-
+      Le format inclut l’horodatage enregistré et le texte de la
+      commande.
+  - id: "lazygit-open-repo-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["lazygit"]
+    prompt: |-
+      Depuis ton dossier courant, ouvre dans Lazygit le dépôt normal
+      /atelier/demo, sans te déplacer dans le shell.
+    answer:
+      primary: "lazygit -p /atelier/demo"
+      accepted: ["lazygit --path /atelier/demo"]
+    explanation: |-
+      -p indique le chemin du dépôt. Le filtre est destiné aux
+      chemins dans l’historique.
+  - id: "lazygit-current-branch-panel"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["lazygit"]
+    prompt: |-
+      Dans le panneau Branches d’une capture Lazygit, main porte
+      l’indicateur de branche courante. Le curseur est sur revue. Quelle
+      branche est active dans Git ?
+    answer:
+      primary: "main"
+    explanation: |-
+      La sélection sert à examiner une entrée. L’indicateur de
+      branche courante renseigne sur HEAD.
+  - id: "lazygit-modified-files-panel"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["lazygit"]
+    prompt: |-
+      Tu veux retrouver les fichiers modifiés dans l’arbre de travail de
+      Lazygit. Quel panneau ouvre la liste correspondante ?
+    choices:
+      - "Commits"
+      - "Files"
+      - "Stash"
+    answer:
+      primary: "Files"
+    explanation: |-
+      Le panneau Files réunit les chemins modifiés ou non suivis
+      de l’arbre de travail.
+  - id: "lazygit-view-selected-diff"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["lazygit"]
+    prompt: |-
+      Le curseur est sur service.yml dans le panneau Files de Lazygit. Où
+      lis-tu ses lignes ajoutées ou retirées dans la disposition standard
+      ?
+    choices:
+      - "Dans la liste des branches locales."
+      - "Dans le journal des commits sans sélectionner le fichier."
+      - "Dans le panneau de diff à droite."
+    answer:
+      primary: "Dans le panneau de diff à droite."
+    explanation: |-
+      Le panneau de droite affiche le diff lié à l’entrée
+      sélectionnée.
+  - id: "lazygit-context-key-help"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["lazygit"]
+    prompt: |-
+      Dans Lazygit aux raccourcis par défaut, quelle touche ouvre l’aide
+      des commandes disponibles pour le panneau actif ?
+    choices:
+      - "?"
+      - "h"
+      - "q"
+    answer:
+      primary: "?"
+    explanation: |-
+      Le menu d’aide indique les raccourcis selon le panneau qui
+      a le focus.
+  - id: "lazygit-commits-panel"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["lazygit"]
+    prompt: |-
+      Dans Lazygit, quel panneau consulter pour parcourir les commits déjà
+      enregistrés de la branche active ?
+    choices:
+      - "Commits"
+      - "Files"
+      - "Stash"
+    answer:
+      primary: "Commits"
+    explanation: |-
+      Commits montre l’historique. Files montre les changements
+      en cours.
+  - id: "atuin-search-working-dir"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["atuin"]
+    prompt: |-
+      Recherche les commandes make enregistrées exactement dans
+      /atelier/api. Garde l’historique des autres dossiers hors des
+      résultats.
+    answer:
+      primary: "atuin search --cwd /atelier/api make"
+      accepted: ["atuin search -c /atelier/api make"]
+    explanation: |-
+      --cwd filtre le répertoire enregistré de chaque commande.
+  - id: "atuin-search-date-window"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["atuin"]
+    prompt: |-
+      Avec Atuin 18, retrouve les commandes docker après le 1er mars 2025
+      et avant le 3 mars 2025, dates interprétées dans le fuseau
+      configuré.
+    answer:
+      primary: "atuin search --after 2025-03-01 --before 2025-03-03 docker"
+      accepted: ["atuin search -a 2025-03-01 -b 2025-03-03 docker"]
+    explanation: |-
+      --after pose la borne inférieure et --before la borne
+      supérieure.
+  - id: "atuin-open-interactive-query"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["atuin"]
+    prompt: |-
+      Ouvre la recherche interactive d’Atuin avec kubectl déjà saisi, pour
+      affiner le motif dans l’interface.
+    answer:
+      primary: "atuin search -i kubectl"
+      accepted: ["atuin search --interactive kubectl"]
+    explanation: |-
+      -i ouvre le sélecteur. Le texte en argument initialise le
+      motif.
+  - id: "atuin-exclude-one-exit-code"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["atuin"]
+    prompt: |-
+      Recherche les commandes rsync en écartant celles qui ont renvoyé 23.
+      Conserve les autres codes, succès ou échec.
+    answer:
+      primary: "atuin search --exclude-exit 23 rsync"
+    explanation: |-
+      --exclude-exit retire le code indiqué. --exit
+      sélectionnerait précisément ce code.
+  - id: "lazygit-staged-vs-unstaged"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: ["lazygit"]
+    prompt: |-
+      Une capture Lazygit montre config.yml dans Staged et notes.md dans
+      Unstaged. Tu valides l’index tel quel. Quel fichier part dans le
+      commit ?
+    choices:
+      - "notes.md"
+      - "Les deux fichiers."
+      - "config.yml"
+    answer:
+      primary: "config.yml"
+    explanation: |-
+      Seule la version préparée dans l’index entre dans ce
+      commit.
+  - id: "lazygit-enter-line-staging"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: ["lazygit"]
+    prompt: |-
+      Dans Files, tu as sélectionné un fichier modifié non indexé. Avec
+      les raccourcis Lazygit par défaut, quelle touche ouvre la vue pour
+      choisir les lignes à indexer ?
+    choices:
+      - "Espace"
+      - "Échap"
+      - "Entrée"
+    answer:
+      primary: "Entrée"
+    explanation: |-
+      Entrée ouvre la sélection par lignes. Depuis la liste de
+      fichiers, Espace agit sur le fichier entier.
+  - id: "lazygit-review-indexed-pane"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: ["lazygit"]
+    prompt: |-
+      La vue de diff Lazygit présente un côté Staged et un côté Unstaged
+      pour le même fichier. Lequel relire pour vérifier la version du
+      prochain commit ?
+    choices:
+      - "Staged"
+      - "Unstaged"
+      - "Les deux côtés sont inclus."
+    answer:
+      primary: "Staged"
+    explanation: |-
+      Staged montre la différence entre HEAD et l’index. Unstaged
+      montre les retouches locales encore hors de l’index.
+  - id: "lazygit-find-local-branch"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: ["lazygit"]
+    prompt: |-
+      Une longue liste de branches locales est affichée dans Lazygit 0.66,
+      configuration standard. Quelle action trouve revue sans changer la
+      branche active ?
+    choices:
+      - "Valider le changement de branche sur revue."
+      - "Filtrer le panneau Branches et lire le résultat."
+      - "Ouvrir le filtre de chemins du journal des commits."
+    answer:
+      primary: "Filtrer le panneau Branches et lire le résultat."
+    explanation: |-
+      Le filtre de la liste de branches réduit l’affichage.
+      Consulter une entrée ne nécessite aucun changement de
+      branche.
+  - id: "lazygit-view-stash-safely"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: ["lazygit"]
+    prompt: |-
+      Dans Lazygit, tu veux lire le patch d’un stash sans toucher à
+      l’arbre ni à la pile. Que fais-tu ?
+    choices:
+      - "Appliquer le stash sur la branche actuelle."
+      - "Sélectionner l’entrée et lire son aperçu."
+      - "Extraire le stash et retirer son entrée de la pile."
+    answer:
+      primary: "Sélectionner l’entrée et lire son aperçu."
+    explanation: |-
+      Le panneau de droite prévisualise l’entrée sélectionnée.
+      Appliquer ou extraire un stash modifie l’arbre de travail.
+  - id: "atuin-cwd-period-failure"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["atuin"]
+    prompt: |-
+      Avec Atuin 18, retrouve les commandes deploy lancées dans
+      /atelier/api depuis le 1er mars 2025 selon le fuseau configuré, avec
+      le statut 2.
+    answer:
+      primary: "atuin search --cwd /atelier/api --after 2025-03-01 --exit 2 deploy"
+      accepted: ["atuin search -c /atelier/api -a 2025-03-01 -e 2 deploy"]
+    explanation: |-
+      Les filtres se cumulent sur le dossier, la période et le
+      code de chaque entrée.
+  - id: "atuin-empty-directory-scope"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["atuin"]
+    prompt: |-
+      Atuin a enregistré make dans /atelier/ui. Une recherche limitée à
+      /atelier/api ne renvoie rien. Quelle vérification directe permet de
+      retrouver cette entrée ?
+    choices:
+      - "Élargir la recherche ou la limiter à /atelier/ui."
+      - "Changer le code de sortie en zéro."
+      - "Réexécuter make depuis /atelier/api."
+    answer:
+      primary: "Élargir la recherche ou la limiter à /atelier/ui."
+    explanation: |-
+      Le filtre porte sur le dossier au moment de l’exécution. Le
+      dossier courant n’altère pas l’entrée déjà enregistrée.
+  - id: "atuin-shell-hook-gap"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["atuin"]
+    prompt: |-
+      Une commande apparaît dans l’historique natif du shell.
+      L’intégration Atuin n’était pas chargée dans cette session et aucun
+      import n’a été fait. Que peut-on attendre de la base Atuin ?
+    choices:
+      - "Les deux historiques sont forcément identiques."
+      - "Atuin indexe automatiquement tout fichier d’historique natif."
+      - "Cette entrée peut manquer dans Atuin."
+    answer:
+      primary: "Cette entrée peut manquer dans Atuin."
+    explanation: |-
+      L’intégration du shell enregistre les commandes dans une
+      base distincte. L’import est une opération séparée.
+  - id: "atuin-print-command-no-execute"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["atuin"]
+    prompt: |-
+      atuin search --cmd-only affiche une ancienne commande de suppression
+      sur stdout. Le résultat est seulement affiché, sans évaluation par
+      le shell. Quel effet sur les fichiers ?
+    choices:
+      - "Aucun, la recherche affiche du texte."
+      - "La dernière suppression est exécutée à nouveau."
+      - "Les fichiers sont déplacés dans le cache d’Atuin."
+    answer:
+      primary: "Aucun, la recherche affiche du texte."
+    explanation: |-
+      Afficher une entrée de l’historique restitue son texte. Il
+      faudrait une nouvelle exécution explicite pour agir sur les
+      fichiers.
+  - id: "lazygit-two-states-one-file"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["lazygit"]
+    prompt: |-
+      Dans la vue scindée de Lazygit, config.yml montre un changement de
+      port dans Staged et un changement de niveau de journal dans
+      Unstaged. Tu valides l’index tel quel. Qu’arrive-t-il au niveau de
+      journal ?
+    choices:
+      - "Il reste une modification locale non indexée."
+      - "Il entre dans le commit avec le port."
+      - "Il est effacé de l’arbre de travail."
+    answer:
+      primary: "Il reste une modification locale non indexée."
+    explanation: |-
+      Le commit prend l’index, qui contient le port. La retouche
+      ultérieure reste dans le fichier de travail.
+  - id: "lazygit-stage-only-fix-lines"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["lazygit"]
+    prompt: |-
+      Dans un même diff Lazygit, une correction utile côtoie des retouches
+      de mise en forme. Tu veux les garder hors de l’index. Quelle action
+      convient ?
+    choices:
+      - "Indexe le fichier complet depuis Files."
+      - "Indexer seulement les lignes de la correction."
+      - "Ignore le fichier dans Git avant le commit."
+    answer:
+      primary: "Indexer seulement les lignes de la correction."
+    explanation: |-
+      La sélection par lignes limite ce qui entre dans l’index.
+      Contrôle ensuite le patch préparé.
+  - id: "lazygit-conflict-current-side"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["lazygit"]
+    prompt: |-
+      Pendant une fusion ordinaire dans Lazygit, le bloc Current montre la
+      correction validée sur ta branche. Incoming montre l’ancienne
+      valeur. Tu veux garder la correction. Quel bloc choisir ?
+    choices:
+      - "Incoming."
+      - "Les deux blocs ensemble."
+      - "Current."
+    answer:
+      primary: "Current."
+    explanation: |-
+      Dans cette fusion, Current est le côté de la branche
+      active. Relis le bloc avant de marquer le conflit résolu.
+  - id: "lazygit-read-upstream-divergence"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["lazygit"]
+    prompt: |-
+      Une capture Lazygit indique que revue est en avance de 2 et en
+      retard de 1 sur son amont connu localement. Que signifie cette
+      divergence ?
+    choices:
+      - "Deux fichiers indexés et un fichier non suivi."
+      - "Trois commits déjà présents sur les deux côtés."
+      - "Deux propres à revue, un propre à l’amont."
+    answer:
+      primary: "Deux propres à revue, un propre à l’amont."
+    explanation: |-
+      Les compteurs portent sur les commits accessibles d’un seul
+      côté. La référence locale peut être en retard sur le
+      serveur.
+  - id: "lazygit-detached-head-recovery"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["lazygit"]
+    prompt: |-
+      Lazygit affiche HEAD détaché. Tu veux garder le commit courant pour
+      poursuivre ton travail. Quelle action lui donne un nom durable avant
+      de changer de point de départ ?
+    choices:
+      - "Créer une branche sur le commit courant."
+      - "Supprimer la référence au commit courant."
+      - "Appliquer le dernier stash."
+    answer:
+      primary: "Créer une branche sur le commit courant."
+    explanation: |-
+      Une nouvelle branche garde une référence au commit courant.
+      Un HEAD détaché ne désigne pas une branche existante.
+  - id: "lazygit-stash-identify-content"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["lazygit"]
+    prompt: |-
+      Trois stashes ont le même titre. Tu cherches celui qui modifie le
+      délai de service.yml, sans modifier ton arbre. Quelle méthode
+      convient ?
+    choices:
+      - "Parcourir les aperçus des trois entrées."
+      - "Appliquer chaque entrée pour vérifier le délai."
+      - "Extraire la première entrée de la pile."
+    answer:
+      primary: "Parcourir les aperçus des trois entrées."
+    explanation: |-
+      Le diff de chaque entrée permet d’identifier le bon stash
+      sans l’appliquer ni le retirer.

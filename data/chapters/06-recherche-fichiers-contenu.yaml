@@ -179,3 +179,276 @@ items:
       rg -l fournit des chemins. La substitution récupère le
       choix. Les guillemets préservent les espaces du chemin.
       L’annulation n’est pas traitée par cette commande.
+  - id: "rg-in-single-log"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, affiche les lignes contenant timeout dans api.log
+      uniquement.
+    answer:
+      primary: "rg timeout api.log"
+      accepted: ["rg 'timeout' api.log"]
+    explanation: |-
+      Le chemin explicite limite la recherche de contenu à ce
+      fichier.
+  - id: "rg-scope-one-subtree"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, cherche migrated dans les fichiers normalement
+      parcourus sous db/migrations uniquement.
+    answer:
+      primary: "rg migrated db/migrations"
+    explanation: |-
+      Un répertoire en argument fixe le point de départ de la
+      recherche récursive.
+  - id: "rg-case-insensitive-query"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, trouve warning dans daemon.log quelle que soit la
+      casse utilisée dans le journal.
+    answer:
+      primary: "rg -i warning daemon.log"
+      accepted: ["rg --ignore-case warning daemon.log"]
+    explanation: |-
+      -i désactive la distinction de casse pour le motif.
+  - id: "rg-count-lines-per-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, affiche par fichier le nombre de lignes qui
+      contiennent retry sous logs. Une ligne qui répète le mot ne compte
+      qu’une fois.
+    answer:
+      primary: "rg -c retry logs"
+      accepted: ["rg --count retry logs"]
+    explanation: |-
+      -c compte les lignes correspondantes. --count-matches
+      compterait les occurrences.
+  - id: "rg-invert-health-lines"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, affiche les lignes de access.log qui ne contiennent
+      pas /health.
+    answer:
+      primary: "rg -v /health access.log"
+      accepted: ["rg --invert-match /health access.log"]
+    explanation: |-
+      -v retient les lignes qui ne correspondent pas au motif.
+  - id: "rg-context-line-marker"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: ["rg"]
+    prompt: |-
+      Pour un seul fichier sans en-tête, rg -n -C 1 erreur journal.log
+      affiche « 8-démarrage », « 9:erreur » puis « 10-arrêt ». Quelle
+      ligne correspond au motif ?
+    choices:
+      - "La ligne 8."
+      - "La ligne 9."
+      - "La ligne 10."
+    answer:
+      primary: "La ligne 9."
+    explanation: |-
+      Avec ces options, : marque une correspondance et - marque
+      une ligne de contexte.
+  - id: "fd-regex-prefix-name"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["fd"]
+    prompt: |-
+      Avec fd, cherche les fichiers dont le nom commence par backup.
+      archive-backup.sql doit rester hors des résultats.
+    answer:
+      primary: "fd -t f '^backup'"
+    explanation: |-
+      Dans la regex, ^ ancre backup au début du nom. Le type f
+      garde les fichiers ordinaires.
+  - id: "fzf-filter-no-interaction"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["fzf"]
+    prompt: |-
+      Une liste de services arrive sur stdin. Avec fzf, affiche seulement
+      les lignes qui correspondent au motif api, sans ouvrir le sélecteur
+      interactif.
+    answer:
+      primary: "fzf --filter api"
+      accepted: ["fzf -f api"]
+    explanation: |-
+      --filter écrit les lignes correspondantes en mode non
+      interactif.
+  - id: "rg-explicit-exclusion-last"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["rg"]
+    prompt: |-
+      Avec ripgrep, cherche TOKEN dans les fichiers .env sous configs,
+      sauf ceux dont le nom se termine par .sample.env. configs ne
+      contient que des fichiers visibles.
+    answer:
+      primary: "rg -g '*.env' -g '!*.sample.env' TOKEN configs"
+    explanation: |-
+      Le dernier glob correspondant prime. Place l’exclusion
+      après la sélection générale.
+  - id: "rg-reinclude-only-audit-log"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["rg"]
+    prompt: |-
+      Dans un dépôt, .gitignore exclut *.log. Recherche WARN seulement
+      dans les fichiers nommés audit.log sous exports avec ripgrep. Le
+      dossier exports lui-même est visible.
+    answer:
+      primary: "rg -g audit.log WARN exports"
+    explanation: |-
+      Un glob d’inclusion explicite peut réintégrer ce nom ignoré
+      et restreindre la recherche au même nom.
+  - id: "rg-nested-repo-ignore-vcs"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["rg"]
+    prompt: |-
+      Depuis la racine du dépôt Git imbriqué vendor/client, cherche FIXME
+      sous src. Ignore les règles .gitignore mais conserve les règles du
+      fichier .ignore qui exclut les fichiers générés.
+    answer:
+      primary: "rg --no-ignore-vcs FIXME src"
+    explanation: |-
+      --no-ignore-vcs désactive les exclusions du contrôle de
+      version tout en conservant .ignore.
+  - id: "fd-fzf-preserve-file-nul-stream"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["fd","fzf"]
+    prompt: |-
+      Sélectionne avec fzf un fichier sous imports. Ses noms peuvent
+      contenir des retours à la ligne. Rends le résultat avec le même
+      séparateur sûr pour le prochain outil.
+    answer:
+      primary: "fd -t f -0 . imports | fzf --read0 --print0"
+      accepted: ["fd -t f --print0 . imports | fzf --read0 --print0"]
+    explanation: |-
+      Les deux frontières utilisent NUL. Un retour à la ligne
+      dans le nom reste un caractère du chemin.
+  - id: "fzf-guard-empty-selection"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["fzf"]
+    prompt: |-
+      Une liste de chemins sans ligne vide ni retour à la ligne dans les
+      noms arrive sur stdin. Dans Bash, sélectionne un fichier avec fzf et
+      ouvre-le avec less seulement si la sélection réussit.
+    answer:
+      primary: "choix=$(fzf) && less -- \"$choix\""
+    explanation: |-
+      L’affectation reprend le statut de la sélection. && bloque
+      l’ouverture en cas d’échec et les guillemets préservent les
+      espaces.
+  - id: "fzf-multi-space-safe"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["fzf"]
+    prompt: |-
+      Dans Bash, des chemins contenant espaces et retours à la ligne
+      passent par une sélection multiple de fzf. L’entrée et la sortie
+      sont délimitées par NUL. Comment donner chaque chemin séparément à
+      une commande ?
+    choices:
+      - "Lire les résultats séparés par espaces."
+      - "Mettre toute la sélection dans un seul argument."
+      - "Lire chaque résultat NUL et citer la variable de chemin."
+    answer:
+      primary: "Lire chaque résultat NUL et citer la variable de chemin."
+    explanation: |-
+      Utilise --multi --read0 --print0 avec une entrée NUL.
+      Lis chaque résultat avec IFS= read -r -d '', puis cite
+      la variable pour la transmettre comme un seul argument.
+  - id: "rg-binary-nul-diagnostic"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["rg"]
+    prompt: |-
+      Un relevé confirme que capture.dat contient un octet NUL avant le
+      motif recherché. En parcours récursif, ripgrep l’a ignoré. Quelle
+      option force son traitement comme texte ?
+    choices:
+      - "--text"
+      - "--hidden"
+      - "--no-ignore-vcs"
+    answer:
+      primary: "--text"
+    explanation: |-
+      La détection du binaire repose sur NUL. --text désactive
+      cette détection, avec un risque d’octets de contrôle à
+      l’affichage.
+  - id: "rg-exit-error-versus-no-match"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["rg"]
+    prompt: |-
+      ripgrep renvoie 2 après avoir signalé qu’un fichier est illisible.
+      Pourquoi ne faut-il pas conclure « aucun résultat » ?
+    choices:
+      - "Le statut 2 indique zéro correspondance sans erreur."
+      - "Le statut 2 indique que tous les fichiers correspondent."
+      - "Le statut 2 indique une erreur de recherche."
+    answer:
+      primary: "Le statut 2 indique une erreur de recherche."
+    explanation: |-
+      1 signifie aucune correspondance en l’absence d’erreur. 2
+      signale une erreur et peut accompagner des résultats
+      partiels.
+  - id: "rg-match-across-lines"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["rg"]
+    prompt: |-
+      Dans trace.log, repère BEGIN suivi immédiatement d’un saut de ligne
+      puis de END. Utilise une seule recherche ripgrep capable de
+      traverser la coupure.
+    answer:
+      primary: "rg -U 'BEGIN\\nEND' trace.log"
+      accepted: ["rg --multiline 'BEGIN\\nEND' trace.log"]
+    explanation: |-
+      -U autorise une correspondance qui traverse une ligne. La
+      regex \n fixe la coupure recherchée.
+  - id: "rg-structured-match-stream"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["rg"]
+    prompt: |-
+      Des chemins et contenus peuvent contenir le caractère deux-points.
+      Émets les résultats ripgrep pour token sous imports au format JSON
+      ligne par ligne, avec les données de match.
+    answer:
+      primary: "rg --json token imports"
+    explanation: |-
+      Les messages JSON séparent chemin, position et contenu. Il
+      faut lire leurs champs plutôt que découper une ligne sur
+      deux-points.

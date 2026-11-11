@@ -652,3 +652,63 @@ items:
       supprimer la source après réussite de la copie. Après
       une interruption, vérifie la présence et l’intégrité des
       fichiers avant de choisir comment reprendre.
+  - id: "mktemp-work-directory"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Le dossier /tmp existe et tu peux y créer des entrées. Avec mktemp
+      GNU ou BSD/macOS, crée un dossier de travail de préfixe cli-drill.,
+      au nom imprévisible, et affiche son chemin.
+    answer:
+      primary: "mktemp -d /tmp/cli-drill.XXXXXX"
+    explanation: |-
+      mktemp remplace les X, crée le dossier avec -d puis écrit
+      son chemin. Le nom est réservé dès la création.
+  - id: "ls-compare-file-inodes"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avant une édition, compare les numéros d’inode de brouillon.txt et
+      note.txt, deux fichiers ordinaires du même système de fichiers.
+    answer:
+      primary: "ls -i brouillon.txt note.txt"
+      accepted: ["ls -li brouillon.txt note.txt"]
+    explanation: |-
+      Sur le même système de fichiers, deux entrées de même
+      numéro d’inode désignent le même objet.
+  - id: "rename-destination-write"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Nora possède un fichier ordinaire et ses dossiers source (0700) et
+      destination (0500) sur le même volume. Pas d’ACL ni de bit spécial.
+      Le nom cible est libre. Quel droit manque pour le déplacement ?
+    choices:
+      - "L’écriture dans le dossier de destination."
+      - "L’écriture dans le contenu du fichier."
+      - "La traversée du dossier de destination."
+    answer:
+      primary: "L’écriture dans le dossier de destination."
+    explanation: |-
+      Créer l’entrée cible exige l’écriture dans son dossier. Le
+      mode 0500 permet déjà à Nora de le traverser.
+  - id: "mv-macos-no-clobber"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec le mv natif de macOS, tente de renommer brouillon.txt en
+      rapport.txt sans invite. Si rapport.txt existe déjà comme fichier
+      ordinaire, garde les deux fichiers tels quels.
+    answer:
+      primary: "mv -n brouillon.txt rapport.txt"
+    explanation: |-
+      Avec -n, ce mv saute une destination existante sans invite.
+      Les statuts de sortie varient selon la variante de mv.

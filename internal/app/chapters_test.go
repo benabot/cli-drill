@@ -31,7 +31,7 @@ func TestChaptersAlignTerminalColumnsAndPreserveRedirectedFields(t *testing.T) {
 		}
 	}
 	redirectedRows := strings.Split(strings.TrimSuffix(redirected.String(), "\n"), "\n")
-	if len(redirectedRows) != 13 || !strings.Contains(redirected.String(), "07-lecture-preview\tLire un fichier texte\t4 exercises\n") ||
+	if len(redirectedRows) != 13 || !strings.Contains(redirected.String(), "07-lecture-preview\tLire et inspecter des fichiers\t30 exercises\n") ||
 		!strings.Contains(redirected.String(), "14-recherche-texte-unix\tRecherche et traitement de texte Unix\t48 exercises\n") ||
 		strings.Contains(redirected.String(), "\x1b") {
 		t.Fatalf("redirected listing lost its plain TSV fields:\n%s", redirected.String())
@@ -71,7 +71,7 @@ func TestChaptersAlignTerminalColumnsAndPreserveRedirectedFields(t *testing.T) {
 			t.Fatalf("misaligned columns: %q", row)
 		}
 	}
-	if !strings.Contains(terminal.String(), "4 exercices\n") || !strings.Contains(terminal.String(), "6 exercices\n") {
+	if !strings.Contains(terminal.String(), "30 exercices\n") || !strings.Contains(terminal.String(), "32 exercices\n") {
 		t.Fatalf("wrong terminal plurals:\n%s", terminal.String())
 	}
 

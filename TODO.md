@@ -261,14 +261,16 @@ Il est intégré et publié sur `dev` à `4320650`.
 - [x] Intégrer les 13 indispensables du lot sécurité des fichiers et
   processus à `dev` à `c9ad59c`. Le corpus publié compte 253 exercices.
   [Rapport du lot](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md)
-- [x] Implémenter et tester localement les neuf indispensables du lot
-  navigation et flux. Le corpus local compte 262 exercices.
+- [x] Intégrer les neuf indispensables de navigation et flux à `dev` à
+  `d8b383a`. Le corpus publié compte 262 exercices.
   [Rapport du lot](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md)
-- [ ] Valider le lot navigation et flux. Les 14 propositions utiles
-  restent ouvertes, et les ACL et `lsof` restent facultatifs.
-  [Audit et ordre des lots](docs/CURRICULUM.md#lots-de-production-proposés)
-- [ ] Poursuivre les vagues prévues pour Git et les outils CLI modernes
-  selon leur utilité et les recouvrements repérés.
+- [x] Implémenter et tester localement les 14 propositions utiles de l'audit,
+  les parcours Git et outils modernes et le recentrage de `07` à `09`.
+  Le corpus local compte 446 exercices.
+  [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par-lots)
+- [ ] Valider le corpus local lors de la recette d'ensemble, notamment les
+  parcours sans modules, les sélections et les interfaces interactives.
+  Les ACL et `lsof` restent facultatifs.
 
 Le minimum indicatif est de 30 exercices pour un chapitre général. Le volume
 et la répartition des niveaux suivent les compétences à couvrir. Le référentiel
@@ -382,8 +384,8 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.5, vague 3 — `content/p25-wave3-line-editing` (intégrée sur `dev`) | 31 exercices d’édition de ligne dans Bash et Zsh. Apprentissage guidé et révision mélangée. | Intégrée à `a6af7b4`. [Contrôles et limites](docs/CORPUS_P25_WAVE3.md). |
 | P2.5, chapitre 14 — `content/p25-unix-text` (intégré à `dev`) | 48 exercices sur la recherche et le traitement de texte Unix. | Intégré à `0178ab9`. [Contrôles et limites](docs/CORPUS_P25_UNIX_TEXT.md). |
 | P2.5, sécurité des fichiers et processus — `content/p25-unix-safety-processes` (intégré à `dev`) | 7 exercices en `12` et 6 en `13`. | Intégré à `c9ad59c`. [Contrôles et limites](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md). |
-| P2.5, navigation et flux — `content/p25-unix-basics-flows` (testé localement) | 3 exercices en `00` et 6 en `11`. | Base `c9ad59c`. [Contrôles et limites](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md). |
-| P2.5, suites — branches à définir | Approfondissements Unix, Git et outils CLI modernes. | [Priorités et planification initiale](docs/CURRICULUM.md#enrichissement-par-lots). |
+| P2.5, navigation et flux — `content/p25-unix-basics-flows` (intégré à `dev`) | 3 exercices en `00` et 6 en `11`. | Intégré à `d8b383a`. [Contrôles et limites](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md). |
+| P2.5, finalisation — `content/p25-unix-git-modern-expansion` (testée localement) | 184 ajouts, dont 14 utiles Unix. | [Contrôles par jalon](docs/CURRICULUM.md#enrichissement-par-lots). |
 | P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
 | P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
 

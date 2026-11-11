@@ -1,9 +1,328 @@
 id: "09-markdown-glow"
-title: "Lire du Markdown dans le terminal"
-description: "Rendu de fichiers locaux sous ZSH ou un shell de type POSIX."
-family: "modern-cli-macos"
-learning_order: "independent"
+title: "Markdown pratique dans le terminal"
+description: "Lis et corrige la source des README, puis prévisualise le rendu local avec le module Glow."
+family: "unix-shell"
+learning_order: "guided"
 items:
+  - id: "markdown-read-readme-source"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Ouvre README.md dans less pour lire les délimiteurs Markdown tels
+      qu’ils sont écrits dans le fichier.
+    answer:
+      primary: "less README.md"
+    explanation: |-
+      less lit le texte source. Les marqueurs de structure
+      restent visibles.
+  - id: "markdown-add-section-heading"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Ajoute en Markdown un titre de niveau 2 nommé Installation. Écris la
+      ligne source au format ATX.
+    answer:
+      primary: "## Installation"
+    explanation: |-
+      Deux dièses suivis d’un espace marquent le deuxième niveau
+      de titre.
+  - id: "markdown-add-unordered-entry"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Tu écris une liste Markdown à puces. Écris une entrée Installation
+      sur une seule ligne, sans indentation.
+    answer:
+      primary: "- Installation"
+      accepted: ["* Installation","+ Installation"]
+    explanation: |-
+      Un tiret, un plus ou un astérisque suivi d’un espace peut
+      introduire une puce.
+  - id: "markdown-link-label-target"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Écris un lien Markdown en ligne qui affiche Guide et ouvre
+      docs/guide.md.
+    answer:
+      primary: "[Guide](docs/guide.md)"
+    explanation: |-
+      Le texte visible est entre crochets. La destination vient
+      ensuite entre parenthèses.
+  - id: "markdown-quote-one-line"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans un README, ajoute une citation d’une ligne contenant Relancer
+      le service. Écris sa source Markdown.
+    answer:
+      primary: "> Relancer le service"
+      accepted: [">Relancer le service"]
+    explanation: |-
+      Le chevron ouvrant signale un bloc de citation.
+  - id: "markdown-inline-command-code"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Écris uniquement le fragment Markdown qui affiche git status en code
+      en ligne au milieu d’une phrase.
+    answer:
+      primary: "`git status`"
+    explanation: |-
+      Les accents graves délimitent le code en ligne. Les
+      astérisques servent ici à l’emphase forte.
+  - id: "markdown-fenced-example-reading"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans le README, un extrait est entouré de lignes comportant chacune
+      trois accents graves. Quel est son rôle au rendu Markdown ?
+    choices:
+      - "Transformer les lignes en liens."
+      - "Afficher l’extrait dans un bloc de code."
+      - "Exécuter les commandes de l’extrait."
+    answer:
+      primary: "Afficher l’extrait dans un bloc de code."
+    explanation: |-
+      La clôture délimite du code affiché. Le texte du bloc reste
+      littéral.
+  - id: "markdown-source-vs-rendered"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Le lecteur A montre « ## Installation ». Le lecteur B affiche «
+      Installation » comme titre. Lequel te donne le texte à corriger dans
+      le fichier ?
+    choices:
+      - "Le lecteur A, qui montre la source."
+      - "Le lecteur B, qui montre le titre rendu."
+      - "Les deux montrent les mêmes caractères."
+    answer:
+      primary: "Le lecteur A, qui montre la source."
+    explanation: |-
+      Le rendu interprète les délimiteurs. La source montre les
+      caractères réellement enregistrés.
+  - id: "markdown-separate-paragraphs"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans CommonMark, deux lignes de prose consécutives s’affichent dans
+      un seul paragraphe. Quel changement crée deux paragraphes distincts
+      ?
+    choices:
+      - "Mettre un seul espace en début de seconde ligne."
+      - "Insérer une ligne vide entre les deux lignes."
+      - "Ajouter une virgule à la fin de la première."
+    answer:
+      primary: "Insérer une ligne vide entre les deux lignes."
+    explanation: |-
+      Une ligne vide sépare les blocs de paragraphe. Un saut de
+      ligne seul laisse les deux lignes dans le même bloc.
+  - id: "markdown-unintended-indented-code"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Après une ligne vide, une phrase ordinaire commence par quatre
+      espaces, hors de toute liste. Le rendu CommonMark en fait du code.
+      Comment retrouver un paragraphe ?
+    choices:
+      - "Retirer l’indentation de la phrase."
+      - "Ajouter quatre espaces supplémentaires."
+      - "Ajouter une ligne vide après la phrase seulement."
+    answer:
+      primary: "Retirer l’indentation de la phrase."
+    explanation: |-
+      À cet emplacement, quatre espaces introduisent un bloc de
+      code indenté. Sans indentation, la phrase redevient du
+      texte courant.
+  - id: "markdown-relative-link-from-guide"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      docs/guide.md doit lier README.md à la racine du dépôt. Donne la
+      destination relative à guide.md, sans le libellé ni les parenthèses
+      du lien.
+    answer:
+      primary: "../README.md"
+    explanation: |-
+      Un niveau de remontée depuis docs rejoint le dossier qui
+      contient README.md.
+  - id: "markdown-nested-bullet-layout"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans CommonMark, une ligne « - Préparer » est suivie d’une puce « -
+      Vérifier » qui doit lui être subordonnée. Où aligner le tiret de la
+      seconde puce ?
+    choices:
+      - "Sous le premier tiret, à gauche."
+      - "Un espace avant le premier tiret."
+      - "Sous le P de Préparer."
+    answer:
+      primary: "Sous le P de Préparer."
+    explanation: |-
+      Le contenu de la première puce débute après le tiret et
+      l’espace. Le marqueur de la sous-liste s’aligne avec ce
+      contenu.
+  - id: "markdown-gfm-table-delimiter"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans un document GFM, l’en-tête d’un tableau de deux colonnes est «
+      | Nom | État | ». Donne la ligne de séparation juste en dessous,
+      avec trois tirets par colonne et les barres extérieures.
+    answer:
+      primary: "| --- | --- |"
+      accepted: ["|---|---|"]
+    explanation: |-
+      La ligne de délimitation est requise et doit avoir autant
+      de cellules que l’en-tête.
+  - id: "markdown-gfm-table-column-mismatch"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Une table GFM a deux cellules d’en-tête, mais sa ligne de séparation
+      en a trois. Elle s’affiche comme du texte. Quelle correction garde
+      l’en-tête à deux colonnes ?
+    choices:
+      - "Ajouter une troisième cellule aux lignes de données."
+      - "Ramener la ligne de séparation à deux cellules."
+      - "Retirer entièrement la ligne de séparation."
+    answer:
+      primary: "Ramener la ligne de séparation à deux cellules."
+    explanation: |-
+      L’en-tête et le séparateur doivent avoir le même nombre de
+      cellules pour ouvrir un tableau GFM.
+  - id: "markdown-escape-formatting-with-code-span"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans un guide Markdown, montre les caractères **urgent** comme un
+      exemple de code en ligne. Écris uniquement le fragment à insérer.
+    answer:
+      primary: "`**urgent**`"
+    explanation: |-
+      Dans un fragment de code en ligne, les astérisques sont
+      affichés comme du texte.
+  - id: "markdown-missing-fence-swallows-heading"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Un README CommonMark ouvre un bloc avec trois accents graves. La
+      section suivante apparaît dans ce bloc et aucun délimiteur de
+      fermeture n’est présent. Où faut-il intervenir ?
+    choices:
+      - "Fermer le bloc avant le titre de la section."
+      - "Ajouter un dièse au titre de la section."
+      - "Mettre une ligne vide au-dessus du titre."
+    answer:
+      primary: "Fermer le bloc avant le titre de la section."
+    explanation: |-
+      Sans clôture, le bloc consomme la suite du document.
+      Ferme-le avant le titre pour que celui-ci soit de nouveau
+      interprété.
+  - id: "markdown-fence-contains-triple-backticks"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Un tutoriel CommonMark doit montrer une ligne composée de trois
+      accents graves. Le bloc extérieur doit lui aussi utiliser des
+      accents graves. Quelle clôture choisir autour de l’extrait ?
+    choices:
+      - "Trois accents graves autour de l’extrait."
+      - "Quatre accents graves à l’ouverture et à la fermeture."
+      - "Deux accents graves autour de l’extrait."
+    answer:
+      primary: "Quatre accents graves à l’ouverture et à la fermeture."
+    explanation: |-
+      Une fermeture doit être au moins aussi longue que
+      l’ouverture. La ligne interne de trois accents reste du
+      contenu.
+  - id: "markdown-gfm-cell-literal-pipe"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans une cellule de tableau GFM, affiche rouge|bleu comme du texte
+      ordinaire sans créer une nouvelle cellule. Donne le contenu source
+      de cette cellule, sans les barres extérieures.
+    answer:
+      primary: "rouge\\|bleu"
+    explanation: |-
+      Un antislash protège la barre intérieure. Sans lui, la
+      barre sépare les cellules.
+  - id: "markdown-keep-code-under-list-item"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans CommonMark, une entrée commence par « - Déploiement ». Après
+      une ligne vide, tu ajoutes un bloc clôturé qui doit rester dans
+      cette entrée. Comment indenter ses délimiteurs ?
+    choices:
+      - "Les aligner avec le tiret de la puce."
+      - "Les aligner sous le D de Déploiement."
+      - "Les aligner un espace avant le tiret de la puce."
+    answer:
+      primary: "Les aligner sous le D de Déploiement."
+    explanation: |-
+      Le contenu de la puce commence après le marqueur et son
+      espace. Indente le bloc à ce niveau pour rester dans
+      l’entrée.
+  - id: "markdown-hard-break-vs-wrap"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Une phrase change de rangée quand le terminal se rétrécit. Quel
+      changement impose une coupure dans le même paragraphe CommonMark,
+      sans dépendre de la largeur ni d’espaces finaux ?
+    choices:
+      - "Un antislash avant la fin de la ligne source."
+      - "Une largeur de terminal fixée à 80 colonnes."
+      - "Un saut de ligne ordinaire dans la source."
+    answer:
+      primary: "Un antislash avant la fin de la ligne source."
+    explanation: |-
+      Un antislash juste avant la fin de ligne force un saut dans
+      le paragraphe. Le repli du terminal dépend de sa largeur.
   - id: "glow-readme"
     type: "workflow"
     exercise_type: "simple-shell-sim"
@@ -62,3 +381,76 @@ items:
     explanation: |-
       -w fixe la largeur de retour à la ligne du rendu.
       Ce réglage concerne cet appel uniquement.
+  - id: "glow-preview-stdin"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["glow"]
+    prompt: |-
+      Une source Markdown arrive par pipe. Avec Glow, rends stdin en
+      désignant explicitement cette entrée.
+    answer:
+      primary: "glow -"
+    explanation: |-
+      Le tiret indique que la source vient de stdin. Le point
+      désigne un dossier.
+  - id: "glow-choose-light-style"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["glow"]
+    prompt: |-
+      Le terminal a un fond clair. Avec Glow 3, prévisualise guide.md en
+      imposant le style intégré light.
+    answer:
+      primary: "glow -s light guide.md"
+      accepted: ["glow --style light guide.md"]
+    explanation: |-
+      -s sélectionne un style de rendu. Le style light est fourni
+      avec Glow.
+  - id: "glow-open-local-document-browser"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["glow"]
+    prompt: |-
+      Avec Glow 3, ouvre la navigation interactive dans le dossier local
+      docs, qui contient plusieurs documents Markdown.
+    answer:
+      primary: "glow -t docs"
+      accepted: ["glow --tui docs"]
+    explanation: |-
+      -t demande l’interface interactive de Glow. -p choisit le
+      pager pour un rendu.
+  - id: "glow-review-after-reading-source"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["glow"]
+    prompt: |-
+      Tu veux lire notes.md en source avec less, puis le rendre avec Glow
+      uniquement si less sort avec succès. Écris les deux appels dans cet
+      ordre sur une ligne.
+    answer:
+      primary: "less notes.md && glow notes.md"
+    explanation: |-
+      less montre la source. Une fois le lecteur fermé avec
+      succès, la condition déclenche la prévisualisation.
+  - id: "glow-preview-balanced-section"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["glow"]
+    prompt: |-
+      Avec Glow, tu veux prévisualiser la section locale « Installation »
+      qui contient un bloc clôturé. Tu prépares un extrait sur stdin. Quel
+      découpage préserve son rendu ?
+    choices:
+      - "Terminer l’extrait au milieu du bloc."
+      - "Enlever les délimiteurs avant de transmettre le texte."
+      - "Garder le titre et tout le bloc avec ses délimiteurs."
+    answer:
+      primary: "Garder le titre et tout le bloc avec ses délimiteurs."
+    explanation: |-
+      Glow interprète seulement la source reçue. Garder le bloc
+      entier préserve son contexte dans l’extrait autonome.

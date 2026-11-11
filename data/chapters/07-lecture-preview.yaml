@@ -1,9 +1,189 @@
 id: "07-lecture-preview"
-title: "Lire un fichier texte"
-description: "Lecture avec coloration syntaxique dans le terminal."
-family: "modern-cli-macos"
-learning_order: "independent"
+title: "Lire et inspecter des fichiers"
+description: "Parcours des fichiers et des journaux avec less, puis affine leur présentation avec le module Bat."
+family: "unix-shell"
+learning_order: "guided"
 items:
+  - id: "less-open-big-log"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Ouvre serveur.log dans less pour parcourir ce gros journal page par
+      page.
+    answer:
+      primary: "less serveur.log"
+    explanation: |-
+      less permet de parcourir le fichier à la demande et de
+      revenir en arrière.
+  - id: "less-forward-one-screen"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans less avec les raccourcis par défaut, quelle touche avance d’un
+      écran pendant la lecture d’un rapport ?
+    choices:
+      - "Retour arrière"
+      - "q"
+      - "Espace"
+    answer:
+      primary: "Espace"
+    explanation: |-
+      Espace avance d’un écran. q ferme le lecteur.
+  - id: "less-quit-to-shell"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Tu as fini de lire un rapport dans less. Quelle lettre permet de
+      quitter le lecteur et de retrouver le shell ?
+    answer:
+      primary: "q"
+    explanation: |-
+      q ferme le lecteur sans modifier le fichier.
+  - id: "less-start-forward-search"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Tu lis un journal dans less. Quel caractère saisis-tu pour commencer
+      une recherche vers le bas avant de taper le motif ?
+    choices:
+      - "?"
+      - "/"
+      - ":"
+    answer:
+      primary: "/"
+    explanation: |-
+      / ouvre la recherche vers l’avant. ? démarre vers
+      l’arrière.
+  - id: "less-search-previous-match"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Tu as cherché erreur vers l’avant avec / dans less et as dépassé
+      l’occurrence utile. Quelle lettre revient à la correspondance
+      précédente ?
+    choices:
+      - "n minuscule"
+      - "g minuscule"
+      - "N majuscule"
+    answer:
+      primary: "N majuscule"
+    explanation: |-
+      N répète la recherche en sens opposé. n continue dans le
+      sens choisi au départ.
+  - id: "less-start-at-last-page"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Ouvre serveur.log dans less directement au dernier écran pour
+      remonter ensuite les événements.
+    answer:
+      primary: "less +G serveur.log"
+    explanation: |-
+      Le préfixe + exécute une commande interne à l’ouverture. G
+      rejoint la fin.
+  - id: "less-enable-line-numbers"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Ouvre config.ini dans less avec un numéro affiché devant chaque
+      ligne. Tu dois citer la ligne concernée à un collègue.
+    answer:
+      primary: "less -N config.ini"
+      accepted: ["less --LINE-NUMBERS config.ini"]
+    explanation: |-
+      -N affiche les numéros à gauche. Le n minuscule a un autre
+      effet.
+  - id: "less-no-visual-wrap"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Ouvre trace.txt dans less en gardant chaque ligne longue sur une
+      seule rangée. Tu veux la parcourir horizontalement.
+    answer:
+      primary: "less -S trace.txt"
+      accepted: ["less --chop-long-lines trace.txt"]
+    explanation: |-
+      -S coupe l’affichage des lignes longues au bord de l’écran.
+      Les flèches horizontales permettent de les parcourir.
+  - id: "less-next-opened-file"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Tu as ouvert less matin.log soir.log. Donne la commande à taper dans
+      less pour passer du premier fichier au second.
+    answer:
+      primary: ":n"
+    explanation: |-
+      :n passe au fichier suivant de la liste. Sans deux-points,
+      n répète une recherche.
+  - id: "less-pause-live-follow"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans less lancé sans option d’interruption spéciale, tu as activé F
+      sur un journal. Tu veux interrompre ce suivi pour remonter dans le
+      même fichier. Quelle action convient ?
+    choices:
+      - "q, puis chercher dans le shell."
+      - "Ctrl+C, puis reprendre la navigation."
+      - "F une seconde fois, puis fermer le fichier."
+    answer:
+      primary: "Ctrl+C, puis reprendre la navigation."
+    explanation: |-
+      Ctrl+C sort du suivi F avec ces réglages. Le fichier reste
+      ouvert dans less.
+  - id: "less-repeat-backward-direction"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans less tu as lancé ?timeout, puis n. Dans quel sens la seconde
+      recherche avance-t-elle ?
+    choices:
+      - "Vers le début du fichier."
+      - "Vers la fin du fichier."
+      - "Elle bascule le sens selon la position du curseur."
+    answer:
+      primary: "Vers le début du fichier."
+    explanation: |-
+      n conserve le sens de la recherche initiale, ici vers le
+      début. N inverse ce sens.
+  - id: "less-color-sgr-pass-through"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Un outil externe écrit un rapport avec des séquences SGR de couleur
+      sur stdout. Avec less, conserve ces couleurs sans laisser passer
+      tous les codes de contrôle comme le ferait le mode brut intégral.
+    answer:
+      primary: "less -R"
+      accepted: ["less --RAW-CONTROL-CHARS"]
+    explanation: |-
+      -R laisse notamment passer les séquences de couleur
+      reconnues. -r transmet bien plus de caractères de contrôle.
   - id: "bat-readme"
     type: "workflow"
     exercise_type: "simple-shell-sim"
@@ -62,3 +242,210 @@ items:
       -l impose la syntaxe, --paging=never évite le pager et
       --color=always émet des codes ANSI même en redirection.
       Le programme destinataire doit savoir les interpréter.
+  - id: "bat-read-ordered-files"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["bat"]
+    prompt: |-
+      Affiche avec Bat entete.txt puis conclusion.txt dans ce même appel,
+      en donnant les deux chemins dans l’ordre voulu.
+    answer:
+      primary: "bat entete.txt conclusion.txt"
+    explanation: |-
+      Bat traite les arguments fichiers dans leur ordre
+      d’apparition.
+  - id: "bat-read-standard-input"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["bat"]
+    prompt: |-
+      Un rapport texte arrive par le pipe sur l’entrée standard de Bat.
+      Utilise le nom de fichier conventionnel d’un seul caractère qui
+      désigne explicitement cette entrée.
+    answer:
+      primary: "bat -"
+    explanation: |-
+      Un tiret seul indique à Bat de lire les octets reçus sur
+      stdin.
+  - id: "bat-disable-pager"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["bat"]
+    prompt: |-
+      Affiche guide.txt avec Bat directement dans le terminal. Empêche
+      l’ouverture du lecteur de pages, même si la configuration le
+      demande.
+    answer:
+      primary: "bat --paging=never guide.txt"
+      accepted: ["bat --paging never guide.txt"]
+    explanation: |-
+      --paging=never désactive l’appel du pager sans choisir les
+      décorations.
+  - id: "bat-plain-presentation"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["bat"]
+    prompt: |-
+      Affiche guide.txt dans le style Bat sans en-tête, grille ni numéros.
+      Laisse le réglage de pagination tel quel.
+    answer:
+      primary: "bat --style=plain guide.txt"
+      accepted: ["bat -p guide.txt","bat --plain guide.txt"]
+    explanation: |-
+      Le style plain retire les éléments de présentation. La
+      couleur et la pagination ont leurs propres réglages.
+  - id: "bat-show-invisible-characters"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["bat"]
+    prompt: |-
+      Dans import.txt, tu soupçonnes un mélange de tabulations et
+      d’espaces. Demande à Bat de rendre les caractères invisibles
+      visibles.
+    answer:
+      primary: "bat -A import.txt"
+      accepted: ["bat --show-all import.txt"]
+    explanation: |-
+      -A représente les caractères non imprimables ou invisibles.
+      La numérotation seule ne les révèle pas.
+  - id: "bat-force-json-language"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["bat"]
+    prompt: |-
+      Le fichier reponse contient du JSON et n’a pas d’extension.
+      Affiche-le avec Bat en imposant la syntaxe JSON.
+    answer:
+      primary: "bat -l json reponse"
+      accepted: ["bat --language json reponse"]
+    explanation: |-
+      -l choisit la syntaxe indépendamment du nom du fichier.
+  - id: "bat-highlight-review-range"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["bat"]
+    prompt: |-
+      Affiche tout service.toml avec Bat et mets en évidence les lignes 21
+      à 23 incluses, pour les distinguer du reste.
+    answer:
+      primary: "bat -H 21:23 service.toml"
+      accepted: ["bat --highlight-line 21:23 service.toml"]
+    explanation: |-
+      -H marque la plage sans retirer les autres lignes. -r
+      limiterait le contenu affiché.
+  - id: "bat-name-anonymous-json-stream"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["bat"]
+    prompt: |-
+      Du JSON arrive sur stdin. Pour Bat, donne à cette entrée le nom de
+      fichier reponse.json afin que le nom et sa syntaxe servent à
+      l’affichage.
+    answer:
+      primary: "bat --file-name reponse.json -"
+      accepted: ["bat --file-name reponse.json"]
+    explanation: |-
+      --file-name associe un nom à stdin pour l’en-tête et la
+      détection de syntaxe, sans ouvrir un fichier de ce nom.
+  - id: "bat-list-supported-languages"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["bat"]
+    prompt: |-
+      Tu veux vérifier le nom exact de la syntaxe reconnue par ton
+      installation de Bat. Affiche les langages disponibles.
+    answer:
+      primary: "bat --list-languages"
+      accepted: ["bat -L"]
+    explanation: |-
+      --list-languages donne les langages installés. Les thèmes
+      définissent les couleurs.
+  - id: "bat-read-dash-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["bat"]
+    prompt: |-
+      Lis avec Bat le fichier nommé -notes.txt dans le dossier courant.
+      Son nom commence réellement par un tiret.
+    answer:
+      primary: "bat -- -notes.txt"
+      accepted: ["bat ./-notes.txt"]
+    explanation: |-
+      -- marque la fin des options. Préfixer le nom par ./
+      l’empêche aussi de commencer par un tiret.
+  - id: "bat-no-color-for-consumer"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["bat"]
+    prompt: |-
+      Émets avec Bat le texte de releve.json pour un autre programme.
+      Désactive explicitement les couleurs et le pager, même avec un
+      environnement qui les force.
+    answer:
+      primary: "bat --color=never --paging=never releve.json"
+      accepted: ["bat --paging=never --color=never releve.json"]
+    explanation: |-
+      Les deux options imposent l’absence de couleur ANSI et de
+      pager pour cet appel.
+  - id: "bat-override-pager-environment"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["bat"]
+    prompt: |-
+      BAT_PAGER désigne un pager personnalisé. Tu veux consulter guide.txt
+      dans le terminal interactif et vérifier le rendu de Bat seul. Quel
+      réglage isole le rendu ?
+    choices:
+      - "Désactiver la pagination pour cet appel."
+      - "Choisir un autre thème Bat."
+      - "Désactiver uniquement la numérotation."
+    answer:
+      primary: "Désactiver la pagination pour cet appel."
+    explanation: |-
+      --paging=never écarte le pager choisi par l’environnement.
+      Le rendu Bat reste disponible.
+  - id: "bat-inspect-binary-byte-view"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["bat"]
+    prompt: |-
+      Bat 0.26 indique que capture.bin est binaire et masque son contenu.
+      Tu veux repérer un octet nul dans un petit extrait sans l’envoyer
+      brut au terminal. Quelle approche convient ?
+    choices:
+      - "Forcer la couleur ANSI seulement."
+      - "Afficher les caractères avec le mode visible de Bat."
+      - "Choisir le langage JSON pour ce fichier."
+    answer:
+      primary: "Afficher les caractères avec le mode visible de Bat."
+    explanation: |-
+      bat --show-all permet de représenter les caractères non
+      imprimables, y compris dans les fichiers binaires.
+  - id: "bat-read-unknown-stream-end"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["bat"]
+    prompt: |-
+      Sur stdin arrive un flux de longueur inconnue qui finira par se
+      fermer. Avec Bat, affiche à partir de la ligne 25, incluse, jusqu’à
+      la fin, sans pager.
+    answer:
+      primary: "bat --paging=never -r 25: -"
+      accepted: ["bat --paging=never --line-range 25: -"]
+    explanation: |-
+      Dans 25:, la fin de la plage est ouverte. :25 choisirait le
+      début du flux jusqu’à la ligne 25.

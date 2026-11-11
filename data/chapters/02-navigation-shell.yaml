@@ -136,3 +136,326 @@ items:
     explanation: |-
       query interroge la base et -l affiche les correspondances.
       Cette commande écrit des chemins sans déplacer le shell.
+  - id: "eza-visible-dirs-only"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["eza"]
+    prompt: |-
+      Avec eza, liste uniquement les dossiers visibles du répertoire
+      courant. Il contient aussi des fichiers ordinaires et aucun lien.
+    answer:
+      primary: "eza -D"
+      accepted: ["eza --only-dirs"]
+    explanation: |-
+      -D filtre les entrées pour garder les dossiers. -d change
+      la façon d’afficher un dossier passé en argument.
+  - id: "eza-sort-modified"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["eza"]
+    prompt: |-
+      Avec eza, affiche les entrées de exports de la plus ancienne à la
+      plus récemment modifiée. Les dates sont distinctes.
+    answer:
+      primary: "eza --sort=modified exports"
+      accepted: ["eza -s modified exports"]
+    explanation: |-
+      Le champ modified trie par date de modification croissante
+      avec le sens par défaut.
+  - id: "zoxide-query-without-cd"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["zoxide"]
+    prompt: |-
+      Interroge la base zoxide pour afficher le meilleur dossier
+      correspondant à factures. Reste dans ton répertoire courant.
+    answer:
+      primary: "zoxide query factures"
+    explanation: |-
+      query affiche le chemin trouvé. Il ne change pas le
+      répertoire du shell.
+  - id: "yazi-open-project-dir"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: ["yazi"]
+    prompt: |-
+      Ouvre le dossier relatif projets/api dans Yazi, en restant dans ton
+      dossier courant côté shell.
+    answer:
+      primary: "yazi projets/api"
+      accepted: ["yazi ./projets/api"]
+    explanation: |-
+      Le chemin en argument détermine où Yazi commence sa
+      navigation.
+  - id: "yazi-back-to-parent"
+    type: "workflow"
+    exercise_type: "free-answer"
+    difficulty: "beginner"
+    tools: ["yazi"]
+    prompt: |-
+      Dans le navigateur de fichiers Yazi avec ses raccourcis par défaut,
+      reviens au dossier parent. Donne la lettre minuscule correspondante.
+    answer:
+      primary: "h"
+    explanation: |-
+      h fait remonter d’un niveau. l sert à ouvrir l’entrée
+      sélectionnée.
+  - id: "eza-long-size-units"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["eza"]
+    prompt: |-
+      Deux fichiers ordinaires ont des tailles de 1536 et 1048576 octets.
+      Quelle vue eza donne des tailles lisibles avec préfixes binaires
+      dans une liste détaillée ?
+    answer:
+      primary: "eza -l --binary"
+      accepted: ["eza -lb"]
+    explanation: |-
+      --binary affiche les tailles avec des unités en puissances
+      de 1024. --bytes affiche le compte d’octets.
+  - id: "eza-see-link-target"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["eza"]
+    prompt: |-
+      Le dossier déploiement contient le lien courant qui pointe vers une
+      version. Avec eza, affiche une liste détaillée où la cible du lien
+      reste visible.
+    answer:
+      primary: "eza -l déploiement"
+      accepted: ["eza --long déploiement"]
+    explanation: |-
+      En vue détaillée, eza montre le lien et sa cible. Le
+      déréférencement demande les informations de la cible.
+  - id: "eza-tree-exclude-build"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["eza"]
+    prompt: |-
+      Avec eza, affiche l’arbre de projet en omettant les entrées nommées
+      build ou node_modules à chaque niveau.
+    answer:
+      primary: "eza --tree --ignore-glob 'build|node_modules' projet"
+      accepted: ["eza -T -I 'build|node_modules' projet"]
+    explanation: |-
+      Le filtre reçoit les deux motifs dans un argument protégé.
+      Les branches correspondantes sont écartées.
+  - id: "zoxide-add-known-directory"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["zoxide"]
+    prompt: |-
+      Le dossier /atelier/api existe. Ajoute-le explicitement à l’index
+      zoxide sans te déplacer.
+    answer:
+      primary: "zoxide add /atelier/api"
+    explanation: |-
+      add enregistre ou renforce l’entrée. query ne sert qu’à
+      chercher dans la base.
+  - id: "zoxide-pick-homonym"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: ["zoxide","fzf"]
+    prompt: |-
+      Dans un shell où l’intégration standard de zoxide et fzf est
+      chargée, ouvre le choix interactif des dossiers correspondant à docs
+      et rejoins celui que tu valides.
+    answer:
+      primary: "zi docs"
+    explanation: |-
+      zi ouvre la sélection interactive. z choisit la meilleure
+      correspondance selon son classement.
+  - id: "yazi-copy-current-dirpath"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: ["yazi"]
+    prompt: |-
+      Dans Yazi, relève le chemin du dossier affiché, indépendamment de
+      l’entrée sous le curseur. Les raccourcis sont ceux par défaut et le
+      presse-papiers fonctionne.
+    choices:
+      - "c puis c"
+      - "c puis d"
+      - "y"
+    answer:
+      primary: "c puis d"
+    explanation: |-
+      La séquence c puis d copie le chemin du dossier. Deux c
+      copient le chemin de l’entrée survolée.
+  - id: "zoxide-rank-not-mtime"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["zoxide"]
+    prompt: |-
+      zoxide propose un dossier ancien que tu visites souvent avant un
+      dossier dont les fichiers viennent de changer. Quelle explication
+      correspond au classement ?
+    choices:
+      - "Les visites et leur récence alimentent le score."
+      - "La dernière modification du contenu décide toujours."
+      - "Le dossier dont le nom est le plus court passe en premier."
+    answer:
+      primary: "Les visites et leur récence alimentent le score."
+    explanation: |-
+      Le rang combine fréquence et récence des visites. La date
+      de modification des fichiers n’intervient pas.
+  - id: "zoxide-remove-stale-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["zoxide"]
+    prompt: |-
+      Un dossier a été déplacé et l’ancien chemin /atelier/ancien doit
+      disparaître de la base zoxide. Retire cette entrée sans toucher au
+      disque.
+    answer:
+      primary: "zoxide remove /atelier/ancien"
+    explanation: |-
+      remove retire l’entrée de la base zoxide sans supprimer de
+      dossier.
+  - id: "zoxide-missing-shell-hook"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["zoxide"]
+    prompt: |-
+      zoxide query docs trouve le bon dossier. Dans un shell neuf, z docs
+      renvoie « commande introuvable ». Quelle pièce manque probablement ?
+    choices:
+      - "Un nouvel index des fichiers à l’intérieur du dossier."
+      - "L’initialisation de zoxide dans ce shell."
+      - "La permission d’écrire dans le dossier docs."
+    answer:
+      primary: "L’initialisation de zoxide dans ce shell."
+    explanation: |-
+      L’exécutable interroge sa base. La fonction de navigation
+      doit être chargée dans le shell pour y changer le dossier.
+  - id: "fzf-cancel-keep-cwd"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["fzf"]
+    prompt: |-
+      Dans Bash, dir=$(fzf) && cd -- "$dir" reçoit des chemins non vides,
+      un par ligne. Tu annules le sélecteur avec Échap. Quel effet sur le
+      dossier du shell ?
+    choices:
+      - "Il devient ton dossier personnel."
+      - "Il reste le même puisque la sélection échoue."
+      - "Il devient le premier chemin proposé."
+    answer:
+      primary: "Il reste le même puisque la sélection échoue."
+    explanation: |-
+      Une annulation donne un statut non nul. La condition &&
+      empêche l’appel de cd.
+  - id: "yazi-quit-parent-shell-cwd"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["yazi"]
+    prompt: |-
+      Tu lances directement le binaire yazi depuis /atelier, sans fonction
+      d’intégration. Dans Yazi, tu visites /atelier/api puis quittes. Où
+      est le shell appelant ?
+    choices:
+      - "Dans /atelier/api."
+      - "Dans le dossier personnel."
+      - "Dans /atelier."
+    answer:
+      primary: "Dans /atelier."
+    explanation: |-
+      Le processus Yazi change son propre dossier. Seule une
+      action dans le shell appelant peut changer le sien.
+  - id: "eza-tree-follow-linked-dir"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["eza"]
+    prompt: |-
+      Dans projet, un lien assets pointe vers un dossier externe. eza
+      --tree projet est lancé avec les options standard. Que faut-il
+      activer pour développer les descendants de ce lien ?
+    choices:
+      - "Le tri des dossiers avant les fichiers."
+      - "Le simple affichage des noms de liens."
+      - "Le suivi des liens vers les dossiers dans l’arbre."
+    answer:
+      primary: "Le suivi des liens vers les dossiers dans l’arbre."
+    explanation: |-
+      --follow-symlinks autorise la descente dans les dossiers
+      ciblés par des liens, y compris hors de la racine.
+  - id: "eza-tree-literal-bracket-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["eza"]
+    prompt: |-
+      Dans Bash, versions/[beta] est un dossier dont les crochets font
+      partie du nom. Affiche uniquement l’arbre de ce dossier avec eza,
+      même si versions/b existe.
+    answer:
+      primary: "eza --tree 'versions/[beta]'"
+      accepted: ["eza -T \"versions/[beta]\""]
+    explanation: |-
+      Les guillemets empêchent Bash d’interpréter [beta] comme un
+      motif de noms.
+  - id: "fd-fzf-dir-depth-root"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["fd","fzf"]
+    prompt: |-
+      Propose dans fzf seulement les dossiers situés à un ou deux niveaux
+      sous projets, sans inclure projets lui-même. Les chemins ne
+      contiennent pas de retour à la ligne.
+    answer:
+      primary: "fd -t d -d 2 . projets | fzf"
+      accepted: ["fd --type d --max-depth 2 . projets | fzf"]
+    explanation: |-
+      fd borne le type, la profondeur et le point de départ. fzf
+      présente ensuite les seuls candidats produits.
+  - id: "fd-fzf-directory-nul-input"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: ["fd","fzf"]
+    prompt: |-
+      Des dossiers sous projets contiennent des retours à la ligne dans
+      leur nom. Fais-les apparaître chacun comme un seul choix dans fzf.
+      Aucun traitement ne suit la sélection.
+    answer:
+      primary: "fd -t d -0 . projets | fzf --read0"
+      accepted: ["fd -t d --print0 . projets | fzf --read0"]
+    explanation: |-
+      fd délimite chaque chemin par NUL et fzf lit les mêmes
+      séparateurs, même si un nom contient plusieurs lignes.
+  - id: "fd-base-directory-relative-output"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: ["fd"]
+    prompt: |-
+      Depuis /atelier, fd --base-directory projets -t d api affiche api
+      pour le dossier /atelier/projets/api. Pourquoi cd -- api ne le
+      rejoint-il pas ?
+    choices:
+      - "La base de recherche change pour fd seulement."
+      - "fd a changé le dossier du shell en /atelier/projets."
+      - "Les sorties de fd sont toujours des chemins absolus."
+    answer:
+      primary: "La base de recherche change pour fd seulement."
+    explanation: |-
+      Le chemin relatif est produit depuis la base de fd. Le
+      shell reste dans /atelier et résout api depuis ce dossier.

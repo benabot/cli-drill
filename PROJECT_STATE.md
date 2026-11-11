@@ -1,8 +1,8 @@
 # État du projet — CLI-Drill
 
-**Le lot sécurité des fichiers et processus est intégré à `dev` à
-`c9ad59c`. Le lot navigation et flux est implémenté et testé localement
-sur `content/p25-unix-basics-flows`. Sa validation reste ouverte.**
+**La base publiée `dev` à `d8b383a` compte 262 exercices. La finalisation
+P2.5 est implémentée et testée localement sur
+`content/p25-unix-git-modern-expansion`. La recette d'ensemble reste ouverte.**
 P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
@@ -29,9 +29,12 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Sur `content/p25-unix-basics-flows`, le corpus local compte
-  262 exercices dans 13 chapitres, avec 89 Beginner, 106 Intermediate et
-  67 Advanced. [Rapport du lot](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md)
+- Sur `content/p25-unix-git-modern-expansion`, le corpus local compte
+  446 exercices dans 13 chapitres, avec 149 Beginner, 169 Intermediate et
+  128 Advanced. [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par-lots)
+- La base publiée à `d8b383a` inclut les neuf exercices de navigation et
+  flux et porte le corpus à 262 exercices.
+  [Rapport du lot](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md)
 - La base publiée `dev` à `c9ad59c` compte 253 exercices. Elle inclut
   les 13 ajouts en fichiers, permissions, processus et environnement.
   [Rapport du lot](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md)
@@ -48,7 +51,7 @@ L'interface présente CLI-Drill comme un outil d'entraînement local au terminal
   [2](docs/CORPUS_P25_LOT2.md) recensent les ajouts et validations.
   Les dix chapitres du corpus de référence P2.1 restent des fixtures de test.
 - Le démarrage direct CLI et TUI choisit le premier chapitre textuel éligible.
-  Avec les préférences initiales, `00-premiers-pas` propose onze exercices
+  Avec les préférences initiales, `00-premiers-pas` propose douze exercices
   Unix textuels, Beginner et guidés, sur la branche locale.
 - Les choix QCM sont désormais affichés aussi en CLI texte ; la saisie reste un
   libellé ou une variante acceptée, sans nouveau système de correction.
@@ -726,14 +729,19 @@ de `13` prévus par l'audit. Les deux chapitres restent en ordre mélangé.
 Les essais CLI sur une progression synthétique ont conservé les acquis JSON v1.
 [Rapport du lot](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md)
 
-### P2.5 — Navigation et flux, deuxième lot local
+### P2.5 — Navigation et flux, deuxième lot intégré
 
-Le lot ajoute les trois indispensables de `00` et les six de `11`.
+Le lot intégré à `d8b383a` ajoute les trois indispensables de `00` et les six de `11`.
 Les deux chapitres proposent un ordre guidé et une révision mélangée.
 [Rapport du lot](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md)
 
-Le référentiel conserve les approfondissements du socle et les vagues Git
-et outils CLI modernes. [Priorités P2.5](docs/CURRICULUM.md#enrichissement-par-lots)
+### P2.5 — Finalisation Unix, Git et outils CLI, campagne locale
+
+Les 184 ajouts couvrent les 14 propositions utiles du socle et les sept
+chapitres Git et outils CLI. `07`, `08` et `09` proposent des séances guidées
+de less, Nano et Markdown, puis les compléments activables Bat, Micro et
+Glow. Git suit aussi une progression guidée. La révision mélange les
+exercices éligibles. [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par-lots)
 
 ## Validation et limites de preuve
 

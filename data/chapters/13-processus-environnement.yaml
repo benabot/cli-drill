@@ -606,3 +606,64 @@ items:
       ne peut donc pas exécuter son nettoyage. Ici, TERM a
       déjà été tenté et le PID a été vérifié avant l’arrêt
       forcé.
+  - id: "jobs-with-process-ids"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans le shell interactif qui a lancé plusieurs tâches, affiche leurs
+      numéros de job avec leurs PID.
+    answer:
+      primary: "jobs -l"
+    explanation: |-
+      L’option -l ajoute les PID à l’affichage des tâches connues
+      de ce shell.
+  - id: "env-client-without-proxy"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec env GNU ou natif sur macOS, lance le programme externe client
+      avec HTTP_PROXY absente pour cet appel. Garde les autres variables
+      et le réglage du shell courant.
+    answer:
+      primary: "env -u HTTP_PROXY client"
+    explanation: |-
+      env -u retire la variable de l’environnement de client. Une
+      affectation vide la laisse présente.
+  - id: "kill-zero-observation"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      kill -s 0 4172 réussit. Que peux-tu conclure au moment précis de ce
+      contrôle ?
+    choices:
+      - "Le PID désignait une cible à laquelle tu avais accès."
+      - "Le service attendu fonctionnait normalement."
+      - "Le processus a reçu un signal d’arrêt."
+    answer:
+      primary: "Le PID désignait une cible à laquelle tu avais accès."
+    explanation: |-
+      Le signal zéro teste l’existence et les permissions sans
+      délivrer de signal. Il ne prouve ni l’identité ni la santé
+      du service.
+  - id: "nohup-background-collect"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Lance la commande externe collecte en arrière-plan. Donne-lui une
+      entrée vide depuis /dev/null, écris les deux flux dans collecte.log
+      et fais ignorer SIGHUP. Le programme conserve ce réglage.
+    answer:
+      primary: "nohup collecte </dev/null >collecte.log 2>&1 &"
+      accepted: ["nohup collecte > collecte.log 2>&1 < /dev/null &"]
+    explanation: |-
+      nohup fait ignorer SIGHUP. Les redirections détachent
+      l’entrée et réunissent les sorties. & lance le travail en
+      arrière-plan.
