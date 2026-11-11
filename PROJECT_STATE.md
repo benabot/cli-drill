@@ -702,9 +702,9 @@ huit diagnostics textuels. La recette physique sur des terminaux
 représentatifs relève de P2.6.
 [Rapport et limites de capture](docs/CORPUS_P25_WAVE3.md)
 
-La programmation shell et Bash et la recherche et le traitement de texte
-Unix sont les prochaines priorités documentées. Leur contenu YAML reste à
-développer. [Périmètres des deux parcours](docs/CURRICULUM.md#parcours-fondamentaux-prioritaires)
+La suite de P2.5 privilégie les commandes Unix indispensables et les usages
+quotidiens de recherche et de traitement de texte. Le référentiel conserve les
+vagues Git et outils CLI modernes. [Priorités P2.5](docs/CURRICULUM.md#enrichissement-par-lots)
 
 ## Validation et limites de preuve
 

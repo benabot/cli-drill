@@ -19,8 +19,8 @@ et relève d'une phase distincte de P2.
 **CLI-Drill — Learn the terminal by doing.**
 
 CLI-Drill est une application Go CLI/TUI locale qui enseigne la pratique du
-terminal, des gestes quotidiens jusqu'au diagnostic, à la composition de
-commandes et à la programmation shell. Elle s'adresse aux débutants, aux
+terminal, des commandes indispensables jusqu'à leur composition et au
+diagnostic de situations concrètes. Elle s'adresse aux débutants, aux
 développeurs, aux administrateurs et aux utilisateurs avancés. Les systèmes
 cibles sont macOS, Linux et les systèmes Unix/BSD.
 
@@ -69,13 +69,15 @@ aux couleurs, au redimensionnement ou à la capture clavier.
 
 ### A. Unix & Shell Fundamentals
 
-Navigation, fichiers et répertoires, recherche, pipes, redirections,
-permissions, processus, environnement shell, texte, archives et Git essentiel.
+Le socle couvre les commandes Unix/POSIX et leurs options utiles pour la
+navigation, les fichiers, les permissions, les liens, les processus,
+l'environnement et `PATH`. Il aborde aussi les pipes, les redirections,
+les archives et Git essentiel. La recherche et le traitement de texte avec
+`grep`, `find`, `sed` et `awk` partent de tâches courantes au terminal.
 Les exercices de commande fournissent un contexte simulé suffisant : objectif,
 noms de fichiers et résultat recherché. Ils ne dépendent pas du disque réel.
-Deux parcours dédiés sont prévus pour la programmation shell, de POSIX à Bash
-approfondi, et pour la recherche et le traitement de texte Unix. Ils utilisent
-le socle disponible sans modules tiers. [Périmètres et progression](CURRICULUM.md#parcours-fondamentaux-prioritaires)
+Une construction shell courte peut servir un usage interactif précis.
+[Priorités du socle Unix](CURRICULUM.md#approfondissements-du-socle-unix)
 
 ### B. Keyboard Shortcuts
 
@@ -139,17 +141,18 @@ aucun annuaire d'installation, scanner ou ancien catalogue n'est réintroduit.
   aux questions répétitives demandant uniquement le nom d'un logiciel.
 
 P2.5 enrichit le corpus par lots. **30 exercices par chapitre** est un
-plancher de planification pour les périmètres généraux. Les fondamentaux
-Unix, POSIX et Bash peuvent le dépasser largement si les apprentissages
-sont distincts. Un périmètre spécialisé peut rester sous ce seuil lorsque
-ses usages utiles sont couverts et que la justification figure dans le
-référentiel. Les niveaux suivent la progression réelle des compétences.
+minimum indicatif pour les périmètres généraux. Le corpus peut dépasser ce
+repère selon les compétences à couvrir. Un périmètre spécialisé peut rester
+en dessous lorsque ses usages utiles sont couverts et que la justification
+figure dans le référentiel. Les niveaux suivent la progression des compétences.
 Advanced privilégie les diagnostics, la composition, la portabilité et la
-robustesse des commandes.
+robustesse des commandes dans des situations concrètes. Écarter les détails
+ésotériques et les répétitions qui servent uniquement à atteindre un nombre.
 
-**360 exercices** reste le plancher de planification historique des douze
-chapitres. Les objectifs sont réévalués à mesure que le périmètre des parcours
-se précise. [Référentiel pédagogique](CURRICULUM.md)
+**360 exercices** reste le repère de planification historique des douze
+chapitres. Les objectifs sont réévalués selon les compétences utiles à couvrir.
+La création d'un chapitre requiert une validation explicite de son périmètre.
+[Référentiel pédagogique](CURRICULUM.md)
 
 ### Difficulté de l'exercice
 
@@ -416,6 +419,9 @@ par défaut ; reprise persistante au curseur ; capture globale des raccourcis ma
 moteur adaptatif et répétition espacée. Enseigner des logiciels graphiques pour
 leur seule présence sur macOS reste hors périmètre.
 
+La programmation shell, l'écriture de scripts complets, les fonctions shell
+avancées et le débogage de scripts sont hors périmètre pédagogique.
+
 Les releases et Homebrew peuvent être traités ultérieurement. Aucun framework
 ou nouveau moteur n'est requis pour compenser les suppressions.
 
@@ -454,8 +460,8 @@ des validations acquises par la présente modification documentaire.
 13. Préférences séparées, facultatives, créées seulement sur enregistrement
     explicite ; erreurs visibles, aucune modification du JSON v1 par ces réglages.
 14. Couverture des compétences et progression vérifiées par lot. Justifier la
-    profondeur des fondamentaux et les périmètres spécialisés sous le plancher
-    de planification. Contrôler l'autonomie des exercices et les formats de
+    profondeur du socle et les périmètres spécialisés sous le minimum
+    indicatif. Contrôler l'autonomie des exercices et les formats de
     réponse, y compris la distinction entre diagnostic textuel et capture.
 
 Voir l'[architecture cible](ARCHITECTURE.md) pour les frontières techniques et

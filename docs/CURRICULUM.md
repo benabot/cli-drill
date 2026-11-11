@@ -1,14 +1,14 @@
 # CLI-Drill — Référentiel pédagogique P2.5
 
-Le cadrage du 11 novembre 2026 fixe **30 exercices comme plancher de
-planification** pour un chapitre général. Un fondamental peut atteindre 40, 50,
-60 exercices ou davantage si chaque situation développe une compétence
-distincte. Un périmètre spécialisé peut rester sous ce seuil lorsque ses usages
-utiles sont couverts. La répartition par niveau suit les apprentissages.
+Le cadrage du 11 novembre 2026 retient **30 exercices comme minimum indicatif**
+pour un chapitre général. Un chapitre peut dépasser ce repère si chaque ajout
+développe une compétence utile et distincte. Un périmètre spécialisé peut
+rester en dessous lorsque ses usages utiles sont couverts. La répartition
+par niveau suit les apprentissages.
 
-**360 exercices** reste le plancher historique pour le corpus des douze
-chapitres. Les objectifs seront réévalués avec les deux parcours fondamentaux
-prévus. Les séances sont filtrées par niveau et par modules.
+**360 exercices** reste le repère historique pour le corpus des douze
+chapitres. Les objectifs suivent les compétences utiles à couvrir. Les
+séances sont filtrées par niveau et par modules.
 
 Le point de départ est `dev` à `4320650`, après publication du
 [lot 2](CORPUS_P25_LOT2.md). Les vagues [1](CORPUS_P25_WAVE1.md) et
@@ -31,7 +31,7 @@ local. Les approfondissements seront chiffrés par compétence.
 
 | Chapitre | B | I | A | Total | Suite à évaluer |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `00-premiers-pas` | 10 | 10 | 10 | 30 | Chemins atypiques, expansions et résolution de commandes. |
+| `00-premiers-pas` | 10 | 10 | 10 | 30 | Chemins contenant des espaces, motifs de noms et résolution de commandes. |
 | `01-raccourcis-terminal` | 12 | 11 | 8 | 31 | Validation de la révision guidée et des limites de capture. |
 | `02-navigation-shell` | 5 | 4 | 0 | 9 | Navigation propre à chaque outil et annulation d'une sélection. |
 | `05-outils-quotidiens` | 2 | 1 | 0 | 3 | Historique local Atuin et navigation propre à Lazygit. |
@@ -40,9 +40,9 @@ local. Les approfondissements seront chiffrés par compétence.
 | `08-micro` | 5 | 1 | 0 | 6 | Édition courante et récupération des erreurs. |
 | `09-markdown-glow` | 1 | 2 | 1 | 4 | Aperçu Markdown, pagination et largeur d'affichage. |
 | `10-workflows-dotfiles` | 3 | 0 | 0 | 3 | États Git, index, historique, branches et récupération. |
-| `11-flux-shell` | 10 | 10 | 10 | 30 | Flux vides, échecs partiels et robustesse des redirections. |
-| `12-fichiers-permissions` | 10 | 10 | 10 | 30 | Métadonnées, droits effectifs et différences GNU/BSD. |
-| `13-processus-environnement` | 10 | 10 | 10 | 30 | Diagnostics de processus, groupes, signaux et environnement. |
+| `11-flux-shell` | 10 | 10 | 10 | 30 | Combiner des filtres, interpréter une sortie vide ou diagnostiquer l'échec d'un pipeline. |
+| `12-fichiers-permissions` | 10 | 10 | 10 | 30 | Inspecter des métadonnées, comprendre un accès refusé ou repérer un lien cassé. |
+| `13-processus-environnement` | 10 | 10 | 10 | 30 | Retrouver un processus, choisir un signal ou diagnostiquer `PATH`. |
 | **Total** | **71** | **70** | **51** | **192** | |
 
 Les périmètres de bat, Micro et Glow peuvent justifier moins de 30 exercices.
@@ -308,50 +308,38 @@ originales et la syntaxe est vérifiée dans les manuels.
   Markdown prévu dans `09` doit avoir un rapport concret avec le rendu Glow ;
   sinon il n'a pas sa place dans ce chapitre.
 
-## Parcours fondamentaux prioritaires
+## Approfondissements du socle Unix
 
-### Programmation shell et Bash
-
-1. **Fondamentaux POSIX.** Écrire des scripts avec arguments, paramètres,
-   variables, conditions, boucles et fonctions. Lire les codes de retour,
-   traiter les cas vides et préserver les arguments par un quoting adapté.
-   Introduire les règles portables avant les extensions.
-2. **Bash approfondi.** Utiliser les tableaux, expansions et structures
-   propres à Bash. Vérifier les chemins d'erreur, diagnostiquer un script,
-   prévoir son nettoyage et choisir les outils de débogage. Indiquer la
-   version minimale et les réglages lorsqu'ils déterminent le résultat.
-
-Ce parcours justifie une couverture largement supérieure à 30 exercices.
-Les chapitres `00` et `13` introduisent les chemins, le shell interactif et
-l'environnement. Ce parcours reprend ces notions dans des situations de
-programmation, avec des fragments et des diagnostics compatibles avec les
-formats de réponse existants. [POSIX Shell Command Language](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) · [Bash Reference Manual](https://www.gnu.org/software/bash/manual/)
+Partir des commandes et options indispensables, puis combiner des commandes
+pour un résultat concret. Retenir les diagnostics et écarts entre plateformes
+ou shells lorsqu'ils changent la commande à choisir ou le résultat à attendre.
+Une construction shell courte se justifie par une tâche interactive, par
+exemple chaîner deux commandes en tenant compte du succès de la première.
+L'écriture de scripts et leur débogage sont hors périmètre.
 
 ### Recherche et traitement de texte Unix
 
-Partir de `grep` et `find` pour rechercher des lignes et des chemins, puis
-introduire les expressions régulières BRE et ERE, les transformations avec
-`sed` et les extractions et agrégations avec `awk`. Composer des pipelines
-avec des séparateurs explicites et des noms atypiques. Vérifier les écarts
-POSIX, GNU et BSD lorsqu'ils affectent une option ou le résultat. Le parcours
-est accessible sans modules tiers.
+Repérer des lignes dans un journal avec `grep`, sélectionner des fichiers
+selon leur nom ou leur type avec `find`, remplacer un motif dans un flux
+avec `sed` et extraire des colonnes ou calculer un total simple avec `awk`.
+Introduire les expressions régulières, les séparateurs et les noms atypiques
+à partir de ces tâches. Privilégier les usages POSIX, signaler les options GNU
+ou BSD lorsque leur différence importe et garder ces exercices accessibles
+sans module tiers. [Références POSIX des utilitaires](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/contents.html)
 
-`11` enseigne le raccordement des flux, les descripteurs et les statuts de
-pipeline. Le nouveau parcours s'appuie sur ces bases pour chercher et
-transformer des données. `06` approfondit les usages propres à ripgrep, fd
-et fzf. [Références POSIX des utilitaires](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/contents.html)
+`11` couvre les flux et les statuts des pipelines. `06` conserve ses usages de
+ripgrep, fd et fzf. Déterminer avant rédaction la place des nouveaux exercices
+Unix pour éviter les doublons. La création d'un chapitre requiert une validation
+explicite de son périmètre.
 
 ## Enrichissement par lots
 
-Après validation de la révision de `01`, l'ordre retenu le 11 novembre 2026
-est le suivant.
-
-1. Développer la programmation shell et Bash, du socle POSIX aux usages
-   avancés de Bash.
-2. Développer la recherche et le traitement de texte Unix.
-3. Examiner les approfondissements de `00`, `11`, `12` et `13`.
-4. Reprendre les lots spécialisés selon leur valeur pédagogique et les
-   recouvrements repérés.
+Après validation de la révision de `01`, prioriser les lacunes du socle Unix,
+dont les usages quotidiens de recherche et de traitement de texte. Retenir les
+approfondissements de `00`, `11`, `12` et `13` qui apportent une compétence
+distincte et directement utile au terminal. Poursuivre les vagues prévues
+pour Git et les outils CLI modernes selon leur utilité et les recouvrements
+repérés. Les phases P2.6 et P3 suivent le [backlog](../TODO.md).
 
 ### Planification initiale des vagues
 

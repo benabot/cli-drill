@@ -304,3 +304,16 @@ Le choix de langue rejoint le [backlog P3](../TODO.md#p3--internationalisation-f
 après P2.6. Les libellés traduits se rattachent aux mêmes exercices et les clés
 restent indépendantes de la langue. P3 décidera de la stratégie de localisation,
 du défaut et de l'évolution des préférences.
+
+## 2026-11-11 — P2.5, recentrage sur la pratique du terminal
+
+Le parcours envisagé « Shell Scripting POSIX puis Bash approfondi » est
+abandonné. P2.5 privilégie les commandes indispensables, leur composition
+et les diagnostics utiles au terminal. Une construction shell courte est
+pertinente si elle sert directement une tâche interactive. Les usages
+quotidiens de `grep`, `find`, `sed` et `awk` restent au programme.
+
+Le volume et la répartition par niveau suivent les compétences à acquérir.
+Tout nouveau chapitre requiert une validation explicite de son périmètre.
+Les vagues d'outils CLI modernes et les phases P2.6 et P3 restent prévues.
+[Spécification](SPEC.md) · [Référentiel P2.5](CURRICULUM.md#enrichissement-par-lots)
