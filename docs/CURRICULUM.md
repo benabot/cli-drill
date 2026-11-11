@@ -1,14 +1,21 @@
 # CLI-Drill — Référentiel pédagogique P2.5
 
-**Objectif : au moins 10 Beginner, 10 Intermediate et 10 Advanced par chapitre.**
-Pour les 12 chapitres actuels, le minimum est de **360 exercices intégrés**. Ce
-seuil remplace la cible globale de 100 à 120. Il ne s'applique pas à une séance :
-le niveau exact et les modules choisis déterminent toujours l'éligibilité.
+Le cadrage du 11 novembre 2026 fixe **30 exercices comme plancher de
+planification** pour un chapitre général. Un fondamental peut atteindre 40, 50,
+60 exercices ou davantage si chaque situation développe une compétence
+distincte. Un périmètre spécialisé peut rester sous ce seuil lorsque ses usages
+utiles sont couverts. La répartition par niveau suit les apprentissages.
+
+**360 exercices** reste le plancher historique pour le corpus des douze
+chapitres. Les objectifs seront réévalués avec les deux parcours fondamentaux
+prévus. Les séances sont filtrées par niveau et par modules.
 
 Le point de départ est `dev` à `4320650`, après publication du
-[lot 2](CORPUS_P25_LOT2.md). Le bilan inclut la [vague 1](CORPUS_P25_WAVE1.md),
-publiée sur `dev` à `f97718a`, et la [vague 2](CORPUS_P25_WAVE2.md),
-implémentée et testée sur sa branche locale depuis cette base.
+[lot 2](CORPUS_P25_LOT2.md). Les vagues [1](CORPUS_P25_WAVE1.md) et
+[2](CORPUS_P25_WAVE2.md) sont publiées sur `dev` à `f97718a` et
+`fd37fe4`. Le bilan inclut aussi la [vague 3](CORPUS_P25_WAVE3.md),
+révisée et testée localement depuis `fd37fe4`. Sa validation pédagogique
+reste à faire.
 Le relevé porte sur les YAML intégrés de
 [`data/chapters`](../data/chapters/), sans compter les fixtures. Les identifiants
 03 et 04 ont été retirés. Les garder réservés et conserver les identifiants
@@ -19,30 +26,30 @@ initialement ; seules les sections marquées comme implémentées ont été réa
 
 ## Bilan par chapitre
 
-B = Beginner, I = Intermediate, A = Advanced. Les écarts sont calculés
-séparément par chapitre et par niveau.
+B = Beginner, I = Intermediate, A = Advanced. Le relevé décrit le corpus
+local. Les approfondissements seront chiffrés par compétence.
 
-| Chapitre | B | I | A | Total | B à ajouter | I à ajouter | A à ajouter |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `00-premiers-pas` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
-| `01-raccourcis-terminal` | 8 | 0 | 0 | 8 | 2 | 10 | 10 |
-| `02-navigation-shell` | 5 | 4 | 0 | 9 | 5 | 6 | 10 |
-| `05-outils-quotidiens` | 2 | 1 | 0 | 3 | 8 | 9 | 10 |
-| `06-recherche-fichiers-contenu` | 2 | 9 | 1 | 12 | 8 | 1 | 9 |
-| `07-lecture-preview` | 1 | 2 | 1 | 4 | 9 | 8 | 9 |
-| `08-micro` | 5 | 1 | 0 | 6 | 5 | 9 | 10 |
-| `09-markdown-glow` | 1 | 2 | 1 | 4 | 9 | 8 | 9 |
-| `10-workflows-dotfiles` | 3 | 0 | 0 | 3 | 7 | 10 | 10 |
-| `11-flux-shell` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
-| `12-fichiers-permissions` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
-| `13-processus-environnement` | 10 | 10 | 10 | 30 | 0 | 0 | 0 |
-| **Total** | **67** | **59** | **43** | **169** | **53** | **61** | **77** |
+| Chapitre | B | I | A | Total | Suite à évaluer |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `00-premiers-pas` | 10 | 10 | 10 | 30 | Chemins atypiques, expansions et résolution de commandes. |
+| `01-raccourcis-terminal` | 12 | 11 | 8 | 31 | Validation de la révision guidée et des limites de capture. |
+| `02-navigation-shell` | 5 | 4 | 0 | 9 | Navigation propre à chaque outil et annulation d'une sélection. |
+| `05-outils-quotidiens` | 2 | 1 | 0 | 3 | Historique local Atuin et navigation propre à Lazygit. |
+| `06-recherche-fichiers-contenu` | 2 | 9 | 1 | 12 | Recherche et sélection propres à rg, fd et fzf. |
+| `07-lecture-preview` | 1 | 2 | 1 | 4 | Inspection utile avec bat. |
+| `08-micro` | 5 | 1 | 0 | 6 | Édition courante et récupération des erreurs. |
+| `09-markdown-glow` | 1 | 2 | 1 | 4 | Aperçu Markdown, pagination et largeur d'affichage. |
+| `10-workflows-dotfiles` | 3 | 0 | 0 | 3 | États Git, index, historique, branches et récupération. |
+| `11-flux-shell` | 10 | 10 | 10 | 30 | Flux vides, échecs partiels et robustesse des redirections. |
+| `12-fichiers-permissions` | 10 | 10 | 10 | 30 | Métadonnées, droits effectifs et différences GNU/BSD. |
+| `13-processus-environnement` | 10 | 10 | 10 | 30 | Diagnostics de processus, groupes, signaux et environnement. |
+| **Total** | **71** | **70** | **51** | **192** | |
 
-Il manque au minimum **191 exercices**. La matrice réserve une compétence
-distincte par exercice à concevoir. Si un sujet se révèle redondant, invérifiable
-ou incompatible avec le moteur, trouver un autre objectif utile ou laisser le
-manque ouvert. Une variante de commande ou un nom de fichier différent ne
-constitue pas un nouvel apprentissage.
+Les périmètres de bat, Micro et Glow peuvent justifier moins de 30 exercices.
+L'inspection de texte, l'édition courante et l'aperçu ont chacun leurs propres
+besoins. Les réglages rares restent facultatifs. Dans `06`, les exercices
+`rg-fzf-todo` et `rg-fzf-docs` se recouvrent déjà. Les ajouts doivent viser
+une décision différente.
 
 ## Progression et format
 
@@ -85,9 +92,29 @@ de `12`, les flux de `11`.
 
 ### `01-raccourcis-terminal` — Édition au clavier
 
-**Couverture actuelle.** B : début et fin de ligne, suppression de la ligne ou de sa fin, coupe avant le curseur, réinsertion, recherche arrière, rafraîchissement. ZLE en mode Emacs.
+**Couverture avant la vague 3.** Huit captures Beginner en ZLE Emacs
+couvrent les extrémités de la ligne, les coupes, la réinsertion, la
+recherche arrière et le rafraîchissement.
 
-**Suite proposée.** Élargir à l’édition de ligne et à ses diagnostics. Distinguer ZLE et Readline ; réserver jobs/signaux à `13`. Les compétences diagnostiques se prêtent à des réponses textuelles ; l’entrée dédiée aux raccourcis ne montre que les captures. Tester le parcours mixte avant de l’utiliser.
+**Vague 3 révisée.** Bash/Readline sert de référence pour les gestes communs.
+Les cas Zsh/ZLE suivent lorsque l'effet diffère. Le parcours Apprendre est
+guidé par niveau et Réviser mélange les exercices éligibles. Les 23 ajouts
+comprennent dix captures et treize diagnostics textuels. Le navigateur
+permet une séance Intermediate mixte et « Keyboard shortcuts » sélectionne
+les captures du niveau.
+
+| Niveau | Progression du chapitre révisé |
+| --- | --- |
+| Beginner | Déplacement, effacement, complétion simple et raccourcis historiques. |
+| Intermediate | Corriger par mot, annuler une modification ou une recherche, naviguer dans l'historique, abandonner une saisie incomplète et affiner une complétion. |
+| Advanced | Modifier un résultat d'historique avant exécution, comprendre une fin d'entrée, diagnostiquer le mode et la transmission des touches, distinguer les effets de Bash et de Zsh. |
+
+[Exercices, sources et validations](CORPUS_P25_WAVE3.md)
+
+#### Matrice initiale de la vague 3
+
+Cette matrice conserve les choix de la première version de la vague.
+Le rapport de révision indique les diagnostics remplacés.
 
 | Niveau | Compétences à ajouter | Références |
 | --- | --- | --- |
@@ -281,7 +308,52 @@ originales et la syntaxe est vérifiée dans les manuels.
   Markdown prévu dans `09` doit avoir un rapport concret avec le rendu Glow ;
   sinon il n'a pas sa place dans ce chapitre.
 
+## Parcours fondamentaux prioritaires
+
+### Programmation shell et Bash
+
+1. **Fondamentaux POSIX.** Écrire des scripts avec arguments, paramètres,
+   variables, conditions, boucles et fonctions. Lire les codes de retour,
+   traiter les cas vides et préserver les arguments par un quoting adapté.
+   Introduire les règles portables avant les extensions.
+2. **Bash approfondi.** Utiliser les tableaux, expansions et structures
+   propres à Bash. Vérifier les chemins d'erreur, diagnostiquer un script,
+   prévoir son nettoyage et choisir les outils de débogage. Indiquer la
+   version minimale et les réglages lorsqu'ils déterminent le résultat.
+
+Ce parcours justifie une couverture largement supérieure à 30 exercices.
+Les chapitres `00` et `13` introduisent les chemins, le shell interactif et
+l'environnement. Ce parcours reprend ces notions dans des situations de
+programmation, avec des fragments et des diagnostics compatibles avec les
+formats de réponse existants. [POSIX Shell Command Language](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/V3_chap02.html) · [Bash Reference Manual](https://www.gnu.org/software/bash/manual/)
+
+### Recherche et traitement de texte Unix
+
+Partir de `grep` et `find` pour rechercher des lignes et des chemins, puis
+introduire les expressions régulières BRE et ERE, les transformations avec
+`sed` et les extractions et agrégations avec `awk`. Composer des pipelines
+avec des séparateurs explicites et des noms atypiques. Vérifier les écarts
+POSIX, GNU et BSD lorsqu'ils affectent une option ou le résultat. Le parcours
+est accessible sans modules tiers.
+
+`11` enseigne le raccordement des flux, les descripteurs et les statuts de
+pipeline. Le nouveau parcours s'appuie sur ces bases pour chercher et
+transformer des données. `06` approfondit les usages propres à ripgrep, fd
+et fzf. [Références POSIX des utilitaires](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/contents.html)
+
 ## Enrichissement par lots
+
+Après validation de la révision de `01`, l'ordre retenu le 11 novembre 2026
+est le suivant.
+
+1. Développer la programmation shell et Bash, du socle POSIX aux usages
+   avancés de Bash.
+2. Développer la recherche et le traitement de texte Unix.
+3. Examiner les approfondissements de `00`, `11`, `12` et `13`.
+4. Reprendre les lots spécialisés selon leur valeur pédagogique et les
+   recouvrements repérés.
+
+### Planification initiale des vagues
 
 Chaque vague peut donner plusieurs branches courtes, typiquement de 15 à 25
 exercices, à adapter au périmètre et à la revue. Prendre un petit ensemble de
@@ -292,8 +364,8 @@ d'exercices à livrer d'un coup.
 | Ordre | Vague | Chapitres | Écart | Dépendance ou preuve spécifique |
 | --- | --- | --- | ---: | --- |
 | 1 | Repères, fichiers et droits | `00`, `12` | 46 | [Implémentée et testée](CORPUS_P25_WAVE1.md), publiée sur `dev` à `f97718a`. |
-| 2 | Flux, processus et environnement | `11`, `13` | 48 | [Implémentée et testée localement](CORPUS_P25_WAVE2.md) ; flux, descripteurs, statuts, jobs et portabilité vérifiés. |
-| 3 | Édition de la ligne de commande | `01` | 22 | Vérifier les touches en Ghostty et, avant les diagnostics, les parcours dédiés et mixtes. |
+| 2 | Flux, processus et environnement | `11`, `13` | 48 | Publiée sur `dev` à `fd37fe4`. [Rapport](CORPUS_P25_WAVE2.md). |
+| 3 | Édition de la ligne de commande | `01` | 22 | Première cible. La révision locale comporte 23 ajouts et attend validation. [Rapport](CORPUS_P25_WAVE3.md). |
 | 4 | Navigation, recherche et sélection | `02`, `06` | 39 | S'appuyer sur les chemins et les flux ; vérifier les modules combinés, l'annulation et les chemins atypiques. |
 | 5 | Lecture, édition et aperçu | `07`, `08`, `09` | 76 | Commencer par l'inspection et l'édition locales ; vérifier ensuite les compositions et les diagnostics de rendu. |
 | 6 | Git, historique et interfaces | `10`, `05` | 54 | Commencer par les états Git avant les panneaux Lazygit ; couvrir Atuin local sans exiger l'intégration shell sauf scénario explicite. |
@@ -323,9 +395,8 @@ structure historique, la remplacer ou laisser la case ouverte.
    Contrôler la projection des acquis avec des fixtures JSON v1 si le lot touche
    à l'éligibilité. Conserver clés, format de progression et préférences.
 4. Noter le décompte avant/après, les limites et les résultats de recette dans
-   le rapport du lot. Distinguer l'essai sous pseudo-terminal de la recette
-   humaine dans Ghostty, et signaler les plateformes et versions non testées.
+   le rapport du lot. Distinguer les essais sous pseudo-terminal des captures
+   sur clavier physique et préciser les systèmes, shells et terminaux essayés.
 
-La [spécification](SPEC.md) fixe les garanties communes. Ce référentiel ne
-change pas le moteur, les modes de séance, le schéma des données ni
-[P3 — Internationalisation FR/EN](../TODO.md#p3--internationalisation-fren).
+La [spécification](SPEC.md) fixe les garanties communes.
+[P3 — Internationalisation FR/EN](../TODO.md#p3--internationalisation-fren)

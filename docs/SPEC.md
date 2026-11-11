@@ -18,20 +18,21 @@ et relève d'une phase distincte de P2.
 
 **CLI-Drill — Learn the terminal by doing.**
 
-CLI-Drill est une application Go CLI/TUI locale pour apprendre et mémoriser
-les commandes Unix, les shells, les raccourcis clavier du terminal et les outils CLI.
-Elle s'adresse aux personnes qui découvrent le terminal et aux développeurs ou
-power users qui souhaitent consolider leurs pratiques.
+CLI-Drill est une application Go CLI/TUI locale qui enseigne la pratique du
+terminal, des gestes quotidiens jusqu'au diagnostic, à la composition de
+commandes et à la programmation shell. Elle s'adresse aux débutants, aux
+développeurs, aux administrateurs et aux utilisateurs avancés. Les systèmes
+cibles sont macOS, Linux et les systèmes Unix/BSD.
 
 L'apprentissage repose sur la mémorisation active : exercices courts,
 progressifs, répétables, écrits et vérifiés. Saisir une commande et appuyer sur
 un vrai raccourci sont des activités centrales. Les questions de connaissance
 servent ces pratiques ; elles ne constituent pas à elles seules le produit.
 
-Une session vise cinq à dix minutes par sa longueur éditoriale, sans minuteur
-ni préférence de durée. P2 prévoit la sélection manuelle des modules CLI tiers,
-trois niveaux et le mélange des séances, avec une exception pour l'apprentissage
-guidé ; ces choix ne nécessitent ni scan ni moteur adaptatif.
+La durée indicative d'une séance est de cinq à dix minutes, avec une longueur
+déterminée par les exercices éligibles après sélection du niveau et des modules
+CLI tiers. L'apprentissage guidé suit l'ordre éditorial et la révision mélange
+les exercices éligibles.
 
 ## 2. Périmètre décidé
 
@@ -72,19 +73,26 @@ Navigation, fichiers et répertoires, recherche, pipes, redirections,
 permissions, processus, environnement shell, texte, archives et Git essentiel.
 Les exercices de commande fournissent un contexte simulé suffisant : objectif,
 noms de fichiers et résultat recherché. Ils ne dépendent pas du disque réel.
+Deux parcours dédiés sont prévus pour la programmation shell, de POSIX à Bash
+approfondi, et pour la recherche et le traitement de texte Unix. Ils utilisent
+le socle disponible sans modules tiers. [Périmètres et progression](CURRICULUM.md#parcours-fondamentaux-prioritaires)
 
 ### B. Keyboard Shortcuts
 
-Navigation dans la ligne, édition, historique et contrôle des processus.
-Chaque leçon précise si le raccourci relève du shell et de son mode d'édition,
-de l'émulateur de terminal ou de macOS. ZSH sous macOS sert de contexte shell
-de référence ; aucun moteur de détection ou d'adaptation aux shells n'est requis.
+L'édition interactive couvre les déplacements, la correction, l'historique,
+la complétion et les incidents qui interrompent la saisie. Bash/Readline sert
+de référence. Les différences Zsh/ZLE viennent après les gestes communs et
+sont enseignées quand elles modifient le résultat. Les modes Emacs et Vi
+sont précisés quand leurs liaisons expliquent le comportement observé.
+Les processus, jobs et signaux relèvent des fondamentaux Unix.
 
-Conserver la capture réelle pour les touches prises en charge. Les combinaisons
-interceptées par macOS, indisponibles dans le terminal ou réservées à la sortie
-ne sont pas promises comme capturables. Par exemple, le rôle pédagogique de
-`Ctrl+C` doit être distingué de son rôle de sortie dans le moteur actuel.
-Une explication ou question textuelle ne vaut pas validation d'une capture réelle.
+Chaque exercice précise le shell, le mode d'édition et les réglages qui
+déterminent sa réponse. Les essais distinguent le comportement de l'éditeur,
+les octets transmis par le terminal et ceux que CLI-Drill reconnaît. Les
+séquences compatibles sont évaluées par capture réelle. Les séquences
+interceptées, indisponibles ou réservées à la sortie peuvent faire l'objet
+d'un diagnostic textuel, évalué comme tel. La validation choisit des
+terminaux représentatifs des systèmes cibles.
 
 ### C. Modern CLI & macOS
 
@@ -116,9 +124,9 @@ aucun annuaire d'installation, scanner ou ancien catalogue n'est réintroduit.
 
 ### Règles éditoriales communes
 
-- Identifier le contexte pertinent : Unix portable, BSD/macOS, GNU/Linux,
-  outil tiers, shell/mode d'édition ou émulateur de terminal.
-- Ne pas présenter une option GNU comme universellement disponible sous macOS.
+- Indiquer le contexte pertinent, qu'il relève de POSIX, de GNU, de BSD/macOS,
+  du shell, de son mode d'édition, du terminal ou d'un outil tiers. Préciser
+  une version minimale ou un réglage lorsque la réponse en dépend.
 - Vérifier les syntaxes et raccourcis dans leurs références officielles lors
   de la rédaction du corpus ; noter les préconditions dans la leçon.
 - Poser une question discriminante, expliquer la solution et ses limites.
@@ -130,15 +138,18 @@ aucun annuaire d'installation, scanner ou ancien catalogue n'est réintroduit.
 - Préférer commandes saisies, scénarios concrets et captures réellement compatibles
   aux questions répétitives demandant uniquement le nom d'un logiciel.
 
-Ces familles organisent les contenus ; elles ne justifient pas trois moteurs.
-P2.5 enrichit le corpus par lots. La cible est **d'au moins 30 exercices par
-chapitre, dont au moins 10 Beginner, 10 Intermediate et 10 Advanced**. Elle
-correspond à au moins 360 exercices pour les 12 chapitres actuels. Ce seuil
-s'applique au corpus intégré ; la difficulté choisie et les modules activés
-peuvent réduire le nombre d'exercices proposés dans une séance.
-Le [référentiel pédagogique](CURRICULUM.md) décrit les compétences et l'ordre
-des lots. La qualité prime : tout manque reste ouvert plutôt que d'ajouter
-un doublon ou de surclasser artificiellement une question.
+P2.5 enrichit le corpus par lots. **30 exercices par chapitre** est un
+plancher de planification pour les périmètres généraux. Les fondamentaux
+Unix, POSIX et Bash peuvent le dépasser largement si les apprentissages
+sont distincts. Un périmètre spécialisé peut rester sous ce seuil lorsque
+ses usages utiles sont couverts et que la justification figure dans le
+référentiel. Les niveaux suivent la progression réelle des compétences.
+Advanced privilégie les diagnostics, la composition, la portabilité et la
+robustesse des commandes.
+
+**360 exercices** reste le plancher de planification historique des douze
+chapitres. Les objectifs sont réévalués à mesure que le périmètre des parcours
+se précise. [Référentiel pédagogique](CURRICULUM.md)
 
 ### Difficulté de l'exercice
 
@@ -415,8 +426,9 @@ des validations acquises par la présente modification documentaire.
 
 1. Premier entraînement textuel accessible sans configuration, scan ou outil
    tiers installé, avec interface adaptée aux capacités terminal vérifiées.
-2. Corpus intégré court et jouable dans chacune des trois familles ; consignes,
-   réponses et portabilité vérifiées ; aucune dépendance à des alias personnels.
+2. Corpus intégré jouable dans les trois familles. Consignes, réponses et
+   portabilité vérifiées dans les contextes annoncés, sans dépendance aux
+   alias personnels.
 3. Commandes `chapters`, `train`, `stats`, `reset --yes` disponibles ; commandes,
    option et écrans dotfiles retirés ; anciens fichiers utilisateur intacts.
 4. Saisie de commandes et capture réelle compatibles testées ; les limites sont
@@ -426,8 +438,10 @@ des validations acquises par la présente modification documentaire.
    fictive, double compte ou perte des résultats historiques.
 7. Lecture des données version 1 préservée ; sauvegarde sûre et erreurs visibles ;
    aucune suppression implicite des anciennes données.
-8. Navigation, saisie des filtres, sortie et restauration du terminal vérifiées
-   sur macOS, en couleur et sans couleur selon les capacités disponibles.
+8. Navigation, filtres, sortie et restauration du terminal vérifiés sur une
+   matrice représentative des systèmes cibles, en couleur et sans couleur
+   selon les capacités disponibles. Consigner les systèmes, shells, modes
+   d'édition et terminaux effectivement essayés.
 9. Tests adaptés, `go test ./...` et `go vet ./...` réussis ; aucune nouvelle
    dépendance injustifiée ni fonctionnalité de réseau applicatif.
 10. Sélection manuelle des modules tiers utilisable sans installation ; socle
@@ -439,9 +453,10 @@ des validations acquises par la présente modification documentaire.
     lorsque nécessaire ; retries et feedback respectent les compteurs P1.
 13. Préférences séparées, facultatives, créées seulement sur enregistrement
     explicite ; erreurs visibles, aucune modification du JSON v1 par ces réglages.
-14. Au moins 10 Beginner, 10 Intermediate et 10 Advanced par chapitre,
-    introduits par lots essayés. Préserver l'autonomie, la diversité des
-    compétences, les trois familles et les limites de capture.
+14. Couverture des compétences et progression vérifiées par lot. Justifier la
+    profondeur des fondamentaux et les périmètres spécialisés sous le plancher
+    de planification. Contrôler l'autonomie des exercices et les formats de
+    réponse, y compris la distinction entre diagnostic textuel et capture.
 
 Voir l'[architecture cible](ARCHITECTURE.md) pour les frontières techniques et
 le [backlog](../TODO.md) pour les branches atomiques proposées.

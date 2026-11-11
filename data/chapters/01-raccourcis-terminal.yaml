@@ -1,9 +1,83 @@
 id: "01-raccourcis-terminal"
-title: "Raccourcis ZSH — mode Emacs"
-description: "Référence : ZSH/ZLE, keymap Emacs standard, sans personnalisation. CLI-Drill capture la touche, sans appliquer son effet à une vraie ligne shell. Une touche interceptée par le terminal ne peut pas être créditée comme capturée."
+title: "Édition de ligne dans Bash et Zsh"
+description: "Déplace-toi, corrige une commande et retrouve tes saisies dans l’historique. Bash sert de référence et les exercices signalent les différences utiles de Zsh. Les gestes compatibles sont capturés au clavier."
 family: "keyboard-shortcuts"
-learning_order: "independent"
+learning_order: "guided"
 items:
+  - id: "ctrl-b-character-left"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, le
+      curseur est au milieu d’un mot. Recule-le d’un caractère
+      avec un raccourci de contrôle.
+    answer:
+      primary: "Ctrl+B"
+      accepted:
+        - "^B"
+        - "control-b"
+        - "ctrl b"
+    explanation: |-
+      Ctrl+B recule d’un caractère dans Readline et dans ZLE
+      avec les liaisons Emacs standard.
+  - id: "ctrl-f-character-right"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, le
+      curseur est au milieu d’un mot. Avance-le d’un caractère
+      avec un raccourci de contrôle.
+    answer:
+      primary: "Ctrl+F"
+      accepted:
+        - "^F"
+        - "control-f"
+        - "ctrl f"
+    explanation: |-
+      Ctrl+F avance d’un caractère dans Readline et dans ZLE
+      avec les liaisons Emacs standard.
+  - id: "ctrl-h-delete-before-cursor"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, le
+      curseur est sur le s de « pson ». Efface le p à sa gauche.
+    answer:
+      primary: "Backspace"
+      accepted:
+        - "Ctrl+H"
+        - "^H"
+        - "control-h"
+        - "ctrl h"
+        - "\u007F"
+    explanation: |-
+      Retour arrière efface à gauche du curseur. La touche
+      peut envoyer DEL ou Ctrl+H, associés à ce geste dans
+      Readline et dans ZLE Emacs standard.
+  - id: "tab-complete-unique-name"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, tu as
+      saisi « cat carn ». Le seul fichier correspondant est
+      carnet.txt. Demande la complétion du nom.
+    answer:
+      primary: "Tab"
+      accepted:
+        - "Ctrl+I"
+        - "^I"
+    explanation: |-
+      Tab demande la complétion. Le candidat unique permet de
+      compléter le nom. Le terminal envoie généralement l’octet
+      de Ctrl+I pour cette touche.
   - id: "ctrl-a"
     type: "shortcut"
     exercise_type: "key-sequence"
@@ -31,20 +105,6 @@ items:
       accepted: ["^E", "control-e", "ctrl e"]
     explanation: |-
       end-of-line place le curseur à la fin de la ligne courante.
-  - id: "ctrl-u-whole-line"
-    type: "shortcut"
-    exercise_type: "key-sequence"
-    difficulty: "beginner"
-    tools: []
-    prompt: |-
-      ZSH/ZLE, mode Emacs standard : appuie sur le raccourci pour couper
-      toute la ligne courante, y compris le texte après le curseur.
-    answer:
-      primary: "Ctrl+U"
-      accepted: ["^U", "control-u", "ctrl u"]
-    explanation: |-
-      kill-whole-line coupe la ligne courante entière ; ce binding
-      ZLE ne se limite pas au texte avant le curseur.
   - id: "ctrl-k"
     type: "shortcut"
     exercise_type: "key-sequence"
@@ -59,21 +119,6 @@ items:
     explanation: |-
       kill-line coupe du curseur à la fin de la ligne ; en fin de
       ligne, il peut aussi couper le saut de ligne suivant.
-  - id: "ctrl-w"
-    type: "shortcut"
-    exercise_type: "key-sequence"
-    difficulty: "beginner"
-    tools: []
-    prompt: |-
-      ZSH/ZLE, mode Emacs standard : appuie sur le raccourci pour couper le
-      mot précédant le curseur.
-    answer:
-      primary: "Ctrl+W"
-      accepted: ["^W", "control-w", "ctrl w"]
-    explanation: |-
-      backward-kill-word coupe le mot précédent selon la
-      définition des mots de ZLE ; des personnalisations peuvent
-      changer ses limites.
   - id: "ctrl-y"
     type: "shortcut"
     exercise_type: "key-sequence"
@@ -118,3 +163,392 @@ items:
       clear-screen efface l’affichage puis redessine la ligne.
       Cela ne supprime ni les fichiers ni l’historique ; le
       scrollback dépend du terminal.
+  - id: "ctrl-u-whole-line"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      ZSH/ZLE, mode Emacs standard : appuie sur le raccourci pour couper
+      toute la ligne courante, y compris le texte après le curseur.
+    answer:
+      primary: "Ctrl+U"
+      accepted: ["^U", "control-u", "ctrl u"]
+    explanation: |-
+      kill-whole-line coupe la ligne courante entière ; ce binding
+      ZLE ne se limite pas au texte avant le curseur.
+  - id: "ctrl-w"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      ZSH/ZLE, mode Emacs standard : appuie sur le raccourci pour couper le
+      mot précédant le curseur.
+    answer:
+      primary: "Ctrl+W"
+      accepted: ["^W", "control-w", "ctrl w"]
+    explanation: |-
+      backward-kill-word coupe le mot précédent selon la
+      définition des mots de ZLE ; des personnalisations peuvent
+      changer ses limites.
+  - id: "ctrl-d-delete-under-cursor"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, le
+      curseur est sur le s de trop de « stastus ». Efface ce s
+      avec un raccourci de contrôle, sans déplacer le curseur.
+    answer:
+      primary: "Ctrl+D"
+      accepted:
+        - "^D"
+        - "control-d"
+        - "ctrl d"
+    explanation: |-
+      Ctrl+D efface le caractère sous le curseur sur une ligne
+      non vide. Le même geste fonctionne à cet endroit dans
+      ZLE Emacs standard.
+  - id: "ctrl-t-transpose-characters"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, le
+      curseur est après « bonjoru ». Le terminal transmet les
+      raccourcis à l’éditeur. Permute les deux dernières lettres.
+    answer:
+      primary: "Ctrl+T"
+      accepted:
+        - "^T"
+        - "control-t"
+        - "ctrl t"
+    explanation: |-
+      Ctrl+T permute les deux caractères à gauche en fin de
+      ligne et donne « bonjour ». Certains pilotes de terminal
+      réservent cet octet à un affichage d’état.
+  - id: "ctrl-p-previous-history"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, tu
+      viens de relire une commande sur une seule ligne. Rappelle
+      l’entrée précédente avec un raccourci de contrôle.
+    answer:
+      primary: "Ctrl+P"
+      accepted:
+        - "^P"
+        - "control-p"
+        - "ctrl p"
+    explanation: |-
+      Ctrl+P recule d’une entrée dans Readline. En ZLE Emacs,
+      ce geste peut d’abord monter dans un tampon multiligne.
+  - id: "ctrl-n-next-history"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, tu
+      consultes une entrée de l’historique sur une seule ligne.
+      Rappelle l’entrée suivante avec un raccourci de contrôle.
+    answer:
+      primary: "Ctrl+N"
+      accepted:
+        - "^N"
+        - "control-n"
+        - "ctrl n"
+    explanation: |-
+      Ctrl+N avance d’une entrée dans Readline. En ZLE Emacs,
+      ce geste peut d’abord descendre dans un tampon multiligne.
+  - id: "ctrl-underscore-undo-edit"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, tu as
+      effacé par erreur une lettre de « git status ». Rétablis-la
+      avec le raccourci d’annulation en un seul geste.
+    answer:
+      primary: "Ctrl+_"
+      accepted:
+        - "^_"
+        - "\u001f"
+    explanation: |-
+      Ctrl+_ annule la dernière modification et peut être
+      capturé si le terminal envoie l’octet 0x1F. Readline et
+      ZLE proposent aussi la séquence Ctrl+X puis Ctrl+U.
+  - id: "ctrl-g-restore-history-draft"
+    type: "shortcut"
+    exercise_type: "key-sequence"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec les liaisons Readline Emacs standard, tu as
+      ouvert une recherche dans l’historique depuis un brouillon.
+      Annule la recherche pour retrouver ton brouillon.
+    answer:
+      primary: "Ctrl+G"
+      accepted:
+        - "^G"
+        - "control-g"
+        - "ctrl g"
+    explanation: |-
+      Ctrl+G annule la recherche incrémentale dans Readline et
+      rétablit la ligne qui était en cours avant la recherche.
+  - id: "readline-backward-word-edit"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec Readline Emacs standard, | marque le curseur
+      dans « git switch sauve|garde ». Où arrive le curseur après
+      un déplacement d’un mot vers la gauche ?
+    choices:
+      - "git |switch sauvegarde"
+      - "git switch |sauvegarde"
+      - "git switch sauvegarde|"
+    answer:
+      primary: "git switch |sauvegarde"
+    explanation: |-
+      Readline revient au début du mot en cours depuis son
+      milieu. Le geste standard est Meta+B, souvent Échap puis b.
+  - id: "readline-forward-word-edit"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec Readline Emacs standard, | marque le curseur
+      dans « git |status --short ». Où arrive le curseur après
+      un déplacement d’un mot vers la droite ?
+    choices:
+      - "git status |--short"
+      - "git status --short|"
+      - "git status| --short"
+    answer:
+      primary: "git status| --short"
+    explanation: |-
+      Readline s’arrête à la fin de status. ZLE avance jusqu’au
+      début du mot suivant, selon ses propres limites de mots.
+      Le geste standard est Meta+F, souvent Échap puis f.
+  - id: "readline-cut-word-forward"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash avec Readline Emacs standard, | marque le curseur
+      dans « grep |ERREUR serveur.log ». Tu coupes un mot vers
+      l’avant pour changer le motif. Quelle ligne reste affichée ?
+    choices:
+      - "grep | serveur.log"
+      - "grep |ERREUR"
+      - "grep| ERREUR serveur.log"
+    answer:
+      primary: "grep | serveur.log"
+    explanation: |-
+      La coupe vers l’avant enlève ERREUR et s’arrête avant
+      l’espace qui suit. Le texte coupé reste récupérable.
+      Le geste standard est Meta+D, souvent Échap puis d.
+  - id: "bash-abandon-incomplete-input"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans Bash interactif, un guillemet non fermé a fait
+      apparaître l’invite de continuation. Aucune commande de
+      cette saisie ne tourne. Comment abandonner la saisie ?
+    choices:
+      - "Appuyer sur Entrée pour valider la ligne."
+      - "Interrompre la saisie avec Ctrl+C."
+      - "Utiliser Tab pour terminer la saisie."
+    answer:
+      primary: "Interrompre la saisie avec Ctrl+C."
+    explanation: |-
+      Ctrl+C abandonne la saisie en cours et rend l’invite
+      principale. Le contexte ici est la lecture d’une commande
+      incomplète par Bash.
+  - id: "readline-refine-ambiguous-completion"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Bash a listé rapport-juin.txt et rapport-juillet.txt
+      pour « cat rapport-jui ». Tu veux ouvrir le rapport de
+      juin. Comment réduire les candidats avant de compléter ?
+    choices:
+      - "Relancer la même complétion sans préciser le nom."
+      - "Valider directement cat rapport-jui."
+      - "Ajouter n au préfixe puis redemander la complétion."
+    answer:
+      primary: "Ajouter n au préfixe puis redemander la complétion."
+    explanation: |-
+      La lettre n après rapport-jui distingue juin de juillet.
+      La complétion peut alors insérer le suffixe du seul nom
+      qui correspond au préfixe.
+  - id: "readline-edit-found-history"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash avec Readline Emacs standard, la recherche
+      incrémentale affiche « mv rapport.txt archive/ ». Tu veux
+      corriger la destination avant toute exécution. Quel geste
+      fait passer le résultat dans la ligne à éditer ?
+    choices:
+      - "Valider le résultat avec Entrée puis le corriger."
+      - "Reprendre l’édition avec un déplacement du curseur."
+      - "Annuler la recherche pour garder le résultat."
+    answer:
+      primary: "Reprendre l’édition avec un déplacement du curseur."
+    explanation: |-
+      Un déplacement, comme aller en fin de ligne avec Ctrl+E,
+      termine la recherche et conserve le résultat à éditer.
+      Entrée l’exécuterait. Ctrl+G restaurerait le brouillon.
+  - id: "ctrl-d-eof-versus-delete"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans Bash interactif avec Readline Emacs standard,
+      Ctrl+D est le caractère EOF et ignoreeof est désactivé.
+      Dans A, le curseur est sur b dans « abc ». Dans B, la
+      ligne est vide. Quels effets produit la même touche ?
+    choices:
+      - "A et B signalent une fin d’entrée."
+      - "A signale une fin d’entrée. B reste en édition."
+      - "A efface b. B signale une fin d’entrée."
+    answer:
+      primary: "A efface b. B signale une fin d’entrée."
+    explanation: |-
+      Sur la ligne non vide, Ctrl+D efface b. À l’invite vide,
+      Readline signale une fin d’entrée et Bash peut quitter.
+      Le contexte du tampon détermine l’effet.
+  - id: "readline-unexpected-vi-mode"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      À l’invite Bash, la touche x efface le caractère sous
+      le curseur. Après avoir pressé i, les lettres s’insèrent
+      de nouveau. Quel diagnostic explique les deux effets ?
+    choices:
+      - "L’émulateur avalait tous les caractères tapés."
+      - "Readline était en mode commande Vi."
+      - "Le contrôle de flux bloquait la sortie."
+    answer:
+      primary: "Readline était en mode commande Vi."
+    explanation: |-
+      En mode commande Vi, x efface et i revient à la saisie.
+      Bash permet de choisir les liaisons Emacs avec
+      set -o emacs si on souhaite retrouver ces gestes.
+  - id: "terminal-consumed-editing-key"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      À l’invite du shell, un raccourci ouvre un onglet. Le
+      journal d’entrée confirme qu’aucun octet n’arrive au
+      shell pour cet appui. Où le geste a-t-il été traité ?
+    choices:
+      - "L’émulateur a consommé la touche."
+      - "Readline a reçu la touche et ignoré sa liaison."
+      - "Le shell attend la fin d’une commande multiligne."
+    answer:
+      primary: "L’émulateur a consommé la touche."
+    explanation: |-
+      L’action d’onglet a été traitée par l’émulateur. L’éditeur
+      shell n’a reçu aucun octet pour cet appui. Vérifie la
+      liaison côté terminal pour rendre la touche au shell.
+  - id: "tty-flow-control-resume-output"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Après Ctrl+S, l’affichage de l’invite paraît bloqué.
+      Un relevé de stty indique ixon, stop = ^S et start = ^Q.
+      La saisie était encore en cours. Que révèle ce relevé ?
+    choices:
+      - "Bash a quitté le mode d’édition."
+      - "La commande attend un guillemet fermant."
+      - "Le contrôle de flux suspend la sortie."
+    answer:
+      primary: "Le contrôle de flux suspend la sortie."
+    explanation: |-
+      Avec ixon actif, le pilote suspend la sortie sur stop
+      et la reprend sur start. Dans ce scénario, start est
+      Ctrl+Q. Le réglage peut être différent ailleurs.
+  - id: "ctrl-u-zle-readline-scope"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Sur une ligne « echo ab|cd », | marque le curseur. En
+      mode Emacs standard, tu presses Ctrl+U dans Bash puis
+      refais l’essai dans Zsh. Que reste-t-il dans chaque cas ?
+    choices:
+      - "Readline vide la ligne. ZLE laisse cd."
+      - "Les deux éditeurs laissent cd."
+      - "Readline laisse cd. ZLE vide la ligne."
+    answer:
+      primary: "Readline laisse cd. ZLE vide la ligne."
+    explanation: |-
+      Readline coupe jusqu’au début de la ligne et laisse cd.
+      ZLE coupe la ligne entière, y compris le texte après
+      le curseur.
+  - id: "zle-wordchars-path-boundary"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Le curseur est après « cd src/api ». Tu recules d’un
+      mot en Bash avec Readline Emacs standard, puis en Zsh
+      en mode ZLE Emacs et / inclus dans WORDCHARS.
+      Où arrive le curseur dans chaque cas ?
+    choices:
+      - "Readline revient avant src. ZLE revient avant api."
+      - "Les deux reviennent avant api."
+      - "Readline revient avant api. ZLE revient avant src."
+    answer:
+      primary: "Readline revient avant api. ZLE revient avant src."
+    explanation: |-
+      Readline sépare les mots sur la barre oblique. Avec /
+      dans WORDCHARS, ZLE traite src/api comme un mot dans
+      cet exemple.
+  - id: "zle-multiline-editing-boundary"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans ZLE Emacs standard, une commande en cours de saisie
+      contient deux lignes séparées par un vrai saut de ligne.
+      Le curseur est au milieu de la seconde. Où le premier
+      appui sur Ctrl+A place-t-il le curseur ?
+    choices:
+      - "Au début de toute la commande."
+      - "Au début de la deuxième ligne logique."
+      - "Au début de la commande précédente."
+    answer:
+      primary: "Au début de la deuxième ligne logique."
+    explanation: |-
+      Depuis le milieu de la seconde ligne, Ctrl+A va au début
+      de cette ligne logique. Un retour visuel dû à la largeur
+      du terminal ne crée pas de ligne logique.

@@ -47,3 +47,51 @@ func TestStartTrainingUsesV2FoundationsAndKeepsDirectCapture(t *testing.T) {
 	}
 	assertQuitCommand(t, cmd)
 }
+
+func TestWave3ChapterBrowserAndShortcutScopes(t *testing.T) {
+	chapters, err := chapter.LoadFS(data.Chapters(), "*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	const id = "01-raccourcis-terminal"
+	for _, tc := range []struct {
+		name, action string
+		level        chapter.Difficulty
+		wantKeys     int
+		wantText     int
+	}{
+		{"mixed through chapter browser", homeActionBrowse, chapter.DifficultyIntermediate, 6, 5},
+		{"capture only through shortcuts", homeActionShortcuts, chapter.DifficultyIntermediate, 6, 0},
+		{"advanced uses text screen", homeActionBrowse, chapter.DifficultyAdvanced, 0, 8},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "progress.json")
+			m := newModel(Options{Chapters: chapters, ProgressPath: path,
+				LoadPreferences: func() ([]string, chapter.Difficulty, error) { return nil, tc.level, nil }})
+			m.home.Select(homeActionIndex(tc.action))
+			if tc.action == homeActionBrowse {
+				m = press(t, m, tea.KeyEnter)
+				m = press(t, m, tea.KeyDown)
+				m = press(t, m, tea.KeyEnter)
+				assertScreen(t, m, screenChapterDetail)
+			}
+			next, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+			m = next.(model)
+			if tc.wantKeys == 0 {
+				assertScreen(t, m, screenTraining)
+				if m.session.ID != id || len(m.session.Items) != tc.wantText || m.session.HasKeyExercises() || m.result.CaptureChapter.ID != "" {
+					t.Fatalf("unexpected text session: %#v", m.session)
+				}
+				return
+			}
+			assertQuitCommand(t, cmd)
+			capture := m.result.CaptureChapter
+			f := chapter.SessionFilter{Difficulty: tc.level}
+			if capture.ID != id || len(capture.Items) != tc.wantKeys+tc.wantText ||
+				len(f.EligibleItems(capture, chapter.KeyExercises)) != tc.wantKeys ||
+				len(f.EligibleItems(capture, chapter.TextExercises)) != tc.wantText {
+				t.Fatalf("unexpected capture selection: %#v", capture)
+			}
+		})
+	}
+}

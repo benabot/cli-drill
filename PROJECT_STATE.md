@@ -1,7 +1,8 @@
 # État du projet — CLI-Drill
 
-**Au 10 novembre 2026, les lots 1 et 2 et la vague 1 de P2.5 sont publiés sur
-`dev`. La vague 2 est implémentée et testée localement. P2.5 reste en cours.**
+**Au 11 novembre 2026, les lots 1 et 2 et les vagues 1 et 2 de P2.5 sont
+publiés sur `dev`. La vague 3 a été révisée et testée localement. Sa validation
+pédagogique reste à faire.**
 P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
@@ -28,13 +29,13 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Sur la branche locale `content/p25-wave2-flows-processes`, la
-  [vague 2 de P2.5](docs/CORPUS_P25_WAVE2.md) porte le corpus à 169 exercices
-  dans 12 chapitres : 67 Beginner, 59 Intermediate et 43 Advanced. Les
-  chapitres `00`, `11`, `12` et `13` ont chacun 10 exercices par niveau.
-- La base publiée sur `dev` à `f97718a` comprend la
-  [vague 1](docs/CORPUS_P25_WAVE1.md) et compte 121 exercices : 51 Beginner,
-  46 Intermediate et 24 Advanced. Le corpus comptait 75 exercices à `4320650`.
+- Sur `content/p25-wave3-line-editing`, le corpus local compte 192 exercices
+  dans 12 chapitres, avec 71 Beginner, 70 Intermediate et 51 Advanced.
+  `01` compte 31 exercices répartis en 12 Beginner, 11 Intermediate et
+  8 Advanced. [Rapport de la vague 3](docs/CORPUS_P25_WAVE3.md)
+- La base publiée sur `dev` à `fd37fe4` comprend la vague 2 et compte 169
+  exercices. La vague 1 en comptait 121 à `f97718a` et le lot 2 en comptait
+  75 à `4320650`. [Rapport de la vague 2](docs/CORPUS_P25_WAVE2.md)
   Les rapports des [lots 1](docs/CORPUS_P25_LOT1.md) et
   [2](docs/CORPUS_P25_LOT2.md) recensent les ajouts et validations.
   Les dix chapitres du corpus de référence P2.1 restent des fixtures de test.
@@ -663,10 +664,10 @@ fonctionnels et la présentation le 10 novembre 2026. Le lot est intégré et
 publié sur `dev` à `4320650`.
 [Rapport du lot](docs/CORPUS_P25_LOT2.md)
 
-La [stratégie d'enrichissement](docs/CURRICULUM.md) porte la cible à au moins
-10 exercices de chacun des trois niveaux par chapitre, soit 360 au minimum
-pour les 12 chapitres actuels. Après les deux premiers lots, il manquait au
-moins 285 exercices.
+Le premier référentiel prévoyait 360 exercices pour douze chapitres. Le
+cadrage du 11 novembre 2026 conserve ce repère historique et fait dépendre
+le volume et les niveaux de la couverture des compétences.
+[Référentiel](docs/CURRICULUM.md)
 
 ### P2.5 — Repères, fichiers et droits, vague 1 publiée
 
@@ -678,17 +679,32 @@ exercices historiques et leurs clés sont conservés. Le
 références, les tests et les essais isolés. La vague 1 est publiée sur `dev`
 à `f97718a`.
 
-### P2.5 — Flux, processus et environnement, vague 2 implémentée et testée
+### P2.5 — Flux, processus et environnement, vague 2 publiée
 
 Depuis `f97718a`, la branche locale `content/p25-wave2-flows-processes` ajoute
 24 exercices dans `11-flux-shell` (Learn guidé, Review mélangé) et 24 dans
 `13-processus-environnement` (mélangé), sans module tiers. Les 121 exercices
 de la base publiée restent identiques. Le
 [rapport de vague](docs/CORPUS_P25_WAVE2.md) relie les 48 ajouts au référentiel
-et détaille les tests. Quatre vagues restent à traiter.
+et détaille les tests. La vague 2 est publiée sur `dev` à `fd37fe4`.
 
-Les modifications de la vague 2 sont locales et non indexées. La recette
-humaine d’ensemble reste prévue dans Ghostty en P2.6.
+### P2.5 — Édition de ligne dans Bash et Zsh, vague 3 révisée
+
+Depuis `fd37fe4`, la branche locale `content/p25-wave3-line-editing` ajoute
+23 exercices à `01-raccourcis-terminal`. Les gestes communs suivent la
+référence Bash/Readline. Les différences utiles sont précisées pour Zsh/ZLE.
+Les huit exercices historiques gardent leur identifiant et leur sens.
+
+Apprendre suit l'ordre éditorial dans le niveau choisi et Réviser mélange
+les exercices éligibles. En Intermediate, le navigateur propose une séance
+mixte avec six captures et cinq QCM. En Advanced, le navigateur propose
+huit diagnostics textuels. La recette physique sur des terminaux
+représentatifs relève de P2.6.
+[Rapport et limites de capture](docs/CORPUS_P25_WAVE3.md)
+
+La programmation shell et Bash et la recherche et le traitement de texte
+Unix sont les prochaines priorités documentées. Leur contenu YAML reste à
+développer. [Périmètres des deux parcours](docs/CURRICULUM.md#parcours-fondamentaux-prioritaires)
 
 ## Validation et limites de preuve
 

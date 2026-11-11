@@ -41,6 +41,43 @@ func TestDefaultTrainingUsesUnixFoundationsWithoutExecutingAnswers(t *testing.T)
 	}
 }
 
+func TestWave3MixedTrainingRecordsKeysAndText(t *testing.T) {
+	isolateChapterHome(t)
+	allowSimulatedCapture(t)
+	path := filepath.Join(t.TempDir(), "progress.json")
+	const chapterID = "01-raccourcis-terminal"
+	writeAppTestFileContent(t, path, `{"version":1,"completed_exercises":["retired/item","01-raccourcis-terminal/ctrl-a"],"chapter_scores":{"retired":{"attempts":7,"correct":3},"01-raccourcis-terminal":{"attempts":1,"correct":1}},"streak":4}`)
+	chapters, err := chapter.LoadFS(data.Chapters(), "*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ch, ok := findChapter(chapters, chapterID)
+	if !ok {
+		t.Fatal("missing line editing chapter")
+	}
+	items := ch.Items
+	ch.Items = nil
+	for _, id := range []string{"ctrl-d-delete-under-cursor", "readline-backward-word-edit", "ctrl-underscore-undo-edit"} {
+		index := slices.IndexFunc(items, func(item chapter.Item) bool { return item.ID == id })
+		if index < 0 {
+			t.Fatalf("missing exercise %s", id)
+		}
+		ch.Items = append(ch.Items, items[index])
+	}
+	// This fixture feeds bytes to the mixed loop. The PTY smoke test exercises raw mode.
+	var out bytes.Buffer
+	input := strings.NewReader("\x04\ngit switch |sauvegarde\n\x1f\n")
+	err = runTraining(Options{In: input, Out: &out, ProgressPath: path}, ch)
+	if err != nil || strings.Count(out.String(), "Correct.") != 3 {
+		t.Fatalf("mixed session: %v\n%s", err, out.String())
+	}
+	state := assertRecordingScore(t, path, chapterID, 4, 4, chapterID+"/ctrl-a",
+		chapterID+"/ctrl-d-delete-under-cursor", chapterID+"/readline-backward-word-edit", chapterID+"/ctrl-underscore-undo-edit")
+	if state.Version != 1 {
+		t.Fatalf("unexpected progress version: %d", state.Version)
+	}
+}
+
 func TestUnixStreamsRecordWithoutRunningRedirections(t *testing.T) {
 	isolateChapterHome(t)
 	dir := useTemporaryTrainingDirectory(t)

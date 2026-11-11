@@ -246,17 +246,26 @@ Il est intégré et publié sur `dev` à `4320650`.
 - [x] Vague 1 « Repères, fichiers et droits » publiée sur `dev` à
   `f97718a` : 46 ajouts dans `00` et `12`, 121 au total.
   [Rapport de vague](docs/CORPUS_P25_WAVE1.md).
-- [x] Vague 2 « Flux, processus et environnement » implémentée et testée
-  localement : 48 ajouts dans `11` et `13` pour atteindre dix exercices
-  par niveau et par chapitre, 169 au total.
+- [x] Vague 2 « Flux, processus et environnement » publiée sur `dev` à
+  `fd37fe4`. Les 48 ajouts dans `11` et `13` portent le corpus à 169 exercices.
   [Rapport de vague](docs/CORPUS_P25_WAVE2.md).
-  La recette humaine d'ensemble reste en P2.6.
-- [ ] Atteindre au moins 10 Beginner, 10 Intermediate et 10 Advanced par
-  chapitre, soit au moins 360 exercices pour les 12 chapitres actuels. Il
-  reste quatre vagues et au moins 191 exercices.
-- [ ] Suivre la [matrice pédagogique et le découpage en lots](docs/CURRICULUM.md) :
-  couvrir les compétences manquantes, résoudre les recouvrements et préciser les
-  extensions de périmètre avant d'écrire les exercices concernés.
+- [x] Vague 3 révisée et testée localement. Les 23 ajouts portent `01` à
+  12 Beginner, 11 Intermediate et 8 Advanced. Le corpus compte 192 exercices.
+  [Rapport de vague](docs/CORPUS_P25_WAVE3.md)
+- [ ] Valider la révision pédagogique de la vague 3.
+- [ ] Développer le parcours de programmation shell et Bash, avec les
+  fondamentaux POSIX suivis de Bash approfondi.
+- [ ] Développer le parcours de recherche et traitement de texte Unix
+  accessible sans modules tiers.
+- [ ] Réévaluer les approfondissements de `00`, `11`, `12` et `13`, puis
+  reprendre les lots CLI spécialisés selon leur utilité.
+
+Le cadrage du 11 novembre 2026 donne la priorité à la couverture des
+compétences. Les repères de planification restent 30 exercices par chapitre
+général et 360 pour le corpus historique. La profondeur des fondamentaux,
+la taille des périmètres spécialisés et la répartition des niveaux suivent
+les situations à enseigner. Le référentiel conserve la planification initiale
+des lots. [Priorités P2.5](docs/CURRICULUM.md#enrichissement-par-lots)
 
 Acceptation par lot : nouveaux identifiants pour nouveaux apprentissages,
 métadonnées complètes, variantes explicites, explications et contexte vérifiés,
@@ -277,10 +286,11 @@ Dépendance : sous-phases fonctionnelles précédentes validées.
   livré, après validation fonctionnelle ; distinguer la cible indicative atteinte
   des lots encore prévus et conserver les limites terminal documentées.
 
-Acceptation : recette macOS des parcours touchés et tests ciblés de compatibilité
-sur fixtures synthétiques réussis ; exemples et aides cohérents avec le binaire,
-liens et diff vérifiés. Les limites non testées sont nommées. Cette recette
-porte sur P2 et ses régressions possibles, pas une nouvelle revue exhaustive P1.
+La recette combine les fixtures reproductibles et une matrice représentative
+des systèmes cibles. Consigner le système, le shell, son mode d'édition, le
+terminal et la disposition de clavier pour les essais concernés. Distinguer
+comportement du shell, octets transmis et lecture de CLI-Drill. Vérifier aussi
+les exemples et aides du binaire, les liens et le diff.
 
 ## P3 — Internationalisation FR/EN
 
@@ -360,8 +370,9 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.5, lot 1 — `content/v2-expansion-unix-01` (intégré et publié) | Trois chapitres Unix/Shell et révision éditoriale du corpus existant. | T01 à T08 validés dans Ghostty. Publié sur `dev` à `b809151`. [Détails](docs/CORPUS_P25_LOT1.md). |
 | P2.5, lot 2 — `content/v2-expansion-cli-02` (intégré et publié) | Outils CLI modernes, 18 exercices dans six chapitres. | Recette fonctionnelle et UX réussie sous Ghostty le 10 novembre 2026. Publié sur `dev` à `4320650`. [Détails](docs/CORPUS_P25_LOT2.md). |
 | P2.5, vague 1 — `content/p25-wave1-paths-files` (publiée sur `dev`) | 46 exercices sur les repères, les fichiers et les droits ; 30 dans chacun des chapitres `00` et `12`. | Publiée à `f97718a` ; [contrôles et limites](docs/CORPUS_P25_WAVE1.md). |
-| P2.5, vague 2 — `content/p25-wave2-flows-processes` (implémentée et testée localement) | 48 exercices sur les flux, processus et environnement ; 30 dans chacun des chapitres `11` et `13`. | Base `f97718a` ; [contrôles et limites](docs/CORPUS_P25_WAVE2.md). |
-| P2.5, vagues 3 à 6 — branches à définir | Au moins 30 exercices par chapitre, dont 10 par niveau. | [Matrice et lots](docs/CURRICULUM.md) ; validation par lot. |
+| P2.5, vague 2 — `content/p25-wave2-flows-processes` (publiée sur `dev`) | 48 exercices sur les flux, processus et environnement. | Publiée à `fd37fe4`. [Rapport](docs/CORPUS_P25_WAVE2.md). |
+| P2.5, vague 3 — `content/p25-wave3-line-editing` (révision locale à valider) | 31 exercices d’édition de ligne dans Bash et Zsh. Apprentissage guidé et révision mélangée. | Base `fd37fe4`. [Contrôles et limites](docs/CORPUS_P25_WAVE3.md). |
+| P2.5, suites — branches à définir | Programmation shell et Bash, recherche et texte Unix, approfondissements du socle, puis outils CLI spécialisés. | [Priorités et planification initiale](docs/CURRICULUM.md#enrichissement-par-lots). |
 | P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
 | P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
 

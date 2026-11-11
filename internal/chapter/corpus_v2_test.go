@@ -69,7 +69,7 @@ func TestV2Corpus(t *testing.T) {
 			total++
 		}
 	}
-	if total != 169 || !reflect.DeepEqual(families, map[Family]int{FamilyUnixShell: 123, FamilyKeyboardShortcuts: 8, FamilyModernCLIMacOS: 38}) {
+	if total != 192 || !reflect.DeepEqual(families, map[Family]int{FamilyUnixShell: 123, FamilyKeyboardShortcuts: 31, FamilyModernCLIMacOS: 38}) {
 		t.Fatalf("unexpected corpus: %d / %v", total, families)
 	}
 }
@@ -141,7 +141,7 @@ func TestV2HistoricalKeyPolicy(t *testing.T) {
 	}
 	sort.Strings(preserved)
 	sort.Strings(want)
-	if !reflect.DeepEqual(preserved, want) || fresh != 149 || len(old)-len(preserved) != 48 {
+	if !reflect.DeepEqual(preserved, want) || fresh != 172 || len(old)-len(preserved) != 48 {
 		t.Fatalf("key policy changed: kept=%v fresh=%d retired=%d", preserved, fresh, len(old)-len(preserved))
 	}
 }
