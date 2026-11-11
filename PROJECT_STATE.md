@@ -1,8 +1,8 @@
 # État du projet — CLI-Drill
 
-**La base publiée `dev` à `0b8bddb` contient 446 exercices dans 13 chapitres
-et les lots 1 et 2 de P2.6. Le lot 3 est préparé localement sur
-`feat/p26-short-sessions`. La recette d'ensemble reste ouverte.**
+**La base publiée `dev` à `1f53b29` contient 446 exercices dans 13 chapitres
+et les lots 1 à 3 de P2.6. La recette technique du lot 4 est documentée
+localement. La validation physique de P2.6 reste ouverte.**
 P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
@@ -770,18 +770,9 @@ de tentative au défilement ou au redimensionnement. Les essais couvrent
 aussi un démarrage à 40×12, la recherche, le QCM, le mode sans couleur,
 `TERM=dumb`, les flux redirigés et les régressions de capture du lot 1.
 
-Pour la recette humaine, ouvrir le chapitre 14 en avancé dans la TUI, choisir
-le parcours intégral avec `a` et soumettre une réponse incorrecte à
-l'exercice 12 (bloc `BEGIN` / `END`).
-Relire la consigne, la fin de la solution `awk` et l'explication à 80×24,
-60×20 et 40×12. Refaire le parcours avec un QCM, puis tester la recherche
-et le retour par Échap. Comparer `chapters` dans le terminal et dans un pipe.
-Utiliser un répertoire `XDG_DATA_HOME` temporaire pour tester les modules et
-les compteurs.
-
 ### P2.6 — Lot 3, séances courtes et progression
 
-La branche locale `feat/p26-short-sessions` part de `0b8bddb`. La CLI,
+Le lot 3 est publié dans `dev` à `1f53b29`. La CLI,
 la TUI et le parcours clavier utilisent le même ordre préparé, les mêmes
 lots de six et le même décompte. `c` poursuit la visite et `r` reprend les
 seules erreurs de la dernière passe. Le lot initial garde son score.
@@ -803,20 +794,14 @@ de restauration du terminal du lot 1 et de lisibilité aux trois dimensions
 du lot 2 ont réussi. La durée et la transmission par un clavier physique
 restent à vérifier.
 
-Recette humaine à faire avec `XDG_DATA_HOME` et `--progress` temporaires :
+### P2.6 — Lot 4, recette finale
 
-1. Lancer `cli-drill train` et faire une erreur sur les six premiers exercices.
-   Choisir `r`, corriger cette seule erreur, puis choisir `c`. Vérifier les
-   deux bilans distincts et l'absence de répétition dans le lot suivant.
-2. Interrompre puis relancer. En Apprendre, vérifier que les acquis sont
-   écartés. Une fois le filtre acquis, passer en Réviser. Comparer avec
-   `cli-drill train 00-premiers-pas --all` et avec `a` dans la fiche TUI.
-3. Ouvrir `01-raccourcis-terminal` en intermédiaire depuis le navigateur.
-   Après les six captures, continuer vers les cinq QCM. Vérifier la sortie
-   par Échap et le retour à l'accueil. Refaire sur terminal étroit.
-4. Consulter `cli-drill prefs` sans fichier, désactiver Git explicitement
-   avec `cli-drill prefs --disable git`, puis relancer le chapitre 10.
-   Vérifier le diagnostic et la conservation du choix.
+Les tests Go et les scénarios principaux sous pseudo-terminal ont réussi
+sur macOS arm64. Un défaut antérieur subsiste : une flèche suivie d'Entrée
+peut interrompre la CLI textuelle. Le [rapport de recette](docs/P26_FINAL_ACCEPTANCE.md)
+regroupe les preuves, la reproduction et la checklist physique. Les
+chronométrages, les essais sur clavier physique et la validation du
+mainteneur restent à faire. Linux et BSD ont été compilés en croisé.
 
 ## Validation et limites de preuve
 

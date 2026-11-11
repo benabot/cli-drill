@@ -4,14 +4,15 @@
 migration fonctionnelle partielle.**
 Ce document décrit la cible V2 et ses critères, pas un état de livraison complet.
 L'[état du projet](../PROJECT_STATE.md) distingue les travaux intégrés et ceux
-qui attendent leur validation ; le [README](../README.md) conserve la présentation
-historique du MVP antérieur, avec un avertissement de périmètre.
+qui attendent leur validation. Le [README](../README.md) présente le logiciel
+disponible sur `dev`.
 La [décision V2](DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retrait-des-dotfiles)
 explique le changement de direction ; le [backlog](../TODO.md) organise sa réalisation.
 La [décision P2](DECISIONS.md#2026-11-08--p20--evolution-pedagogique)
 remplace les exclusions de l'aléatoire et des préférences pédagogiques minimales.
-P2.0 a cadré la feuille de route. P2.4 est publiée à `f096eec` et P2.5 est en
-cours. Le choix de langue français/anglais est prévu en [P3](../TODO.md#p3--internationalisation-fren)
+P2.0 a cadré la feuille de route. La base de recette P2.6 intègre le corpus
+de P2.5 et les trois lots fonctionnels de P2.6.
+Le choix de langue français/anglais est prévu en [P3](../TODO.md#p3--internationalisation-fren)
 et relève d'une phase distincte de P2.
 
 ## 1. Vision et public
@@ -469,6 +470,10 @@ des validations acquises par la présente modification documentaire.
     profondeur du socle et les périmètres spécialisés sous le minimum
     indicatif. Contrôler l'autonomie des exercices et les formats de
     réponse, y compris la distinction entre diagnostic textuel et capture.
+
+Le [rapport de recette P2.6](P26_FINAL_ACCEPTANCE.md) consigne les preuves
+par environnement et la checklist physique. La durée cible de 5 à 10 minutes
+reste à vérifier par chronométrage en usage réel.
 
 Voir l'[architecture cible](ARCHITECTURE.md) pour les frontières techniques et
 le [backlog](../TODO.md) pour les branches atomiques proposées.

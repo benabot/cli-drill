@@ -294,22 +294,15 @@ Dépendance : sous-phases fonctionnelles précédentes validées.
 - Lot 2 (lisibilité et navigation) publié dans `dev` à `0b8bddb`.
   Les commandes restent visibles pendant la lecture paginée, et la CLI
   propose un parcours textuel si la TUI est indisponible.
-- [ ] Recette humaine du lot 2 à 80×24, 60×20 et 40×12. Vérifier les retours
-  de recherche, les QCM, les diagnostics de modules et le contenu long.
-- Lot 3 (séances courtes et progression) préparé sur `feat/p26-short-sessions`.
+- Lot 3 (séances courtes et progression) publié dans `dev` à `1f53b29`.
   [Contrat des lots et des reprises](docs/SPEC.md#répondre-comprendre-et-poursuivre).
-- [ ] Recette humaine du lot 3 sur les parcours textuel, mixte et intégral.
-- [ ] Vérifier les parcours avec/sans modules, niveaux, guidage/révision,
-  interruptions et sauvegardes, avec et sans couleur ; conserver le retour TUI.
-- [ ] Actualiser README, état du projet et aides sur le comportement réellement
-  livré, après validation fonctionnelle ; distinguer la cible indicative atteinte
-  des lots encore prévus et conserver les limites terminal documentées.
-
-La recette combine les fixtures reproductibles et une matrice représentative
-des systèmes cibles. Consigner le système, le shell, son mode d'édition, le
-terminal et la disposition de clavier pour les essais concernés. Distinguer
-comportement du shell, octets transmis et lecture de CLI-Drill. Vérifier aussi
-les exemples et aides du binaire, les liens et le diff.
+- [x] Lot 4 : contrôles automatisés et essais sous pseudo-terminal sur macOS,
+  compilation croisée Linux/BSD et documentation. Une sortie involontaire
+  en CLI textuelle a été reproduite. [Rapport et preuves](docs/P26_FINAL_ACCEPTANCE.md).
+- [ ] Exécuter la [checklist physique](docs/P26_FINAL_ACCEPTANCE.md#checklist-physique-sur-mac)
+  et chronométrer Apprendre et Réviser. Consigner les plateformes sans recette native.
+- [ ] Décider du traitement du défaut P05 et valider explicitement la clôture
+  selon les [critères du rapport](docs/P26_FINAL_ACCEPTANCE.md#critères-de-clôture).
 
 ## P3 — Internationalisation FR/EN
 
@@ -395,7 +388,7 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.5, sécurité des fichiers et processus — `content/p25-unix-safety-processes` (intégré à `dev`) | 7 exercices en `12` et 6 en `13`. | Intégré à `c9ad59c`. [Contrôles et limites](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md). |
 | P2.5, navigation et flux — `content/p25-unix-basics-flows` (intégré à `dev`) | 3 exercices en `00` et 6 en `11`. | Intégré à `d8b383a`. [Contrôles et limites](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md). |
 | P2.5, finalisation — `content/p25-unix-git-modern-expansion` (testée localement) | 184 ajouts, dont 14 utiles Unix. | [Contrôles par jalon](docs/CURRICULUM.md#enrichissement-par-lots). |
-| P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
+| P2.6 — `test/p26-final-acceptance` | Recette technique et documentation. | [Rapport](docs/P26_FINAL_ACCEPTANCE.md). Recette physique et validation à faire. |
 | P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
 
 Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
@@ -405,8 +398,8 @@ configurations. La livraison documentaire précédente n'a pas modifié Go.
 P0.1 valide le chargement intégré, P0.2 la surface utilisateur et P0.3 le retrait
 des internes hérités. P1.1, corrections P1.1b comprises, termine la fiabilisation
 du stockage dans son périmètre, sans modifier les entraînements.
-P1 est terminée et validée. La recette P2.6 reste à faire après l'enrichissement
-du corpus en P2.5.
+P1 est terminée et validée. P2.6 attend la recette physique et la validation
+du mainteneur.
 Les compléments différés restent explicitement ouverts.
 
 ## Archive V1 — Réalisations et abandons
