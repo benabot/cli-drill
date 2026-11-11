@@ -31,7 +31,8 @@ func TestChaptersAlignTerminalColumnsAndPreserveRedirectedFields(t *testing.T) {
 		}
 	}
 	redirectedRows := strings.Split(strings.TrimSuffix(redirected.String(), "\n"), "\n")
-	if len(redirectedRows) != 12 || !strings.Contains(redirected.String(), "07-lecture-preview\tLire un fichier texte\t4 exercises\n") ||
+	if len(redirectedRows) != 13 || !strings.Contains(redirected.String(), "07-lecture-preview\tLire un fichier texte\t4 exercises\n") ||
+		!strings.Contains(redirected.String(), "14-recherche-texte-unix\tRecherche et traitement de texte Unix\t48 exercises\n") ||
 		strings.Contains(redirected.String(), "\x1b") {
 		t.Fatalf("redirected listing lost its plain TSV fields:\n%s", redirected.String())
 	}
@@ -52,9 +53,11 @@ func TestChaptersAlignTerminalColumnsAndPreserveRedirectedFields(t *testing.T) {
 		t.Fatalf("missing terminal column headings:\n%s", terminal.String())
 	}
 	titleColumn, countColumn := -1, -1
+	// The full Unix text chapter title brings the aligned table to 82 columns.
+	const maxTableWidth = 82
 	for _, row := range terminalRows {
 		id, rest, ok := strings.Cut(row, "  ")
-		if !ok || id == "" || strings.ContainsAny(row, "\t\x1b") || lipgloss.Width(row) > 80 {
+		if !ok || id == "" || strings.ContainsAny(row, "\t\x1b") || lipgloss.Width(row) > maxTableWidth {
 			t.Fatalf("unreadable terminal row: %q", row)
 		}
 		titleStart := len(row) - len(strings.TrimLeft(rest, " "))

@@ -13,9 +13,9 @@ séances sont filtrées par niveau et par modules.
 Le point de départ est `dev` à `4320650`, après publication du
 [lot 2](CORPUS_P25_LOT2.md). Les vagues [1](CORPUS_P25_WAVE1.md) et
 [2](CORPUS_P25_WAVE2.md) sont publiées sur `dev` à `f97718a` et
-`fd37fe4`. Le bilan inclut aussi la [vague 3](CORPUS_P25_WAVE3.md),
-révisée et testée localement depuis `fd37fe4`. Sa validation pédagogique
-reste à faire.
+`fd37fe4`. La [vague 3](CORPUS_P25_WAVE3.md) est intégrée à `a6af7b4`.
+Le bilan inclut le [chapitre 14](CORPUS_P25_UNIX_TEXT.md), ajouté et testé
+localement sur `content/p25-unix-text` depuis `b3f2556`.
 Le relevé porte sur les YAML intégrés de
 [`data/chapters`](../data/chapters/), sans compter les fixtures. Les identifiants
 03 et 04 ont été retirés. Les garder réservés et conserver les identifiants
@@ -43,7 +43,8 @@ local. Les approfondissements seront chiffrés par compétence.
 | `11-flux-shell` | 10 | 10 | 10 | 30 | Combiner des filtres, interpréter une sortie vide ou diagnostiquer l'échec d'un pipeline. |
 | `12-fichiers-permissions` | 10 | 10 | 10 | 30 | Inspecter des métadonnées, comprendre un accès refusé ou repérer un lien cassé. |
 | `13-processus-environnement` | 10 | 10 | 10 | 30 | Retrouver un processus, choisir un signal ou diagnostiquer `PATH`. |
-| **Total** | **71** | **70** | **51** | **192** | |
+| `14-recherche-texte-unix` | 14 | 22 | 12 | 48 | Recette du contenu et de la durée par niveau. |
+| **Total** | **85** | **92** | **63** | **240** | |
 
 Les périmètres de bat, Micro et Glow peuvent justifier moins de 30 exercices.
 L'inspection de texte, l'édition courante et l'aperçu ont chacun leurs propres
@@ -319,23 +320,30 @@ L'écriture de scripts et leur débogage sont hors périmètre.
 
 ### Recherche et traitement de texte Unix
 
-Repérer des lignes dans un journal avec `grep`, sélectionner des fichiers
-selon leur nom ou leur type avec `find`, remplacer un motif dans un flux
-avec `sed` et extraire des colonnes ou calculer un total simple avec `awk`.
-Introduire les expressions régulières, les séparateurs et les noms atypiques
-à partir de ces tâches. Privilégier les usages POSIX, signaler les options GNU
-ou BSD lorsque leur différence importe et garder ces exercices accessibles
-sans module tiers. [Références POSIX des utilitaires](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/contents.html)
+Le chapitre dédié `14-recherche-texte-unix` est implémenté localement.
+Les 48 exercices autonomes suivent un ordre guidé dans chaque niveau et
+sont mélangés en révision. Le socle POSIX est accessible sans module tiers.
+Les exercices précisent le contexte GNU ou macOS lorsqu'il détermine la
+syntaxe ou le résultat.
 
-`11` couvre les flux et les statuts des pipelines. `06` conserve ses usages de
-ripgrep, fd et fzf. Déterminer avant rédaction la place des nouveaux exercices
-Unix pour éviter les doublons. La création d'un chapitre requiert une validation
-explicite de son périmètre.
+| Niveau | Compétences du chapitre 14 |
+| --- | --- |
+| Beginner | Rechercher et compter des lignes, choisir une racine et filtrer les entrées, modifier ou afficher des lignes, lire les champs d'un relevé. |
+| Intermediate | Écrire des motifs, lire le contexte, combiner des critères de parcours, sélectionner et réécrire des blocs, filtrer et regrouper des données. |
+| Advanced | Interpréter statuts, dates et liens, transmettre des chemins atypiques, diagnostiquer une variante de plateforme et composer un relevé ciblé. |
+
+`00` pose les bases des chemins, des motifs et des guillemets. `06` garde
+ripgrep, fd et fzf. `11` garde les redirections, les statuts de pipeline et les
+filtres génériques. `12` enseigne les métadonnées, les permissions et les
+opérations sur les fichiers. `14` mobilise ces bases pour sélectionner des
+chemins ou chercher et transformer des données. La séance Intermediate
+comporte 22 exercices. Sa durée reste à mesurer en recette.
+[Matrice détaillée et références](CORPUS_P25_UNIX_TEXT.md)
 
 ## Enrichissement par lots
 
-Après validation de la révision de `01`, prioriser les lacunes du socle Unix,
-dont les usages quotidiens de recherche et de traitement de texte. Retenir les
+Poursuivre la validation de `01` et la recette du chapitre de recherche et
+de traitement de texte Unix. Pour la suite du socle, retenir les
 approfondissements de `00`, `11`, `12` et `13` qui apportent une compétence
 distincte et directement utile au terminal. Poursuivre les vagues prévues
 pour Git et les outils CLI modernes selon leur utilité et les recouvrements

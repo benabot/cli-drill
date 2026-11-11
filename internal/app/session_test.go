@@ -38,6 +38,8 @@ func TestCLISessionDifficultyAndModules(t *testing.T) {
 		{"eligible capture requires terminal", []string{"train", "01-raccourcis-terminal", "--difficulty", "beginner"}, "requires a terminal", true},
 		{"guided diagnostics without terminal", []string{"train", "01-raccourcis-terminal", "--difficulty", "advanced", "--mode", "learn"}, "Exercice 1/8\n\nDans Bash avec Readline Emacs standard, la recherche", false},
 		{"review diagnostics without terminal", []string{"train", "01-raccourcis-terminal", "--difficulty", "advanced", "--mode", "review"}, "Exercice 1/8", false},
+		{"Unix text guided", []string{"train", "14-recherche-texte-unix", "--difficulty", "beginner", "--mode", "learn"}, "Exercice 1/14\n\nDans api.log", false},
+		{"Unix text review", []string{"train", "14-recherche-texte-unix", "--mode", "review"}, "Exercice 1/22", false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			output, err := runSessionCLI(path, "", tc.args...)
@@ -58,7 +60,7 @@ func TestCLIStatsProjectsActiveAcquiredWithoutWritingHistory(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "progress.json")
 	historical := writeAppTestFileContent(t, path, `{"version":1,"completed_exercises":["02-navigation-shell/fd-fzf-dir","02-navigation-shell/retired","00-premiers-pas/pwd"],"chapter_scores":{"02-navigation-shell":{"attempts":7,"correct":3},"retired":{"attempts":2,"correct":1}},"last_session":null,"streak":4}`)
 	output, err := runSessionCLI(path, "", "stats")
-	for _, want := range []string{"Active acquired (intermediate, enabled CLI modules): 1/55", "Historical totals (all sessions)", "Completed exercises: 3", "Chapters with attempts: 2", "Streak: 4"} {
+	for _, want := range []string{"Active acquired (intermediate, enabled CLI modules): 1/77", "Historical totals (all sessions)", "Completed exercises: 3", "Chapters with attempts: 2", "Streak: 4"} {
 		if err != nil || !strings.Contains(output, want) {
 			t.Fatalf("stats = %q (%v), want %q", output, err, want)
 		}

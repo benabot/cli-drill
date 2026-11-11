@@ -1,0 +1,862 @@
+id: "14-recherche-texte-unix"
+title: "Recherche et traitement de texte Unix"
+description: "Cherche dans les fichiers et les arborescences, transforme des lignes et prépare des relevés avec grep, find, sed et awk."
+family: "unix-shell"
+learning_order: "guided"
+items:
+  - id: "grep-single-log"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans api.log, affiche avec grep les lignes contenant timeout, en
+      respectant la casse.
+    answer:
+      primary: "grep timeout api.log"
+      accepted:
+        - "grep 'timeout' api.log"
+        - "grep -F timeout api.log"
+    explanation: |-
+      grep affiche chaque ligne contenant le motif. Sans option
+      d’insensibilité à la casse, Timeout et timeout sont
+      distincts.
+  - id: "grep-two-deploy-logs"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Cherche rollback dans lundi.log et mardi.log avec un seul appel à
+      grep, dans cet ordre. La sortie doit indiquer la provenance de chaque
+      ligne retenue.
+    answer:
+      primary: "grep rollback lundi.log mardi.log"
+      accepted:
+        - "grep 'rollback' lundi.log mardi.log"
+        - "grep -F rollback lundi.log mardi.log"
+    explanation: |-
+      Avec plusieurs fichiers en argument, grep préfixe les
+      lignes par leur nom de fichier. Le contenu de chaque
+      fichier est examiné séparément.
+  - id: "grep-ignore-case"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans deploiement.log, affiche avec grep les lignes contenant failed,
+      qu’il soit écrit en majuscules ou en minuscules.
+    answer:
+      primary: "grep -i failed deploiement.log"
+      accepted:
+        - "grep -i 'failed' deploiement.log"
+        - "grep -Fi failed deploiement.log"
+    explanation: |-
+      L’option -i neutralise la casse pour la comparaison. La
+      ligne affichée garde sa graphie d’origine.
+  - id: "grep-invert-healthchecks"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans requetes.log, garde avec grep les lignes qui ne contiennent pas
+      /health, afin de lire les autres requêtes.
+    answer:
+      primary: "grep -v /health requetes.log"
+      accepted:
+        - "grep -v '/health' requetes.log"
+        - "grep -Fv /health requetes.log"
+    explanation: |-
+      L’option -v retient les lignes qui ne correspondent pas au
+      motif. La recherche de /health porte sur la ligne entière.
+  - id: "grep-count-per-file"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Avec grep seul, affiche le nombre de lignes contenant RETRY dans
+      avant.log puis dans apres.log, avec le nom de chaque fichier. Une
+      ligne qui contient deux fois RETRY doit compter pour une.
+    answer:
+      primary: "grep -c RETRY avant.log apres.log"
+      accepted:
+        - "grep -c 'RETRY' avant.log apres.log"
+        - "grep -Fc RETRY avant.log apres.log"
+    explanation: |-
+      L’option -c compte les lignes retenues, même quand une
+      ligne contient plusieurs occurrences. Avec plusieurs
+      fichiers, grep produit un compte pour chacun.
+  - id: "find-root-inventory"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Depuis le parent de modules, affiche avec find le chemin de modules
+      et de toutes les entrées qu’il contient, y compris dans les
+      sous-dossiers. Garde des chemins relatifs.
+    answer:
+      primary: "find modules -print"
+      accepted:
+        - "find modules"
+        - "find 'modules' -print"
+    explanation: |-
+      Le chemin fourni fixe le point de départ. Sans autre
+      filtre, find peut afficher ce chemin puis les chemins des
+      entrées rencontrées, sans changer de dossier.
+  - id: "find-name-config-pattern"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans conf, retrouve avec find toutes les entrées dont le nom se
+      termine par .ini. Le dossier courant contient déjà local.ini. Le
+      motif doit parvenir intact à find.
+    answer:
+      primary: "find conf -name '*.ini'"
+      accepted:
+        - "find conf -name '*.ini' -print"
+        - "find conf -name \"*.ini\""
+    explanation: |-
+      Les guillemets empêchent le shell de développer le motif
+      dans le dossier courant. find compare le motif au dernier
+      composant de chaque chemin.
+  - id: "find-regular-files"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Parcours depot et ses sous-dossiers avec find. Affiche uniquement les
+      fichiers ordinaires. Le dossier contient aussi des sous-dossiers et
+      des liens symboliques.
+    answer:
+      primary: "find depot -type f"
+      accepted:
+        - "find depot -type f -print"
+        - "find \"depot\" -type f"
+    explanation: |-
+      Le type f sélectionne les fichiers ordinaires. Sans option
+      de suivi, find examine un lien lui-même et le distingue
+      d’un fichier ordinaire.
+  - id: "sed-first-change-per-line"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Avec sed, affiche messages.txt en remplaçant seulement le premier
+      TEMP de chaque ligne par PRET. Laisse le fichier intact.
+    answer:
+      primary: "sed 's/TEMP/PRET/' messages.txt"
+      accepted:
+        - "sed \"s/TEMP/PRET/\" messages.txt"
+        - "sed -e 's/TEMP/PRET/' messages.txt"
+    explanation: |-
+      Sans le drapeau g, la substitution remplace la première
+      occurrence de chaque ligne. sed écrit les lignes sur la
+      sortie standard.
+  - id: "sed-show-line-number"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Le diagnostic signale la ligne 17 de deploiement.log. Avec sed,
+      affiche seulement cette ligne.
+    answer:
+      primary: "sed -n '17p' deploiement.log"
+      accepted:
+        - "sed -n \"17p\" deploiement.log"
+        - "sed -n -e '17p' deploiement.log"
+    explanation: |-
+      L’adresse 17 désigne la dix-septième ligne. -n désactive
+      l’affichage automatique et p affiche la ligne sélectionnée.
+  - id: "sed-remove-header"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Avec sed, affiche import.txt sans sa ligne d’en-tête, qui occupe
+      exactement la première ligne. Garde le fichier intact.
+    answer:
+      primary: "sed '1d' import.txt"
+      accepted:
+        - "sed \"1d\" import.txt"
+        - "sed -e '1d' import.txt"
+    explanation: |-
+      L’adresse 1 désigne l’en-tête. La commande d abandonne
+      cette ligne avant l’affichage automatique. Les autres
+      lignes ressortent inchangées.
+  - id: "awk-first-whitespace-field"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans machines.txt, chaque ligne commence par un nom de machine, suivi
+      de plusieurs espaces ou tabulations puis de son état. Affiche
+      uniquement le nom de chaque machine avec awk.
+    answer:
+      primary: "awk '{ print $1 }' machines.txt"
+      accepted:
+        - "awk '{print $1}' machines.txt"
+    explanation: |-
+      Par défaut, awk découpe les champs sur des suites de
+      blancs. $1 désigne le premier champ et $0 désigne la ligne
+      entière.
+  - id: "awk-delimited-reordered-fields"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Avec awk, lis services.txt, dont les lignes suivent le format
+      nom:port:équipe. Affiche l’équipe puis le nom sur chaque ligne,
+      séparés par un espace.
+    answer:
+      primary: "awk -F ':' '{ print $3, $1 }' services.txt"
+      accepted:
+        - "awk -F: '{print $3, $1}' services.txt"
+        - "awk -F: '{ print $3, $1 }' services.txt"
+    explanation: |-
+      L’option -F choisit le séparateur d’entrée. Dans print, la
+      virgule sépare les valeurs en sortie par un espace, par
+      défaut.
+  - id: "awk-last-variable-field"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Dans mesures.txt, les champs sont séparés par des blancs. Chaque
+      ligne a au moins un champ et le dernier porte l’unité, mais sa
+      position varie. Affiche seulement cette unité avec awk.
+    answer:
+      primary: "awk '{ print $NF }' mesures.txt"
+      accepted:
+        - "awk '{print $NF}' mesures.txt"
+    explanation: |-
+      NF donne le nombre de champs de la ligne. $NF accède au
+      champ de ce rang et affiche donc sa valeur.
+  - id: "grep-fixed-release"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec grep, cherche le fragment v1.2 dans versions.log en mode chaîne
+      fixe. Le fichier contient aussi v1x2.
+    answer:
+      primary: "grep -F 'v1.2' versions.log"
+      accepted:
+        - "grep -F v1.2 versions.log"
+        - "grep -F \"v1.2\" versions.log"
+    explanation: |-
+      En mode chaîne fixe, le point désigne un point littéral.
+      Les guillemets protègent du shell et le mode de recherche
+      fixe l’interprétation par grep.
+  - id: "grep-line-number-config"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec grep, affiche le texte et le numéro des lignes contenant
+      keepalive dans serveur.conf pour pouvoir les retrouver dans
+      l’éditeur.
+    answer:
+      primary: "grep -n keepalive serveur.conf"
+      accepted:
+        - "grep -n 'keepalive' serveur.conf"
+        - "grep -Fn keepalive serveur.conf"
+    explanation: |-
+      L’option -n préfixe chaque ligne retenue par son numéro
+      dans le fichier. La numérotation commence à 1.
+  - id: "grep-bre-numbered-tag"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec grep en expressions régulières de base, affiche les lignes de
+      tickets.log qui commencent par T puis un seul chiffre et un
+      deux-points. La locale C est active.
+    answer:
+      primary: "grep '^T[0-9]:' tickets.log"
+      accepted:
+        - "grep '^T[[:digit:]]:' tickets.log"
+        - "grep \"^T[0-9]:\" tickets.log"
+    explanation: |-
+      L’ancre ^ impose le début de ligne. La classe reconnaît un
+      chiffre avant le deux-points. Les guillemets préservent le
+      motif jusqu’à grep.
+  - id: "grep-ere-service-alternation"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans application.log, affiche avec leurs numéros les lignes
+      commençant par ERROR api: ou ERROR worker:. Utilise un seul motif
+      étendu.
+    answer:
+      primary: "grep -nE '^ERROR (api|worker):' application.log"
+      accepted:
+        - "grep -En '^ERROR (api|worker):' application.log"
+        - "grep -n -E '^ERROR (api|worker):' application.log"
+    explanation: |-
+      En ERE, les parenthèses groupent les deux services et la
+      barre verticale les met en alternative. Le préfixe et le
+      deux-points s’appliquent aux deux branches.
+  - id: "grep-context-after-failure"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec GNU grep ou le grep natif de macOS, affiche les lignes de
+      panne.log contenant PANIC et les deux lignes qui suivent chacune. Le
+      contexte avant l’incident ne t’intéresse pas.
+    answer:
+      primary: "grep -A 2 PANIC panne.log"
+      accepted:
+        - "grep -A2 PANIC panne.log"
+        - "grep -A 2 'PANIC' panne.log"
+    explanation: |-
+      L’option -A ajoute le contexte qui suit la correspondance.
+      Les plages qui se recouvrent partagent leurs lignes dans la
+      sortie.
+  - id: "find-depth-direct-children"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec GNU find ou le find natif de macOS, liste uniquement les
+      fichiers ordinaires directement dans exports. Des sous-dossiers
+      contiennent aussi des fichiers.
+    answer:
+      primary: "find exports -maxdepth 1 -type f"
+      accepted:
+        - "find exports -maxdepth 1 -type f -print"
+        - "find exports -type f -maxdepth 1"
+    explanation: |-
+      La racine est au niveau 0 et ses enfants au niveau 1.
+      -maxdepth borne la descente. -depth change l’ordre du
+      parcours et ne fixe aucune limite.
+  - id: "find-size-byte-threshold"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec find, liste les fichiers ordinaires de captures dont la taille
+      dépasse strictement 10 000 octets. Le seuil doit être exprimé en
+      octets.
+    answer:
+      primary: "find captures -type f -size +10000c"
+      accepted:
+        - "find captures -type f -size +10000c -print"
+        - "find captures -size +10000c -type f"
+    explanation: |-
+      Le suffixe c exprime la taille en octets. Sans ce suffixe,
+      POSIX compte des blocs de 512 octets arrondis au bloc
+      supérieur. Le + impose un seuil strict.
+  - id: "find-newer-than-deploy"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec find, liste les fichiers ordinaires de config modifiés
+      strictement après la dernière modification de livraison.ok. Le témoin
+      est un fichier ordinaire du répertoire courant.
+    answer:
+      primary: "find config -type f -newer livraison.ok"
+      accepted:
+        - "find config -type f -newer livraison.ok -print"
+        - "find config -newer livraison.ok -type f"
+    explanation: |-
+      Le test -newer compare la date de modification de chaque
+      entrée à celle du fichier témoin. Deux dates égales ne
+      satisfont pas le test.
+  - id: "find-group-name-alternatives"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec find, liste les fichiers ordinaires de fixtures qui finissent
+      par .json ou .yaml. Certains dossiers ont aussi ces suffixes. Utilise
+      un seul parcours.
+    answer:
+      primary: "find fixtures -type f \\( -name '*.json' -o -name '*.yaml' \\)"
+      accepted:
+        - "find fixtures -type f \\( -name '*.json' -o -name '*.yaml' \\) -print"
+        - "find fixtures -type f '(' -name '*.json' -o -name '*.yaml' ')'"
+    explanation: |-
+      Le groupement soumet les deux branches au test de type.
+      Sans lui, le OU peut retenir un dossier .yaml. Le shell
+      doit transmettre les parenthèses à find.
+  - id: "find-negate-file-suffix"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec find, liste les fichiers ordinaires sous archives, en excluant
+      ceux dont le nom se termine par .bak. Descends dans tous les
+      sous-dossiers, y compris ceux nommés avec ce suffixe.
+    answer:
+      primary: "find archives -type f '!' -name '*.bak'"
+      accepted:
+        - "find archives -type f '!' -name '*.bak' -print"
+        - "find archives -type f \\! -name '*.bak'"
+    explanation: |-
+      L’opérateur ! inverse le test de nom. Un dossier qui ne
+      satisfait pas le filtre peut quand même être parcouru, car
+      aucune action n’arrête la descente.
+  - id: "sed-select-marked-section"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans inventaire.txt, un unique bloc commence par la ligne exacte
+      BEGIN et finit par la ligne exacte END. Avec sed, affiche uniquement
+      ce bloc, marqueurs inclus.
+    answer:
+      primary: "sed -n '/^BEGIN$/,/^END$/p' inventaire.txt"
+      accepted:
+        - "sed -n -e '/^BEGIN$/,/^END$/p' inventaire.txt"
+    explanation: |-
+      Deux adresses séparées par une virgule sélectionnent le
+      bloc, bornes incluses. -n et p limitent la sortie à cette
+      plage.
+  - id: "sed-replace-all-on-line"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec sed, affiche options.txt en remplaçant chaque occurrence de
+      DEBUG par INFO. Une ligne peut contenir DEBUG plusieurs fois. Laisse
+      le fichier intact.
+    answer:
+      primary: "sed 's/DEBUG/INFO/g' options.txt"
+      accepted:
+        - "sed \"s/DEBUG/INFO/g\" options.txt"
+        - "sed -e 's/DEBUG/INFO/g' options.txt"
+    explanation: |-
+      Le drapeau g prolonge le remplacement à toutes les
+      occurrences non chevauchantes de la ligne, au lieu de
+      s’arrêter à la première.
+  - id: "sed-path-delimiter"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Avec sed, affiche chemins.txt en remplaçant chaque /srv/old/ par
+      /srv/new/. Choisis un délimiteur qui évite d’échapper les barres
+      obliques.
+    answer:
+      primary: "sed 's#/srv/old/#/srv/new/#g' chemins.txt"
+      accepted:
+        - "sed 's|/srv/old/|/srv/new/|g' chemins.txt"
+        - "sed 's@/srv/old/@/srv/new/@g' chemins.txt"
+    explanation: |-
+      Le caractère placé après s délimite le motif et le
+      remplacement. Avec #, les barres obliques restent
+      littérales sans échappement.
+  - id: "sed-wrap-matched-token"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans incidents.txt, chaque référence se compose de INC- et de trois
+      chiffres, comme INC-742. Aucun autre fragment ne commence par INC-.
+      Avec un sed compatible POSIX.1-2024, encadre chaque référence par
+      des crochets sans perdre son numéro. La locale C est active.
+    answer:
+      primary: "sed -E 's/INC-[0-9]{3}/[&]/g' incidents.txt"
+      accepted:
+        - "sed 's/INC-[0-9]\\{3\\}/[&]/g' incidents.txt"
+        - "sed -E 's/INC-[[:digit:]]{3}/[&]/g' incidents.txt"
+    explanation: |-
+      Dans un remplacement sed, & représente le texte reconnu.
+      Chaque numéro reste ainsi intact et g applique le
+      remplacement à chaque référence.
+  - id: "sed-reorder-captured-fields"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Chaque ligne de points.txt ressemble à host=api port=8080. Les hôtes
+      sont non vides et sans espace. Avec un sed compatible POSIX.1-2024
+      et un motif étendu, transforme chaque ligne en port:hôte, par
+      exemple 8080:api. La locale C est active.
+    answer:
+      primary: "sed -E 's/^host=([^ ]+) port=([0-9]+)$/\\2:\\1/' points.txt"
+      accepted:
+        - "sed -E 's/^host=([^ ]+) port=([[:digit:]]+)$/\\2:\\1/' points.txt"
+    explanation: |-
+      Les deux parenthèses capturent l’hôte puis le port. Dans le
+      remplacement, \2 restitue le port et \1 l’hôte.
+  - id: "awk-pattern-on-service-field"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans traces.txt, les lignes suivent le format service:statut:message,
+      sans deux-points dans les champs. Avec awk, affiche les lignes dont
+      le premier champ commence par web-. Ce texte peut aussi apparaître
+      dans le message.
+    answer:
+      primary: "awk -F ':' '$1 ~ /^web-/ { print }' traces.txt"
+      accepted:
+        - "awk -F: '$1 ~ /^web-/' traces.txt"
+        - "awk -F: '$1 ~ /^web-/ {print $0}' traces.txt"
+    explanation: |-
+      L’opérateur ~ applique le motif à $1. Avec le seul motif
+      comme règle, awk affiche par défaut la ligne retenue.
+  - id: "awk-numeric-threshold"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans latences.txt, chaque ligne contient endpoint puis latence
+      entière en millisecondes, séparés par des blancs. Avec awk, affiche
+      les endpoints dont la latence dépasse strictement 250.
+    answer:
+      primary: "awk '$2 > 250 { print $1 }' latences.txt"
+      accepted:
+        - "awk '$2 > 250 {print $1}' latences.txt"
+        - "awk '250 < $2 { print $1 }' latences.txt"
+    explanation: |-
+      La comparaison numérique porte sur le second champ.
+      L’action affiche le premier champ seulement pour les lignes
+      qui franchissent le seuil.
+  - id: "awk-skip-single-header"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Lis disque.txt avec awk. Une ligne d’en-tête précède les données. Les
+      champs sont séparés par des blancs. Affiche le deuxième champ de
+      chaque ligne de données, dans l’ordre.
+    answer:
+      primary: "awk 'NR > 1 { print $2 }' disque.txt"
+      accepted:
+        - "awk 'NR != 1 { print $2 }' disque.txt"
+        - "awk 'FNR > 1 { print $2 }' disque.txt"
+    explanation: |-
+      NR donne le rang de l’enregistrement. Le test écarte le
+      premier. Avec un seul fichier, FNR produit les mêmes rangs.
+  - id: "awk-count-selected-records"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans jobs.txt, chaque ligne comporte un identifiant puis un statut,
+      séparés par des blancs. Avec awk, affiche un seul total pour les
+      lignes dont le statut est DONE, y compris si aucune ne correspond.
+    answer:
+      primary: "awk '$2 == \"DONE\" { n++ } END { print n + 0 }' jobs.txt"
+      accepted:
+        - "awk '$2 == \"DONE\" { ++n } END { print n+0 }' jobs.txt"
+        - "awk 'BEGIN { n = 0 } $2 == \"DONE\" { n++ } END { print n }' jobs.txt"
+    explanation: |-
+      Le compteur augmente pour chaque statut DONE. END affiche
+      le total après la lecture. L’addition force la valeur
+      numérique 0 même sans correspondance.
+  - id: "awk-set-output-separator"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Les lignes de routes.txt contiennent trois champs séparés par des
+      blancs. Avec awk et print, affiche les deux premiers séparés par une
+      tabulation. Garde le découpage d’entrée.
+    answer:
+      primary: "awk -v OFS='\\t' '{ print $1, $2 }' routes.txt"
+      accepted:
+        - "awk 'BEGIN { OFS = \"\\t\" } { print $1, $2 }' routes.txt"
+        - "awk -v 'OFS=\\t' '{print $1,$2}' routes.txt"
+    explanation: |-
+      OFS fixe le séparateur entre les arguments de print. Le
+      découpage à l’entrée continue d’utiliser les blancs, car FS
+      garde sa valeur par défaut.
+  - id: "compose-grep-sed-normalize-log"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans acces.log, les lignes d’erreur commencent toutes par ERROR:.
+      Dans un pipeline, retiens ces seules lignes avec grep, puis remplace
+      le préfixe ERROR: par ALERTE: avec sed. Laisse le fichier intact.
+    answer:
+      primary: "grep '^ERROR:' acces.log | sed 's/^ERROR:/ALERTE:/'"
+      accepted:
+        - "grep '^ERROR:' acces.log|sed 's/^ERROR:/ALERTE:/'"
+        - "grep \"^ERROR:\" acces.log | sed \"s/^ERROR:/ALERTE:/\""
+    explanation: |-
+      L’ancre de grep exclut les mentions situées ailleurs. sed
+      reçoit les lignes retenues et réécrit le préfixe sans
+      modifier la suite du message.
+  - id: "compose-awk-count-statuses"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Dans http.txt, les lignes contiennent chemin puis code HTTP sur trois
+      chiffres, séparés par des blancs. Avec awk, puis les filtres de tri
+      et de comptage, affiche le nombre de lignes par code, dans l’ordre
+      des codes. La locale C est active.
+    answer:
+      primary: "awk '{ print $2 }' http.txt | sort | uniq -c"
+      accepted:
+        - "awk '{print $2}' http.txt | sort | uniq -c"
+        - "awk '{ print $2 }' http.txt | sort -n | uniq -c"
+    explanation: |-
+      awk isole les codes. Le tri rapproche tous les codes
+      identiques, puis uniq -c compte chaque groupe. Les codes
+      HTTP ont tous trois chiffres.
+  - id: "grep-gnu-recursion-links"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Avec GNU grep, cherche connection refused dans les fichiers texte de
+      services/ et de ses sous-répertoires. Le dossier services est réel,
+      mais il contient un lien vers un dossier hors projet. Ne parcours pas
+      ce lien.
+    answer:
+      primary: "grep -r 'connection refused' services/"
+      accepted:
+        - "grep -r \"connection refused\" services/"
+        - "grep --recursive 'connection refused' services/"
+    explanation: |-
+      Chez GNU grep, -r suit les liens donnés comme opérandes et
+      ignore ceux rencontrés en descendant. -R suit aussi les
+      liens découverts pendant le parcours.
+  - id: "grep-exit-status"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Trois recherches grep POSIX sans option de sortie silencieuse portent
+      chacune sur un fichier. A trouve une ligne, B ouvre son fichier sans
+      trouver de ligne et C échoue à ouvrir le sien. Donne les statuts dans
+      l’ordre.
+    answer:
+      primary: "0, 1, supérieur à 1"
+      accepted:
+        - "0 1 >1"
+        - "0, 1, >1"
+    explanation: |-
+      POSIX distingue succès avec sélection (0), aucune ligne
+      retenue (1) et erreur (valeur supérieure à 1). GNU grep
+      utilise normalement 2 pour une erreur.
+  - id: "find-gnu-mtime-buckets"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      GNU find démarre maintenant. recent.log, veille.log et ancien.log ont
+      été modifiés il y a respectivement 12, 36 et 60 heures. Quel fichier
+      passe le test -mtime 1 ?
+    answer:
+      primary: "veille.log"
+    explanation: |-
+      GNU find compte les périodes complètes de 24 heures
+      écoulées. À 36 heures, le quotient entier vaut 1. Ce test
+      ne désigne pas un jour du calendrier.
+  - id: "find-prune-vendor-tree"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Depuis la racine du projet, liste avec find les fichiers ordinaires
+      finissant par .conf sans entrer dans ./vendor. Le reste de
+      l’arborescence doit être parcouru.
+    answer:
+      primary: "find . -path ./vendor -prune -o -type f -name '*.conf' -print"
+      accepted:
+        - "find . -path './vendor' -prune -o -type f -name '*.conf' -print"
+        - "find . -path ./vendor -prune -o \\( -type f -name '*.conf' -print \\)"
+    explanation: |-
+      Quand ./vendor est atteint, -prune empêche la descente. Le
+      succès de cette branche court-circuite l’affichage placé
+      après le OU.
+  - id: "find-link-type-with-follow"
+    type: "concept"
+    exercise_type: "free-answer"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans audit, raccourci est un lien valide vers le fichier ordinaire
+      cible.txt. find examine audit sans suivi de liens, puis avec -L. Dans
+      quel cas le chemin audit/raccourci passe-t-il le test de type fichier
+      ordinaire ?
+    answer:
+      primary: "Seulement avec -L."
+      accepted:
+        - "Seulement avec -L"
+        - "Avec -L"
+    explanation: |-
+      Sans suivi, le test porte sur le lien. Avec -L, il porte
+      ici sur sa cible, qui est un fichier ordinaire.
+  - id: "find-exec-checksum-batch"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Depuis le parent de pieces, utilise find pour calculer avec cksum la
+      somme de contrôle des fichiers ordinaires .bin de cette arborescence.
+      Passe les chemins par lots à cksum. Certains noms contiennent des
+      espaces ou commencent par un tiret.
+    answer:
+      primary: "find pieces -type f -name '*.bin' -exec cksum {} +"
+      accepted:
+        - "find pieces -name '*.bin' -type f -exec cksum '{}' +"
+        - "find pieces -type f -name '*.bin' -exec cksum '{}' +"
+    explanation: |-
+      La forme {} + groupe les chemins et les transmet en
+      arguments distincts. Chaque argument commence par pieces/,
+      même si le nom de l’entrée commence par un tiret.
+  - id: "sed-in-place-portability"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Tu portes cette commande de GNU sed vers le sed natif de macOS.
+      sed -i 's/test/prod/' mode.txt
+      Quel rôle joue l’argument s/test/prod/ sur chaque système ?
+    choices:
+      - "Les deux le lisent comme commande."
+      - "GNU le lit comme commande. macOS le lit comme suffixe."
+      - "GNU le lit comme suffixe. macOS le lit comme commande."
+    answer:
+      primary: "GNU le lit comme commande. macOS le lit comme suffixe."
+    explanation: |-
+      GNU sed accepte -i sans suffixe. Le sed de macOS attend un
+      suffixe en argument, même vide. Pour prévisualiser sur les
+      deux systèmes, retire -i et son éventuel suffixe.
+  - id: "awk-sum-category-duration"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Chaque ligne de services.txt contient service:statut:durée, avec une
+      durée entière. Le nom de service peut aussi contenir ERROR. Avec awk,
+      affiche la somme des durées des lignes au statut exact ERROR. Affiche
+      0 si aucune ligne ne correspond.
+    answer:
+      primary: "awk -F ':' '$2 == \"ERROR\" { total += $3 } END { print total + 0 }' services.txt"
+      accepted:
+        - "awk -F: '$2 == \"ERROR\" { total += $3 } END { print total + 0 }' services.txt"
+        - "awk -F: 'BEGIN { total = 0 } $2 == \"ERROR\" { total += $3 } END { print total }' services.txt"
+    explanation: |-
+      La comparaison porte sur le champ de statut. L’action
+      additionne les durées de ces seules lignes. END produit un
+      total unique, numérique même sans résultat.
+  - id: "awk-format-latency-report"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      La locale C est active. Dans timings.txt, chaque ligne contient un
+      service d’au plus 12 caractères ASCII, puis une durée décimale d’au
+      plus 999 secondes, séparés par des blancs. Avec awk, affiche le
+      service aligné à gauche sur 12 colonnes, un espace, puis la durée
+      alignée à droite sur 7 colonnes avec deux décimales.
+    answer:
+      primary: "awk '{ printf \"%-12s %7.2f\\n\", $1, $2 }' timings.txt"
+      accepted:
+        - "awk '{printf \"%-12s %7.2f\\n\",$1,$2}' timings.txt"
+    explanation: |-
+      Le signe - aligne le nom à gauche. La largeur 7 réserve la
+      place du nombre et .2f fixe deux décimales. printf ajoute
+      le saut de ligne indiqué.
+  - id: "compose-find-grep-always-path"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Depuis le parent de conf, cherche RETRY dans les fichiers ordinaires
+      .conf de cette arborescence. Dans une ligne POSIX, fais appeler grep
+      par find avec les chemins groupés. Affiche chemin, numéro et texte
+      même si un lot contient un seul fichier. vide.txt, hors de conf, est
+      vide.
+    answer:
+      primary: "find conf -type f -name '*.conf' -exec grep -n -e RETRY vide.txt {} +"
+      accepted:
+        - "find conf -type f -name '*.conf' -exec grep -n RETRY /dev/null {} +"
+        - "find conf -type f -name '*.conf' -exec grep -n -e 'RETRY' vide.txt '{}' +"
+    explanation: |-
+      Avec un fichier vide supplémentaire, grep reçoit toujours
+      plusieurs fichiers et préfixe chaque résultat par son
+      chemin. -n ajoute le numéro de ligne.
+  - id: "compose-null-delimited-paths"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Avec des utilitaires prenant en charge POSIX.1-2024, fais passer de
+      find à xargs les fichiers ordinaires .txt sous copies, puis demande à
+      file de les identifier. Il existe au moins un résultat et des noms
+      contiennent des espaces ou des sauts de ligne.
+    answer:
+      primary: "find copies -type f -name '*.txt' -print0 | xargs -0 file"
+      accepted:
+        - "find copies -type f -name '*.txt' -print0|xargs -0 file"
+        - "find copies -type f -name \"*.txt\" -print0 | xargs -0 file"
+    explanation: |-
+      find termine chaque chemin par NUL et xargs découpe sur ce
+      même octet. Les espaces et sauts de ligne restent à
+      l’intérieur d’un seul argument.
+  - id: "compose-sed-awk-block-total"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Dans suivi.txt, un seul bloc va des lignes exactes BEGIN à END. Les
+      autres lignes, dedans et dehors, ont la forme service:statut:durée,
+      avec une durée entière. Avec sed puis awk, affiche la somme des
+      durées au statut ERROR à l’intérieur du bloc, ou 0 en l’absence de
+      résultat.
+    answer:
+      primary: "sed -n '/^BEGIN$/,/^END$/p' suivi.txt | awk -F ':' '$2 == \"ERROR\" { n += $3 } END { print n + 0 }'"
+      accepted:
+        - "sed -n -e '/^BEGIN$/,/^END$/p' suivi.txt | awk -F: '$2 == \"ERROR\" { n += $3 } END { print n + 0 }'"
+    explanation: |-
+      sed ne transmet que le bloc. Les marqueurs, sans champ de
+      statut, ne passent pas le filtre awk. END affiche la somme
+      une fois la lecture terminée.

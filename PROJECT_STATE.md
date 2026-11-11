@@ -1,8 +1,8 @@
 # État du projet — CLI-Drill
 
-**Au 11 novembre 2026, les lots 1 et 2 et les vagues 1 et 2 de P2.5 sont
-publiés sur `dev`. La vague 3 a été révisée et testée localement. Sa validation
-pédagogique reste à faire.**
+**Les lots 1 et 2 et les vagues 1 à 3 de P2.5 sont intégrés à `dev`.
+Le chapitre 14 est ajouté et testé sur `content/p25-unix-text`. Sa recette
+humaine et son intégration restent ouvertes.**
 P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
@@ -29,11 +29,13 @@ sur `feat/cli-preferences`. Après six tests manuels validés le 9 novembre
 L'interface présente CLI-Drill comme un outil d'entraînement local au terminal.
 
 - Module Go à la racine ; point d'entrée `cmd/cli-drill/`.
-- Sur `content/p25-wave3-line-editing`, le corpus local compte 192 exercices
-  dans 12 chapitres, avec 71 Beginner, 70 Intermediate et 51 Advanced.
-  `01` compte 31 exercices répartis en 12 Beginner, 11 Intermediate et
-  8 Advanced. [Rapport de la vague 3](docs/CORPUS_P25_WAVE3.md)
-- La base publiée sur `dev` à `fd37fe4` comprend la vague 2 et compte 169
+- Sur `content/p25-unix-text`, le corpus compte 240 exercices dans 13 chapitres,
+  avec 85 Beginner, 92 Intermediate et 63 Advanced. Le chapitre 14 ajoute
+  48 exercices sans module tiers. [Rapport du chapitre 14](docs/CORPUS_P25_UNIX_TEXT.md)
+- La base `dev` à `b3f2556` compte 192 exercices dans 12 chapitres. Elle inclut
+  les 31 exercices de `01` intégrés à `a6af7b4`.
+  [Rapport de la vague 3](docs/CORPUS_P25_WAVE3.md)
+- La vague 2 publiée à `fd37fe4` comptait 169
   exercices. La vague 1 en comptait 121 à `f97718a` et le lot 2 en comptait
   75 à `4320650`. [Rapport de la vague 2](docs/CORPUS_P25_WAVE2.md)
   Les rapports des [lots 1](docs/CORPUS_P25_LOT1.md) et
@@ -702,9 +704,17 @@ huit diagnostics textuels. La recette physique sur des terminaux
 représentatifs relève de P2.6.
 [Rapport et limites de capture](docs/CORPUS_P25_WAVE3.md)
 
-La suite de P2.5 privilégie les commandes Unix indispensables et les usages
-quotidiens de recherche et de traitement de texte. Le référentiel conserve les
-vagues Git et outils CLI modernes. [Priorités P2.5](docs/CURRICULUM.md#enrichissement-par-lots)
+### P2.5 — Recherche et traitement de texte Unix, chapitre 14 ajouté
+
+Depuis `b3f2556`, la branche `content/p25-unix-text` ajoute 48 exercices
+sur `grep`, `find`, `sed`, `awk` et leurs combinaisons. Apprendre suit
+l'ordre éditorial du niveau et Réviser mélange la sélection. Les essais
+sur fixtures couvrent les réponses de commande, dont les noms atypiques.
+La durée de la séance Intermediate, qui contient 22 exercices, reste à
+mesurer lors de la recette humaine. [Rapport](docs/CORPUS_P25_UNIX_TEXT.md)
+
+Le référentiel conserve les approfondissements du socle et les vagues Git
+et outils CLI modernes. [Priorités P2.5](docs/CURRICULUM.md#enrichissement-par-lots)
 
 ## Validation et limites de preuve
 

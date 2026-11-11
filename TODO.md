@@ -249,15 +249,17 @@ Il est intégré et publié sur `dev` à `4320650`.
 - [x] Vague 2 « Flux, processus et environnement » publiée sur `dev` à
   `fd37fe4`. Les 48 ajouts dans `11` et `13` portent le corpus à 169 exercices.
   [Rapport de vague](docs/CORPUS_P25_WAVE2.md).
-- [x] Vague 3 révisée et testée localement. Les 23 ajouts portent `01` à
-  12 Beginner, 11 Intermediate et 8 Advanced. Le corpus compte 192 exercices.
+- [x] Vague 3 intégrée à `dev` à `a6af7b4`. Les 23 ajouts portent `01` à
+  12 Beginner, 11 Intermediate et 8 Advanced. La base compte 192 exercices.
   [Rapport de vague](docs/CORPUS_P25_WAVE3.md)
 - [ ] Valider la révision pédagogique de la vague 3.
 - [ ] Combler les lacunes des chapitres Unix existants dans `00`, `11`, `12`
   et `13` selon les usages courants et les diagnostics utiles au terminal.
-- [ ] Cadrer les exercices de recherche et de traitement de texte avec
-  `grep`, `find`, `sed` et `awk`, sans module tiers. Faire valider le
-  périmètre de tout nouveau chapitre avant sa création.
+- [x] Implémenter et tester localement `14-recherche-texte-unix`, dont le
+  périmètre est validé. Ses 48 exercices portent le corpus à 240 exercices
+  dans 13 chapitres. [Rapport](docs/CORPUS_P25_UNIX_TEXT.md)
+- [ ] Faire la recette du chapitre 14 et mesurer la durée d'une séance
+  Intermediate de 22 exercices avant intégration.
 - [ ] Poursuivre les vagues prévues pour Git et les outils CLI modernes
   selon leur utilité et les recouvrements repérés.
 
@@ -370,8 +372,9 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.5, lot 2 — `content/v2-expansion-cli-02` (intégré et publié) | Outils CLI modernes, 18 exercices dans six chapitres. | Recette fonctionnelle et UX réussie sous Ghostty le 10 novembre 2026. Publié sur `dev` à `4320650`. [Détails](docs/CORPUS_P25_LOT2.md). |
 | P2.5, vague 1 — `content/p25-wave1-paths-files` (publiée sur `dev`) | 46 exercices sur les repères, les fichiers et les droits ; 30 dans chacun des chapitres `00` et `12`. | Publiée à `f97718a` ; [contrôles et limites](docs/CORPUS_P25_WAVE1.md). |
 | P2.5, vague 2 — `content/p25-wave2-flows-processes` (publiée sur `dev`) | 48 exercices sur les flux, processus et environnement. | Publiée à `fd37fe4`. [Rapport](docs/CORPUS_P25_WAVE2.md). |
-| P2.5, vague 3 — `content/p25-wave3-line-editing` (révision locale à valider) | 31 exercices d’édition de ligne dans Bash et Zsh. Apprentissage guidé et révision mélangée. | Base `fd37fe4`. [Contrôles et limites](docs/CORPUS_P25_WAVE3.md). |
-| P2.5, suites — branches à définir | Commandes Unix indispensables, recherche et texte au terminal, puis Git et outils CLI modernes. | [Priorités et planification initiale](docs/CURRICULUM.md#enrichissement-par-lots). |
+| P2.5, vague 3 — `content/p25-wave3-line-editing` (intégrée sur `dev`) | 31 exercices d’édition de ligne dans Bash et Zsh. Apprentissage guidé et révision mélangée. | Intégrée à `a6af7b4`. [Contrôles et limites](docs/CORPUS_P25_WAVE3.md). |
+| P2.5, chapitre 14 — `content/p25-unix-text` (implémenté et testé localement) | 48 exercices sur la recherche et le traitement de texte Unix. | Base `b3f2556`. [Contrôles et limites](docs/CORPUS_P25_UNIX_TEXT.md). |
+| P2.5, suites — branches à définir | Approfondissements Unix, Git et outils CLI modernes. | [Priorités et planification initiale](docs/CURRICULUM.md#enrichissement-par-lots). |
 | P2.6 — `docs/readme-v2` | Présentation du comportement effectivement validé. | Critères P2.6 ; après recette P2 ; risque de promesse prématurée. |
 | P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
 

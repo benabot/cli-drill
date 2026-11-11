@@ -19,8 +19,8 @@ func TestV2Corpus(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(chapters) != 12 {
-		t.Fatalf("want 12 chapters, got %d", len(chapters))
+	if len(chapters) != 13 {
+		t.Fatalf("want 13 chapters, got %d", len(chapters))
 	}
 	first := chapters[0]
 	if first.ID != "00-premiers-pas" || first.Family != FamilyUnixShell || first.LearningOrder != LearningOrderGuided || len(first.Items) != 30 {
@@ -69,7 +69,7 @@ func TestV2Corpus(t *testing.T) {
 			total++
 		}
 	}
-	if total != 192 || !reflect.DeepEqual(families, map[Family]int{FamilyUnixShell: 123, FamilyKeyboardShortcuts: 31, FamilyModernCLIMacOS: 38}) {
+	if total != 240 || !reflect.DeepEqual(families, map[Family]int{FamilyUnixShell: 171, FamilyKeyboardShortcuts: 31, FamilyModernCLIMacOS: 38}) {
 		t.Fatalf("unexpected corpus: %d / %v", total, families)
 	}
 }
@@ -141,7 +141,7 @@ func TestV2HistoricalKeyPolicy(t *testing.T) {
 	}
 	sort.Strings(preserved)
 	sort.Strings(want)
-	if !reflect.DeepEqual(preserved, want) || fresh != 172 || len(old)-len(preserved) != 48 {
+	if !reflect.DeepEqual(preserved, want) || fresh != 220 || len(old)-len(preserved) != 48 {
 		t.Fatalf("key policy changed: kept=%v fresh=%d retired=%d", preserved, fresh, len(old)-len(preserved))
 	}
 }
