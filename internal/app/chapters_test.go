@@ -20,6 +20,9 @@ import (
 func TestChaptersAlignTerminalColumnsAndPreserveRedirectedFields(t *testing.T) {
 	restore := stubTerminalDetector(func(fd uintptr) bool { return fd == 42 })
 	defer restore()
+	previousSize := terminalSize
+	terminalSize = func(uintptr) (int, int, error) { return 100, 24, nil }
+	t.Cleanup(func() { terminalSize = previousSize })
 	var redirected bytes.Buffer
 	terminal := &fdBuffer{fd: 42}
 	for _, out := range []io.Writer{&redirected, terminal} {

@@ -967,9 +967,12 @@ func stubRawKeyReader(fn func(*os.File) (string, error)) func() {
 
 func stubTUIRunner(fn func(tui.Options) (tui.Result, error)) func() {
 	previous := runTUIWithOptions
+	previousCheck := checkTUITerminal
 	runTUIWithOptions = fn
+	checkTUITerminal = func(Options) error { return nil }
 	return func() {
 		runTUIWithOptions = previous
+		checkTUITerminal = previousCheck
 	}
 }
 

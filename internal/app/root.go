@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/benabot/cli-drill/internal/chapter"
@@ -31,6 +30,8 @@ type Options struct {
 
 var (
 	isTerminalFD           = term.IsTerminal
+	terminalSize           = term.GetSize
+	checkTUITerminal       = tuiTerminalError
 	readRawKeyFromTerminal = readRawKey
 	runTUIWithOptions      = tui.RunWithOptions
 	canCaptureKeys         = terminalCanCaptureKeys
@@ -50,6 +51,10 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 		Long:  "Learn the terminal by doing. Practise commands and keyboard shortcuts with built-in chapters, locally and offline.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runOpts := commandOptions(cmd, opts)
+			if err := checkTUITerminal(runOpts); err != nil {
+				cmd.SilenceUsage, cmd.SilenceErrors = true, true
+				return err
+			}
 			if err := checkProgressOverride(runOpts); err != nil {
 				return err
 			}
@@ -59,12 +64,14 @@ func NewRootCommand(defaultFS fs.FS) *cobra.Command {
 			}
 			for {
 				ui := tuiOptions(chapters, progressPath(runOpts), xdg.PreferencesFile())
+				ui.In, ui.Out = runOpts.In, runOpts.Out
 				if !canCaptureKeys(runOpts) {
 					ui.CaptureUnavailable = errCaptureUnavailable.Error()
 				}
 				result, err := runTUIWithOptions(ui)
 				if err != nil {
-					return err
+					cmd.SilenceUsage, cmd.SilenceErrors = true, true
+					return fmt.Errorf("could not start the interactive interface. Run cli-drill train for text training: %w", err)
 				}
 				if result.CaptureChapter.ID == "" {
 					return nil
@@ -96,30 +103,7 @@ func newChaptersCommand(opts *Options) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			out := runOpts.Out
-			unit := "exercise"
-			var table *tabwriter.Writer
-			if writerIsTerminal(out) {
-				table = tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-				out = table
-				unit = "exercice"
-				if _, err := fmt.Fprintln(out, "Identifiant\tChapitre\tTotal"); err != nil {
-					return err
-				}
-			}
-			for _, ch := range chapters {
-				label := unit
-				if len(ch.Items) != 1 {
-					label += "s"
-				}
-				if _, err := fmt.Fprintf(out, "%s\t%s\t%d %s\n", ch.ID, ch.Title, len(ch.Items), label); err != nil {
-					return err
-				}
-			}
-			if table != nil {
-				return table.Flush()
-			}
-			return nil
+			return writeChapters(runOpts.Out, chapters)
 		},
 	}
 }
@@ -174,6 +158,12 @@ func newTrainCommand(opts *Options) *cobra.Command {
 			}
 			prepared := filter.Prepare(selected, scope, sessionMode, nil)
 			if len(prepared.Items) == 0 {
+				cmd.SilenceUsage, cmd.SilenceErrors = true, true
+				if groups := filter.MissingModuleGroups(selected, scope); len(groups) > 0 {
+					example, _, _ := strings.Cut(groups[0], " + ")
+					return fmt.Errorf("%s: %s Missing modules (activate one group): %s. Enable each module separately, for example: cli-drill prefs --enable %s.",
+						selected.ID, filter.EmptyReason(selected, scope), strings.Join(groups, " or "), example)
+				}
 				return fmt.Errorf("%s: %s Try --difficulty or check cli-drill prefs.", selected.ID, filter.EmptyReason(selected, scope))
 			}
 			return runTraining(runOpts, prepared)
@@ -534,7 +524,7 @@ func (s keySequenceStyle) paint(code, value string) string {
 }
 
 func writeKeySequenceScreen(opts Options, content string) {
-	if writerIsTerminal(opts.Out) {
+	if writerIsTerminal(opts.Out) && os.Getenv("TERM") != "dumb" {
 		_, _ = fmt.Fprint(opts.Out, "\x1b[2J\x1b[H")
 	}
 	_, _ = fmt.Fprint(opts.Out, content)
@@ -707,6 +697,17 @@ type fdProvider interface {
 func writerIsTerminal(w io.Writer) bool {
 	fd, ok := writerFD(w)
 	return ok && isTerminalFD(fd)
+}
+
+func tuiTerminalError(opts Options) error {
+	input, ok := opts.In.(fdProvider)
+	if !ok || !isTerminalFD(input.Fd()) || !writerIsTerminal(opts.Out) {
+		return errors.New("the interactive interface requires a terminal for input and output. Run cli-drill train for text training")
+	}
+	if os.Getenv("TERM") == "dumb" {
+		return errors.New("the interactive interface is unavailable with TERM=dumb. Run cli-drill train for text training")
+	}
+	return nil
 }
 
 func terminalCanCaptureKeys(opts Options) bool {

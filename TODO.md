@@ -290,6 +290,13 @@ extension de schéma de progression, moteur adaptatif ou répétition espacée.
 
 Dépendance : sous-phases fonctionnelles précédentes validées.
 
+- Lot 1 (sécurité et capture) publié dans `dev` à `fb29a22`.
+- Lot 2 (lisibilité et navigation) préparé sur `fix/p26-readable-ui`.
+  Les commandes restent visibles pendant la lecture paginée, et la CLI
+  propose un parcours textuel si la TUI est indisponible.
+- [ ] Recette humaine du lot 2 à 80×24, 60×20 et 40×12. Vérifier les retours
+  de recherche, les QCM, les diagnostics de modules et le contenu long.
+- [ ] Lot 3 : séances courtes et progression.
 - [ ] Vérifier les parcours avec/sans modules, niveaux, guidage/révision,
   interruptions et sauvegardes, avec et sans couleur ; conserver le retour TUI.
 - [ ] Actualiser README, état du projet et aides sur le comportement réellement

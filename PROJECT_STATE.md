@@ -743,6 +743,41 @@ de less, Nano et Markdown, puis les compléments activables Bat, Micro et
 Glow. Git suit aussi une progression guidée. La révision mélange les
 exercices éligibles. [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par-lots)
 
+### P2.6 — Lot 2, lisibilité et navigation
+
+La branche locale `fix/p26-readable-ui` part de `dev` publié à `fb29a22`
+(lot 1). La TUI affiche le contenu à la largeur disponible et garde les
+commandes de navigation ainsi que le champ de réponse textuelle accessibles.
+`PgUp` et `PgDn` permettent de lire le contenu qui dépasse la hauteur.
+Les flèches continuent de sélectionner les choix d'un QCM. La correction
+garde la consigne et le redimensionnement conserve l'exercice et sa réponse.
+Le navigateur annonce la recherche avec `/`. Les fiches et la CLI nomment
+les groupes de modules à activer pour les chapitres bloqués par les filtres.
+
+`chapters` utilise des totaux compacts ou présente l'identifiant et le titre
+sur des lignes distinctes selon la largeur mesurée. En redirection, les
+trois champs tabulés conservent leur format. Le lancement TUI demande un TTY
+en entrée et en sortie et indique `cli-drill train` sans TTY ou avec
+`TERM=dumb`. La capture avec `TERM=dumb` affiche ses écrans à la suite
+sans séquence d'effacement. Avec `NO_COLOR`, la TUI interactive conserve
+les contrôles de positionnement du curseur.
+
+Sur macOS arm64, les tests Go, le détecteur de courses et `go vet` ont
+réussi. Sous pseudo-terminal, le binaire de la base `fb29a22` coupe la
+solution au milieu du test `awk` à 80×24. Le lot 2 rend sa fin et
+l'explication consultables aux trois dimensions de recette, sans ajouter
+de tentative au défilement ou au redimensionnement. Les essais couvrent
+aussi un démarrage à 40×12, la recherche, le QCM, le mode sans couleur,
+`TERM=dumb`, les flux redirigés et les régressions de capture du lot 1.
+
+Pour la recette humaine, ouvrir le chapitre 14 en avancé dans la TUI et
+soumettre une réponse incorrecte à l'exercice 12 (bloc `BEGIN` / `END`).
+Relire la consigne, la fin de la solution `awk` et l'explication à 80×24,
+60×20 et 40×12. Refaire le parcours avec un QCM, puis tester la recherche
+et le retour par Échap. Comparer `chapters` dans le terminal et dans un pipe.
+Utiliser un répertoire `XDG_DATA_HOME` temporaire pour tester les modules et
+les compteurs. Les séances courtes relèvent du lot 3.
+
 ## Validation et limites de preuve
 
 ### P0.3 — Historique

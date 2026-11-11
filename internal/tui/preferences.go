@@ -155,6 +155,7 @@ func (p *preferencesScreen) resize(width, height int) {
 func (m *model) openPreferences() {
 	m.preferences.open()
 	m.screen = screenPreferences
+	m.scrollOffset, m.showHelp = 0, false
 }
 
 func (m model) updatePreferences(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -167,10 +168,15 @@ func (m model) updatePreferences(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "esc", "backspace", "g":
 		m.goHome()
 	case "enter":
+		m.scrollOffset = 0
 		m.preferences.changeSelected()
 	case "s":
 		m.preferences.saveDraft()
+		if m.preferences.saveError != nil {
+			m.scrollOffset = m.page().lastOffset()
+		}
 	default:
+		m.scrollOffset = 0
 		var cmd tea.Cmd
 		m.preferences.list, cmd = m.preferences.list.Update(msg)
 		return m, cmd
@@ -182,6 +188,5 @@ func (m model) preferencesView() string {
 	return strings.Join([]string{
 		m.preferences.list.View(),
 		m.preferences.notes(),
-		m.preferences.wrap(m.footer()),
-	}, "\n\n")
+	}, "\n")
 }

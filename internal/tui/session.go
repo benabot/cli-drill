@@ -37,6 +37,7 @@ func (m *model) openDetail(index int, scope chapter.ExerciseScope) {
 	m.chapterIndex = index
 	m.detailScope = scope
 	m.screen = screenChapterDetail
+	m.scrollOffset, m.showHelp = 0, false
 }
 
 func (m *model) changeSessionChoice(key string) bool {
@@ -92,6 +93,7 @@ func (m *model) resetTextTraining() {
 	m.feedback = ""
 	m.summary = trainingSummary{}
 	m.showHelp = false
+	m.scrollOffset = 0
 	m.input.SetValue("")
 	m.input.Err = nil
 	m.input.Focus()

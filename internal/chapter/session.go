@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"slices"
+	"strings"
 
 	"github.com/benabot/cli-drill/internal/exercise"
 )
@@ -88,6 +89,29 @@ func (f SessionFilter) EmptyReason(c Chapter, scope ExerciseScope) string {
 		}
 	}
 	return fmt.Sprintf("No exercises at %s difficulty in this chapter.", f.Difficulty)
+}
+
+// MissingModuleGroups lists the alternative sets of modules for exercises
+// at the selected level. Every module in a group must be enabled together.
+func (f SessionFilter) MissingModuleGroups(c Chapter, scope ExerciseScope) []string {
+	var groups []string
+	for _, item := range c.Items {
+		if !scope.includes(item) || item.level() != f.Difficulty {
+			continue
+		}
+		var missing []string
+		for _, tool := range item.Tools {
+			if !slices.Contains(f.EnabledTools, tool) {
+				missing = append(missing, tool)
+			}
+		}
+		if len(missing) != 0 {
+			slices.Sort(missing)
+			groups = append(groups, strings.Join(missing, " + "))
+		}
+	}
+	slices.Sort(groups)
+	return slices.Compact(groups)
 }
 
 func AcquiredCount(chapterID string, items []Item, completed []string) int {

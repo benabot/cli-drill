@@ -3,6 +3,7 @@ package tui
 import (
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/atotto/clipboard"
@@ -13,6 +14,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/term"
 )
 
 type screen int
@@ -75,6 +77,8 @@ var homeActions = []listItem{
 }
 
 type Options struct {
+	In                 io.Reader
+	Out                io.Writer
 	Chapters           []chapter.Chapter
 	ProgressPath       string
 	LoadPreferences    func() ([]string, chapter.Difficulty, error)
@@ -181,10 +185,25 @@ type model struct {
 	browserNotice      string
 	captureUnavailable string
 	session            chapter.Chapter
+	width, height      int
+	scrollOffset       int
 }
 
 func RunWithOptions(opts Options) (Result, error) {
-	finalModel, err := tea.NewProgram(newModel(opts)).Run()
+	var options []tea.ProgramOption
+	initial := newModel(opts)
+	if opts.In != nil {
+		options = append(options, tea.WithInput(opts.In))
+	}
+	if opts.Out != nil {
+		options = append(options, tea.WithOutput(opts.Out))
+		if terminal, ok := opts.Out.(interface{ Fd() uintptr }); ok {
+			if width, height, err := term.GetSize(terminal.Fd()); err == nil && width > 0 && height > 0 {
+				initial.resize(width, height)
+			}
+		}
+	}
+	finalModel, err := tea.NewProgram(initial, options...).Run()
 	if err != nil {
 		return Result{}, err
 	}
@@ -272,16 +291,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(msg.text), Paste: true})
 	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyPgUp:
+			if m.scroll(-1) {
+				return m, nil
+			}
+		case tea.KeyPgDown:
+			if m.scroll(1) {
+				return m, nil
+			}
+		}
 		if m.screen == screenPreferences {
 			return m.updatePreferences(msg)
 		}
 		if m.screen == screenChapters && msg.String() != "ctrl+c" {
 			if m.chapterList.FilterState() == list.Filtering {
+				m.scrollOffset = 0
 				var cmd tea.Cmd
 				m.chapterList, cmd = m.chapterList.Update(msg)
 				return m, cmd
 			}
 			if m.chapterList.FilterState() == list.FilterApplied && msg.String() == "esc" {
+				m.scrollOffset = 0
 				m.chapterList.ResetFilter()
 				return m, nil
 			}
@@ -325,8 +356,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						switch msg.String() {
 						case "up", "k":
 							m.choiceIndex = max(0, m.choiceIndex-1)
+							m.focusChoice()
 						case "down", "j":
 							m.choiceIndex = max(0, min(len(m.currentItem().Choices)-1, m.choiceIndex+1))
+							m.focusChoice()
 						}
 					}
 					return m, nil
@@ -342,6 +375,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		if m.screen == screenChapterDetail && !msg.Paste && m.changeSessionChoice(msg.String()) {
+			m.scrollOffset = 0
 			return m, nil
 		}
 		switch msg.String() {
@@ -349,6 +383,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "h":
 			m.showHelp = !m.showHelp
+			m.scrollOffset = 0
+			if m.showHelp {
+				m.scrollOffset = m.page().lastOffset()
+			}
 			return m, nil
 		case "g":
 			m.goHome()
@@ -360,19 +398,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.handleEnter()
 		}
 	case tea.WindowSizeMsg:
-		// Reserve outer padding, the chapter heading and the contextual footer.
-		width := max(1, msg.Width-4)
-		m.home.SetSize(width, homeListHeight(msg.Height))
-		m.chapterList.SetSize(width, max(1, msg.Height-9))
-		m.input.Width = max(1, width-lipgloss.Width(m.input.Prompt)-1)
-		m.preferences.resize(width, msg.Height)
+		m.resize(msg.Width, msg.Height)
 	}
 
 	var cmd tea.Cmd
 	switch m.screen {
 	case screenHome:
+		if _, ok := msg.(tea.KeyMsg); ok {
+			m.scrollOffset = 0
+		}
 		m.home, cmd = m.home.Update(msg)
 	case screenChapters:
+		if _, ok := msg.(tea.KeyMsg); ok {
+			m.scrollOffset = 0
+		}
 		m.chapterList, cmd = m.chapterList.Update(msg)
 	case screenTraining:
 		m.input, cmd = m.input.Update(msg)
@@ -380,10 +419,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m model) View() string {
-	style := lipgloss.NewStyle().Padding(1, 2)
+func (m model) viewBody() string {
 	if m.screen == screenPreferences {
-		return style.Render(m.preferencesView())
+		return m.preferencesView()
 	}
 	var view string
 	switch m.screen {
@@ -400,17 +438,16 @@ func (m model) View() string {
 	case screenTrainingSummary:
 		view = m.trainingSummaryView()
 	}
-	if m.showHelp {
-		view += "\n\n" + m.helpView()
-	}
 	if m.progressError != "" {
 		view += "\n\n" + newTUIStyles().Warning.Render(m.progressError)
 	}
 	if m.preferencesError != nil {
 		view += "\n\n" + newTUIStyles().Warning.Render(fmt.Sprintf("Preferences unavailable. Using defaults. %v", m.preferencesError))
 	}
-	view += "\n\n" + m.footer()
-	return style.Render(view)
+	if m.showHelp {
+		view += "\n\n" + m.helpView()
+	}
+	return view
 }
 
 func (m model) handleEnter() (tea.Model, tea.Cmd) {
@@ -444,6 +481,7 @@ func (m model) handleEnter() (tea.Model, tea.Cmd) {
 		case homeActionStats:
 			m.refreshSessionFilter()
 			m.screen = screenStats
+			m.scrollOffset = 0
 			return m, nil
 		case homeActionPreferences:
 			m.openPreferences()
@@ -509,9 +547,11 @@ func (m *model) openChapters(shortcutsOnly bool) {
 	m.screen = screenChapters
 	m.feedback = ""
 	m.showHelp = false
+	m.scrollOffset = 0
 }
 
 func (m *model) back() {
+	m.scrollOffset, m.showHelp = 0, false
 	switch m.screen {
 	case screenHome:
 		return
@@ -530,6 +570,7 @@ func (m *model) back() {
 func (m *model) goHome() {
 	m.clearSession()
 	m.screen = screenHome
+	m.scrollOffset, m.showHelp = 0, false
 }
 
 func (m model) answerOrAdvance() model {
@@ -540,6 +581,7 @@ func (m model) answerOrAdvance() model {
 	}
 	if m.feedback != "" {
 		m.itemIndex++
+		m.scrollOffset = 0
 		m.choiceIndex = 0
 		m.feedback = ""
 		m.input.SetValue("")
@@ -566,10 +608,12 @@ func (m model) answerOrAdvance() model {
 	recorded, err := progress.RecordAnswer(m.progressPath, m.session.ID, current.ID, correct)
 	if err != nil {
 		m.progressError = "Progress could not be saved: " + err.Error()
+		m.scrollOffset = m.page().lastOffset()
 		return m
 	}
 	m.progress = recorded
 	m.progressError = ""
+	m.scrollOffset = 0
 	m.summary.Total++
 	if correct {
 		m.summary.Correct++
@@ -605,17 +649,19 @@ func (m model) currentChapter() *chapter.Chapter {
 }
 
 func (m model) homeView() string {
+	return m.homeHeader() + "\n" + m.home.View()
+}
+
+func (m model) homeHeader() string {
 	styles := newTUIStyles()
-	lines := []string{
-		renderHomeBanner(m.home.Width(), styles),
-		styles.Subtitle.Render(homeTagline),
-		"",
+	bannerWidth := m.contentWidth()
+	if m.height > 0 && m.height < 22 {
+		bannerWidth = 1
 	}
-	lines = append(lines,
-		styles.Separator.Render("────────────────────────────────────────"),
-		"",
-		m.home.View(),
-	)
+	lines := []string{renderHomeBanner(bannerWidth, styles), styles.Subtitle.Render(homeTagline)}
+	if m.height == 0 || m.height >= 20 {
+		lines = append(lines, m.separator())
+	}
 	return strings.Join(lines, "\n")
 }
 
@@ -634,31 +680,28 @@ func homeBannerWidth() int {
 	return width
 }
 
-func homeListHeight(windowHeight int) int {
-	const homeChromeHeight = 14
-	return max(7, windowHeight-homeChromeHeight)
+func (m model) chaptersView() string {
+	view := m.chaptersHeader() + "\n" + m.chapterList.View()
+	if m.browserNotice != "" {
+		view += "\n" + newTUIStyles().Warning.Render(m.browserNotice)
+	}
+	return view
 }
 
-func (m model) chaptersView() string {
+func (m model) chaptersHeader() string {
 	styles := newTUIStyles()
 	title := "Chapitres"
 	if m.chapterList.Title == homeActionShortcuts {
 		title = "Raccourcis clavier"
 	}
-	if m.browserNotice != "" {
-		return strings.Join([]string{
-			styles.ScreenTitle.Render(title),
-			styles.Warning.Render(m.browserNotice),
-			m.chapterList.View(),
-		}, "\n\n")
-	}
 	return strings.Join([]string{
 		styles.ScreenTitle.Render(title),
 		styles.Subtitle.Render(fmt.Sprintf("Niveau par défaut : %s", m.filter.Difficulty)),
-		styles.Separator.Render("────────────────────────────────────────"),
-		"",
-		m.chapterList.View(),
 	}, "\n")
+}
+
+func (m model) separator() string {
+	return newTUIStyles().Separator.Render(strings.Repeat("─", min(40, m.contentWidth())))
 }
 
 func (m model) chapterDetailView() string {
@@ -681,32 +724,38 @@ func (m model) chapterDetailView() string {
 	}
 	lines := []string{
 		styles.ScreenTitle.Render(current.Title),
-		styles.Subtitle.Render(current.Description),
-		"",
-		heading.Render("Chapitre") + fmt.Sprintf(" · Exercices au total : %d", len(current.Items)),
-		"",
 		heading.Render("Ma séance"),
 		"Niveau : " + sessionLevelLabel(filter.Difficulty) + " · d Changer",
 		order,
 		fmt.Sprintf("Exercices éligibles : %d", len(eligible)),
-		styles.Muted.Render(sessionLevelCounts(*current, m.detailScope, filter)),
-		"",
-		heading.Render("Ma progression"),
-		eligibleAcquiredLabel(acquired, len(eligible)),
-		fmt.Sprintf("Score historique : %d/%d (bonnes réponses / tentatives)", score.Correct, score.Attempts),
 	}
 	prepared := *current
 	prepared.Items = eligible
 	switch {
 	case len(eligible) == 0:
-		lines = append(lines, "", styles.Warning.Render("Aucun exercice éligible à ce niveau avec les modules actifs."))
+		lines = append(lines, styles.Warning.Render("Aucun exercice éligible à ce niveau."))
+		if groups := filter.MissingModuleGroups(*current, m.detailScope); len(groups) > 0 {
+			lines = append(lines,
+				"Modules à activer (un groupe suffit) : "+strings.Join(groups, " ou "),
+				"Depuis l’accueil, ouvre Preferences (p), active les modules avec Entrée puis enregistre avec s.")
+		}
 	case prepared.HasKeyExercises():
 		lines = append(lines, styles.Info.Render("Capture réelle des raccourcis dans un mode dédié."))
 		if m.captureUnavailable != "" {
 			lines = append(lines, styles.Warning.Render(m.captureUnavailable))
 		}
 	}
-	return lipgloss.NewStyle().Width(m.chapterList.Width()).Render(strings.Join(lines, "\n"))
+	lines = append(lines,
+		styles.Muted.Render(sessionLevelCounts(*current, m.detailScope, filter)),
+		"",
+		heading.Render("Ma progression"),
+		eligibleAcquiredLabel(acquired, len(eligible)),
+		fmt.Sprintf("Score historique : %d/%d (bonnes réponses / tentatives)", score.Correct, score.Attempts),
+		"",
+		heading.Render("Chapitre")+fmt.Sprintf(" · Exercices au total : %d", len(current.Items)),
+		styles.Subtitle.Render(current.Description),
+	)
+	return strings.Join(lines, "\n")
 }
 
 func (m model) trainingView() string {
@@ -715,46 +764,41 @@ func (m model) trainingView() string {
 	if current == nil {
 		return "Aucun exercice disponible."
 	}
-	selected := m.session
-	inputView := m.input.View()
-	answerLabel := "Réponse"
-	if m.isMultipleChoice() {
-		if m.feedback != "" {
-			inputView = "> " + current.Choices[m.choiceIndex]
-		} else {
-			answerLabel = "Choix"
-			choices := make([]string, 0, len(current.Choices))
+	lines := []string{
+		styles.ScreenTitle.Render(m.session.Title),
+		styles.Muted.Render(fmt.Sprintf("Exercice %d/%d", m.itemIndex+1, len(m.session.Items))),
+	}
+	if m.height == 0 || m.height >= 20 {
+		lines = append(lines, m.separator())
+	}
+	if m.feedback == incorrectAnswer {
+		lines = append(lines, styles.Warning.Render(m.feedback))
+	} else if m.feedback != "" {
+		lines = append(lines, styles.Success.Render(m.feedback))
+	} else if !m.isMultipleChoice() && m.input.Err != nil {
+		lines = append(lines, styles.Warning.Render(m.input.Err.Error()))
+	}
+	lines = append(lines, styles.Muted.Render("Question"), current.Prompt)
+	if m.feedback == "" {
+		if m.isMultipleChoice() {
+			lines = append(lines, "", styles.Muted.Render("Choix"))
 			for i, choice := range current.Choices {
 				if i == m.choiceIndex {
-					choices = append(choices, styles.Info.Render("> "+choice))
+					lines = append(lines, styles.Info.Render("> "+choice))
 				} else {
-					choices = append(choices, "  "+choice)
+					lines = append(lines, "  "+choice)
 				}
 			}
-			inputView = strings.Join(choices, "\n")
 		}
-	} else if m.input.Err != nil {
-		inputView += "\n" + styles.Warning.Render(m.input.Err.Error())
-	}
-	lines := []string{
-		styles.ScreenTitle.Render(selected.Title),
-		styles.Muted.Render(fmt.Sprintf("Exercice %d/%d", m.itemIndex+1, len(selected.Items))),
-		styles.Separator.Render("────────────────────────────────────────"),
-		"",
-		styles.Muted.Render("Question"),
-		current.Prompt,
-		"",
-		styles.Muted.Render(answerLabel),
-		inputView,
-	}
-	if m.feedback == "" {
 		return strings.Join(lines, "\n")
 	}
-	lines = append(lines, "")
+	answer := m.input.Value()
+	if m.isMultipleChoice() {
+		answer = current.Choices[m.choiceIndex]
+	}
+	lines = append(lines, "", styles.Muted.Render("Réponse"), m.answerLine("> ", answer))
 	if m.feedback == incorrectAnswer {
-		lines = append(lines, styles.Warning.Render(m.feedback), "Réponse attendue : "+current.Answer.Primary)
-	} else {
-		lines = append(lines, styles.Success.Render(m.feedback))
+		lines = append(lines, m.answerLine("Réponse attendue : ", current.Answer.Primary))
 	}
 	if current.Explanation != "" {
 		lines = append(lines, styles.Muted.Render("Explication"), current.Explanation)
@@ -771,7 +815,7 @@ func (m model) trainingSummaryView() string {
 	lines := []string{
 		styles.ScreenTitle.Render("Bilan de la séance"),
 		styles.Subtitle.Render(title),
-		styles.Separator.Render("────────────────────────────────────────"),
+		m.separator(),
 		"",
 		fmt.Sprintf("Bonnes réponses : %d/%d", m.summary.Correct, m.summary.Total),
 	}
@@ -787,8 +831,8 @@ func (m model) trainingSummaryView() string {
 		}
 		lines = append(lines,
 			missed.Prompt,
-			styles.Muted.Render("Réponse attendue : "+missed.Expected),
-			styles.Muted.Render("Ta réponse : "+valueOrFallback(missed.Answered, "(vide)")),
+			styles.Muted.Render(m.answerLine("Réponse attendue : ", missed.Expected)),
+			styles.Muted.Render(m.answerLine("Ta réponse : ", valueOrFallback(missed.Answered, "(vide)"))),
 		)
 	}
 	return strings.Join(lines, "\n")
@@ -827,7 +871,7 @@ func (m model) statsView() string {
 		fmt.Sprintf("Chapitres pratiqués : %d", practiced),
 		styles.Muted.Render("Les acquis restent dans l’historique après désactivation d’un module."),
 	)
-	return lipgloss.NewStyle().Width(m.chapterList.Width()).Render(strings.Join(lines, "\n"))
+	return strings.Join(lines, "\n")
 }
 
 func eligibleAcquiredLabel(acquired, total int) string {
@@ -844,6 +888,8 @@ func (m model) helpView() string {
 		styles.ScreenTitle.Render("Help"),
 		"enter select/start",
 		"j/k or arrows move in lists",
+		"/ search in chapters",
+		"PgUp/PgDn read long content",
 		"esc back",
 		"g home",
 		"q quit",
@@ -851,15 +897,17 @@ func (m model) helpView() string {
 }
 
 func (m model) footer() string {
-	styles := newTUIStyles()
 	if m.screen == screenPreferences {
-		return styles.Footer.Render(m.preferences.footerText())
+		return m.preferences.footerText()
 	}
-	footer := styles.Footer
-	if m.screen == screenStats || m.screen == screenChapterDetail {
-		footer = footer.Width(m.chapterList.Width())
+	text := footerText(m.footerContext())
+	if m.screen == screenChapterDetail {
+		text += " · d Niveau"
+		if ch := m.currentChapter(); ch != nil && ch.Guided() {
+			text += " · m Mode"
+		}
 	}
-	return footer.Render(footerText(m.footerContext()))
+	return text
 }
 
 func (m model) footerContext() footerContext {
@@ -921,7 +969,7 @@ func footerText(context footerContext) string {
 	case footerFilterInput:
 		return "type to filter · enter apply · esc cancel · ctrl+c quit"
 	case footerFilteredList:
-		return "enter select · j/k move · esc clear filter · g home · h help · q quit"
+		return "enter select · / search · j/k move · esc clear filter · g home · h help · q quit"
 	case footerChapterDetail:
 		return "Entrée Démarrer · Échap Chapitres · g Accueil · h Aide · q Quitter"
 	case footerKeySequenceDetail:
@@ -937,7 +985,7 @@ func footerText(context footerContext) string {
 	case footerTrainingSummary:
 		return "esc chapter · g home · q quit"
 	default:
-		return "enter select · j/k move · esc back · g home · h help · q quit"
+		return "enter select · / search · j/k move · esc back · g home · h help · q quit"
 	}
 }
 

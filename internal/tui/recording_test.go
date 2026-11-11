@@ -263,7 +263,8 @@ func TestTUIReadFailureIsVisibleAndNeverOverwritten(t *testing.T) {
 		t.Fatal(err)
 	}
 	m := recordingModel(t, path, homeActionStartTraining)
-	if !strings.Contains(m.View(), path) {
+	if view := m.View(); !strings.Contains(view, "Progress could not be loaded") ||
+		!strings.Contains(strings.Join(strings.Fields(view), ""), path) {
 		t.Fatal("initial read error is hidden while training")
 	}
 	m.input.SetValue("pwd")
