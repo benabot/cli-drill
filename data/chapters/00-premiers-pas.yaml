@@ -505,3 +505,59 @@ items:
       Seule la comparaison du nom demandé change : une recherche
       insensible à la casse trouve aussi Budget.txt via
       budget.txt.
+  - id: "ls-long-by-modification"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Affiche la liste détaillée des entrées visibles de
+      livraisons, de la plus récemment modifiée à la plus
+      ancienne. Les dates de modification sont distinctes.
+    answer:
+      primary: "ls -lt livraisons"
+      accepted:
+        - "ls -tl livraisons"
+        - "ls -l -t livraisons"
+        - "ls -t -l livraisons"
+    explanation: |-
+      -l affiche la liste détaillée. -t trie les entrées
+      par date de modification, de la plus récente à la
+      plus ancienne.
+  - id: "man-external-printf-section"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Sur macOS ou avec man-db, le manuel contient une page
+      pour la commande externe printf et une autre pour la
+      fonction C du même nom. Ouvre la page de la commande
+      en indiquant sa section.
+    answer:
+      primary: "man 1 printf"
+      accepted:
+        - "man 1 'printf'"
+        - "man 1 \"printf\""
+    explanation: |-
+      La section 1 documente les commandes utilisateur.
+      La section 3 documente les fonctions de bibliothèque.
+      Le numéro avant le nom fixe la section consultée.
+  - id: "pwd-physical-directory"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Tu as rejoint le répertoire courant par un lien
+      symbolique. Le shell a conservé le chemin logique.
+      Affiche le chemin physique à transmettre à un collègue
+      sans changer de répertoire.
+    answer:
+      primary: "pwd -P"
+      accepted:
+        - "command pwd -P"
+    explanation: |-
+      -P affiche le chemin absolu du répertoire courant avec
+      les liens résolus. Le mode logique peut conserver le
+      nom du lien par lequel tu es entré.

@@ -36,7 +36,7 @@ func TestStartTrainingUsesV2FoundationsAndKeepsDirectCapture(t *testing.T) {
 	}
 	assertScreen(t, m, screenHome)
 	state, err := progress.Load(path)
-	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 10, Correct: 10}) {
+	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 11, Correct: 11}) {
 		t.Fatalf("TUI progress: %#v (%v)", state, err)
 	}
 	m.home.Select(homeActionIndex(homeActionShortcuts))

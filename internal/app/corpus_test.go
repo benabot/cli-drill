@@ -20,12 +20,12 @@ func TestDefaultTrainingUsesUnixFoundationsWithoutExecutingAnswers(t *testing.T)
 	isolateChapterHome(t)
 	dir := useTemporaryTrainingDirectory(t)
 	path := filepath.Join(dir, "progress.json")
-	output, err := runSessionCLI(path, "pwd\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nmkdir essais\ncat 'notes de cours.txt'\ncd ~\nman ls\n", "train")
-	if err != nil || !strings.Contains(output, "Premiers pas Unix") || strings.Count(output, "Correct.") != 10 {
+	output, err := runSessionCLI(path, "pwd\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nmkdir essais\ncat 'notes de cours.txt'\ncd ~\nman ls\nls -lt livraisons\n", "train")
+	if err != nil || !strings.Contains(output, "Premiers pas Unix") || strings.Count(output, "Correct.") != 11 {
 		t.Fatalf("default training failed: %v\n%s", err, output)
 	}
 	state, err := progress.Load(path)
-	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 10, Correct: 10}) || len(state.CompletedExercises) != 10 {
+	if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 11, Correct: 11}) || len(state.CompletedExercises) != 11 {
 		t.Fatalf("first training progress: %#v (%v)", state, err)
 	}
 	entries, err := os.ReadDir(dir)
@@ -109,7 +109,7 @@ func TestTextTrainingPlainOutputSeparatesQuestionAndFeedback(t *testing.T) {
 	args := []string{"train", "11-flux-shell", "--difficulty", "advanced"}
 	const solution = "ls docs absent > bilan.log 2>&1"
 	question, err := runSessionCLI(path, "", args...)
-	if err != nil || !strings.Contains(question, "Exercice 1/10\n\nListe le dossier docs") ||
+	if err != nil || !strings.Contains(question, "Exercice 1/12\n\nListe le dossier docs") ||
 		!strings.HasSuffix(question, "\n\nRéponse\n> ") || strings.Contains(question, solution) ||
 		strings.Contains(question, "Explication") || strings.Contains(question, "\x1b") {
 		t.Fatalf("unexpected unanswered exercise: %v\n%s", err, question)

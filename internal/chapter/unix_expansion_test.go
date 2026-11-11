@@ -20,14 +20,14 @@ func TestUnixExpansionSessions(t *testing.T) {
 		ids   [3][]string // Beginner, Intermediate, Advanced.
 	}{
 		{"00-premiers-pas", LearningOrderGuided, [3][]string{
-			{"pwd", "ls", "ls-hidden", "cd-docs", "cd-parent", "cd-absolute", "mkdir-essais", "cat-spaces", "cd-home", "man-ls"},
-			{"cd-previous", "ls-other-directory", "mkdir-parents", "cat-hidden-path", "ls-directory-entry", "glob-print-names", "glob-bracket-list", "quote-literal-question", "literal-tilde-directory", "command-origin"},
+			{"pwd", "ls", "ls-hidden", "cd-docs", "cd-parent", "cd-absolute", "mkdir-essais", "cat-spaces", "cd-home", "man-ls", "ls-long-by-modification"},
+			{"cd-previous", "ls-other-directory", "mkdir-parents", "cat-hidden-path", "ls-directory-entry", "glob-print-names", "glob-bracket-list", "quote-literal-question", "literal-tilde-directory", "command-origin", "man-external-printf-section", "pwd-physical-directory"},
 			{"cdpath-priority", "cd-symlink-parent", "glob-quoted-prefix", "glob-no-match-shells", "glob-leading-dot", "builtin-shadowed", "subshell-directory", "relative-from-peer", "dash-leading-name", "case-sensitive-volume"},
 		}},
 		{"11-flux-shell", LearningOrderGuided, [3][]string{
-			{"redirect-output", "append-output", "stdin-report", "preview-first-lines", "preview-last-lines", "count-file-words", "pipe-produced-words", "sort-full-lines", "dedupe-adjacent-lines", "tee-new-copy"},
-			{"redirect-input", "count-matching-lines", "redirect-errors", "sort-dedupe-scattered", "count-sorted-runs", "sort-numeric-field", "cut-delimited-field", "tee-append-copy", "split-output-diagnostics", "heredoc-literal-start"},
-			{"merge-output-errors", "pipefail-rightmost-failure", "bash-pipeline-status-vector", "nul-delimited-sort", "sort-before-replacement", "exec-persistent-stdout", "redirect-brace-group", "heredoc-expanded-body", "sort-locale-precedence", "newline-vs-record-count"},
+			{"redirect-output", "append-output", "stdin-report", "preview-first-lines", "preview-last-lines", "count-file-words", "pipe-produced-words", "sort-full-lines", "dedupe-adjacent-lines", "tee-new-copy", "tail-follow-journal"},
+			{"redirect-input", "count-matching-lines", "redirect-errors", "sort-dedupe-scattered", "count-sorted-runs", "sort-numeric-field", "cut-delimited-field", "tee-append-copy", "split-output-diagnostics", "heredoc-literal-start", "redirect-missing-parent", "noclobber-single-export", "show-last-exit-status"},
+			{"merge-output-errors", "pipefail-rightmost-failure", "bash-pipeline-status-vector", "nul-delimited-sort", "sort-before-replacement", "exec-persistent-stdout", "redirect-brace-group", "heredoc-expanded-body", "sort-locale-precedence", "newline-vs-record-count", "redirect-stderr-before-stdout", "and-or-alert-after-publish"},
 		}},
 		{"12-fichiers-permissions", LearningOrderIndependent, [3][]string{
 			{"copy-spaced-path", "rename-file", "remove-file", "remove-empty-directory", "list-permissions", "touch-new-file", "copy-backup-name", "read-owner-column", "chmod-group-no-write", "recognize-link-entry", "mkdir-private-mode"},
@@ -131,6 +131,15 @@ func TestUnixExpansionRejectsCommandsWithDifferentEffects(t *testing.T) {
 		{"13-processus-environnement/read-job-control-stop-state", "4812", "4813"},
 		{"13-processus-environnement/diagnose-command-launch-status", "127 126", "126 127"},
 		{"13-processus-environnement/force-stop-verified-pid", "kill -s KILL 4821", "kill -s TERM 4821"},
+		{"00-premiers-pas/ls-long-by-modification", "ls -lt livraisons", "ls -ltr livraisons"},
+		{"00-premiers-pas/man-external-printf-section", "man 1 printf", "man 3 printf"},
+		{"00-premiers-pas/pwd-physical-directory", "pwd -P", "pwd -L"},
+		{"11-flux-shell/tail-follow-journal", "tail -f service.log", "tail -n 10 service.log"},
+		{"11-flux-shell/redirect-missing-parent", "Le shell échoue avant de lancer mesurer.", "mesurer démarre puis échoue en écrivant sa sortie."},
+		{"11-flux-shell/noclobber-single-export", "(set -C; exporter > rapport.txt)", "(set -C; exporter >| rapport.txt)"},
+		{"11-flux-shell/redirect-stderr-before-stdout", "stderr garde la destination initiale de stdout.", "stderr suit stdout vers mesures.log."},
+		{"11-flux-shell/show-last-exit-status", "printf '%s\\n' \"$?\"", "printf '%s\\n' \"$$\""},
+		{"11-flux-shell/and-or-alert-after-publish", "alerter s’exécute après l’échec de publier.", "alerter ne s’exécute que si preparer échoue."},
 	} {
 		t.Run(tc.key, func(t *testing.T) {
 			item, ok := items[tc.key]

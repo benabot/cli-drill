@@ -518,3 +518,117 @@ items:
       wc compte les sauts de ligne : il y en a deux. Le lecteur
       compte aussi le dernier segment non terminé : trois
       enregistrements au total.
+  - id: "tail-follow-journal"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "beginner"
+    tools: []
+    prompt: |-
+      Affiche les dix dernières lignes de service.log puis
+      continue à afficher les nouvelles lignes à mesure
+      qu’elles arrivent. Le fichier existe et reste en place.
+    answer:
+      primary: "tail -f service.log"
+      accepted:
+        - "tail -n 10 -f service.log"
+        - "tail -f -n 10 service.log"
+    explanation: |-
+      tail affiche les dix dernières lignes par défaut.
+      Avec -f, il continue à lire les ajouts après cet aperçu.
+  - id: "redirect-missing-parent"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      L’exécutable mesurer est disponible. Tu tapes
+      mesurer > rapports/releve.txt
+      Le dossier rapports n’existe pas. Le shell signale
+      une erreur d’ouverture. À quel moment l’échec survient-il ?
+    choices:
+      - "mesurer démarre puis échoue en écrivant sa sortie."
+      - "Le shell échoue avant de lancer mesurer."
+      - "Le shell crée rapports puis lance mesurer."
+    answer:
+      primary: "Le shell échoue avant de lancer mesurer."
+    explanation: |-
+      Le shell ouvre la sortie avant de lancer mesurer.
+      La redirection peut créer le fichier, mais elle a
+      besoin d’un dossier parent existant.
+  - id: "noclobber-single-export"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      Redirige la sortie de exporter vers rapport.txt. Ce
+      fichier peut déjà exister comme fichier ordinaire.
+      Active la protection du shell contre l’écrasement
+      dans un sous-shell pour cette seule tentative.
+    answer:
+      primary: "(set -C; exporter > rapport.txt)"
+      accepted:
+        - "(set -C; exporter >rapport.txt)"
+        - "( set -C; exporter > rapport.txt )"
+        - "(set -C && exporter > rapport.txt)"
+    explanation: |-
+      set -C protège un fichier ordinaire existant contre >.
+      Si l’ouverture échoue, exporter ne démarre pas.
+      Les parenthèses limitent le réglage au sous-shell.
+  - id: "redirect-stderr-before-stdout"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      stdout et stderr pointent tous deux vers le terminal.
+      mesurer écrit un résultat sur stdout et un diagnostic
+      sur stderr. Tu tapes mesurer 2>&1 > mesures.log.
+      Pourquoi le diagnostic reste-t-il visible au terminal ?
+    choices:
+      - "stderr suit stdout vers mesures.log."
+      - "stderr garde la destination initiale de stdout."
+      - "Le shell ignore 2>&1 quand une autre redirection suit."
+    answer:
+      primary: "stderr garde la destination initiale de stdout."
+    explanation: |-
+      2>&1 donne à stderr la destination actuelle de stdout.
+      Le shell ouvre ensuite mesures.log pour stdout seul.
+      stderr pointe toujours vers le terminal.
+  - id: "show-last-exit-status"
+    type: "workflow"
+    exercise_type: "simple-shell-sim"
+    difficulty: "intermediate"
+    tools: []
+    prompt: |-
+      verifier vient de terminer et le shell a rendu la main.
+      Affiche son statut de sortie dans ta prochaine
+      commande, sur une seule ligne.
+    answer:
+      primary: "printf '%s\\n' \"$?\""
+      accepted:
+        - "printf '%d\\n' \"$?\""
+        - "echo \"$?\""
+    explanation: |-
+      Le shell développe $? avec le dernier statut avant
+      de lancer la commande d’affichage. Une commande
+      intermédiaire remplacerait ce statut.
+  - id: "and-or-alert-after-publish"
+    type: "concept"
+    exercise_type: "multiple-choice"
+    difficulty: "advanced"
+    tools: []
+    prompt: |-
+      Tu lances preparer && publier || alerter au terminal.
+      preparer réussit et publier échoue. Que se passe-t-il
+      ensuite ?
+    choices:
+      - "alerter s’exécute après l’échec de publier."
+      - "alerter ne s’exécute que si preparer échoue."
+      - "publier est relancé avant d’exécuter alerter."
+    answer:
+      primary: "alerter s’exécute après l’échec de publier."
+    explanation: |-
+      Le shell évalue && et || de gauche à droite, à
+      priorité égale. preparer réussit, donc publier se
+      lance. Son échec déclenche alerter.

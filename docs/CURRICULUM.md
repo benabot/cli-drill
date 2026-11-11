@@ -15,7 +15,10 @@ Le point de départ est `dev` à `4320650`, après publication du
 [2](CORPUS_P25_WAVE2.md) sont publiées sur `dev` à `f97718a` et
 `fd37fe4`. La [vague 3](CORPUS_P25_WAVE3.md) est intégrée à `a6af7b4`.
 Le [chapitre 14](CORPUS_P25_UNIX_TEXT.md) est intégré à `0178ab9`. Le corpus
-publié à cette base compte 240 exercices.
+publié à cette base compte 240 exercices. Le [lot sécurité des fichiers et
+processus](CORPUS_P25_UNIX_SAFETY_PROCESSES.md) porte la base publiée
+`c9ad59c` à 253 exercices. Le [lot navigation et
+flux](CORPUS_P25_UNIX_BASICS_FLOWS.md) en ajoute 9 localement.
 Le relevé porte sur les YAML intégrés de
 [`data/chapters`](../data/chapters/), sans compter les fixtures. Les identifiants
 03 et 04 ont été retirés. Les garder réservés et conserver les identifiants
@@ -26,12 +29,12 @@ initialement ; seules les sections marquées comme implémentées ont été réa
 
 ## Bilan par chapitre
 
-B = Beginner, I = Intermediate, A = Advanced. Le relevé décrit le corpus
-publié. Les propositions de l'audit sont hors décompte.
+B = Beginner, I = Intermediate, A = Advanced. Le relevé inclut les exercices
+implémentés sur la branche locale `content/p25-unix-basics-flows`.
 
 | Chapitre | B | I | A | Total | Suite à évaluer |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `00-premiers-pas` | 10 | 10 | 10 | 30 | [Aide locale, lecture des listes et repères de chemin](#audit-du-chapitre-00). |
+| `00-premiers-pas` | 11 | 12 | 10 | 33 | [Aide locale, lecture des listes et repères de chemin](#audit-du-chapitre-00). |
 | `01-raccourcis-terminal` | 12 | 11 | 8 | 31 | Validation de la révision guidée et des limites de capture. |
 | `02-navigation-shell` | 5 | 4 | 0 | 9 | Navigation propre à chaque outil et annulation d'une sélection. |
 | `05-outils-quotidiens` | 2 | 1 | 0 | 3 | Historique local Atuin et navigation propre à Lazygit. |
@@ -40,11 +43,11 @@ publié. Les propositions de l'audit sont hors décompte.
 | `08-micro` | 5 | 1 | 0 | 6 | Édition courante et récupération des erreurs. |
 | `09-markdown-glow` | 1 | 2 | 1 | 4 | Aperçu Markdown, pagination et largeur d'affichage. |
 | `10-workflows-dotfiles` | 3 | 0 | 0 | 3 | États Git, index, historique, branches et récupération. |
-| `11-flux-shell` | 10 | 10 | 10 | 30 | [Suivi de journaux, ouvertures de fichiers et statuts](#audit-du-chapitre-11). |
-| `12-fichiers-permissions` | 10 | 10 | 10 | 30 | [Opérations sûres, espace disque et permissions](#audit-du-chapitre-12). |
-| `13-processus-environnement` | 10 | 10 | 10 | 30 | [Recherche de processus, signaux et chemins d'exécution](#audit-du-chapitre-13). |
+| `11-flux-shell` | 11 | 13 | 12 | 36 | [Suivi de journaux, ouvertures de fichiers et statuts](#audit-du-chapitre-11). |
+| `12-fichiers-permissions` | 11 | 15 | 11 | 37 | [Opérations sûres, espace disque et permissions](#audit-du-chapitre-12). |
+| `13-processus-environnement` | 11 | 14 | 11 | 36 | [Recherche de processus, signaux et chemins d'exécution](#audit-du-chapitre-13). |
 | `14-recherche-texte-unix` | 14 | 22 | 12 | 48 | Recette du contenu et de la durée par niveau. |
-| **Total** | **85** | **92** | **63** | **240** | |
+| **Total** | **89** | **106** | **67** | **262** | |
 
 Les périmètres de bat, Micro et Glow peuvent justifier moins de 30 exercices.
 L'inspection de texte, l'édition courante et l'aperçu ont chacun leurs propres
@@ -345,7 +348,8 @@ comporte 22 exercices. Sa durée reste à mesurer en recette.
 La base `0178ab90edc468a0458e0f8bd94484f9adc5c906` contient 30 exercices
 dans chacun des chapitres `00`, `11`, `12` et `13`. L'audit porte sur leurs
 120 exercices, avec comparaison des compétences de `06` et `14`. La
-couverture ci-dessous décrit les YAML. Les propositions restent à produire.
+couverture ci-dessous décrit les YAML à cette base. L'état de réalisation
+des propositions figure après le tableau des lots.
 
 Chaque proposition indispensable comble un manque qui gêne un usage courant
 ou une décision à risque. Une proposition utile étend le même chapitre à un
@@ -531,6 +535,11 @@ l'identification du bon processus ou exécutable et une action proportionnée.
 | 3 | `00.4` à `00.6` et `11.7` à `11.9` | 6 | Étendre la navigation et les flux à des cas d'usage ciblés. |
 | 4 | `12.8` à `12.11` et `13.7` à `13.10` | 8 | Approfondir les métadonnées, l'environnement et les tâches au-delà des premiers gestes. |
 | **Total indicatif** | **22 indispensables et 14 utiles** | **36** | **6 en `00`, 9 en `11`, 11 en `12`, 10 en `13`.** |
+
+Le lot 1 est intégré à `dev` à `c9ad59c`. Les neuf exercices du lot 2
+sont implémentés et testés localement. Les 14 propositions utiles des lots 3
+et 4 restent ouvertes. [Rapport du lot 1](CORPUS_P25_UNIX_SAFETY_PROCESSES.md)
+· [Rapport du lot 2](CORPUS_P25_UNIX_BASICS_FLOWS.md)
 
 Chaque lot peut être produit et vérifié d'un bloc. L'ordre sert à prioriser
 les chantiers. Les exercices partent de leur propre état simulé. Pour les
