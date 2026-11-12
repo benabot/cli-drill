@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/exercise"
@@ -32,6 +33,17 @@ func (v textTrainingView) chapterTitle(title string) {
 	_, _ = fmt.Fprintln(v.out, v.title.Render("Chapitre : "+title))
 }
 
+func (v textTrainingView) separator() {
+	width := 40
+	if writerIsTerminal(v.out) {
+		fd, _ := writerFD(v.out)
+		if columns, _, err := terminalSize(fd); err == nil && columns > 0 {
+			width = min(width, columns)
+		}
+	}
+	_, _ = fmt.Fprintln(v.out, "\n"+v.secondary.Render(strings.Repeat("-", width)))
+}
+
 func (v textTrainingView) question(item chapter.Item, number, total int) {
 	_, _ = fmt.Fprintf(v.out, "\n%s\n\n%s\n", v.label.Render(fmt.Sprintf("Exercice %d/%d", number, total)), item.Prompt)
 	if item.ExerciseType == exercise.TypeMultipleChoice {
@@ -55,8 +67,8 @@ func (v textTrainingView) feedback(item chapter.Item, correct bool) {
 }
 
 func (v textTrainingView) summary(title string, pass trainingPass, acquired int) {
-	_, _ = fmt.Fprintf(v.out, "\n%s\n%s\nBonnes réponses : %d/%d\nExercices réalisés : %d\nErreurs : %d\nAcquis cumulés (historique) : %d\n",
-		v.secondary.Render("----------------------------------------"),
+	v.separator()
+	_, _ = fmt.Fprintf(v.out, "%s\nBonnes réponses : %d/%d\nExercices réalisés : %d\nErreurs : %d\nAcquis cumulés (historique) : %d\n",
 		v.title.Render(title), pass.Correct, pass.Total, pass.Total, len(pass.Missed), acquired)
 	if pass.immediate.Attempts > 0 {
 		_, _ = fmt.Fprintf(v.out, "Réessais immédiats : %d/%d bonnes réponses\n", pass.immediate.Correct, pass.immediate.Attempts)

@@ -114,7 +114,9 @@ func runTrainingPass(opts Options, reader *bufio.Reader, view textTrainingView, 
 			}
 			continue
 		}
-		if !textHeaderPrinted {
+		if textHeaderPrinted {
+			view.separator()
+		} else {
 			view.chapterTitle(batch.Title)
 			textHeaderPrinted = true
 		}

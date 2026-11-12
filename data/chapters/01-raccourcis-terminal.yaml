@@ -19,6 +19,7 @@ items:
         - "^B"
         - "control-b"
         - "ctrl b"
+        - "←"
     explanation: |-
       Ctrl+B recule d’un caractère dans Readline et dans ZLE
       avec les liaisons Emacs standard.
@@ -37,6 +38,7 @@ items:
         - "^F"
         - "control-f"
         - "ctrl f"
+        - "→"
     explanation: |-
       Ctrl+F avance d’un caractère dans Readline et dans ZLE
       avec les liaisons Emacs standard.

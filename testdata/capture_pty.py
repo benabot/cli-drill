@@ -125,7 +125,7 @@ def check_escape_and_labels(binary):
     for exit_key in (b"\x1b", b"\x03"):
         with session(binary) as capture:
             capture.expect("Waiting for key")
-            capture.send(b"\x1b[D\x1bOP\x1b[200~test\x1b[201~")
+            capture.send(b"\x1b[A\x1bOP\x1b[200~test\x1b[201~")
             capture.expect("Waiting for key")
             capture.assert_score(0, 0)
             for key, label in ((b"\x02", "Ctrl+B"), (b"\x06", "Ctrl+F"),
@@ -140,6 +140,26 @@ def check_escape_and_labels(binary):
             assert capture.finish() == 0
             capture.assert_score(4, 4)
         print(f"OK {exit_key!r}: unsupported sequences and exit do not count")
+
+
+def check_horizontal_arrows(binary):
+    for prefix in (b"\x1b[", b"\x1bO"):
+        with session(binary) as capture:
+            for key, label in ((b"D", "←"), (b"C", "→")):
+                capture.expect("Waiting for key")
+                capture.send(prefix + key)
+                capture.expect("Recu: " + label)
+                capture.expect("Correct.")
+                capture.send(b"\r")
+            capture.expect("Waiting for key")
+            capture.send(prefix + b"D")
+            capture.expect("Waiting for key")
+            capture.send(b"\x1b")
+            capture.expect("Session interrompue")
+            capture.expect("Bonnes réponses : 2/2")
+            assert capture.finish() == 0
+            capture.assert_score(2, 2)
+    print("OK capture: CSI and SS3 arrows accepted on matching exercises")
 
 
 def check_mixed_session(binary):
@@ -230,6 +250,31 @@ def check_tui_return(binary):
     print("OK TUI: escape returns to the home screen and preserves the answer")
 
 
+def check_tui_full_count(binary):
+    with session(binary, difficulty=None, chapter_id="00-premiers-pas") as terminal:
+        terminal.expect("Start training")
+        terminal.send(b"\x1b[B\r")
+        terminal.expect("/ search")
+        terminal.send(b"/")
+        terminal.expect("type to filter")
+        terminal.send(b"00-premiers-pas")
+        terminal.expect("00-premiers-pas")
+        terminal.send(b"\r")
+        terminal.expect("esc clear filter")
+        terminal.send(b"\r")
+        terminal.expect("Ma séance")
+        terminal.send(b"a")
+        terminal.expect("Parcours intégral (12)")
+        terminal.send(b"\r")
+        terminal.expect("Exercice 1/12")
+        terminal.send(b"pwd\r")
+        terminal.expect("Correct.")
+        terminal.send(b"\x03")
+        assert terminal.finish() == 0
+        terminal.assert_score(1, 1)
+    print("OK TUI: full beginner session displays Exercice 1/12")
+
+
 def check_text_escape(binary):
     with session(binary, chapter_id="00-premiers-pas") as terminal:
         terminal.expect("Exercice 1/6")
@@ -256,6 +301,8 @@ if __name__ == "__main__":
     check_text_escape(binary)
     check_signals(binary)
     check_escape_and_labels(binary)
+    check_horizontal_arrows(binary)
     check_mixed_session(binary)
     check_short_mixed_visit(binary)
     check_tui_return(binary)
+    check_tui_full_count(binary)

@@ -37,8 +37,10 @@ func readCaptureKey(next func(time.Duration) (byte, error)) (string, error) {
 
 func readCaptureEscape(next func(time.Duration) (byte, error)) (string, error) {
 	b, err := next(escapeGap)
+	unmodified := true
 	for err == nil && b == '\x1b' {
 		// Alt-modified special keys can have an extra ESC prefix.
+		unmodified = false
 		b, err = next(escapeGap)
 	}
 	if errors.Is(err, io.EOF) {
@@ -47,11 +49,12 @@ func readCaptureEscape(next func(time.Duration) (byte, error)) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	var key string
 	switch b {
 	case '\x03':
 		return "Ctrl+C", nil
 	case '[', 'O':
-		err = discardCaptureCSI(next, b == '[')
+		key, err = readCaptureCSI(next, b == '[', unmodified)
 	case ']', 'P', 'X', '^', '_':
 		err = discardCaptureString(next, b == ']')
 	default:
@@ -63,16 +66,17 @@ func readCaptureEscape(next func(time.Duration) (byte, error)) (string, error) {
 	if errors.Is(err, io.EOF) {
 		return "", nil
 	}
-	return "", err
+	return key, err
 }
 
-func discardCaptureCSI(next func(time.Duration) (byte, error), csi bool) error {
+func readCaptureCSI(next func(time.Duration) (byte, error), csi, unmodified bool) (string, error) {
 	const pasteStart = "200~"
-	var prefix [len(pasteStart)]byte
+	const plainPress = "1;1:1"
+	var prefix [len(plainPress)]byte
 	for i := 0; ; i++ {
 		b, err := next(escapeGap)
 		if err != nil {
-			return err
+			return "", err
 		}
 		if i < len(prefix) {
 			prefix[i] = b
@@ -82,10 +86,19 @@ func discardCaptureCSI(next func(time.Duration) (byte, error), csi bool) error {
 			continue
 		}
 		if b >= 0x40 && b <= 0x7e {
-			if csi && i == len(prefix)-1 && string(prefix[:]) == pasteStart {
-				return discardCapturePaste(next)
+			if csi && i == len(pasteStart)-1 && string(prefix[:len(pasteStart)]) == pasteStart {
+				return "", discardCapturePaste(next)
 			}
-			return nil
+			if unmodified && (b == 'C' || b == 'D') && i <= len(prefix) {
+				params := string(prefix[:i])
+				if params == "" || csi && (params == "1" || params == "1;1" || params == plainPress) {
+					if b == 'D' {
+						return "←", nil
+					}
+					return "→", nil
+				}
+			}
+			return "", nil
 		}
 	}
 }

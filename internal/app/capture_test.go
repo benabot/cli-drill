@@ -7,10 +7,49 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/benabot/cli-drill/data"
 	"github.com/benabot/cli-drill/internal/chapter"
 	"github.com/benabot/cli-drill/internal/exercise"
 	"github.com/benabot/cli-drill/internal/progress"
 )
+
+func TestCaptureAcceptsHorizontalArrowsForCursorExercises(t *testing.T) {
+	allowSimulatedCapture(t)
+	chapters, err := chapter.LoadFS(data.Chapters(), "*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ch, ok := findChapter(chapters, "01-raccourcis-terminal")
+	if !ok {
+		t.Fatal("missing keyboard chapter")
+	}
+	ch.Items = ch.Items[:3]
+	for _, tc := range []struct{ name, left, right string }{
+		{"CSI", "\x1b[D", "\x1b[C"},
+		{"SS3", "\x1bOD", "\x1bOC"},
+		{"Kitty press", "\x1b[1;1:1D", "\x1b[1;1:1C"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "progress.json")
+			// Ignore modified keys, release events, the opposite direction
+			// and an arrow in a question that does not accept either arrow.
+			input := "\x1b[1;5D\x1b\x1b[D\x1b[1;1:3D" + tc.right + tc.left + "\n" + tc.right + "\n" + tc.left + "\x1b"
+			var out bytes.Buffer
+			err := runTraining(Options{In: strings.NewReader(input), Out: &out, ProgressPath: path}, ch)
+			if err != nil || !strings.Contains(out.String(), "Recu: ←\nCorrect.") ||
+				!strings.Contains(out.String(), "Recu: →\nCorrect.") ||
+				!strings.Contains(out.String(), "Session interrompue.") ||
+				!strings.Contains(out.String(), "Bonnes réponses : 2/2") {
+				t.Fatalf("unexpected capture: %v\n%s", err, &out)
+			}
+			state, err := progress.Load(path)
+			if err != nil || state.Version != 1 || len(state.CompletedExercises) != 2 ||
+				state.ChapterScores[ch.ID] != (progress.ChapterScore{Attempts: 2, Correct: 2}) {
+				t.Fatalf("unexpected progress: %#v (%v)", state, err)
+			}
+		})
+	}
+}
 
 func TestCaptureIgnoresUnsupportedSequences(t *testing.T) {
 	allowSimulatedCapture(t)

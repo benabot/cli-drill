@@ -1,8 +1,8 @@
 # État du projet — CLI-Drill
 
-**La base publiée `dev` à `1f53b29` contient 446 exercices dans 13 chapitres
-et les lots 1 à 3 de P2.6. La recette technique du lot 4 est documentée
-localement. La validation physique de P2.6 reste ouverte.**
+**P2.6 est validée sur macOS avec Ghostty. La clôture documentaire et les
+corrections validées sont en revue locale sur `fix/p26-physical-acceptance`,
+issue de `dev` à `3c4d63d`. Le corpus compte 446 exercices dans 13 chapitres.**
 P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
@@ -791,18 +791,22 @@ de courses et `go vet` ont réussi. Sous pseudo-terminal, la TUI à 40×12
 a enchaîné un lot, une reprise et le lot suivant. Le parcours mixte a
 enchaîné six captures, la reprise d'une erreur et les QCM. Les scénarios
 de restauration du terminal du lot 1 et de lisibilité aux trois dimensions
-du lot 2 ont réussi. La durée et la transmission par un clavier physique
-restent à vérifier.
+du lot 2 ont réussi. Les durées et les résultats sur clavier physique
+figurent dans le rapport du lot 4.
 
-### P2.6 — Lot 4, recette finale
+### P2.6 — Lot 4, recette finale validée sur macOS
 
-Les tests Go et les scénarios principaux sous pseudo-terminal ont réussi
-sur macOS arm64. Le correctif P05 est local sur `fix/p26-text-input-escape`.
-Les flèches suivies d'Entrée ont laissé la CLI textuelle active sous
-pseudo-terminal. Le [rapport de recette](docs/P26_FINAL_ACCEPTANCE.md)
-regroupe les preuves et la checklist physique. Les chronométrages, les essais
-sur clavier physique et la validation du mainteneur restent à faire.
-Linux et BSD ont été compilés en croisé pendant le lot 4.
+P05 est publié à `3c4d63d`. Le mainteneur a terminé H01 à H11 sous macOS
+avec Ghostty et confirmé après correction les flèches gauche et droite,
+Ctrl+B, Ctrl+F et le séparateur de la CLI textuelle. Les séances Apprendre
+et Réviser ont duré 1 min 20 s (6/6) et 1 min 58 s (4/6).
+
+Le compteur TUI `Exercice 1/12` est confirmé sous pseudo-terminal. Son
+affichage en recette physique reste non confirmé. Le terminal a été
+restauré physiquement après SIGTERM. Le statut `143` a été vérifié sous
+pseudo-terminal et n'a pas été relevé dans Ghostty. Linux et BSD ont été
+compilés en croisé pendant le lot 4. Leur recette native reste à faire.
+[Rapport de recette](docs/P26_FINAL_ACCEPTANCE.md)
 
 ## Validation et limites de preuve
 

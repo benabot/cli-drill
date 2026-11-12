@@ -303,6 +303,9 @@ func runKeySequenceExercise(opts Options, reader *bufio.Reader, selected chapter
 		}
 
 		correct := item.MatchAnswer(input)
+		if !correct && (input == "←" || input == "→") {
+			continue
+		}
 		recorded, err := progress.RecordAnswer(progressPath(opts), selected.ID, item.ID, correct)
 		if err != nil {
 			return keySequenceResult{Action: keySequenceQuit}, err
@@ -434,7 +437,7 @@ func readKeySequenceFeedbackAction(opts Options, reader *bufio.Reader, item chap
 			return keySequenceNext, err
 		}
 		switch input {
-		case "":
+		case "", "←", "→":
 			continue
 		case "Enter":
 			return keySequenceNext, nil

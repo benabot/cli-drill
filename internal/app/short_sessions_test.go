@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -12,6 +14,58 @@ import (
 	"github.com/benabot/cli-drill/internal/progress"
 	"github.com/benabot/cli-drill/internal/xdg"
 )
+
+func TestTextTrainingSeparatesQuestionsInShortSessionAndRetry(t *testing.T) {
+	isolateChapterHome(t)
+	t.Setenv("NO_COLOR", "1")
+	t.Cleanup(stubTerminalDetector(func(fd uintptr) bool { return fd == 42 }))
+	oldSize := terminalSize
+	terminalSize = func(uintptr) (int, int, error) { return 24, 12, nil }
+	t.Cleanup(func() { terminalSize = oldSize })
+
+	for _, tc := range []struct {
+		name  string
+		cols  int
+		isTTY bool
+	}{
+		{"narrow TTY", 24, true},
+		{"redirected", 40, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "progress.json")
+			var out interface {
+				io.Writer
+				fmt.Stringer
+			} = &strings.Builder{}
+			if tc.isTTY {
+				out = &fdBuffer{fd: 42}
+			}
+			cmd := NewRootCommand(data.Chapters())
+			cmd.SetArgs([]string{"--progress", path, "train"})
+			cmd.SetOut(out)
+			cmd.SetIn(strings.NewReader("faux\n\nls\nls -a\ncd docs\ncd ..\ncd /atelier\nr\npwd\nq\n"))
+			if err := cmd.Execute(); err != nil {
+				t.Fatal(err)
+			}
+			got := out.String()
+			rule := strings.Repeat("-", tc.cols)
+			for n := 2; n <= 6; n++ {
+				if want := fmt.Sprintf("\n%s\n\nExercice %d/6\n", rule, n); strings.Count(got, want) != 1 {
+					t.Fatalf("missing or repeated separator for question %d:\n%s", n, got)
+				}
+			}
+			for _, want := range []string{"Exercice 1/1", "Bonnes réponses : 5/6", "Bonnes réponses : 1/1"} {
+				if !strings.Contains(got, want) || strings.Contains(got, "\x1b") {
+					t.Fatalf("missing %q or unexpected ANSI:\n%s", want, got)
+				}
+			}
+			state, err := progress.Load(path)
+			if err != nil || state.ChapterScores["00-premiers-pas"] != (progress.ChapterScore{Attempts: 7, Correct: 6}) {
+				t.Fatalf("unexpected progress: %#v (%v)", state, err)
+			}
+		})
+	}
+}
 
 func TestShortTrainingContinuesAndReviewsOnlyErrors(t *testing.T) {
 	isolateChapterHome(t)

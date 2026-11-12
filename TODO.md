@@ -286,7 +286,7 @@ ou une difficulté artificielle.
 Aucune installation tierce nécessaire, aucune exécution pédagogique et aucune
 extension de schéma de progression, moteur adaptatif ou répétition espacée.
 
-### P2.6 — Recette d'ensemble et documentation du logiciel livré
+### P2.6 — Recette d'ensemble validée sur macOS
 
 Dépendance : sous-phases fonctionnelles précédentes validées.
 
@@ -299,12 +299,21 @@ Dépendance : sous-phases fonctionnelles précédentes validées.
 - [x] Lot 4 : contrôles automatisés et essais sous pseudo-terminal sur macOS,
   compilation croisée Linux/BSD et documentation. Une sortie involontaire
   en CLI textuelle a été reproduite. [Rapport et preuves](docs/P26_FINAL_ACCEPTANCE.md).
-- [ ] Exécuter la [checklist physique](docs/P26_FINAL_ACCEPTANCE.md#checklist-physique-sur-mac)
-  et chronométrer Apprendre et Réviser. Consigner les plateformes sans recette native.
-- Correctif P05 disponible localement sur `fix/p26-text-input-escape`. Tests
-  Go et pseudo-terminal macOS réussis.
-- [ ] Vérifier [P05 sur clavier physique](docs/P26_FINAL_ACCEPTANCE.md#p05--sortie-involontaire-en-cli-textuelle)
-  et valider explicitement la clôture selon les [critères du rapport](docs/P26_FINAL_ACCEPTANCE.md#critères-de-clôture).
+- [x] Exécuter H01 à H11 sous macOS avec Ghostty. Apprendre a duré 1 min 20 s
+  (6/6) et Réviser 1 min 58 s (4/6).
+  [Observations physiques](docs/P26_FINAL_ACCEPTANCE.md#checklist-physique-sur-mac).
+- [x] Valider P2.6 sur macOS. Le mainteneur a confirmé les flèches H08,
+  Ctrl+B/F et le séparateur CLI après correction sur
+  `fix/p26-physical-acceptance`. Les réserves H05 et H09 sont consignées
+  dans le [rapport de clôture](docs/P26_FINAL_ACCEPTANCE.md#critères-de-clôture).
+- La validation native sur Linux et BSD reste à faire. La compilation
+  croisée a réussi pendant le lot 4.
+
+Améliorations non bloquantes issues de la recette P2.6 :
+
+- [ ] Revoir la difficulté des exercices Beginner jugés difficiles pendant la
+  recette.
+- [ ] Examiner l'ergonomie des QCM à partir des observations de recette.
 
 ## P3 — Internationalisation FR/EN
 
@@ -390,7 +399,7 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.5, sécurité des fichiers et processus — `content/p25-unix-safety-processes` (intégré à `dev`) | 7 exercices en `12` et 6 en `13`. | Intégré à `c9ad59c`. [Contrôles et limites](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md). |
 | P2.5, navigation et flux — `content/p25-unix-basics-flows` (intégré à `dev`) | 3 exercices en `00` et 6 en `11`. | Intégré à `d8b383a`. [Contrôles et limites](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md). |
 | P2.5, finalisation — `content/p25-unix-git-modern-expansion` (testée localement) | 184 ajouts, dont 14 utiles Unix. | [Contrôles par jalon](docs/CURRICULUM.md#enrichissement-par-lots). |
-| P2.6 — `test/p26-final-acceptance` | Recette technique et documentation. | [Rapport](docs/P26_FINAL_ACCEPTANCE.md). Recette physique et validation à faire. |
+| P2.6 — `fix/p26-physical-acceptance` | Recette validée sur macOS avec Ghostty. | Corrections et clôture documentaire en revue locale. [Rapport](docs/P26_FINAL_ACCEPTANCE.md) |
 | P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
 
 Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
@@ -400,8 +409,7 @@ configurations. La livraison documentaire précédente n'a pas modifié Go.
 P0.1 valide le chargement intégré, P0.2 la surface utilisateur et P0.3 le retrait
 des internes hérités. P1.1, corrections P1.1b comprises, termine la fiabilisation
 du stockage dans son périmètre, sans modifier les entraînements.
-P1 est terminée et validée. P2.6 attend la recette physique et la validation
-du mainteneur.
+P1 est terminée et validée. Le mainteneur a validé P2.6 sur macOS.
 Les compléments différés restent explicitement ouverts.
 
 ## Archive V1 — Réalisations et abandons
