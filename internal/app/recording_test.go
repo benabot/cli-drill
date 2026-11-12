@@ -76,8 +76,9 @@ func TestCLIRecordsOnlySubmittedText(t *testing.T) {
 		{"repeated enter", "\n\npwd\n\n\n", 1, 1, []string{"text/free-answer"}},
 		{"escape before answer", "\x1b", 0, 0, nil},
 		{"ctrl c before answer", "\x03", 0, 0, nil},
-		{"escape after answer", "pwd\nunfinished\x1b\n", 1, 1, []string{"text/free-answer"}},
+		{"escape after answer", "pwd\nunfinished\x1b\npwd\n", 1, 1, []string{"text/free-answer"}},
 		{"ctrl c after answer", "pwd\nunfinished\x03", 1, 1, []string{"text/free-answer"}},
+		{"ctrl c on a line", "pwd\nunfinished\x03\npwd\n", 1, 1, []string{"text/free-answer"}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			path := filepath.Join(t.TempDir(), "progress.json")
@@ -94,6 +95,56 @@ func TestCLIRecordsOnlySubmittedText(t *testing.T) {
 					t.Fatalf("consultation/abandon rewrote history: %q (%v)", got, err)
 				}
 			}
+		})
+	}
+}
+
+func TestCLITextInputIgnoresEscapeSequences(t *testing.T) {
+	for _, tc := range []struct{ name, line string }{
+		{"left arrow", "\x1b[D\r\n"},
+		{"right arrow", "\x1b[C\n"},
+		{"up arrow", "\x1b[A\n"},
+		{"down arrow", "\x1b[B\n"},
+		{"application arrow", "\x1bOD\n"},
+		{"modified arrow in an answer", "p\x1b[1;5Dwd\n"},
+		{"function key", "\x1bOP\n"},
+		{"meta key", "\x1bx\n"},
+		{"terminal response", "\x1b]11;rgb:0000/0000/0000\x1b\\\n"},
+		{"incomplete sequence", "\x1b[\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "progress.json")
+			writeAppTestFileContent(t, path, recordingHistory)
+			input := "pwd\n" + tc.line + "\npwd\n\x1b\npwd\n"
+			out, err := runRecordingCLI(path, strings.NewReader(input), "train")
+			if err != nil || !strings.Contains(out, "Session interrompue.\n") ||
+				!strings.Contains(out, "Bilan du lot\nBonnes réponses : 2/2") {
+				t.Fatalf("unexpected text session: %v\n%s", err, out)
+			}
+			state := assertRecordingScore(t, path, "text", 2, 2, "text/free-answer", "text/scenario")
+			if state.Version != 1 {
+				t.Fatalf("unexpected progress version: %d", state.Version)
+			}
+		})
+	}
+}
+
+func TestCLITextBatchMenuIgnoresEscapeSequences(t *testing.T) {
+	for _, tc := range []struct{ name, action string }{
+		{"explicit retry", "r\n"},
+		{"blank line defaults to retry", "\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "progress.json")
+			writeAppTestFileContent(t, path, recordingHistory)
+			input := "wrong\npwd\npwd\npwd\n\x1b[D\nq\x1b[C\n" + tc.action + "pwd\n"
+			out, err := runRecordingCLI(path, strings.NewReader(input), "train")
+			if err != nil || !strings.Contains(out, "Bilan du lot\nBonnes réponses : 3/4") ||
+				!strings.Contains(out, "Bilan de la reprise\nBonnes réponses : 1/1") {
+				t.Fatalf("unexpected batch menu: %v\n%s", err, out)
+			}
+			assertRecordingScore(t, path, "text", 5, 4, "text/scenario", "text/multiple-choice",
+				"text/simple-shell-sim", "text/free-answer")
 		})
 	}
 }

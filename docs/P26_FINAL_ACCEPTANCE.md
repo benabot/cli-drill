@@ -16,14 +16,14 @@ Les lots 1 à 3 sont intégrés. La recette physique et la validation du mainten
 | P02 | Pseudo-terminal et pipes, réussi | `chapters` tient sur 75, 37 et 37 colonnes aux trois dimensions, avec identifiants et titres. En pipe, les trois champs tabulés et les 13 entrées sont conservés, sans ANSI. Les aides générale, `train` et `prefs` répondent. Diagnostic sans TTY, repli `train` sous `TERM=dumb`, capture sans effacement sous `TERM=dumb`, aucune couleur SGR avec `NO_COLOR` même sous `CLICOLOR_FORCE=1`. Diagnostic et commande d'activation avec Git désactivé. |
 | P03 | Pseudo-terminal macOS, réussi | Lot TUI de six à 40×12, reprise d'une erreur et lot suivant. Le JSON synthétique comptait sept tentatives et six acquis au point contrôlé. Retour à l'accueil après sortie de la capture lancée depuis la TUI. |
 | P04 | Pseudo-terminal macOS, réussi | [Script de recette](../testdata/capture_pty.py) : restauration termios sur SIGINT, SIGTERM, SIGHUP, SIGQUIT et SIGTSTP, réponse déjà enregistrée conservée ; Échap seul et Ctrl+C sortent sans tentative ; flèche, F1 et collage encadré ignorés en capture ; libellés `DEL (Retour arrière)`, `Ctrl+_` et `Tab (Ctrl+I)`. Parcours intégral mixte à 11/11 avec un score, interruption à 5/6 sans menu de reprise, lot court mixte avec reprise à 1/1 et passage aux QCM. |
-| P05 | Pseudo-terminal macOS, défaut confirmé | En CLI textuelle, une séquence de flèche suivie d'Entrée peut être interprétée comme une demande de sortie. Reproduction ci-dessous. |
+| P05 | Correctif local, tests Go et pseudo-terminal macOS réussis | Les quatre flèches suivies d'Entrée laissent la question active. Échap seul quitte avec le bilan et la progression enregistrés. Vérification sur clavier physique à faire. |
 | C01 | Compilation croisée, réussie | `CGO_ENABLED=0 go build ./...` pour Linux amd64/arm64, FreeBSD amd64, OpenBSD amd64, NetBSD amd64 et DragonFly BSD amd64. |
 | D01 | Documentation et inspection des tables de touches | En édition Emacs, Ctrl+U correspond à `unix-line-discard` dans Bash et à `kill-whole-line` dans Zsh. Ctrl+_ correspond à `undo`. Associations vérifiées dans les tables de touches sous pseudo-terminal avec Bash 3.2.57 et 5.3.20, et Zsh 5.9, sans configuration personnelle. Elles décrivent le comportement du shell lorsque c'est lui qui reçoit la touche. [GNU Bash, manuel Readline](https://www.gnu.org/software/bash/manual/bash.html) · [Zsh Line Editor](https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html) |
 | H01–H11 | Recette physique, à faire | Aucun clavier physique, émulateur en usage manuel ni thème clair/sombre testé pour cette recette. Linux et BSD restent à tester en exécution native. Go 1.23 n'a pas été exécuté. |
 
 Les vérifications applicatives ont utilisé des fichiers temporaires, des réponses synthétiques et des variables XDG isolées. Les commandes Go de recette ont utilisé `GOTOOLCHAIN=local GOPROXY=off` avec les dépendances déjà en cache.
 
-Pour rejouer P04, compiler le binaire temporaire comme indiqué dans la
+Pour rejouer P04 et P05, compiler le binaire temporaire comme indiqué dans la
 checklist, puis exécuter `python3 testdata/capture_pty.py "$P26_BIN"` depuis
 le dépôt. Le script crée ses propres fichiers de progression temporaires.
 
@@ -31,9 +31,29 @@ le dépôt. Le script crée ses propres fichiers de progression temporaires.
 
 1. Lancer `"$P26_BIN" --progress "$P26_DIR/fleche.json" train` et valider `pwd`.
 2. À la deuxième question, appuyer sur la flèche gauche puis sur Entrée. Le pseudo-terminal a envoyé les octets `1b 5b 44 0d`.
-3. Résultat observé : `Session interrompue.`, bilan `1/1`, code de sortie `0`. Le JSON conserve une tentative correcte et le seul acquis `00-premiers-pas/pwd`.
+3. Sur la base `fe12e52`, le lecteur prenait la présence d'Échap pour un abandon. La CLI affichait `Session interrompue.` et un bilan `1/1`. Le JSON conservait une tentative correcte et le seul acquis `00-premiers-pas/pwd`.
 
-Impact modéré : la séance s'arrête si le terminal transmet la séquence à la CLI textuelle. Le même test de présence de l'octet Échap figure dans la base d'audit `ef5d6ba`. La capture dédiée distingue les séquences et la TUI prend en charge les flèches. Correctif séparé proposé : distinguer Échap seul des séquences d'édition dans la lecture textuelle et vérifier, dans un parcours mixte, qu'une flèche ne provoque ni sortie ni tentative parasite. [Lecture de l'entrée textuelle](../internal/app/root.go#L477)
+Le correctif local sur `fix/p26-text-input-escape` ignore toute ligne
+contenant une séquence préfixée par Échap. Échap isolé, y compris après un
+texte inachevé, et Ctrl+C gardent leur effet d'abandon. Dans le menu du bilan,
+une ligne ignorée laisse le menu ouvert et Entrée seule conserve son action.
+Si une séquence et du texte partagent une ligne, il faut ressaisir la réponse.
+La CLI textuelle reste en lecture par ligne. [Lecteur CLI](../internal/app/root.go#L477)
+
+Le test de régression a échoué sur la base publiée avec un bilan de `1/1`
+et passe après correction. Les tests Go vérifient aussi le menu du bilan,
+Ctrl+C et la transition du texte à la capture dans un parcours mixte.
+Sous pseudo-terminal macOS arm64, les quatre flèches, F1 et une ligne vide
+ont laissé la deuxième question active. Après `ls` et Échap suivi
+d'Entrée, le bilan était `2/2` et le JSON v1 comptait deux tentatives
+correctes. [Tests de régression](../internal/app/recording_test.go) ·
+[Essai sous pseudo-terminal](../testdata/capture_pty.py)
+
+Pour vérifier sur clavier physique, répéter les étapes 1 et 2, puis essayer
+les trois autres flèches suivies d'Entrée. La deuxième question doit rester
+active. Répondre `ls`, puis quitter avec Échap et Entrée à la troisième
+question. Attendre le bilan `2/2` et noter R, E ou NT avec l'émulateur et
+la disposition du clavier.
 
 ### Limites à consigner pendant la recette physique
 
@@ -119,5 +139,5 @@ le terminal, le shell et la disposition réellement utilisés.
 1. Les preuves automatisées et sous pseudo-terminal restent valides sur la révision candidate. Le corpus et le JSON v1 satisfont les contrôles A03 et A05.
 2. Les scénarios H01 à H11 sont renseignés sur le Mac du mainteneur, avec l'environnement et les octets ou libellés observés pour les touches litigieuses. Tout échec ou NT reçoit une décision explicite.
 3. Deux durées humaines sont relevées, avec le niveau et le contexte. Si l'objectif de 5 à 10 minutes est dépassé, le mainteneur décide de l'accepter ou de faire un essai complémentaire avant d'ajuster les lots.
-4. Le sort de P05 est décidé : acceptation documentée ou correctif séparé suivi d'une vérification. Les plateformes sans recette native restent signalées.
+4. Le résultat physique de P05 est consigné sur la révision candidate. Les plateformes sans recette native restent signalées.
 5. Le mainteneur donne explicitement sa validation de P2.6.

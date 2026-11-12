@@ -797,11 +797,12 @@ restent à vérifier.
 ### P2.6 — Lot 4, recette finale
 
 Les tests Go et les scénarios principaux sous pseudo-terminal ont réussi
-sur macOS arm64. Un défaut antérieur subsiste : une flèche suivie d'Entrée
-peut interrompre la CLI textuelle. Le [rapport de recette](docs/P26_FINAL_ACCEPTANCE.md)
-regroupe les preuves, la reproduction et la checklist physique. Les
-chronométrages, les essais sur clavier physique et la validation du
-mainteneur restent à faire. Linux et BSD ont été compilés en croisé.
+sur macOS arm64. Le correctif P05 est local sur `fix/p26-text-input-escape`.
+Les flèches suivies d'Entrée ont laissé la CLI textuelle active sous
+pseudo-terminal. Le [rapport de recette](docs/P26_FINAL_ACCEPTANCE.md)
+regroupe les preuves et la checklist physique. Les chronométrages, les essais
+sur clavier physique et la validation du mainteneur restent à faire.
+Linux et BSD ont été compilés en croisé pendant le lot 4.
 
 ## Validation et limites de preuve
 

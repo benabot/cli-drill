@@ -301,8 +301,10 @@ Dépendance : sous-phases fonctionnelles précédentes validées.
   en CLI textuelle a été reproduite. [Rapport et preuves](docs/P26_FINAL_ACCEPTANCE.md).
 - [ ] Exécuter la [checklist physique](docs/P26_FINAL_ACCEPTANCE.md#checklist-physique-sur-mac)
   et chronométrer Apprendre et Réviser. Consigner les plateformes sans recette native.
-- [ ] Décider du traitement du défaut P05 et valider explicitement la clôture
-  selon les [critères du rapport](docs/P26_FINAL_ACCEPTANCE.md#critères-de-clôture).
+- Correctif P05 disponible localement sur `fix/p26-text-input-escape`. Tests
+  Go et pseudo-terminal macOS réussis.
+- [ ] Vérifier [P05 sur clavier physique](docs/P26_FINAL_ACCEPTANCE.md#p05--sortie-involontaire-en-cli-textuelle)
+  et valider explicitement la clôture selon les [critères du rapport](docs/P26_FINAL_ACCEPTANCE.md#critères-de-clôture).
 
 ## P3 — Internationalisation FR/EN
 

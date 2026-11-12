@@ -17,11 +17,12 @@ import time
 
 
 class Capture:
-    def __init__(self, process, master, slave, progress):
+    def __init__(self, process, master, slave, progress, chapter_id):
         self.process = process
         self.master = master
         self.slave = slave
         self.progress = progress
+        self.chapter_id = chapter_id
         self.pending = b""
         self.probes = [
             (b"\x1b]11;?\x1b\\", b"\x1b]11;rgb:0000/0000/0000\x1b\\"),
@@ -66,13 +67,13 @@ class Capture:
             return
         state = json.loads(self.progress.read_text())
         assert state["version"] == 1, state
-        assert state["chapter_scores"]["01-raccourcis-terminal"] == {
+        assert state["chapter_scores"][self.chapter_id] == {
             "attempts": attempts, "correct": correct,
         }, state
 
 
 @contextlib.contextmanager
-def session(binary, difficulty="beginner", all_exercises=False):
+def session(binary, difficulty="beginner", all_exercises=False, chapter_id="01-raccourcis-terminal"):
     with tempfile.TemporaryDirectory(prefix="cli-drill-capture-") as temp:
         progress = Path(temp) / "progress.json"
         master, slave = pty.openpty()
@@ -80,7 +81,7 @@ def session(binary, difficulty="beginner", all_exercises=False):
         before = termios.tcgetattr(slave)
         args = [binary, "--progress", str(progress)]
         if difficulty is not None:
-            args.extend(["train", "01-raccourcis-terminal", "--difficulty", difficulty])
+            args.extend(["train", chapter_id, "--difficulty", difficulty])
         if all_exercises:
             args.append("--all")
         process = subprocess.Popen(
@@ -88,7 +89,7 @@ def session(binary, difficulty="beginner", all_exercises=False):
             stdin=slave, stdout=slave, stderr=slave,
             env={"XDG_DATA_HOME": temp, "TERM": "xterm-256color", "NO_COLOR": "1"},
         )
-        capture = Capture(process, master, slave, progress)
+        capture = Capture(process, master, slave, progress, chapter_id)
         try:
             yield capture
             after = termios.tcgetattr(slave)
@@ -229,8 +230,30 @@ def check_tui_return(binary):
     print("OK TUI: escape returns to the home screen and preserves the answer")
 
 
+def check_text_escape(binary):
+    with session(binary, chapter_id="00-premiers-pas") as terminal:
+        terminal.expect("Exercice 1/6")
+        terminal.send(b"pwd\r", raw=False)
+        terminal.expect("Correct.")
+        terminal.expect("Exercice 2/6")
+        for line in (b"\x1b[D", b"\x1b[C", b"\x1b[A", b"\x1b[B", b"\x1bOP", b"l\x1b[Ds", b""):
+            terminal.send(line + b"\r", raw=False)
+            terminal.expect("Exercice 2/6")
+            terminal.assert_score(1, 1)
+        terminal.send(b"ls\r", raw=False)
+        terminal.expect("Correct.")
+        terminal.expect("Exercice 3/6")
+        terminal.send(b"\x1b\r", raw=False)
+        terminal.expect("Session interrompue.")
+        terminal.expect("Bonnes réponses : 2/2")
+        assert terminal.finish() == 0
+        terminal.assert_score(2, 2)
+    print("OK text CLI: arrow sequences ignored, standalone Escape exits with saved answers")
+
+
 if __name__ == "__main__":
     binary = str(Path(sys.argv[1]).resolve())
+    check_text_escape(binary)
     check_signals(binary)
     check_escape_and_labels(binary)
     check_mixed_session(binary)

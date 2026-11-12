@@ -172,7 +172,7 @@ func readBatchAction(opts Options, reader *bufio.Reader, raw, canContinue, canRe
 			if aborted {
 				return "q", nil
 			}
-			if err == nil && strings.TrimSpace(input) == "" {
+			if err == nil && input != "" && strings.TrimSpace(input) == "" {
 				input = "Enter"
 			}
 		}

@@ -477,7 +477,20 @@ func renderKeySequenceSolution(view keySequenceSolutionView) string {
 func readTrainingInput(opts Options, reader *bufio.Reader, exerciseType exercise.Type) (string, bool, error) {
 	if exerciseType != exercise.TypeKeySequence {
 		input, err := reader.ReadString('\n')
-		return input, strings.ContainsAny(input, "\x1b\x03"), err
+		if strings.ContainsRune(input, '\x03') {
+			return input, true, err
+		}
+		line := strings.TrimRight(input, "\r\n")
+		if escape := strings.IndexByte(line, '\x1b'); escape >= 0 {
+			if escape == len(line)-1 {
+				// A standalone Escape can follow an unfinished answer.
+				return input, true, err
+			}
+			// Do not evaluate a line whose terminal controls may have
+			// changed the intended answer or menu action.
+			return "", false, err
+		}
+		return input, false, err
 	}
 
 	input, err := readKeySequence(opts, reader)

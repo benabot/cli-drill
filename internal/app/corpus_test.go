@@ -66,7 +66,7 @@ func TestWave3MixedTrainingRecordsKeysAndText(t *testing.T) {
 	}
 	// This fixture feeds bytes to the mixed loop. The PTY smoke test exercises raw mode.
 	var out bytes.Buffer
-	input := strings.NewReader("\x04\ngit switch |sauvegarde\n\x1f\n")
+	input := strings.NewReader("\x04\ngit \x1b[Dswitch |sauvegarde\ngit switch |sauvegarde\n\x1f\n")
 	err = runTraining(Options{In: input, Out: &out, ProgressPath: path}, ch)
 	if err != nil || strings.Count(out.String(), "Correct.") != 3 ||
 		!strings.Contains(out.String(), "Bilan du lot\nBonnes réponses : 3/3") ||
