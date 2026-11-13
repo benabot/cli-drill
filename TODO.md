@@ -1,7 +1,9 @@
 # Backlog — CLI-Drill V2
 
-**Mis à jour le 10 novembre 2026.** P0.1 à P0.3 et P1.1 à P2.4 sont terminées.
-P2.5 est en cours. Le stockage initial (`25c344b`) est complété par les
+**Mis à jour le 13 novembre 2026.** P0.1 à P0.3 et P1.1 à P2.4 sont terminées.
+Le corpus P2.5 est publié. P2.6 est terminée et publiée sur `dev` à `91efab0`
+après recette macOS avec Ghostty. La [feuille de route de lancement](#lancement-public-p3-p6)
+prépare les travaux P3.1 à P6. Le stockage initial (`25c344b`) est complété par les
 corrections acceptées de `fix/progress-storage-hardening` (P1.1b).
 Migration fonctionnelle V2 partielle. P1.2 est terminée et validée : implémentation
 `e7b4170` et complément de tests `a60c819`, depuis `dev` à `1f61cb9`.
@@ -231,7 +233,9 @@ ajoutent uniquement les réponses réellement soumises selon P1.2. Les tests et
 essais couvrent CLI, TUI et capture, avec conservation des résultats v1 retirés,
 compteurs cumulés et absence de faux acquis. Le corpus source ne change pas d'ordre.
 
-### P2.5 — Enrichissement par chapitre et par niveau — en cours
+<a id="p25--enrichissement-par-chapitre-et-par-niveau--en-cours"></a>
+
+### P2.5 — Enrichissement par chapitre et par niveau — corpus publié
 
 Les parcours P2.2 à P2.4 sont validés. Le [lot 1 Unix/Shell](docs/CORPUS_P25_LOT1.md)
 ajoute 18 exercices dans trois chapitres et relit les 39 exercices existants.
@@ -264,12 +268,12 @@ Il est intégré et publié sur `dev` à `4320650`.
 - [x] Intégrer les neuf indispensables de navigation et flux à `dev` à
   `d8b383a`. Le corpus publié compte 262 exercices.
   [Rapport du lot](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md)
-- [x] Implémenter et tester localement les 14 propositions utiles de l'audit,
+- [x] Implémenter et tester les 14 propositions utiles de l'audit,
   les parcours Git et outils modernes et le recentrage de `07` à `09`.
-  Le corpus local compte 446 exercices.
+  Le corpus de 446 exercices dans 13 chapitres est publié sur `dev` à `ef5d6ba`.
   [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par-lots)
-- [ ] Valider le corpus local lors de la recette d'ensemble, notamment les
-  parcours sans modules, les sélections et les interfaces interactives.
+- [x] Vérifier des parcours représentatifs lors de la recette P2.6.
+  Les preuves par scénario figurent dans le [rapport](docs/P26_FINAL_ACCEPTANCE.md).
   Les ACL et `lsof` restent facultatifs.
 
 Le minimum indicatif est de 30 exercices pour un chapitre général. Le volume
@@ -288,7 +292,7 @@ extension de schéma de progression, moteur adaptatif ou répétition espacée.
 
 ### P2.6 — Recette d'ensemble validée sur macOS
 
-Dépendance : sous-phases fonctionnelles précédentes validées.
+Clôture intégrée et publiée sur `dev` à `91efab0` après la recette macOS.
 
 - Lot 1 (sécurité et capture) publié dans `dev` à `fb29a22`.
 - Lot 2 (lisibilité et navigation) publié dans `dev` à `0b8bddb`.
@@ -315,21 +319,197 @@ Améliorations non bloquantes issues de la recette P2.6 :
   recette.
 - [ ] Examiner l'ergonomie des QCM à partir des observations de recette.
 
-## P3 — Internationalisation FR/EN
+<a id="lancement-public-p3-p6"></a>
 
-Phase future après P2.6. Permettre à l'utilisateur de choisir et de conserver
-sa langue entre le français et l'anglais. Le français est le défaut envisagé,
-à confirmer en P3.
+## Dépendances du lancement public
 
-- [ ] Localiser les menus CLI et TUI, les consignes et explications, le feedback,
-  les diagnostics, l'aide et les textes de navigation.
-- [ ] Persister le choix de langue en préservant la compatibilité des préférences
-  existantes. Décider en P3 de la stratégie de localisation et du format de stockage.
-- [ ] Garder les clés `chapter-id/item-id` indépendantes de la langue et préserver
-  les acquis et scores historiques lors de tout changement de langue, sans
-  suppression ni réattribution de résultat.
-- [ ] Vérifier l'équivalence pédagogique des deux versions. Les commandes et
-  raccourcis gardent leur signification et aucune traduction ne facilite la réponse.
+Les objectifs sont fixés par la [décision P3.0](docs/DECISIONS.md#p30-politique-linguistique-et-lancement),
+à partir de la [roadmap du 10 novembre](docs/CLI-DRILL_ROADMAP_LANCEMENT_GITHUB.md).
+Les travaux ci-dessous restent à réaliser.
+
+| Moment | Travaux et conditions |
+| --- | --- |
+| Préparation commune | Instruire la licence et les cibles de distribution, auditer les références V1, inventorier les textes et concevoir la localisation. |
+| Réalisation en parallèle | P3.1 prépare P3.2 et P3.3. P4.1 stabilise les textes et titres à traduire avant P3.3. La chaîne GoReleaser, les packages, les maquettes README, la structure du Wiki et les scénarios de démo peuvent avancer pendant P3. |
+| Version candidate | Valider les deux langues et l'équivalence pédagogique en P3.4, vérifier la cohérence en P4.2, tester les artefacts P5 et vérifier P6 sur les parcours et la version distribués. |
+| Lancement | La release publique bilingue exige traductions et recettes validées, binaires installables et vérifiés, README fidèle, Wiki EN/FR, licence et contribution. Les annonces suivent un essai complet de découverte, d'installation et de première séance. Publication et communication sur autorisation explicite. |
+
+Le choix entre bêta technique et sortie publique unique reste ouvert.
+Une bêta apporte des retours plus tôt sur les plateformes et l'installation,
+avec une diffusion et un suivi supplémentaires. Une sortie unique concentre
+la préparation sur une version et reporte ces retours après sa publication.
+Les critères de lancement restent les mêmes dans les deux cas.
+
+<a id="p3--internationalisation-fren"></a>
+
+## P3 — Internationalisation EN/FR
+
+La [spécification](docs/SPEC.md#politique-linguistique-p3) fixe le contrat.
+Anglais universel par défaut. Français et anglais sélectionnables dans la CLI
+et la TUI, avec persistance du choix et conservation des réglages existants.
+Même progression JSON v1 dans les deux langues.
+
+### P3.1 — Architecture de localisation
+
+- [ ] Inventorier les chaînes CLI/TUI, y compris aides, erreurs précoces et
+  capture, ainsi que les champs du corpus. Distinguer textes affichés,
+  identifiants et fragments techniques. S'appuyer sur l'audit P4.1.
+- [ ] Choisir le format des ressources et les interfaces d'accès aux
+  traductions. Définir la couverture vérifiable et le traitement des réponses
+  conceptuelles et des QCM. Préparer un petit lot représentatif.
+- [ ] Auditer le chargement, la validation et l'enregistrement des préférences.
+  Comparer l'extension de `preferences.json` v1 et un passage justifié en v2.
+  Décrire comment la nouvelle version lira les préférences valides et
+  conservera les modules et la difficulté à la mise à niveau, selon la
+  [décision du 13 novembre](docs/DECISIONS.md#p30-compatibilite-des-preferences-en-pre-release).
+  Définir l'accès au choix de langue en CLI/TUI.
+
+La conception est prête pour P3.2 et P3.3 lorsque ses choix et compromis
+sont documentés et que la matrice sur fixtures synthétiques couvre l'absence
+de fichier ou de champ, `en`, `fr`, les valeurs invalides, la sauvegarde
+explicite et la mise à niveau. Elle vérifie la préservation des réglages
+valides et l'absence d'écriture au lancement et à la consultation.
+
+### P3.2 — CLI et TUI
+
+- [ ] Localiser les menus, aides, navigation, réglages, feedback et diagnostics
+  des deux interfaces et des deux moteurs. Rendre visible le choix de langue
+  et permettre son enregistrement sans modifier les modules ni le niveau.
+- [ ] Vérifier le démarrage en anglais quelles que soient les variables
+  régionales, la sélection explicite, l'annulation, les erreurs de lecture
+  ou d'écriture et la relance dans la langue enregistrée.
+
+La recette vérifie que les deux interfaces répondent dans la langue choisie.
+Les consultations et la lecture d'une préférence ancienne restent en lecture
+seule. Une langue invalide produit un diagnostic sans réparation.
+
+### P3.3 — Corpus pédagogique
+
+- [ ] Après P3.1 et le nettoyage préparatoire P4.1, produire des lots par
+  chapitre. Commencer par le lot représentatif, puis couvrir les 446
+  exercices des 13 chapitres. Suivre les traductions par clé et par champ,
+  avec une terminologie commune aux interfaces et au corpus.
+- [ ] Relire les titres, descriptions, consignes, choix, corrections et
+  explications. Vérifier par lot le contexte, les distracteurs, les réponses
+  admises et la difficulté dans les deux langues. Protéger la syntaxe des
+  commandes, les options et les raccourcis.
+
+La revue humaine valide les formulations de chaque lot. Chaque clé identifie
+le même apprentissage, avec la même bonne réponse conceptuelle et le même
+niveau. Les commandes gardent leur syntaxe et les séquences capturées leur
+signification.
+
+### P3.4 — Validation bilingue
+
+- [ ] Mettre en place des contrôles bloquants de complétude et de cohérence
+  des ressources actives. Vérifier les champs attendus, la correspondance
+  des clés et des réponses et l'intégrité des fragments techniques.
+- [ ] Tester dans les deux langues le démarrage, l'aide, les préférences,
+  Apprendre, Réviser, le feedback, la capture et les diagnostics, y compris
+  les petites fenêtres. Reprendre la matrice P2.6 en recette humaine bilingue.
+- [ ] Comparer le JSON v1 avant et après changement de langue sur des
+  fixtures avec acquis et historique. Vérifier qu'une réussite dans une
+  langue est reconnue dans l'autre sans nouvelle tentative.
+
+La validation exige la couverture EN/FR complète des interfaces et du corpus
+actif, la revue de l'équivalence pédagogique, la réussite des tests de
+régression et la recette humaine bilingue.
+Le passage à l'anglais par défaut et la commande effectivement livrée pour
+choisir le français figurent dans les notes de version P5.
+
+## P4 — Nettoyage des références V1
+
+- [ ] **P4.1 — Audit et préparation avant P3.3.** Relever les textes visibles,
+  aides CLI/TUI, titres et descriptions de chapitres, exemples et textes
+  publics. Retirer les formulations obsolètes et harmoniser les titres
+  concernés avant traduction. Le titre « Git essentiel » et la clé
+  interne `10-workflows-dotfiles` illustrent le rôle distinct de ces champs.
+- [ ] **P4.2 — Revue avant publication.** Aligner les aides, le README, le
+  Wiki, la spécification et le logiciel sur la version candidate. Retirer
+  des guides actifs les références aux commandes de scan, d'annuaire et
+  de génération. Préserver décisions historiques, rapports, identifiants
+  persistants et fichiers utilisateur.
+
+La revue P4.1 vérifie les textes à traduire avant P3.3. En P4.2, les aides
+et exemples doivent présenter CLI-Drill comme un entraînement au terminal
+et correspondre aux parcours vérifiés.
+
+## P5 — Distribution multiplateforme
+
+- [ ] **P5.1 — Licence et cibles.** Choisir la licence avant diffusion
+  publique officielle. Définir les versions minimales et la matrice de
+  recette native. Préparer les cibles macOS ARM64/AMD64 et Linux AMD64/ARM64.
+  Consigner la recette macOS P2.6 et la compilation croisée Linux/BSD
+  comme preuves distinctes. Toute annonce BSD exige sa propre recette native.
+- [ ] **P5.2 — Chaîne de release.** Préparer et éprouver GoReleaser et GitHub
+  Actions sur une version candidate, même pendant P3. Partir d'un tag
+  validé pour publier les archives sur GitHub Releases. Documenter tests Go,
+  contrôles statiques, permissions minimales des workflows et accès au tap,
+  artefacts, checksums SHA-256, notes de version et critères bloquants.
+  Évaluer la provenance vérifiable des artefacts.
+- [ ] **P5.3 — Installation.** Préparer le tap Homebrew et choisir formule
+  ou Cask en vérifiant l'outillage retenu. Vérifier le chemin du module,
+  le versionnement et l'installation distante avec `go install` avant
+  de l'annoncer. Tester sur les cibles annoncées l'installation, la
+  vérification d'intégrité, l'aide, la TUI et le premier entraînement
+  hors ligne, ainsi que la mise à jour et la désinstallation.
+- [ ] **P5.4 — Paquets Debian, complément.** Définir la matrice `.deb`,
+  produire et tester les paquets de release installés depuis un fichier
+  local. La distribution par un dépôt APT reste différée.
+
+Le premier lancement exige une licence disponible, des artefacts et
+checksums vérifiés, des notes cohérentes et une installation native
+reproductible pour chaque cible annoncée. Les instructions décrivent
+les canaux éprouvés.
+La release publique bilingue dépend de P3.4 et de la convergence P4 à P6.
+
+## P6 — README, Wiki et lancement GitHub
+
+- [ ] **P6.1 — README.** Préparer `README.md` en anglais et `README.fr.md`
+  en français, avec accès aux deux langues en tête. Conserver la
+  [bannière](docs/assets/cli-drill-hero.webp) et la palette cyan, menthe et
+  fuchsia. Associer le slogan **Make your terminal second nature.** au
+  positionnement **Learn the terminal by doing.** Prendre Gum, zoxide et bat
+  comme références de démonstration, de concision et de structure, avec
+  les éléments graphiques du projet. Présenter les fonctionnalités vérifiées,
+  l'installation validée, une première séance, les trois familles pédagogiques,
+  le fonctionnement hors ligne et la capture réelle. Renvoyer vers le Wiki,
+  les releases, la licence et la contribution pour les détails.
+- [ ] **P6.2 — Démonstrations CleanShot X.** Préparer trois parcours sur la
+  version candidate avec des données de démo. Capturer une séance générale
+  pour le GIF principal du README, puis la capture réelle d'un raccourci et
+  un entraînement avec réponse, explication et progression pour le Wiki.
+  Montrer la fenêtre du terminal et les touches utiles. Viser 900 à
+  1 100 px de large, 12 à 15 images/s et 8 à 20 s, avec un GIF principal
+  sous les 5 Mo environ. Vérifier contraste, lisibilité et chargement sur
+  GitHub desktop et mobile.
+- [ ] **P6.3 — Wiki EN/FR.** Commencer par quelques pages utiles avec
+  navigation entre langues. Couvrir installation, premiers pas, parcours,
+  modes Apprendre et Réviser, types d'exercices, raccourcis, commandes CLI,
+  préférences et langue, progression et statistiques, dépannage, FAQ et
+  contribution. Lier les spécifications internes depuis le guide. À chaque
+  release, relire les deux langues et les README sur le candidat, épingler
+  les médias au tag ou commit correspondant, publier les mises à jour dans
+  le dépôt Wiki distinct et vérifier les liens sur GitHub.
+- [ ] **P6.4 — Présentation et retours.** Préparer About, Topics, Social
+  Preview, badges vérifiables, licence et contribution. Préparer une
+  présentation pour des communautés pertinentes et, si retenu, une page
+  sur beabot.fr. Après autorisation et lancement, suivre téléchargements,
+  trafic GitHub, issues et retours volontaires sur l'installation, les
+  séances terminées et le retour à l'usage. Les étoiles restent un indicateur
+  secondaire de visibilité. Le produit reste sans télémétrie.
+
+La recette P6 suit le parcours d'un nouveau lecteur dans chaque langue.
+Il doit pouvoir comprendre rapidement le produit, l'installer puis
+l'essayer. Les README restent concis, les captures montrent le programme
+réel, les commandes et liens sont vérifiés et le Wiki correspond à la release.
+
+### Compléments de distribution et de documentation différés
+
+RPM, dépôt APT signé, soumission à `homebrew/core`, autres canaux,
+automatisation des captures et site documentaire GitHub Pages/MkDocs.
+Les réexaminer selon les besoins observés. Les paquets `.deb` sont suivis
+en P5.4.
 
 ## Compléments différés après clôture de P1
 
@@ -346,7 +526,6 @@ des acquis du corpus actif. `streak` reste hors des indicateurs actifs.
 
 ## Plus tard — Sous réserve d'un besoin observé
 
-- Distribution par releases et éventuellement Homebrew, après stabilisation.
 - Import personnalisé et reprise persistante au curseur : toujours différés.
 - Préférences au-delà des modules CLI, du niveau par défaut et du choix de langue
   prévu en P3 : différées.
@@ -398,9 +577,9 @@ Les lignes P0/P1 ci-dessous sont historiques, sans travail à recommencer.
 | P2.5, chapitre 14 — `content/p25-unix-text` (intégré à `dev`) | 48 exercices sur la recherche et le traitement de texte Unix. | Intégré à `0178ab9`. [Contrôles et limites](docs/CORPUS_P25_UNIX_TEXT.md). |
 | P2.5, sécurité des fichiers et processus — `content/p25-unix-safety-processes` (intégré à `dev`) | 7 exercices en `12` et 6 en `13`. | Intégré à `c9ad59c`. [Contrôles et limites](docs/CORPUS_P25_UNIX_SAFETY_PROCESSES.md). |
 | P2.5, navigation et flux — `content/p25-unix-basics-flows` (intégré à `dev`) | 3 exercices en `00` et 6 en `11`. | Intégré à `d8b383a`. [Contrôles et limites](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md). |
-| P2.5, finalisation — `content/p25-unix-git-modern-expansion` (testée localement) | 184 ajouts, dont 14 utiles Unix. | [Contrôles par jalon](docs/CURRICULUM.md#enrichissement-par-lots). |
-| P2.6 — `fix/p26-physical-acceptance` | Recette validée sur macOS avec Ghostty. | Corrections et clôture documentaire en revue locale. [Rapport](docs/P26_FINAL_ACCEPTANCE.md) |
-| P3 — branche à définir | Choix de langue FR/EN et continuité des acquis. | Après P2.6. [Périmètre et garanties](#p3--internationalisation-fren). |
+| P2.5, finalisation — `content/p25-unix-git-modern-expansion` (publiée sur `dev`) | 184 ajouts, dont 14 utiles Unix. | Publiée à `ef5d6ba`. [Contrôles par jalon](docs/CURRICULUM.md#enrichissement-par-lots). |
+| P2.6 — `fix/p26-physical-acceptance` (publiée sur `dev`) | Recette validée sur macOS avec Ghostty. | Clôture à `91efab0`. [Rapport](docs/P26_FINAL_ACCEPTANCE.md) |
+| P3.0 — `docs/launch-roadmap-p3-p6` | Politique linguistique et cadrage du lancement. | Base `91efab0`. [Dépendances et lots](#lancement-public-p3-p6). |
 
 Les futures PR de code exécuteront les tests pertinents, `go test ./...`,
 `go vet ./...`, le contrôle de formatage et l'aide CLI concernée. Les tests
@@ -424,8 +603,8 @@ Sont sortis du backlog actif : amélioration du scan, déduplication du catalogu
 génération depuis les dotfiles, préférences de configuration dotfiles et support
 de nouveaux parseurs. Les corrections de sécurité propres au scanner proposées
 par l'audit précédent sont remplacées par son retrait ; la sécurité des données
-et du terminal reste obligatoire. L'ancienne préparation du README bilingue est
-réalisée ; sa prochaine mise à jour attendra la V2. Les doublons de relecture
+et du terminal reste obligatoire. La préparation historique du README bilingue
+est réalisée. La prochaine refonte publique relève de P6. Les doublons de relecture
 pédagogique, retour après capture et migration Bubble Tea ont été retirés.
 Makefile/Taskfile, refonte visuelle et unification des moteurs ne constituent
 pas des objectifs actifs.

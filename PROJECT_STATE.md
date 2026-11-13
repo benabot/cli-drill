@@ -1,8 +1,14 @@
 # État du projet — CLI-Drill
 
-**P2.6 est validée sur macOS avec Ghostty. La clôture documentaire et les
-corrections validées sont en revue locale sur `fix/p26-physical-acceptance`,
-issue de `dev` à `3c4d63d`. Le corpus compte 446 exercices dans 13 chapitres.**
+**Au 12 novembre 2026, P2.6 est terminée, validée sur macOS avec Ghostty et
+publiée sur `dev` à `91efab0`. Le corpus compte 446 exercices dans
+13 chapitres.** [Rapport de recette et réserves](docs/P26_FINAL_ACCEPTANCE.md)
+
+P3 est le prochain chantier fonctionnel. La
+[décision P3.0](docs/DECISIONS.md#p30-politique-linguistique-et-lancement)
+fixe l'anglais par défaut et approuve les objectifs du lancement public
+bilingue. Les travaux P3.1 à P6 restent à réaliser.
+
 P2.4 est publiée à `f096eec` après huit tests manuels
 réussis dans Terminal.app.
 P1.1 comprend le stockage initial (`25c344b`) et les corrections de
@@ -348,16 +354,18 @@ l'accès direct à Keyboard shortcuts, la capture des touches et la restauration
 du terminal. Aucun défaut bloquant ou important n'a été constaté. Cette validation
 clôture P1.4 et la phase P1 (stockage, enregistrement, correction et TUI).
 
-Le corpus YAML, les dépendances, le README et les mécanismes de correction et
-de stockage restent inchangés. L'affichage des choix en CLI texte reste au backlog.
+À la clôture de P1.4, le corpus YAML, les dépendances, le README et les
+mécanismes de correction et de stockage étaient inchangés. L'affichage des
+choix en CLI texte a ensuite été livré en P2.2.
 
 ## Limites encore présentes
 
 Le corpus actif de P2.2 retire alias/fonctions personnels, scan/génération,
 applications graphiques et questions redondantes. Les anciennes leçons conservées
 comme fixtures ne sont jamais chargées en production. La recette manuelle valide la lisibilité et la qualité pédagogique de ce lot.
-La durée d'apprentissage reste à mesurer en usage. Le README public
-n'est pas modifié et attend son alignement après migration fonctionnelle.
+La recette P2.6 fournit deux mesures de durée. La durée sur d'autres
+parcours reste à mesurer en usage. Le README actuel a déjà été simplifié
+et présente l'entraînement de `dev`. La refonte publique EN/FR relève de P6.
 
 Avant P2.1 (base `91f13c6`), `chapter.Item` n'avait pas de difficulté ni de liste
 de modules et les chapitres n'avaient pas de famille ou d'ordre déclaré.
@@ -735,13 +743,14 @@ Le lot intégré à `d8b383a` ajoute les trois indispensables de `00` et les six
 Les deux chapitres proposent un ordre guidé et une révision mélangée.
 [Rapport du lot](docs/CORPUS_P25_UNIX_BASICS_FLOWS.md)
 
-### P2.5 — Finalisation Unix, Git et outils CLI, campagne locale
+### P2.5 — Finalisation Unix, Git et outils CLI, corpus publié
 
 Les 184 ajouts couvrent les 14 propositions utiles du socle et les sept
 chapitres Git et outils CLI. `07`, `08` et `09` proposent des séances guidées
 de less, Nano et Markdown, puis les compléments activables Bat, Micro et
 Glow. Git suit aussi une progression guidée. La révision mélange les
-exercices éligibles. [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par-lots)
+exercices éligibles. Le corpus de 446 exercices est publié sur `dev`
+depuis `ef5d6ba`. [Rapports par jalon](docs/CURRICULUM.md#enrichissement-par-lots)
 
 ### P2.6 — Lot 2, lisibilité et navigation
 
@@ -796,7 +805,8 @@ figurent dans le rapport du lot 4.
 
 ### P2.6 — Lot 4, recette finale validée sur macOS
 
-P05 est publié à `3c4d63d`. Le mainteneur a terminé H01 à H11 sous macOS
+P05 a été publié à `3c4d63d`. La clôture de P2.6 est publiée à `91efab0`.
+Le mainteneur a terminé H01 à H11 sous macOS
 avec Ghostty et confirmé après correction les flèches gauche et droite,
 Ctrl+B, Ctrl+F et le séparateur de la CLI textuelle. Les séances Apprendre
 et Réviser ont duré 1 min 20 s (6/6) et 1 min 58 s (4/6).
@@ -807,6 +817,33 @@ restauré physiquement après SIGTERM. Le statut `143` a été vérifié sous
 pseudo-terminal et n'a pas été relevé dans Ghostty. Linux et BSD ont été
 compilés en croisé pendant le lot 4. Leur recette native reste à faire.
 [Rapport de recette](docs/P26_FINAL_ACCEPTANCE.md)
+
+## Préparation du lancement public
+
+Le corpus est en français et la CLI/TUI mêle des libellés français et
+anglais. Le logiciel n'a pas encore de réglage de langue. La
+[spécification P3](docs/SPEC.md#politique-linguistique-p3) fixe le
+comportement futur, avec choix EN/FR persistant, préférences existantes
+préservées et progression JSON v1 commune.
+
+Le retrait fonctionnel du scan et de la génération appartient aux travaux
+P0 intégrés. Le nettoyage éditorial P4 reste à mener. Les distributions
+officielles, le nouveau README public en deux fichiers et le Wiki bilingue
+relèvent des phases P5 et P6. Le
+[backlog de lancement](TODO.md#lancement-public-p3-p6) précise les travaux
+parallélisables et les conditions de sortie. La recette native Linux et BSD
+reste à faire. Les compilations croisées P2.6 sont consignées dans le rapport.
+
+CLI-Drill est en pré-release, sans utilisateurs externes. La
+[décision du 13 novembre](docs/DECISIONS.md#p30-compatibilite-des-preferences-en-pre-release)
+exclut la garantie de rétrogradation. La mise à niveau doit préserver les
+préférences valides et le schéma JSON v1 de progression.
+
+Restent à instruire le format des ressources, le choix du schéma de
+préférences et sa prise en charge à la mise à niveau, la licence, les
+versions minimales et cibles de support, la forme du tap Homebrew, les
+contrôles bloquants de release et les modalités de lancement, avec bêta
+technique ou sortie publique unique.
 
 ## Validation et limites de preuve
 

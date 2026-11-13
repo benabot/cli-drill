@@ -1,8 +1,8 @@
 # CLI-Drill V2 — Spécification fonctionnelle
 
-**Vision du 7 novembre 2026, complétée par P2.0 le 8 novembre 2026 ;
-migration fonctionnelle partielle.**
-Ce document décrit la cible V2 et ses critères, pas un état de livraison complet.
+**Vision du 7 novembre 2026, complétée par P2.0 le 8 novembre et P3.0
+les 12 et 13 novembre 2026.**
+Ce document décrit la cible V2 et ses critères.
 L'[état du projet](../PROJECT_STATE.md) distingue les travaux intégrés et ceux
 qui attendent leur validation. Le [README](../README.md) présente le logiciel
 disponible sur `dev`.
@@ -10,10 +10,9 @@ La [décision V2](DECISIONS.md#2026-11-07--cli-drill-v2--corpus-integre-et-retra
 explique le changement de direction ; le [backlog](../TODO.md) organise sa réalisation.
 La [décision P2](DECISIONS.md#2026-11-08--p20--evolution-pedagogique)
 remplace les exclusions de l'aléatoire et des préférences pédagogiques minimales.
-P2.0 a cadré la feuille de route. La base de recette P2.6 intègre le corpus
-de P2.5 et les trois lots fonctionnels de P2.6.
-Le choix de langue français/anglais est prévu en [P3](../TODO.md#p3--internationalisation-fren)
-et relève d'une phase distincte de P2.
+La base `dev` à `91efab0` intègre le corpus de P2.5 et la clôture de P2.6.
+La [politique linguistique P3](#politique-linguistique-p3) est décidée.
+La localisation reste à réaliser.
 
 ## 1. Vision et public
 
@@ -23,7 +22,9 @@ CLI-Drill est une application Go CLI/TUI locale qui enseigne la pratique du
 terminal, des commandes indispensables jusqu'à leur composition et au
 diagnostic de situations concrètes. Elle s'adresse aux débutants, aux
 développeurs, aux administrateurs et aux utilisateurs avancés. Les systèmes
-cibles sont macOS, Linux et les systèmes Unix/BSD.
+cibles du produit sont macOS, Linux et les systèmes Unix/BSD. Les plateformes
+annoncées pour la première distribution publique seront celles validées
+nativement en [P5](../TODO.md#p5--distribution-multiplateforme).
 
 L'apprentissage repose sur la mémorisation active : exercices courts,
 progressifs, répétables, écrits et vérifiés. Saisir une commande et appuyer sur
@@ -392,6 +393,67 @@ Séparer les deux stockages : changer un outil ou un niveau ne lit ni ne réécr
 les anciens YAML/TOML et ne modifie pas le JSON de progression. Inversement,
 `reset --yes` continue de viser uniquement la progression, jamais les préférences.
 
+<a id="politique-linguistique-p3"></a>
+
+### Politique linguistique P3
+
+Sur la base P2.6, le corpus et une partie des textes d'interface sont en
+français. D'autres libellés sont en anglais. Les préférences v1 couvrent
+les modules et la difficulté. Le choix de langue reste à implémenter.
+
+La décision du 12 novembre 2026 fixe l'anglais (`en`) comme défaut universel,
+y compris sur une installation existante sans langue enregistrée.
+Le français (`fr`) se choisit explicitement dans les préférences CLI et TUI,
+comme l'anglais. Le système, le shell et les variables régionales
+n'influencent pas ce choix. Le premier entraînement reste accessible sans
+sélection obligatoire de langue.
+
+| Préférences | Comportement attendu |
+| --- | --- |
+| Fichier absent | Anglais en mémoire, sans création de fichier. |
+| Fichier valide sans `language` | Anglais en mémoire, sans modification du fichier. |
+| `language: "en"` | Anglais. |
+| `language: "fr"` | Français. |
+| Valeur explicite invalide | Diagnostic visible, sans réparation ni écrasement automatique. |
+
+La consultation des préférences reste en lecture seule. Un choix explicite
+enregistré est conservé après relance, avec les modules activés et la
+difficulté par défaut. La progression conserve son schéma JSON v1 et ses
+clés `chapter-id/item-id`, indépendamment de la langue. Un acquis obtenu en
+français est reconnu en anglais et réciproquement. Le changement de langue
+ne modifie ni les acquis, ni les scores, ni les tentatives, ni l'historique.
+Aucune migration automatique de la progression.
+
+La version publique couvre dans les deux langues les menus, aides,
+indications de navigation, réglages, messages, feedback et diagnostics
+de la CLI et de la TUI, y compris pendant la capture. Elle couvre les
+titres et descriptions des chapitres, les consignes des 446 exercices,
+les choix QCM, les explications, les corrections et la documentation
+utilisateur. Les contenus localisés se rattachent au même corpus et aux
+mêmes identifiants. Les commandes Unix, options, syntaxes techniques et
+séquences de touches gardent leur sens et leurs caractères significatifs.
+Les réponses conceptuelles et choix traduits doivent conserver les mêmes
+bonnes réponses et la même difficulté, sans ambiguïté supplémentaire ni
+indice involontaire.
+
+La [décision du 13 novembre](DECISIONS.md#p30-compatibilite-des-preferences-en-pre-release)
+fixe le contrat de mise à niveau en pré-release. Le nouveau binaire doit
+lire les fichiers de préférences valides existants et conserver les modules
+activés et la difficulté par défaut. Le lancement et la consultation
+n'entraînent ni migration ni réécriture. L'enregistrement explicite peut
+mettre à jour le fichier selon le schéma retenu, avec les protections
+décrites ci-dessus. Un fichier invalide reste intact et l'erreur est visible.
+Aucune garantie de rétrogradation vers un ancien binaire n'est exigée.
+
+P3.1 devra concevoir les ressources de traduction, leurs interfaces d'accès
+et la syntaxe CLI. Le champ logique `language` sera stocké dans
+`preferences.json`. Le choix entre étendre la version 1 de ce schéma et
+passer à une version 2 techniquement justifiée reste ouvert. L'étude porte
+sur la lecture et l'enregistrement lors d'une mise à niveau, sur fixtures
+synthétiques.
+Le [backlog P3](../TODO.md#p3--internationalisation-fren) précise les lots
+et la recette bilingue.
+
 ## 8. Terminal, sécurité et fonctionnement local
 
 - Aucun appel réseau nécessaire au fonctionnement, compte, synchronisation,
@@ -417,24 +479,25 @@ les anciens YAML/TOML et ne modifie pas le JSON de progression. Inversement,
 
 ## 9. Non-objectifs du nouveau MVP
 
-Analyse ou personnalisation d'environnement shell ; scan runtime ; génération
-automatique ; catalogue d'outils ; shell réellement exécutant ; détection de
-shells ; IA, MCP, compte, synchronisation, télémétrie ; base de données ;
-plugins ; import personnalisé ; préférences au-delà des modules CLI et du niveau
-par défaut ; reprise persistante au curseur ; capture globale des raccourcis macOS ;
-moteur adaptatif et répétition espacée. Enseigner des logiciels graphiques pour
-leur seule présence sur macOS reste hors périmètre.
+- Analyse ou personnalisation de l'environnement shell, scan runtime,
+  génération automatique, catalogue d'outils, exécution et détection de shells.
+- IA, MCP, compte, synchronisation, télémétrie, base de données et plugins.
+- Import personnalisé, reprise persistante au curseur, capture globale des
+  raccourcis macOS, moteur adaptatif et répétition espacée.
+- Préférences au-delà des modules CLI, du niveau par défaut et du choix
+  de langue P3.
+- Leçons sur des logiciels graphiques pour leur seule présence sur macOS.
 
 La programmation shell, l'écriture de scripts complets, les fonctions shell
 avancées et le débogage de scripts sont hors périmètre pédagogique.
 
-Les releases et Homebrew peuvent être traités ultérieurement. Aucun framework
-ou nouveau moteur n'est requis pour compenser les suppressions.
+La distribution publique relève de [P5](../TODO.md#p5--distribution-multiplateforme).
+Aucun framework ou nouveau moteur n'est requis pour compenser les suppressions.
 
 ## 10. Critères d'acceptation fonctionnels V2
 
-Ces critères devront être vérifiés lors des futures PR ; ils ne décrivent pas
-des validations acquises par la présente modification documentaire.
+Ces critères s'appliquent aux futures validations. Le rapport de recette P2.6
+consigne les preuves déjà obtenues.
 
 1. Premier entraînement textuel accessible sans configuration, scan ou outil
    tiers installé, avec interface adaptée aux capacités terminal vérifiées.
@@ -470,6 +533,12 @@ des validations acquises par la présente modification documentaire.
     profondeur du socle et les périmètres spécialisés sous le minimum
     indicatif. Contrôler l'autonomie des exercices et les formats de
     réponse, y compris la distinction entre diagnostic textuel et capture.
+15. Pour la version publique bilingue, premier lancement en anglais, choix
+    EN/FR persistant et vérifié dans les deux interfaces, préférences anciennes
+    intactes en lecture et progression préservée à chaque changement.
+    Des contrôles bloquent les traductions manquantes ou incohérentes et le
+    mélange accidentel des langues. Une recette humaine dans les deux langues
+    vérifie les parcours et l'équivalence pédagogique.
 
 Le [rapport de recette P2.6](P26_FINAL_ACCEPTANCE.md) consigne les preuves
 par environnement et la checklist physique. La durée cible de 5 à 10 minutes

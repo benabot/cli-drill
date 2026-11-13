@@ -1,7 +1,6 @@
 # CLI-Drill V2 — Architecture cible
 
 **Cible du 7 novembre 2026, complétée par P2.0 le 8 novembre 2026 ; réalisation partielle.**
-P0 à P2.4 sont terminées. P2.5 est en cours.
 L'[état courant](../PROJECT_STATE.md) décrit le code disponible ; la
 [spécification](SPEC.md) définit les comportements V2 et les garanties de données.
 

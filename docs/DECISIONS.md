@@ -327,3 +327,108 @@ JSON v1 garde ses clés, son schéma et son contrat à un seul écrivain.
 L'absence de fichier de préférences active Git par défaut. Les choix
 enregistrés restent prioritaires.
 [Parcours utilisateur](SPEC.md#4-parcours-utilisateur)
+
+<a id="p30-politique-linguistique-et-lancement"></a>
+
+## 2026-11-12 — P3.0, politique linguistique et lancement public
+
+Le mainteneur valide la politique linguistique et les objectifs de la première
+version publique. P2.6 est clôturée sur `dev` à `91efab0` après la
+[recette macOS avec Ghostty](P26_FINAL_ACCEPTANCE.md). P3.0 formalise la suite
+dans les documents de référence. Les travaux P3.1 à P6 restent à réaliser.
+
+### Langues et données
+
+CLI-Drill prendra en charge l'anglais (`en`) et le français (`fr`). L'anglais
+sera le défaut universel, y compris pour les installations existantes dont
+le fichier de préférences valide ne contient pas de langue. Le démarrage
+reste direct, sans détection régionale ni étape obligatoire de sélection.
+Le choix explicite dans les préférences CLI ou TUI persiste après relance.
+Cette décision clôt la question du défaut laissée ouverte le 10 novembre
+et remplace l'hypothèse du français par défaut du backlog.
+
+Le champ logique `language` est facultatif. L'absence de fichier ou de champ
+donne `en` en mémoire, sans écriture. Une valeur explicite invalide donne un
+diagnostic visible, sans réparation ni écrasement automatiques. Une
+consultation est en lecture seule. Le choix enregistré préserve les modules
+activés et la difficulté par défaut.
+
+Le corpus garde une seule identité pédagogique. La progression conserve
+son schéma JSON v1 et ses clés `chapter-id/item-id`. Changer de langue
+préserve acquis, scores, tentatives et historique, sans migration.
+La [spécification P3](SPEC.md#politique-linguistique-p3) fixe la couverture
+des interfaces et des 446 exercices, l'équivalence des réponses et
+l'intégrité des commandes et des raccourcis.
+
+### Travaux et conditions de lancement
+
+La [roadmap de travail du 10 novembre](CLI-DRILL_ROADMAP_LANCEMENT_GITHUB.md)
+reste la référence du cadrage éditorial et de distribution. Le
+[backlog](../TODO.md#lancement-public-p3-p6) en décline les lots selon les
+décisions du 12 novembre.
+
+- **P3** localisera les deux interfaces et tout le corpus. **P4** assainira les
+  références publiques à la V1, avec un nettoyage éditorial préalable à P3.3
+  et une revue finale sur la version candidate. Les identifiants persistants
+  et les archives restent préservés.
+- **P5** préparera GitHub Releases, GoReleaser, GitHub Actions, les archives
+  macOS et Linux sur ARM64 et AMD64, le tap Homebrew et la vérification de
+  l'installation Go distante. Les paquets Debian constituent un complément.
+  La licence doit être choisie avant toute diffusion officielle. La
+  compatibilité annoncée repose sur une validation native des cibles.
+- **P6** livrera les README anglais et français, le Wiki utilisateur bilingue,
+  les démonstrations réelles avec CleanShot X et la présentation GitHub.
+  La documentation utilisateur EN/FR complète fait partie du lancement.
+  La communication intervient une fois l'installation et l'essai vérifiés.
+
+Le choix de licence, l'audit V1, l'architecture de localisation,
+l'inventaire des textes et la matrice de distribution peuvent avancer
+en parallèle.
+La traduction, la préparation des packages et les structures du README, du
+Wiki et des démonstrations peuvent ensuite progresser selon leurs dépendances
+propres. La sortie publique bilingue exige la validation P3, la revue finale
+P4, les artefacts testés P5 et une documentation P6 fidèle à cette version,
+avec licence et informations de contribution. La publication et les annonces
+nécessitent l'autorisation explicite du mainteneur.
+
+### Arbitrages ouverts
+
+- P3.1 doit choisir les ressources de traduction, leurs interfaces d'accès
+  et le schéma de préférences, selon la
+  [décision du 13 novembre](#p30-compatibilite-des-preferences-en-pre-release).
+- Choisir la licence, les versions minimales, la matrice de support native,
+  la formule ou le Cask Homebrew et les contrôles de sécurité qui bloqueront
+  une publication. L'étendue des paquets Debian reste à préciser.
+- Définir les parcours précis des captures, le découpage des premières
+  pages du Wiki et les moyens de recueillir les retours d'usage.
+- Une bêta technique auprès de testeurs permettrait d'éprouver les
+  installations et les parcours sur davantage de machines. Elle suppose
+  un cycle de distribution, de retours et de corrections avant la sortie.
+  Une sortie publique unique concentre la préparation sur une version et
+  reporte les retours externes après publication. Le choix reste ouvert.
+
+<a id="p30-compatibilite-des-preferences-en-pre-release"></a>
+
+## 2026-11-13 — P3.0, compatibilité des préférences en pré-release
+
+CLI-Drill est en pré-release et n'a pas d'utilisateurs externes. Aucune
+garantie de rétrogradation vers un ancien binaire n'est exigée. Cette
+décision clôt la question de la rétrogradation pour P3.1.
+
+La langue sera enregistrée dans le fichier existant `preferences.json`,
+sans fichier dédié. P3.1 comparera une
+extension de la version 1 à un passage en version 2. Une version 2 est
+possible si elle est techniquement justifiée. Le choix doit privilégier
+un chargement et un enregistrement simples.
+
+À la mise à niveau, la nouvelle version doit lire les préférences valides
+existantes et conserver les modules activés et la difficulté par défaut.
+Au lancement et à la consultation, elle applique les défauts en mémoire,
+sans migration ni réécriture implicite. Seul un enregistrement explicite
+peut mettre à jour le fichier. Un fichier illisible ou invalide donne lieu
+à un diagnostic et reste intact. Aucune réinitialisation silencieuse.
+
+Le [contrat linguistique du 12 novembre](SPEC.md#politique-linguistique-p3)
+s'applique. La progression reste intégralement en JSON v1, avec les mêmes
+identifiants, acquis, tentatives, scores et historiques. Changer de langue
+ne déclenche aucune écriture de la progression.
