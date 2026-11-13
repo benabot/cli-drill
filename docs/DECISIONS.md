@@ -432,3 +432,41 @@ Le [contrat linguistique du 12 novembre](SPEC.md#politique-linguistique-p3)
 s'applique. La progression reste intégralement en JSON v1, avec les mêmes
 identifiants, acquis, tentatives, scores et historiques. Changer de langue
 ne déclenche aucune écriture de la progression.
+
+<a id="p31-decisions-linguistiques"></a>
+
+## 2026-11-13 — P3.1, décisions linguistiques
+
+Le mainteneur fixe trois critères de conception. Pour l’utilisateur,
+l’installation et le premier entraînement restent simples et le choix de
+langue est accessible. Pour l’implémentation, réutiliser les packages et les
+comparateurs existants avec le minimum de code supplémentaire. Pour la
+maintenance, faciliter la relecture des exercices et des traductions et
+réduire les éléments à synchroniser.
+
+L’anglais est le défaut universel et la référence technique du projet.
+Le choix explicite `en` ou `fr` est indépendant des réglages régionaux
+et le premier lancement est direct. Conserver la forme usuelle des
+commandes, options, identifiants, syntaxes et valeurs techniques. Rédiger
+les explications françaises dans une langue naturelle et précise.
+
+Privilégier le champ facultatif `language` dans `preferences.json` v1.
+Un passage en v2 exige un problème technique concret. L’absence du champ
+donne `en` en mémoire et une valeur invalide donne lieu à un diagnostic
+sans réparation automatique. Le choix explicite conserve les modules et
+la difficulté. Les garanties de lecture seule, de mise à niveau et de
+progression JSON v1 de la décision précédente s’appliquent. Dans la TUI,
+appliquer la langue après sauvegarde réussie, sans redémarrage et hors
+exercice en cours.
+
+La **politique A de correction** accepte les réponses naturelles de la
+langue sélectionnée et les variantes techniques communes. Un synonyme
+d’une autre langue doit être déclaré et justifié. Les règles de comparaison
+des commandes et des raccourcis sont conservées. Les identifiants de
+chapitre et d’exercice restent stables. Chaque choix QCM a une identité
+indépendante de son libellé. Les actions TUI et le résultat d’une correction
+sont aussi indépendants du texte affiché.
+
+Le format YAML reste soumis à l’approbation du mainteneur. La syntaxe CLI
+de sélection de langue reste à préciser.
+[Comparaison expérimentale P3.1](P31_I18N_ARCHITECTURE_AUDIT.md#p31-comparaison-experimentale)
